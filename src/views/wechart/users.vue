@@ -54,7 +54,7 @@
             </el-card>
         </el-col> -->
         <el-col :span="11">
-            <div style="background:#001832;padding:10px;height:400px">
+            <div style="background:#001832;padding:10px;height:402px">
                 <div class="header">
                         {{$t('table.count')}}
                         <span @click="moreTongji()">
@@ -75,21 +75,23 @@
                             <el-link type="primary" style="float:right">{{$t('button.more')}}<i class="el-icon-d-arrow-right"></i></el-link>
                         </span>
                 </div>
-                <el-table :data="alalist2" v-loading="listLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :style="{minWidth:main_width*0.4 + 'px',background:'#001832'}" style="height:285px;overflow-y: auto;" :row-style="rowStyle" :header-cell-style="rowStyle">
-                    <el-table-column  align='center' prop="deviceName" :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
-                    <el-table-column  align='center' prop="imei" :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
-                    <el-table-column  align='center' prop="lastWAt" :label="$t('table.alartime')" show-overflow-tooltip></el-table-column>
-                    <el-table-column align='center' prop="alarmType" :label="$t('table.alarmrecord')">
-                        <template slot-scope="scope">
-                        {{scope.row.alarmType | alatype}}
-                        </template>
-                    </el-table-column>
-                    <el-table-column  align='center' :label="$t('table.operation')" show-overflow-tooltip>
-                        <template slot-scope="scope">
-                            <el-button size="mini" @click="editstate(scope.row)" style="background:none;border:none;color:#0066c3;font-size: 16px;">{{$t('table.chuli')}}</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
+                <el-scrollbar style="height:285px;overflow-x: hidden;" ref="scroll">
+                    <el-table :data="alalist2" v-loading="listLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :style="{minWidth:main_width*0.4 + 'px',background:'#001832'}" style="overflow-y: auto;" :row-style="rowStyle" :header-cell-style="rowStyle">
+                        <el-table-column  align='center' prop="deviceName" :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
+                        <el-table-column  align='center' prop="imei" :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
+                        <el-table-column  align='center' prop="lastWAt" :label="$t('table.alartime')" show-overflow-tooltip></el-table-column>
+                        <el-table-column align='center' prop="alarmType" :label="$t('table.alarmrecord')">
+                            <template slot-scope="scope">
+                            {{scope.row.alarmType | alatype}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column  align='center' :label="$t('table.operation')" show-overflow-tooltip>
+                            <template slot-scope="scope">
+                                <el-button size="mini" @click="editstate(scope.row)" style="background:none;border:none;color:#0066c3;font-size: 16px;">{{$t('table.chuli')}}</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-scrollbar>
             </div>
         </el-col>
         <el-col :span="13" v-loading="loading">
@@ -270,7 +272,7 @@ export default {
             let endtime = (new Date(a)).getTime()
             let starttime = endtime - 30*24*60*60*1000
             api.getMessageCount({params:{
-                bginTime:starttime,
+                startTime:starttime,
                 endTime: endtime,
                 statisticsTyep: this.radio,}}).then(res => {
                     this.alacount = res
@@ -293,8 +295,9 @@ export default {
                 xname = this.$t('table.Year')
             }
             let yname = this.$t('table.ci')
-            this.myChart = this.echarts.init(document.getElementById("chart"));
+            this.myChart = this.$echarts.init(document.getElementById("chart"));
             
+            console.log('huatututu')
             // 绘制图表
             this.myChart.setOption({
                 backgroundColor: '#001832',
@@ -368,7 +371,7 @@ export default {
         editstate(val){  //处理报警信息
             let a = null
             for(let i =0;i<6;i++) {
-                if(this.alalist[i].id = val.id){
+                if(this.alalist[i].id == val.id){
                 a = i
                 break
                 }
@@ -379,7 +382,7 @@ export default {
                 type: "warning"
             }).then(_ => {
                 api.getMessageChuli(val.id).then(res => {
-                    this.$message.success(this.$t('message.changesuc'))
+                    this.$message.success(this.$t('message.alaedit'))
                     this.alalist.splice(a,1)
                     this.alalist2 = this.alalist.slice(0,5)
                 }).catch(err => {
@@ -451,6 +454,9 @@ export default {
         color: #fff;
     }
   }
+  /deep/ .el-scrollbar__wrap {
+        overflow-x: hidden;
+    }
   /deep/.el-table--enable-row-hover .el-table__body tr:hover > td {
         background-color: #0f223b;
         color: #fff;
@@ -472,6 +478,7 @@ export default {
     /deep/.el-table__empty-text {
         background:#001832;
     }
+    
 </style>
 <style rel="stylesheet/scss" lang="scss">
     @media screen and (min-width: 1400px) {

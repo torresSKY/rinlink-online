@@ -4,6 +4,7 @@
     <div class="sidebar" :style="{width:sidebarWidth,'overflow':'auto'}">
       <div class="logo_title">
           <img src="../assets/img/logo.png">
+          <!--   <img src="../assets/img/logo-lt.png">  -->
         </div>
       <el-menu :unique-opened='true' :default-active="$route.path" class="el-menu-vertical-demo teat1" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#001832" :collapse="isCollapse">
           <template v-for="(item,index) in routerList">
@@ -100,26 +101,23 @@
               <div style="height:100%">
                   <el-scrollbar style="height:100%;" ref="scrollbar">
                       <div element-loading-text="拼命加载中">
-                          <el-form :model="passform" label-width="180px" label-position="right" ref="passform">
+                          <el-form :model="passform" label-width="180px" label-position="right" ref="passform" :rules='passformrules'>
                               <el-row :gutter="20" style="margin-left:0;margin-right:0;">
                                   <el-col :span="24">
                                       <el-form-item :label="$t('view.oldpaw')" prop="old_password"
-                                      :rules="[{ required: true, message: this.$t('message.oldin') },
-                                      { required: true, min: 5,  message: this.$t('message.long') }]">
+                                      :rules="[{ required: true, min: 6,  message: $t('message.pawlong') }]">
                                           <el-input type="password" v-model="passform.old_password" :placeholder="$t('view.oldpaw')"></el-input>
                                       </el-form-item>
                                   </el-col>
                                   <el-col :span="24">
                                       <el-form-item :label="$t('view.newpaw')" prop="password"
-                                      :rules="[{ required: true, message: this.$t('message.newin') },
-                                      { required: true, min: 5,  message: this.$t('message.long') }]">
+                                      :rules="[{ required: true, min: 6,  message: $t('message.pawlong') }]">
                                           <el-input type="password" v-model="passform.password" :placeholder="$t('view.newpaw')"></el-input>
                                       </el-form-item>
                                   </el-col>
                                   <el-col :span="24">
                                       <el-form-item :label="$t('view.again')" prop="confirm"
-                                      :rules="[{ required: true, message: this.$t('message.newagin') },
-                                      { required: true, min: 5,  message: this.$t('message.long') }]">
+                                      :rules="[{ required: true, min: 6,  message: $t('message.pawlong') }]">
                                           <el-input type="password" v-model="passform.confirm" :placeholder="$t('view.again')"></el-input>
                                       </el-form-item>
                                   </el-col>
@@ -130,7 +128,7 @@
               </div>
           <span slot="footer" class="dialog-footer">
               <el-button size="medium" @click="editpassword" type="primary" >{{$t('button.determine')}}</el-button>
-              <el-button size="medium" @click="editpassstate = false">{{$t('button.cancel')}}</el-button>
+              <el-button size="medium" @click="closetab">{{$t('button.cancel')}}</el-button>
           </span>
       </el-dialog>
 
@@ -187,7 +185,8 @@ export default {
     };
   },
   mounted() {
-    this.$i18n.locale == 'zh' ? '中文' : 'English'
+    console.log(this.$i18n.locale)
+    this.lang = this.$i18n.locale == 'zh' ? 1 : 2
     this.height=document.body.offsetHeight-60
     if(!this.viewTagList.length){
       this.pushRouter({ name: this.$t('route.Home'), path: '/index/index',meta:{keep:'homepage' }})
@@ -249,6 +248,11 @@ export default {
     editpassword() {
       this.$refs["passform"].validate(async valid => {
         if (valid) {
+          let reg = /^[\w]{6,15}$/
+          if(!reg.test(this.passform.password)){
+            this.$message.error(this.$t('message.geshi2'))
+            return
+          }
           if (this.passform.password !== this.passform.confirm) {
             this.$message({
               message: this.$t('message.newpawempty'),
@@ -302,14 +306,20 @@ export default {
           confirm: ""
         };
         this.editpassstate = true;
+        this.$nextTick(() =>{
+          this.$refs["passform"].clearValidate()
+        })
       } else if (command == "b") {
         this.signOut();
       }
     },
+    closetab(){
+      this.editpassstate = false
+    },
     changeLangEvent() {
       if (this.lang === 1) {
         localStorage.setItem('locale', 'zh')
-        this.$i18n.locale = localStorage.getItem('locale')
+        this.$i18n.locale = 'zh'
         this.setLang(this.$i18n.locale);
         this.$message({
           message: '已切换中文！',
@@ -318,7 +328,7 @@ export default {
         // this.$i18n.locale = 'zh' //关键语句
       } else if(this.lang === 2){
         localStorage.setItem('locale', 'en')
-        this.$i18n.locale = localStorage.getItem('locale')
+        this.$i18n.locale = 'en'
         this.setLang(this.$i18n.locale);
         this.$message({
           message: 'Switch to English!',
@@ -391,12 +401,14 @@ export default {
 .logo_title {
       background: #19232c;
       height: 60px;
+      text-align: center;
     }
 .logo_title img {
       width: 130px;
       height: 40px;
       margin: 10px auto;
   }
+  
   .title_top {
       line-height: 60px;
       font-size: 20px;
@@ -439,7 +451,7 @@ export default {
   margin-right: 10px;
   font-size: 20px;
   padding: 5px 10px !important;
-  background: none;
+  background: none !important;
   border: none;
   height: 50px;
   color: #fff;

@@ -50,7 +50,7 @@
                 </el-scrollbar>
                <el-pagination
                     @current-change="equChangeIndex"
-                    :current-page.sync="equIndex"
+                    :current-page.sync="page.index"
                     :page-size="page.size"
                     layout="total, prev, pager, next ,jumper"
                     :total="page.total"
@@ -191,10 +191,10 @@
                     if(_.content.length > 0){
                         this.list=_.content
                         this.listxian=_.content
-                        this.page.total=_.content.length
                     }else{
                         this.$message.error(this.$t('table.faillist'));
                     }
+                    this.page.total=_.total
                     this.listLoading=false
                 }).catch(_=>{
                     this.$message.error(_.message);
@@ -223,9 +223,9 @@
                 })
             },
             equChangeIndex(val){
-                this.equIndex=val
+                this.page.index=val
                 try{
-                    this.getBindList()
+                    this.getList()
                 }catch(res){
                     
                 }

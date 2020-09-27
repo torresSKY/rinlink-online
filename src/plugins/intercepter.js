@@ -66,8 +66,8 @@ export default (Vue) => {
       sessionStorage.clear();
       store.commit('isLogin', null);   
       window.location.reload();
-    } else {
-      console.log(error)
+    } else if(Number(response.data.code)!==200){
+      return Promise.reject(error.response.data.message = '服务器请求失败')
     }
     // Message.error('呀呀呀，系统出错了')
     //console.log(error,JSON.parse(JSON.stringify(error)))

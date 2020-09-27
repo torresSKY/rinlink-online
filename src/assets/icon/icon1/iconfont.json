@@ -1,0 +1,128 @@
+{
+  "id": "1913578",
+  "name": "资产",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "15631596",
+      "name": "设备管理",
+      "font_class": "shebeiguanli-copy",
+      "unicode": "e8ad",
+      "unicode_decimal": 59565
+    },
+    {
+      "icon_id": "15631600",
+      "name": "用户管理",
+      "font_class": "yonghuguanli-copy",
+      "unicode": "e8ae",
+      "unicode_decimal": 59566
+    },
+    {
+      "icon_id": "4108497",
+      "name": "设备管理",
+      "font_class": "shebeiguanli",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "6309937",
+      "name": "用户管理",
+      "font_class": "yonghuguanli",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
+      "icon_id": "7220575",
+      "name": "用户管理 (1)",
+      "font_class": "yonghuguanli1",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "11961261",
+      "name": "出围栏",
+      "font_class": "chuweilan",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "13514092",
+      "name": "设备管理",
+      "font_class": "shebeiguanli1",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "14167904",
+      "name": "用户管理",
+      "font_class": "yonghuguanli2",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "15631618",
+      "name": "用户管理 (1)",
+      "font_class": "yonghuguanli1-copy",
+      "unicode": "e8af",
+      "unicode_decimal": 59567
+    },
+    {
+      "icon_id": "15631619",
+      "name": "出围栏",
+      "font_class": "chuweilan-copy",
+      "unicode": "e8b0",
+      "unicode_decimal": 59568
+    },
+    {
+      "icon_id": "15631632",
+      "name": "设备管理",
+      "font_class": "shebeiguanli1-copy",
+      "unicode": "e8b1",
+      "unicode_decimal": 59569
+    },
+    {
+      "icon_id": "5747608",
+      "name": "列表",
+      "font_class": "liebiao",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "7843309",
+      "name": "首页",
+      "font_class": "shouyex",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "11372640",
+      "name": "编辑",
+      "font_class": "bianji",
+      "unicode": "e8ac",
+      "unicode_decimal": 59564
+    },
+    {
+      "icon_id": "15631653",
+      "name": "首页",
+      "font_class": "shouyex-copy",
+      "unicode": "e8b3",
+      "unicode_decimal": 59571
+    },
+    {
+      "icon_id": "5444335",
+      "name": "通知",
+      "font_class": "tongzhi",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "15631650",
+      "name": "通知",
+      "font_class": "tongzhi-copy",
+      "unicode": "e8b2",
+      "unicode_decimal": 59570
+    }
+  ]
+}

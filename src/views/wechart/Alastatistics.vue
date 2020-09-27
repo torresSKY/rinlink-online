@@ -12,7 +12,7 @@
                     </el-col>
                     <el-col :span="3" >
                         <el-select v-model="timetype">
-                            <el-option value="date" :label="$t('table.day')"></el-option>
+                            <el-option value="datetime" :label="$t('table.day')"></el-option>
                             <el-option value="month" :label="$t('table.mounth')"></el-option>
                             <el-option value="year" :label="$t('table.year')"></el-option>
                         </el-select>
@@ -58,9 +58,7 @@
                             <el-table-column align='center'  prop="lastWAt" :label="$t('table.Update')"> </el-table-column>
                             <el-table-column align='center' prop="alarmType" :label="$t('table.alarmrecord')">
                                 <template slot-scope="scope">
-                                {{scope.row.alarmType == 1 ? $t('table.powerala'):scope.row.alarmType == 5?$t('table.lightala'):scope.row.alarmType == 3?$t('table.sosala'):scope.row.alarmType == 4?$t('table.dropala'):scope.row.alarmType == 2?$t('table.moveala')
-                                :scope.row.alarmType == 6?$t('table.vibala'):scope.row.alarmType == 7?$t('table.disala'):scope.row.alarmType == 8?$t('table.smokeala'):scope.row.alarmType == 9?$t('table.gasala'):
-                                scope.row.alarmType == 10?$t('table.temalarm'):scope.row.alarmType == 11?$t('table.humalarm'):scope.row.alarmType == 12?$t('table.out'):scope.row.alarmType == 13?$t('table.in'):''}}
+                                {{scope.row.alarmType | alatype}}
                                 </template>
                             </el-table-column>
                              <el-table-column align='center' prop="" :label="$t('table.operation')" style="width:50px;">
@@ -97,6 +95,8 @@
 import api from '@/api/wechart'
 import mixins from '@/mixins'
 import { formatDate } from '@/plugins/date.js' 
+import {alatype} from '@/plugins/filter.js'
+import { mapGetters} from "vuex"
 export default {
     name: 'Alastatistics',
     mixins:[mixins],
@@ -109,19 +109,7 @@ export default {
                 }
             },
              checkAll: false,
-             alarmType: 1,
-             alarmTypelist:  [
-                 {lable:this.$t('table.powerala'),value:1,},
-                 {lable:this.$t('table.moveala'),value:2,},
-                 {lable:this.$t('table.sosala'),value:3,},
-                 {lable:this.$t('table.dropala'),value:4,},
-                 {lable:this.$t('table.lightala'),value:5,},
-                 {lable:this.$t('table.vibala'),value:6,},
-                 {lable:this.$t('table.disala'),value:7,},
-                 {lable:this.$t('table.smokeala'),value:8,},
-                 {lable:this.$t('table.gasala'),value:9,},
-                 {lable:this.$t('table.temalarm'),value:10,},
-                 {lable:this.$t('table.humalarm'),value:11}],
+             alarmType: 23,
              isIndeterminate: true,
              statisticsTyep: [{lable:'日',value:3,},{lable:'月',value:1,},{lable:'年',value:0,}],
              radio: 3,
@@ -129,7 +117,7 @@ export default {
              height: 1000,
              list:[],
              showCl: false,
-             timetype: 'date',
+             timetype: 'datetime',
              stattype: 3,
              date1: new Date().getTime() - 30*24*60*60*1000,
              date2:new Date().getTime(),
@@ -138,29 +126,36 @@ export default {
              namemess: this.$t('table.alertmess'),
              yname:this.$t('view.ci'),
              xname:this.$t('table.alertmess'),
-             lanage: this.$i18n.locale
+             myChart: null,
         }
     },
     watch: {
-      lanage: {
-        handler(newName,oldName) {
-           this.getchart()
+        lang (newVal) {
+            console.log('切换语言')
+            if(this.myChart != null){
+                this.namemess= this.$t('table.alertmess'),
+                this.getdata()
+            }
         }
-    }
    },
+   computed: {
+    ...mapGetters(['lang'])
+    },
     mounted () {
         this.height = document.body.offsetHeight - 62;
         this.getdata()
     },
     methods: {
         getdatageshi (val) {
-            if(this.timetype == 'date'){
+            if(this.timetype == 'datetime'){
                 this.stattype = 2
             }else if(this.timetype == 'month'){
                 this.stattype = 1
+                let xaa = new Date(this.date2).getMonth()
+                let aa = new Date(this.date2).setMonth(xaa+1)
                 let a = (24*60*60-1)*1000
-                let b =this.date2 - 1000*60*60*24
-                this.date2 = a+b
+                let b =aa - 1000*60*60*24
+                this.date3 = a+b
             }else{
                 this.stattype = 0
                 let a = (24*60*60-1)*1000
@@ -174,12 +169,18 @@ export default {
                 return
             }
             this.getdatageshi()
+            let endtime = null
+            if(this.timetype == 'month'){
+                endtime = this.date3
+            }else{
+                endtime = this.date2
+            }
             api.getMessageCount({
                 params:{
                 statisticsTyep: this.stattype,
                 alarmType: this.alarmType,
-                bginTime: this.date1,
-                endTime: this.date2,
+                startTime: this.date1,
+                endTime: endtime,
                 imei: this.imei
                 }
             }).then(res => {
@@ -198,7 +199,7 @@ export default {
             data = {
                 imei: this.imei,
                 type: this.alarmType,
-                bginTime: this.date1,
+                startTime: this.date1,
                 endTime: this.date2,
                 pageSize:this.page.size,
                 pageNo:this.page.index-1,
@@ -206,7 +207,7 @@ export default {
         }else{
             data = {
                 type: this.alarmType,
-                bginTime: this.date1,
+                startTime: this.date1,
                 endTime: this.date2,
                 pageSize:this.page.size,
                 pageNo:this.page.index-1,
@@ -265,7 +266,7 @@ export default {
         api.getMessageDown({
             params:{statisticsTyep: this.stattype,
             alarmType: this.alarmType,
-            bginTime: this.date1,
+            startTime: this.date1,
             endTime: this.date2,
             imei: this.imei,
             },
@@ -291,10 +292,6 @@ export default {
             this.$message.error(err.message)
         })
     },
-      handleCheckAllChange(val) {
-        this.alarmType = val ? alarmTypelist : [];
-        this.isIndeterminate = false;
-      },
       getchart() {
         var that = this;
         let xaxis = []
@@ -305,15 +302,15 @@ export default {
             yaxis.push(this.list[i].count)
         }
         if(this.timetype == 'year'){
-            unit = '年'
+            unit = this.$t('table.Year')
         }else if(this.timetype == 'month'){
-            unit = '月'
-        }else if(this.timetype == 'date'){
-            unit = '日'
+            unit = this.$t('table.Mounth')
+        }else if(this.timetype == 'datetime'){
+            unit = this.$t('table.Day')
         }
-        var myChart = this.echarts.init(document.getElementById("chart"));
+        this.myChart = this.$echarts.init(document.getElementById("chart"));
         // 绘制图表
-        myChart.setOption({
+        this.myChart.setOption({
              color: ['#4cabce'],
             tooltip : {
                 trigger: 'axis',
@@ -323,7 +320,7 @@ export default {
             },
             grid: {
                 left: '3%',
-                right: '4%',
+                right: '8%',
                 bottom: '3%',
                 containLabel: true
             },
@@ -341,7 +338,7 @@ export default {
                 {
                     minInterval : 1,
                     type : 'value',
-                    name : '次'
+                    name : this.$t('table.ci')
                 }
             ],
             series : [
@@ -368,7 +365,7 @@ export default {
     },
     editstate(){
       api.getalastate(this.row.id,this.radio * 1).then(res => {
-        this.$message.success(this.$t('message.changesuc'))
+        this.$message.success(this.$t('message.alaedit'))
         this.showCl = false
         this.getList()
       }).catch(err => {
@@ -383,14 +380,24 @@ export default {
                 type: "warning"
             }).then(_ => {
                 api.getMessageChuli(val.id).then(res => {
-                    this.$message.success(this.$t('message.changesuc'))
+                    this.$message.success(this.$t('message.alaedit'))
                     this.getList(0)
                 }).catch(err => {
                     this.$message.error(err.message)
                 })
             }).catch(_ => {});
     },
+ },
+   filters: {
+    //  时间格式自定义 只需把字符串里面的改成自己所需的格式
+    formatDate(time) {
+      let date = new Date(time)
+      return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+    },
+    alatype(val){
+      return alatype(val)
     }
+  }
 }
 </script>
 <style scoped>
@@ -415,5 +422,8 @@ export default {
 } */
 .el-radio{
     width: 15%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 </style>

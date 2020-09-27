@@ -1,14 +1,17 @@
 <template>
   <div class="login-container">
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
+      <!-- <div class="login-img">
+        <img src='../../assets/img/login-logo.png'>
+      </div>  -->
       <h3 class="title">{{$t('navbar.title')}}</h3>
 
-      <el-form-item prop="username">
+      <el-form-item prop="username" :rules="[{required: true, min: 3,  message: $t('message.loginuser')}]">
        <span class="pl10 c iconfont icon-denglu"></span>
-        <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
+        <el-input name="username" type="text" ref="username" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
       </el-form-item>
 
-      <el-form-item prop="password">
+      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]">
        <span class="pl10 c iconfont icon-mima"></span>
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
           :placeholder="$t('view.paw')" />
@@ -69,8 +72,8 @@ export default {
         password: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [{ required: true, min: 3, message: this.$t('message.loginuser') }],
+        password: [{ required: true, min: 3, message: this.$t('message.pawuser') }]
       },
       pwdType: 'password',
       // loading: false,
@@ -87,6 +90,7 @@ export default {
   },
   mounted() {
     this.lang = this.$i18n.locale == 'zh' ? '中文' : 'English'
+    this.$refs.username.focus();
   },
   methods: {
     ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles','setToken','setUser','setUserName','setUsercode']),
@@ -101,7 +105,6 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           api.login({username:this.loginForm.username,password:this.loginForm.password,}).then(res=>{
-            console.log(res)
             //if(res.id){
               if(1){
               // this.setRoles(res.detail.role)
@@ -123,13 +126,16 @@ export default {
       })
     },
     changeLangEvent() {
-             if ( this.lang === '中文' ) {
-                this.$i18n.locale = 'zh';//关键语句
-                Cookies.set('language', 'zh');
-             }else {
-               this.$i18n.locale = 'en';//关键语句
-               Cookies.set('language', 'en');
-             }
+      this.$refs.loginForm.clearValidate()
+      this.loginForm.username = ''
+      this.loginForm.password = ''
+      if ( this.lang === '中文' ) {
+        this.$i18n.locale = 'zh';//关键语句
+        Cookies.set('language', 'zh');
+      }else {
+        this.$i18n.locale = 'en';//关键语句
+        Cookies.set('language', 'en');
+      }
              
        },
   },
@@ -141,6 +147,11 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
+.login-img{
+  width:100%;
+  text-align: center;
+  padding-bottom: 20px;
+}
 .c{
   color: #889aa4;
 }

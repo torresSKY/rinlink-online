@@ -23,11 +23,12 @@
                                     <el-tree
                                         class="filter-tree"
                                         :data="equList"
-                                        :props="{ children: 'children', label: 'imei' }"
+                                        :props="{ children: 'children', label: 'deviceName'}"
                                         node-key="imei"
                                         default-expand-all
                                         show-checkbox
                                         @check="checkChange"
+                                        :expand-on-click-node="false"
                                         ref="tree2">
                                     </el-tree>
                                 </div>
@@ -78,9 +79,10 @@
 import api from "@/api/wechart/index";
 import mixin from "@/mixins/index";
 import BMap from "BMap";
-import { mapState } from "vuex";
+import { mapState,mapGetters } from "vuex";
 import {wgs84togcj02} from '@/map/map'
-import img from '@/assets/img/location.png'
+import img from '@/assets/img/in.png'
+import img2 from '@/assets/img/out.png'
 export default {
   name: "location",
   mixins: [mixin],
@@ -94,7 +96,7 @@ export default {
       equList: [
         {
           id: 1,
-          imei: this.$t('table.seleall'),
+          deviceName: this.$t('table.seleall'),
           value: 1,
           children: []
         }
@@ -111,6 +113,7 @@ export default {
       equlocation:[],
       getimei: this.$route.params.imei,
       show: true,
+      lanage: this.$i18n.locale
     };
   },
   mounted() {
@@ -125,6 +128,9 @@ export default {
     }
     
   },
+   computed: {
+    ...mapGetters(['lang'])
+    },
   watch: {
     imei(news) {
       clearTimeout(this.timer);
@@ -135,10 +141,14 @@ export default {
         this.search();
         // }
       }, 500);
+    },
+    lang (newVal) {
+      this.equList[0].imei = this.$t('table.seleall')
     }
   },
   methods: {
     checkChange(obj, state) {
+      console.log(obj, state)
         this.equimei = obj
       if (state.checkedKeys.filter(res => res == obj.imei).length) {    // 点击选择
         obj.disabled = true;
@@ -186,7 +196,6 @@ export default {
     },
 
     getmark(data){
-      console.log(data)
       let ding = this.$t('table.Update')
       let loctype = this.$t('table.loctype')
       let dian = this.$t('view.ele')
@@ -204,7 +213,12 @@ export default {
             
             //  let aa = wgs84togcj02(res[i].lon,res[i].lat,res.content[i].abroad)
              point = new BMap.Point( res[i].lon,res[i].lat);
-             var myIcon = new BMap.Icon(img, new BMap.Size(40,40),{anchor: new BMap.Size(10, 35)});
+             var myIcon =null
+             if(res[i].isOnline == 1){
+               myIcon = new BMap.Icon(img, new BMap.Size(40,40),{anchor: new BMap.Size(10, 35)});
+             }else{
+               myIcon = new BMap.Icon(img2, new BMap.Size(40,40),{anchor: new BMap.Size(10, 35)});
+             }
             var marker = new BMap.Marker(point,{icon:myIcon})
              this.mapMarker.push({
                imei:res[i].imei,
@@ -275,7 +289,7 @@ export default {
                      }else{
                       src=_.content
                         for (let i in src) {
-                        src[i].imei = `${src[i].imei}`;
+                        src[i].imei = `${src[i].deviceName}`;
                           if (
                           this.mapMarker.filter(res => res.id == src[i].deviceId).length
                           ) {
@@ -400,6 +414,7 @@ export default {
           if (Array.isArray(_.content)) {
             const list = [];
             for (let i in _.content) {
+               _.content[i].deviceName = `${_.content[i].deviceName}`;
               _.content[i].imei = `${_.content[i].imei}`;
               if (
                 this.mapMarker.filter(res => res.id == _.content[i].id).length

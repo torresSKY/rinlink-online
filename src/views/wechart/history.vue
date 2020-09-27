@@ -35,7 +35,9 @@
                         <el-button @click="">123</el-button> -->
                     </el-col>
                 </el-row>
-                <div id="map" :style="{height:height-100+'px',overflow:'hidden'}"></div>
+                <el-row v-loading="loading">
+                    <div id="map" :style="{height:height-100+'px',overflow:'hidden'}"></div>
+                </el-row>
             </el-card>
       </el-card>
     </div>
@@ -69,6 +71,8 @@
                 infoWindow:null,
                 polyline:null,
                 getimei: this.$route.params.imei,
+                equModel: this.$route.params.model,
+                loading: true,
             }
         },
         mounted(){
@@ -131,7 +135,7 @@
                     userId :this.$store.getters.usercode
                 }}).then(async _=>{
                             await api.getGroupList({imei:id2,
-                            pageNo:0,pageSize:1000,startTime:this.startTime,endTime:this.endTime}).then(res=>{
+                            pageNo:0,pageSize:10000,startTime:this.startTime,endTime:this.endTime}).then(res=>{
                                  this.listLoading = false
                                     let list=[]
                                     this.deleteMapMarker()
@@ -145,16 +149,17 @@
                                             // console.log('转换之前',res.content[i].lon,res.content[i].lat,res.content[i].abroad)
                                             // let aa = wgs84togcj02(res.content[i].lon,res.content[i].lat,res.content[i].abroad)
                                             // console.log('获取经纬度',aa)
-                                            list.push({lang:[res.content[i].lon,res.content[i].lat],time:res.content[i].collectDt,wifiGpsFlag:res.content[i].positionType === 2 ? "WIFI" : res.content[i].positionType === 1 ? "GPS" : res.content[i].positionType === 0 ? "基站" :"",imei:res.content[i].imei})
+                                            list.push({lang:[res.content[i].lon,res.content[i].lat],time:res.content[i].collectDt,wifiGpsFlag:res.content[i].positionType === 2 ? "WIFI" : res.content[i].positionType === 1 ? "GPS" : res.content[i].positionType === 0 ? "基站" :"",imei:res.content[i].imei,heartRate:res.content[i].heartRate,step:res.content[i].step})
                                         }
                                     }
                                     if(!list.length){
+                                        this.loading = false
                                         this.$message.warning(this.$t('message.hisempty'));
                                         return 
                                     }
                                     this.addMarker(list)
                             }).catch(_=>{
-                                this.listLoading = false
+                                this.loading = false
                                 this.$message.error(_.message);
                             })
                     }).catch(err=>{
@@ -211,7 +216,7 @@
                 let pois = []
                 for(let i in list){
                     // console.log(list[i])
-                    if(list[i].lang[0] && list[i].lang[1] && list[i].lang[0] > 0 && list[i].lang[1] > 0){
+                    if(list[i].lang[0] && list[i].lang[1] && list[i].lang[0] > 1 && list[i].lang[1] > 1){
                    point = new BMap.Point(list[i].lang[0],list[i].lang[1]);
                    pois.push(point)
                    var marker = new BMap.Marker(point)
@@ -222,7 +227,6 @@
 		           this.addClickHandler(content,marker);
                    }
                 }
-                console.log(pois)
                 var polyline =new BMap.Polyline(pois, {
                  enableEditing: false,//是否启用线编辑，默认为false
                  enableClicking: true,//是否响应点击事件，默认为true
@@ -232,7 +236,7 @@
               });
 
               this.map.addOverlay(polyline);          //增加折线
-              this.Loading = false
+              this.loading = false
             },
             addClickHandler(content,marker){
                 var that = this
@@ -247,9 +251,16 @@
 	                 height: 130,     // 信息窗口高度
 	                 title : this.$t('table.nowdata') , // 信息窗口标题
 	                 enableMessage:true,//设置允许信息窗发送短息
-	               }
-		    var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
-		    var infoWindow = new BMap.InfoWindow(this.$t('table.imei') + ":" + content.imei + "<br>" + this.$t('table.Update') + ":" + content.time + "<br>" + this.$t('table.loctype') + ":" + content.wifiGpsFlag) ;  // 创建信息窗口对象 
+                   }
+            content.heartRate = content.heartRate == null ? '--': content.heartRate
+            content.step = content.step == null ? '--':content.step
+            var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+            var infoWindow
+            if(this.equModel == 'D600N'){
+                infoWindow = new BMap.InfoWindow(this.$t('table.imei') + ":" + content.imei + "<br>" + this.$t('table.Update') + ":" + content.time + "<br>" + this.$t('table.loctype') + ":" + content.wifiGpsFlag+ "<br>" + this.$t('table.heart') + ":" + content.heartRate+ "<br>" + this.$t('table.step') + ":" + content.step) ;  // 创建信息窗口对象 
+            }else{
+                infoWindow = new BMap.InfoWindow(this.$t('table.imei') + ":" + content.imei + "<br>" + this.$t('table.Update') + ":" + content.time + "<br>" + this.$t('table.loctype') + ":" + content.wifiGpsFlag) ;  // 创建信息窗口对象 
+		    }
 		    this.map.openInfoWindow(infoWindow,point); //开启信息窗口
 	        }
         }

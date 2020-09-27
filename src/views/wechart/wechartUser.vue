@@ -71,7 +71,7 @@
                                     @click="openDialogs(true,scope.row)">{{$t('button.changepassword')}}</el-button>
                                     <el-button
                                     size="mini"
-                                    @click="deleteUser(scope.row.id)">删除</el-button>
+                                    @click="deleteUser(scope.row.id)">{{$t('button.dele')}}</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -125,7 +125,7 @@
                                     <el-button
                                     class="butdele"
                                     size="mini"
-                                    @click="deleteBindRecord(scope.row.id)">删除</el-button>
+                                    @click="deleteBindRecord(scope.row.id)">{{$t('button.dele')}}删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -140,10 +140,10 @@
             :before-close="handleCloses">
             <div>
               <el-form :model="loginForm" ref="newForm" :rules="loginRules">
-                <el-form-item :label="$t('table.username')" prop="username">
+                <el-form-item :label="$t('table.username')" prop="username" :rules="[{required: true, min: 3,  message: this.$t('message.namelong')}]">
                   <el-input name="username" v-model="loginForm.username" :placeholder="name" :disabled="isEdit"></el-input>
                 </el-form-item>
-                <el-form-item :label="$t('view.paw')" prop="password">
+                <el-form-item :label="$t('view.paw')" prop="password" :rules="[{required: true, min: 6,  message: this.$t('message.pawlong')}]">
                   <el-input  name="password"  v-model="loginForm.password"></el-input>
                 </el-form-item>
               </el-form>
@@ -249,7 +249,7 @@ export default {
               this.page.total = _.total;
               //this.filterSearch()
           }else{
-              this.$message.error('获取列表失败');
+              this.$message.error(this.$t('table.faillist'));
           }
           this.listLoading=false
       }).catch(err=>{
@@ -271,7 +271,7 @@ export default {
             this.page.total = _.length;
             // this.page.size=_.length
           } else {
-            this.$message.error("查找失败");
+            this.$message.error(this.$t('table.failsearch'));
           }
           this.listLoading = false;
         })
@@ -287,7 +287,7 @@ export default {
     pcConfirmchange(){
       this.$message({
           type: "success",
-           message: "修改成功!"
+           message: this.$t('message.changesuc')
               });
     this.dialogState2 = false;
     },
@@ -322,9 +322,9 @@ export default {
       this.loginForm.password = ''
     },
     async confirmAdd() {
-      
-      if(this.loginForm.password.length < 6){
-        this.$message.error(this.$t('message.pawlong'))
+      let reg = /^[\w]{6,15}$/
+      if(!reg.test(this.loginForm.password)){
+        this.$message.error(this.$t('message.geshi2'))
         return
       }
       let data = {
@@ -366,7 +366,7 @@ export default {
       if (res) {
         this.$message({
           type: "success",
-          message: `${this.isEdit ? "修改成功" : "添加成功"}`
+          message: `${this.isEdit ? this.$t('message.changesuc') : this.$t('message.addsuc')}`
         });
         this.dialogStates = false;
         this.getList();
@@ -381,9 +381,9 @@ export default {
       }
     },
     deleteBindRecord(id) {
-      this.$confirm("删除后无法恢复, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+        confirmButtonText: this.$t('button.determine'),
+        cancelButtonText: this.$t('button.cancel'),
         type: "warning"
       })
         .then(() => {
@@ -394,7 +394,7 @@ export default {
               // if (_.affectedRows) {
                 this.$message({
                   type: "success",
-                  message: "删除成功!"
+                  message: this.$t('message.delesuc')
                 });
                 this.getList();
               // }
@@ -410,21 +410,21 @@ export default {
           this.bindListLoading = false;
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: this.$t('message.undele')
           });
         });
     },
     deleteUser(id) {
-      this.$confirm("删除后无法恢复, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+        confirmButtonText: this.$t('button.determine'),
+        cancelButtonText: this.$t('button.cancel'),
         type: "warning"
       }).then(() => {
           api.deleuser(id)
             .then(_ => {
                 this.$message({
                   type: "success",
-                  message: "删除成功!"
+                  message: this.$t('message.delesuc')
                 });
                 this.getList();
             })
@@ -438,7 +438,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: this.$t('message.undele')
           });
         });
     },
@@ -489,7 +489,7 @@ export default {
             if (_.affectedRows) {
               this.$message({
                 type: "success",
-                message: "修改成功!"
+                message: this.$t('message.changesuc')
               });
               this.pcDialogStates = false;
               this.getList();
@@ -517,7 +517,7 @@ export default {
             if (_.id) {
               this.$message({
                 type: "success",
-                message: "添加成功!"
+                message: this.$t('message.addsuc')
               });
               this.pcDialogStates = false;
               this.getList();

@@ -14,22 +14,29 @@
                         <el-option v-for="item in grouplist" :value="item.id" :key="item.name" :label="item.name"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="10">
+                <el-col :span="4">
+                    <el-select v-model="selestate" :placeholder="$t('view.inputstate')">
+                        <el-option value="1" :label="$t('view.homeon2')"></el-option>
+                        <el-option value="-1" :label="$t('view.homeoff2')"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="6">
                       <el-button class="butsearch" @click="getList()">{{$t('button.search')}}</el-button>
                       <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                       <el-button class="butadd" @click="openDialog(false)" >{{$t('button.add')}}</el-button>
                 </el-col>
                 <el-col :span="6" style="text-align: right;">
                     <el-button class="butadd" @click="openMore()" style="width:110px;">{{$t('button.addpiliang')}}</el-button>
+                    <el-button class="butadd" @click="download()" style="width:110px;">{{$t('button.download')}}</el-button>
                 </el-col>
             </el-row>
             <div style="margin:10px 0;">
-                <el-scrollbar :style="{height:height-150+'px'}" ref="scroll">
+              <el-scrollbar :style="{height:height-150+'px'}" ref="scroll">
                 <el-table class="particular-table" :data="listxian" :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}" @selection-change="handleSelectionChange">
                     <el-table-column align='center' prop="deviceName" :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
                     <el-table-column align='center' prop="imei" :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
                     <el-table-column align='center' prop="groupName" :label="$t('table.groupname')" show-overflow-tooltip></el-table-column>
-                    <el-table-column align='center' prop="deviceType" :label="$t('table.type')" show-overflow-tooltip></el-table-column>
+                    <el-table-column align='center' prop="deviceModel" :label="$t('table.model')" show-overflow-tooltip></el-table-column>
                     <!-- <el-table-column align='center' prop="" :label="$t('route.Data')" >
                         <template slot-scope="scope">
                         <el-button @click="selectOperation('7',scope.row)" type="text">{{$t('route.Data')}}</el-button>
@@ -45,12 +52,17 @@
                             <el-button @click="toRouter(1,scope.row)" type="text" >{{$t('route.Location')}}</el-button>
                         </template>
                     </el-table-column>
+                    <el-table-column align='center' :label="$t('view.inputstate2')" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                            {{scope.row.isOnline == 1 ? $t('view.homeon2') : $t('view.homeoff2')}}
+                        </template>
+                    </el-table-column>
                     <el-table-column align='center' prop="address" :label="$t('table.Detailed')" show-overflow-tooltip></el-table-column>
-                    <!-- <el-table-column align='center' prop="" :label="$t('button.shewei')">
+                    <el-table-column align='center' prop="" :label="$t('button.shewei')">
                         <template slot-scope="scope">
                             <el-button @click="electTo(scope.row)" type="text" >{{$t('button.shewei')}}</el-button>
                         </template>
-                    </el-table-column> -->
+                    </el-table-column>
                     <el-table-column align='center' prop="createDt" :label="$t('table.addtime')"></el-table-column>
                     <el-table-column align='center' prop="" :label="$t('route.Alarm')">
                         <template slot-scope="scope">
@@ -69,6 +81,7 @@
                                 <el-dropdown-item command="2">{{$t('table.equinfo')}}</el-dropdown-item>
                                 <el-dropdown-item command="3">{{$t('button.send')}}</el-dropdown-item>
                                 <el-dropdown-item command="4">{{$t('button.historysend')}}</el-dropdown-item>
+                                <el-dropdown-item command="9" v-if="scope.row.deviceModel == 'D600N'">{{$t('route.Data')}}</el-dropdown-item>
                                 <!-- <el-dropdown-item command="5">{{$t('table.Competinfo')}}</el-dropdown-item> -->
                                 <el-dropdown-item command="6">{{$t('button.dele')}}</el-dropdown-item>
                             </el-dropdown-menu>
@@ -82,10 +95,10 @@
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     layout="total, prev, pager, next ,jumper"
-                    :disabled="search?true:false"
                     :total="page.total"
                     style="text-align:center;margin-top:10px">
                 </el-pagination>
+                <!-- :disabled="search?true:false" -->
             </div>
         </el-card>
      </el-card>
@@ -151,17 +164,17 @@
        <!-- 下发指令 -->
        <el-dialog :title="$t('table.addsend')" :visible.sync="dialogTableVisible">
            <el-form>
-                <el-form-item label="imei" >
+                <el-form-item label="GUID" >
                     <el-input v-model="imei" disabled></el-input>
                 </el-form-item>
                 <el-form-item :label="$t('button.send')">
                     <el-row>
                     <el-col :span="5">
-                        <el-select v-model="frequency">
+                        <el-select v-model="frequency" style='width:85%;' :placeholder="$t('view.select2')">
                             <!-- <el-option value="1" :label="$t('table.sendtime')">{{$t('table.sendtime')}}</el-option>
                             <el-option value="18" :label="$t('table.order1')">{{$t('table.order1')}}</el-option>
                             <el-option value="19" :label="$t('table.order2')">{{$t('table.order2')}}</el-option> -->
-                            <el-option v-for='item in sendlist' :key='item.index' :value="item.value" :label="item.name"></el-option>
+                            <el-option v-for='item in sendlist' v-if='item.model.includes(model)' :key='item.index' :value="item.value" :label="item.name"></el-option>
                         </el-select>
                     </el-col>
                     <!--<el-col :span="4" style="text-align:right" v-if='frequency == 1 || frequency == 18'>
@@ -207,61 +220,83 @@
                         <span v-if="frequency == 40">{{$t('table.inputstart')}}</span>
                     </el-col>
                     <div v-if="frequency != 43">
-                    <el-col :span="5">
-                        <!-- 选择时间输入框 -->
-                        <!-- <el-time-picker v-if="frequency == 28|| frequency == 34" v-model="updata" format='HH:mm' value-format="HH:mm" :placeholder="$t('table.randomtime')"></el-time-picker>
-                        单选框 -->
-                        <template class="sendcode" v-if="frequency == 1 || frequency == 4 ||frequency == 5|| frequency == 12|| frequency == 13|| frequency == 14|| frequency == 19|| frequency == 20|| frequency == 32|| frequency == 41|| frequency == 42|| frequency == 46">
-                            <el-radio v-model="updata" label="0" style="line-height:40px;">{{$t('button.open')}}</el-radio>
+                        <el-col :span="4">
+                            <!-- 选择时间输入框 -->
+                            <!-- <el-time-picker v-if="frequency == 28|| frequency == 34" v-model="updata" format='HH:mm' value-format="HH:mm" :placeholder="$t('table.randomtime')"></el-time-picker>
+                            单选框 -->
+                            <template class="sendcode" v-if="frequency == 1 || frequency == 4 ||frequency == 5|| frequency == 12|| frequency == 13|| frequency == 14|| frequency == 19|| frequency == 20|| frequency == 32|| frequency == 41|| frequency == 42|| frequency == 52">
+                                <el-radio v-model="updata" label="0" style="line-height:40px;">{{$t('button.open')}}</el-radio>
+                            </template>
+                            <!-- 上下限选项 -->
+                            <el-input clearable v-if="frequency == 10 || frequency == 11|| frequency == 16|| frequency == 18|| frequency == 30|| frequency == 31|| frequency == 33|| frequency == 34|| frequency == 35|| frequency == 36|| frequency == 37|| frequency == 38|| frequency == 39|| frequency == 40|| frequency == 44|| frequency == 45|| frequency == 53|| frequency == 54" type="number" v-model="updata" :placeholder="$t('table.randomdata')"></el-input>
+                        </el-col>
+                        <el-col :span="4" v-if='frequency == 46'>
+                        <template class="sendcode">
+                            <el-radio v-model="updata" label="1" style="line-height:40px;">{{$t('button.open')}}</el-radio>
                         </template>
-                        <!-- 上下限选项 -->
-                        <el-input clearable v-if="frequency == 10 || frequency == 11|| frequency == 16|| frequency == 18|| frequency == 30|| frequency == 31|| frequency == 33|| frequency == 34|| frequency == 35|| frequency == 36|| frequency == 37|| frequency == 38|| frequency == 39|| frequency == 40|| frequency == 44|| frequency == 45" type="number" v-model="updata" :placeholder="$t('table.randomdata')"></el-input>
-                    </el-col>
+                        </el-col>
 
-                    <el-col :span="3" class="sendcode">
-                        <!-- 关闭防拆 -->
-                        <span v-if="frequency == 1">{{$t('table.closetam')}}</span>
-                        <!-- 设置温度上限值 -->
-                        <span v-if="frequency == 37">{{$t('table.temupper')}}</span>
-                        <!-- 设置湿度上限值 -->
-                        <span v-if="frequency == 38">{{$t('table.humupper')}}</span>
-                        <!-- 浸水报警上报次数：
-                        <span v-if="frequency == 40">{{$t('table.weaternum')}}</span> -->
-                        <!-- 倾斜参数 -->
-                        <span v-if="frequency == 39">倾斜角度</span>
-                        
-                        <span v-if="frequency == 15">
-                        <!-- {{$t('table.Alarmtime')}} -->
-                        LED报警持续时长(分钟)
-                        </span>
-                        <!-- 上报频率 -->
-                        <span v-if="frequency == 35">{{$t('table.Reportfrequency')}}（{{$t('button.fen')}}）</span>
-                        <!-- 异常上报频率 -->
-                        <span v-if="frequency == 36">{{$t('table.Reportfrequency2')}}（{{$t('button.fen')}}）</span>
-                        <!--亮屏开始时间 -->
-                        <span v-if="frequency == 40">{{$t('table.inputend')}}</span>
-                    </el-col>
+                        <el-col :span="3" class="sendcode">
+                            <!-- 关闭防拆 -->
+                            <span v-if="frequency == 1">{{$t('table.closetam')}}</span>
+                            <!-- 设置温度上限值 -->
+                            <span v-if="frequency == 37">{{$t('table.temupper')}}</span>
+                            <!-- 设置湿度上限值 -->
+                            <span v-if="frequency == 38">{{$t('table.humupper')}}</span>
+                            <!-- 浸水报警上报次数：
+                            <span v-if="frequency == 40">{{$t('table.weaternum')}}</span> -->
+                            <!-- 倾斜参数 -->
+                            <span v-if="frequency == 39">倾斜角度</span>
+                            
+                            <span v-if="frequency == 15">
+                            <!-- {{$t('table.Alarmtime')}} -->
+                            LED报警持续时长(分钟)
+                            </span>
+                            <!-- 上报频率 -->
+                            <span v-if="frequency == 35">{{$t('table.Reportfrequency')}}（{{$t('button.fen')}}）</span>
+                            <!-- 异常上报频率 -->
+                            <span v-if="frequency == 36">{{$t('table.Reportfrequency2')}}（{{$t('button.fen')}}）</span>
+                            <!--亮屏开始时间 -->
+                            <span v-if="frequency == 40">{{$t('table.inputend')}}</span>
+                        </el-col>
 
-                    <el-col :span="5">
-                        <!-- 选择时间输入框 -->
-                        <!-- <el-time-picker v-if="frequency == 1|| frequency == 28|| frequency == 34||frequency == 39" v-model="updata2" format='HH:mm' value-format="HH:mm" :placeholder="$t('table.randomtime')"> </el-time-picker>
-                        单选框 -->
-                        <template v-if="frequency == 1 || frequency == 4 ||frequency == 5|| frequency == 12|| frequency == 13|| frequency == 14|| frequency == 19|| frequency == 20|| frequency == 32|| frequency == 41|| frequency == 42|| frequency == 46">
-                            <el-radio v-model="updata" label="1" style="line-height:40px;">{{$t('button.close')}}</el-radio>
-                        </template>
-                        <!-- 上下限选项 -->
-                        <el-input clearable v-if="frequency == 35|| frequency == 36|| frequency == 37|| frequency == 38|| frequency == 39|| frequency == 40" type="number" v-model="updata2" :placeholder="$t('table.randomdata')"></el-input>
-                    </el-col>
+                        <el-col :span="4">
+                            <!-- 选择时间输入框 -->
+                            <!-- <el-time-picker v-if="frequency == 1|| frequency == 28|| frequency == 34||frequency == 39" v-model="updata2" format='HH:mm' value-format="HH:mm" :placeholder="$t('table.randomtime')"> </el-time-picker>
+                            单选框 -->
+                            <template v-if="frequency == 1 || frequency == 4 ||frequency == 5|| frequency == 12|| frequency == 13|| frequency == 14|| frequency == 19|| frequency == 20|| frequency == 32|| frequency == 41|| frequency == 42|| frequency == 52">
+                                <el-radio v-model="updata" label="1" style="line-height:40px;">{{$t('button.close')}}</el-radio>
+                            </template>
+                            <!-- 上下限选项 -->
+                            <el-input clearable v-if="frequency == 35|| frequency == 36|| frequency == 37|| frequency == 38|| frequency == 39|| frequency == 40" type="number" v-model="updata2" :placeholder="$t('table.randomdata')"></el-input>
+                        </el-col>
+                        <el-col :span="5" v-if='frequency == 46'>
+                        <template class="sendcode">
+                                <el-radio v-model="updata" label="0" style="line-height:40px;">{{$t('button.close')}}</el-radio>
+                            </template>
+                        </el-col>
+                        <el-col :span='3' v-if="frequency == 46&&updata==1">
+                            <el-input clearable type="number" v-model="updata2" :placeholder="$t('table.randomdata')"></el-input>
+                        </el-col>
+                        <el-col :span='4' v-if="frequency == 44 || frequency == 45 || frequency == 10|| frequency == 46 && updata==1">
+                            <span>{{$t('message.fanwei')}}</span>
+                        </el-col>
+                        <el-col :span='3' v-if="frequency == 11">
+                            <span>{{$t('message.fanwei2')}}</span>
+                        </el-col>
+                        <el-col :span='3' v-if="frequency == 53||frequency == 54">
+                            <span>{{$t('message.fanwei3')}}</span>
+                        </el-col>
                     </div>
                     <div v-else>
-                    <el-col :span='12'>
-                        <el-radio-group v-model="updata">
-                            <el-radio :label="0">低灵敏度</el-radio>
-                            <el-radio :label="1">中度灵敏度</el-radio>
-                            <el-radio :label="2">高灵敏度</el-radio>
-                            <el-radio :label="3">超高灵敏度</el-radio>
-                        </el-radio-group>
-                    </el-col>
+                        <el-col :span='12'>
+                            <el-radio-group v-model="updata3">
+                                <el-radio :label="0">低灵敏度</el-radio>
+                                <el-radio :label="1">中度灵敏度</el-radio>
+                                <el-radio :label="2">高灵敏度</el-radio>
+                                <el-radio :label="3">超高灵敏度</el-radio>
+                            </el-radio-group>
+                        </el-col>
                     </div>
                     </el-row>  
                     </el-dropdown>
@@ -284,13 +319,17 @@
                <el-table-column align='center' prop="imei" :label="$t('table.imei')"></el-table-column>
                 <el-table-column align='center' prop="data" :label="$t('table.orderdata')">
                     <template slot-scope="scope">
-                        {{scope.row.orders}}
+                        {{scope.row.ordersCh}}
                     </template>
                 </el-table-column>
-                <el-table-column align='center' prop="orderDt" :label="$t('table.creattime')"></el-table-column>
+                <el-table-column align='center' prop="createAt" :label="$t('table.creattime')">
+                    <template slot-scope="scope">
+                        {{scope.row.createAt | formatDate}}
+                    </template>
+                </el-table-column>
                 <el-table-column align='center' prop="status" :label="$t('table.jie')">
                     <template slot-scope="scope">
-                        {{scope.row.status == 0 ? $t('table.wait') :scope.row.status == 1 ? $t('message.success'):scope.row.status == 2?$t('message.fail'):''}}
+                        {{scope.row.status == 0 ? $t('table.wait') :scope.row.status == 'COMPLETED' ? $t('message.success'):scope.row.status == 'FAILED' ?$t('message.fail'):''}}
                     </template>
                 </el-table-column>
            </el-table>
@@ -302,6 +341,47 @@
                 :total="pages.total"
                 style="text-align:center;margin-top:10px">
            </el-pagination>
+       </el-dialog>
+       <!-- 历史数据 -->
+       <el-dialog :title="$t('route.Data')" :visible.sync="dialogTabledata">
+           <el-tabs v-model="datacard" type="card" @tab-click="">
+            <el-tab-pane :label="$t('table.list')" name="first">
+                <el-row>
+                <el-col :span="3" class="sendcode">
+                        <span>{{$t('table.seachtime')}}</span>
+                </el-col>
+                <el-col :span="5">
+                        <el-date-picker v-model="alastarttime" type="datetime" :placeholder="$t('table.selopentime')" default-time="00:00:00" value-format="timestamp" :picker-options="pickerOptions">
+                        </el-date-picker>
+                </el-col>
+                <el-col :span="5">
+                        <el-date-picker v-model="alaendtime" type="datetime" :placeholder="$t('table.selendtime')" default-time="23:59:59" value-format="timestamp" :picker-options="pickerOptions">
+                        </el-date-picker>
+                </el-col>
+                <el-col :span="1.5">
+                        <el-button @click="getData(dataVal)">{{$t('button.search')}}</el-button>
+                </el-col>
+                </el-row>
+                <el-table :data="datalist">
+                    <el-table-column align='center' prop="imei" :label="$t('table.imei')"></el-table-column>
+                        <el-table-column align='center' prop="heart" :label="$t('table.heart')"></el-table-column>
+                        <el-table-column align='center' prop="step" :label="$t('table.step')"></el-table-column>
+                        <el-table-column align='center' prop="collectDt" :label="$t('table.creattime')"></el-table-column>
+                </el-table>
+                <el-pagination
+                        @current-change="changeindex4"
+                        :current-page.sync="pages.No"
+                        :page-size="pages.size"
+                        layout="total, prev, pager, next ,jumper"
+                        :total="pages.total"
+                        style="text-align:center;margin-top:10px">
+                </el-pagination>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('table.chart')" name="second">
+            <div id="chart" class="qufen" :style="{width:width *0.5 + 'px',height:'500px'}"></div>
+            </el-tab-pane>
+        </el-tabs>
+           
        </el-dialog>
         <!-- 设备详情 -->
         <el-dialog :title="$t('table.equinfo')" :visible.sync="showInfo" center>
@@ -316,6 +396,7 @@
                     </span>
                 </el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.type')}} : {{oneInfo.deviceType}}</span></el-form-item>
+                <el-form-item style="margin: 0;"><span>{{$t('table.model')}} : {{oneInfo.deviceModel}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.equadmin')}} : {{oneInfo.userName}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('view.region')}} : {{oneInfo.abroad==true?$t('view.region0'):$t('view.region1')}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.equlocation')}} : {{oneInfo.positionType==1?"GPS":oneInfo.positionType==2?"WIFI":$t('table.equloctype')}}</span></el-form-item>
@@ -332,8 +413,8 @@
                 <el-row :gutter="20">
                 <el-col :span="6">
                     <el-select v-model="datatype">
-                      <el-option :label="$t('table.powerala')" :value="1"></el-option>
-                      <el-option :label="$t('table.moveala')" :value="2"></el-option>
+                      <el-option v-for='item in alatypelist' :value='item.value' :label="item.name" :key='item.value' ></el-option>
+                      <!-- <el-option :label="$t('table.moveala')" :value="2"></el-option>
                       <el-option :label="$t('table.sosala')" :value="3"></el-option>
                       <el-option :label="$t('table.dropala')" :value="4"></el-option>
                       <el-option :label="$t('table.lightala')" :value="5"></el-option>
@@ -344,18 +425,18 @@
                       <el-option :label="$t('table.temalarm')" :value="10"></el-option>
                       <el-option :label="$t('table.humalarm')" :value="11"></el-option>
                       <el-option :label="$t('table.out')" :value="12"></el-option>
-                      <el-option :label="$t('table.in')" :value="13"></el-option>
+                      <el-option :label="$t('table.in')" :value="13"></el-option>   -->
                     </el-select>
                 </el-col>
                 <el-col :span="2" class="sendcode">
                     <span style='line-height: 40px;'>{{$t('table.seletime')}}</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-date-picker v-model="datastarttime" type="date" :placeholder="$t('table.startdata')" format="yyyy-MM-dd" value-format="timestamp">
+                    <el-date-picker v-model="datastarttime" type="date" :placeholder="$t('table.startdata')" format="yyyy-MM-dd" value-format="timestamp" :picker-options="pickerOptions">
                     </el-date-picker>
                 </el-col>
                 <el-col :span="5">
-                    <el-date-picker v-model="dataendtime" type="date" :placeholder="$t('table.enddata')" format="yyyy-MM-dd" value-format="timestamp">
+                    <el-date-picker v-model="dataendtime" type="date" :placeholder="$t('table.enddata')" format="yyyy-MM-dd" value-format="timestamp" :picker-options="pickerOptions">
                     </el-date-picker>
                 </el-col>
                 <el-col :span="1.5">
@@ -420,6 +501,15 @@
                 </el-row>-->
                 <el-row :gutter="20">
                 <el-col>
+                    <el-form-item :label="$t('table.model')">
+                    <el-select v-model='model'>
+                      <el-option v-for='item in equmodel' :key='item.index' :value='item.value' :name='item.name'></el-option>
+                    </el-select>
+                    </el-form-item>
+                </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                <el-col>
                     <el-form-item :label="$t('table.equgroup')">
                     <el-select v-model="group_sel" >
                         <el-option v-for="item in grouplist" :value="item.id" :key="item.name" :label="item.name"></el-option>
@@ -469,6 +559,7 @@ import mixin from '@/mixins/index'
 import axios from 'axios'
 import {mapState} from 'vuex'
 import {alatype,order} from '@/plugins/filter.js'
+import { formatDate } from '@/plugins/date.js'
 export default{
     name:'jihuo',
     mixins:[mixin],
@@ -484,6 +575,11 @@ export default{
         }
       }
      return {
+         pickerOptions: {
+            disabledDate(time) {
+                return time.getTime() > Date.now();
+                }
+            },
         inputRules: {
             imei: [{ required: true, trigger: 'blur', validator: validateimei }]
         },
@@ -537,25 +633,35 @@ export default{
         datatype: '',
         adddizhi: null,
         selegroup: null,
+        selestate: null,
         region: null,
         morewin: false,
         ueserlevel: [],
         fileList: [],
         alaloading: true,
-        updata: 0,
+        updata: '0',
         updata2: 0,
+        updata3: 0,
+        dialogTabledata: false,
+        alastarttime: '',
+        alaendtime: '',
+        datalist: [],
+        datacard: 'first',
+        width: 0,
+        dataVal: null,
       }
     },
     mounted(){
         this.height=document.body.offsetHeight-162
+         this.width=document.body.offsetWidth
         this.getList()
         this.getGroupList()
     },
     methods:{
     getGroupList(){   // 获取所有设备分组
         this.listLoading=true
-        api.getGroupListPagination({params:{userId:this.$store.getters.usercode,}}).then(res=>{
-                this.grouplist=res
+        api.getGroupListPagination({params:{userId:this.$store.getters.usercode,pageNo:0,pageSize:10000}}).then(res=>{
+                this.grouplist=res.content
         }).catch(err=>{
             this.$message.error(err.message);
         })
@@ -568,7 +674,8 @@ export default{
                     pageNo:this.page.index-1,
                     userId:this.$store.getters.usercode,
                     imei: this.search,
-                    deviceGroupId: this.selegroup
+                    deviceGroupId: this.selegroup,
+                    isOnline: this.selestate,
                     }
                    }
         // }
@@ -608,6 +715,7 @@ export default{
         this.page.index=1
         this.search=''
         this.selegroup = null
+        this.selestate = null,
         this.getList()
     },
     getRowKeys(row) {
@@ -625,10 +733,10 @@ export default{
             this.region = obj.abroad.toString()
             this.group_sel = obj.groupId
             this.user_sel = obj.childUserId
+            this.model = obj.deviceModel
             if(obj.deviceType == 'Default device' || obj.deviceType == '默认类型'){
               this.bind_mode = this.$t('table.defaultdevice')
             }
-            console.log(this.bind_mode)
         }else{
             this.imei=''
             this.imsi=''
@@ -645,7 +753,7 @@ export default{
         api.getGroupListPagination({params:{
             userId:this.$store.getters.usercode,
             pageSize:100000,
-            pageNo:this.page.index-1}}).then(_=>{ 
+            pageNo:0}}).then(_=>{ 
             if(_.content.length > 0){
                 this.grouplist=_.content
             }else{
@@ -659,7 +767,7 @@ export default{
                 parentId:this.$store.getters.usercode,
                 pageSize:this.page.size,
                 pageNo:0,
-                pageSize: 200,
+                pageSize: 2000,
             }
         }).then(_=>{
             if(Array.isArray(_.content)){
@@ -694,7 +802,8 @@ export default{
                 deviceImei: this.imei,
                 deviceName: this.imsi,
                 deviceRelationId: this.deviceRelationId,
-                deviceType: this.bind_mode,
+                // deviceType: this.bind_mode,
+                deviceModel: this.model,
                 abroad: this.region == 'true' ? true : this.region == 'false' ? false : ''
             }
             this.addOrEditLoading=true
@@ -731,7 +840,8 @@ export default{
                 deviceGroupId: this.group_sel,
                 deviceImei: this.imei,
                 deviceName: this.imsi,
-                deviceType: this.bind_mode,
+                // deviceType: this.bind_mode,
+                deviceModel: this.model,
                 userId: this.$store.getters.usercode,
                 abroad: this.region == 'true' ? true : this.region == 'false' ? false : ''
             }
@@ -758,9 +868,9 @@ export default{
         }
     },
     deleteEqu(id){
-        this.$confirm('删除后无法恢复, 是否继续?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
+        this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+            confirmButtonText: this.$t('button.determine'),
+            cancelButtonText: this.$t('button.cancel'),
             type: 'warning'
         }).then(() => {
             api.equDelete(id).then(_=>{
@@ -804,6 +914,10 @@ export default{
         case '3':
         this.imei = data.imei
         this.id = data.deviceId
+        this.updata = '0'
+        this.updata2 = 0
+        this.updata3 = 0
+        this.model = data.deviceModel
         this.frequency = null
         this.dialogTableVisible = true;
         // this.sendData(data)
@@ -823,22 +937,53 @@ export default{
           this.showaladata = true
           this.alaloading = true
           this.alaimei = data
+          this.page3.index = 1
           this.aladata2 = []
           this.datatype = ''
           this.dataendtime = ''
           this.datastarttime = ''
           this.getAla(data)
           break;
+        case '9':
+          this.dialogTabledata = true
+          this.pages.No = 1
+          this.alastarttime = ''
+          this.alaendtime = ''
+          this.dataVal = data
+          this.getData(data)
+          this.getchart(data)
+          break;
         }
     },
     sendTime() {
        if(this.frequency == 19){
-           this.value1 = ''
-       }else{
-           if(this.value1 < 30 && this.value1 > 86400){
+           this.updata = ''
+       }
+        if(this.frequency == 43){
+           this.updata = this.updata3
+       }
+       if(this.frequency == 44 || this.frequency == 45 || this.frequency == 10){
+           if(this.updata < 30 || this.updata > 86400){
                this.$message.error(this.$t('message.errordata'))
+               return
            }else{
-               this.value1 = this.value1
+               this.updata = this.updata
+           }
+       }
+       if(this.frequency == 46 && this.updata == 1){
+           if(this.updata2 < 30 || this.updata2 > 86400){
+               this.$message.error(this.$t('message.errordata'))
+               return
+           }else{
+               this.updata = this.updata
+           }
+       }
+       if(this.frequency == 11){
+           if(this.updata < 0 || this.updata > 100){
+               this.$message.error(this.$t('message.errordata2'))
+               return
+           }else{
+               this.updata = this.updata
            }
        }
        let data = {
@@ -878,9 +1023,14 @@ export default{
         })
     },
     changeindex2(val){                                //改变当前页
-            this.pages.No=val
-            this.historyOrder()
-        },
+        this.pages.No=val
+        this.historyOrder()
+    },
+    changeindex4(val){                                //改变当前页
+        this.pages.No=val
+        // this.page3.index = val
+        this.getData(this.dataVal)
+    },
     getAla(val) {   //获取报警信息
       let data = {
           endTime:this.dataendtime,
@@ -899,6 +1049,108 @@ export default{
           this.alaloading = false
         })
     },
+    getData(val) {
+        console.log(val)
+        api.getData({params:{
+            imei: val.imei,
+            pageNo: this.pages.No -1,
+            pageSize: this.pages.size,
+            startTime: this.alastarttime,
+            endTime: this.alaendtime,
+        }}).then(res => {
+            this.datalist = res.content
+            this.pages.total = res.total
+        }).catch(err => {})
+    },
+    getchart(val) {
+      let datalist = []
+      let histime = []
+      let hisdata = []
+      let histemp = []
+      let datatype='次'
+      let datatype2=''
+      let text = this.$t('table.charttab')
+      api.getData({params:{
+            imei: val.imei,
+            pageNo: 0,
+            pageSize: 10000,
+            startTime: this.alastarttime,
+            endTime: this.alaendtime,
+        }})
+        .then(res => {
+          if (res.content.length > 0) {
+            datalist = res.content
+            for (let i = 0; i < datalist.length; i++) {
+                histime.push(datalist[i].collectDt);
+                hisdata.push(datalist[i].heart);
+            }
+            var that = this;
+            var myChart = this.$echarts.init(document.getElementById("chart"));
+            // 绘制图表
+            myChart.setOption({
+                title: { text: text },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    }
+                },
+                grid: {  
+                    left: '10%',  
+                    bottom:'30%', 
+                    left:'10%',
+                },
+                // legend: {
+                //     data:[this.$t('table.humidity'),this.$t('table.temperature')]
+                // }, 
+                dataZoom: [
+                    {
+                        show: true,
+                        realtime: true,
+                        start: 65,
+                        end: 75
+                    },
+                    {
+                        type: 'inside',
+                        realtime: true,
+                        start: 65,
+                        end: 75
+                    }
+                ], 
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: histime,
+                    inverse:true,
+                    axisLabel: {  
+                        interval:50,  
+                        rotate:30  
+                    }  
+                },
+                yAxis: {
+                    type: "value",
+                    name: datatype
+                },
+                series: [
+                    {
+                        type: "line",
+                        name: 'xinlv',
+                        data: hisdata
+                    }
+                ]
+            });
+          } else {
+            this.$message.error(this.$t('table.temporarily'));
+          }
+        })
+        .catch(err => {
+          this.$message.error(err.message);
+        });
+      
+    },
     changeindex3(val) { // 改变当前页
       this.page3.index = val
       try {
@@ -911,7 +1163,7 @@ export default{
         let nameloc=this.$t('route.Location')
         let nametra=this.$t('route.Trajectory')
       if(val == 0){
-        this.$router.push({name:'route.Trajectory',params: {imei:data.imei}})
+        this.$router.push({name:'route.Trajectory',params: {imei:data.imei,model:data.deviceModel}})
       }else{
         this.$router.push({name:'route.Location',params: {imei:data}})
       }
@@ -948,17 +1200,57 @@ export default{
     openMore() {
       this.morewin = true
       this.group_sel = ''
+      this.model = ''
       this.fileList = []
     },
+    download(){     //到处设备列表
+    this.butloading = true
+      if(this.selestate == 'null'){
+        this.selestate = ''
+      }
+       api.downlist({
+          params:{
+              imei: this.writimei,
+              isOnline: this.selestate,
+              userId: this.$store.getters.usercode,
+              deviceGroupId: this.selegroup,
+          },
+            headers: { 'Content-Type': 'application/json,charset=utf-8'},    
+            responseType: 'arraybuffer'}
+        ).then(res => {
+            let blob = new Blob([res], {type: "application/vnd.ms-excel"});  // res就是接口返回的文件流了
+            let objectUrl = URL.createObjectURL(blob); 
+            var a = document.createElement('a');
+            a.href = objectUrl;
+            let time = new Date()
+            let y = time.getFullYear()
+            let m = time.getMonth() + 1
+            let d = time.getDate()
+            let h = time.getHours() + 1; //获取当前小时数(0-23)
+            let mm = time.getMinutes() + 1; //获取当前分钟数(0-59)
+            let hh = time.getSeconds() + 1; //获取当前秒数(0-59)
+            let name = this.$t('route.List') + y+''+m+''+d+''+h+''+mm+''+hh+'.xls'
+            a.download = name;
+            a.click()
+            window.URL.revokeObjectURL(objectUrl);
+        }).catch(err => {
+            this.$message.error(err.message)
+        })
+    },
     beforeUpload(file) {
+        if(this.model.length < 1){
+            this.$message.error(this.$t('message.modelerror'))
+            return
+        }
       let fd = new FormData();
       fd.append('file',file);//传文件
         //   fd.append('type',this.infoEqu.region)//其他参数
         //   fd.append('deviceType',this.infoEqu.radio)//其他参数
         //   fd.append('childId',this.infoEqu.userone)//其他参数
         fd.append('deviceGroup',this.group_sel)//其他参数
+        fd.append('deviceModel',this.model)//其他参数
       api.addmoreequ(fd).then(res => {
-        this.$message.success('添加成功')
+        this.$message.success(this.$t('message.addsuc'))
       }).catch(err => {
         this.$message.error(err.message)
       })

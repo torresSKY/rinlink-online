@@ -211,9 +211,9 @@ const otherequ = (data) => { //查询电子围栏外的设备
 const fenceadd = (data) => { //添加电子围栏
     return axios.post('http://aep-location.beijing.rinlink.com/device/addFence', data)
 }
-const sendele = (data) => { //移除设备
-    return axios.post('http://aep-location.beijing.rinlink.com/device/addFence', data)
-}
+// const sendele = (data) => { //移除设备
+//     return axios.post('http://aep-location.beijing.rinlink.com/device/addFence', data)
+// }
 
 
 const addmoreequ = (data) => { //批量添加设备
@@ -232,6 +232,39 @@ const getall = () => { //首页所有设备
 }
 const deleuser = (data) => { //删除子用户
     return axios.delete('http://aep-location.beijing.rinlink.com/user/'+data)
+}
+const downlist = (data) => { //下载所有设备列表
+    return axios.get('http://aep-location.beijing.rinlink.com/device/exportDevices',data)
+}
+const getData = (data) => { //600N历史数据
+    return axios.get('http://aep-location.beijing.rinlink.com/d600n',data)
+}
+const searone = (data) => { //查询单设备电子围栏
+    return axios.get('http://aep-location.beijing.rinlink.com/device/getDeviceFences/'+data)
+}
+const deledian = (data) => { //删除电子围栏
+    return axios.delete('http://aep-location.beijing.rinlink.com/fence?fenceId=' + data)
+}
+const sendele = (data) => { //添加电子围栏
+    return axios.post('http://aep-location.beijing.rinlink.com/fence', data)
+}
+const editele = (data) => { //编辑电子围栏
+    return axios.put('http://aep-location.beijing.rinlink.com/fence', data)
+}
+const unlikeequ = (data) => { //取消关联
+    return axios.get('http://aep-location.beijing.rinlink.com/fence/fenceBindRelieveDev', data)
+}
+const likeequ = (data) => { //关联设备
+    return axios.get('http://aep-location.beijing.rinlink.com/fence/fenceBindDev', data)
+}
+const oldequlist = (data) => { //查询单个围栏已绑定所有设备
+    return axios.get('http://aep-location.beijing.rinlink.com/fence/getFenceBindDevCondition/', data)
+}
+const searchdian = (data) => { //查询电子围栏列表
+    return axios.get('http://aep-location.beijing.rinlink.com/fence', data)
+}
+const newequlist = (data) => { //查询单个围栏未绑定设备
+    return axios.get('http://aep-location.beijing.rinlink.com/fence/getDeviceList/', data)
 }
 export default {
     login,
@@ -282,4 +315,15 @@ export default {
     downalalist,
     getall,
     deleuser,
+    downlist,
+    getData,
+    searone,
+    deledian,
+    sendele,
+    editele,
+    unlikeequ,
+    likeequ,
+    oldequlist,
+    searchdian,
+    newequlist,
 }
