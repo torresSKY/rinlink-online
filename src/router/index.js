@@ -73,6 +73,19 @@ const list={
           // {path: 'Customerlist',name: '客户管理',component: () =>import('@/views/wechart/Customerlist'),meta: { keep: 'Customerlist' },radius:true,roles:[88,99],},
         ]
       },
+      {
+        path: '/log',
+        name: 'table.operLog',
+        radius:true,
+        roles:[0,1,88,99],
+        component: _import('index'),
+        icon: 'shebeiguanli1',
+        redirect: '/log/operationLog',
+        children: [
+          {path: 'operationLog',name: 'table.operLog',component: () =>import('@/views/wechart/operationLog'),hidden: true,meta: { keep: 'operationLog'},radius:true,roles:[0,1,88,99],},
+          
+        ]
+      },
       
       {path:'/home',redirect:'/'},
       {path:'*',redirect:'/404'}

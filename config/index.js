@@ -16,7 +16,8 @@ module.exports = {
     proxyTable: {//配置请求代理
       '/api':{
         // target:process.env.type.indexOf('zs')!==-1?'https://api.rinlink.com':'https://tapi.rinlink.com',
-        target:process.env.type.indexOf('zs')!==-1?'https://location.rinlink.com/v1.0':'https://location.rinlink.com/v1.0',
+        // target:process.env.type.indexOf('zs')!==-1?'https://location.rinlink.com/v1.0':'https://location.rinlink.com/v1.0',
+        target:'http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com',
         changeOrigin: true,
         pathRewrith:{
            '^/api': ''
