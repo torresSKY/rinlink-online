@@ -17,7 +17,7 @@
                     <el-button class="butsearch" @click='showAdd'>{{$t('button.add')}}</el-button>
                 </div>
                 <el-scrollbar v-if='list.length > 0'  :style="{height:height - 180 +'px'}" ref="scroll" class='el-scro'>
-                    <div class='list' v-for='item in list' :key='item.name'>
+                    <div class='list' v-for='(item,index) in list' :key='item.name' :class = "active == index ? 'addclass' : '' " @click='dowm(index)'>
                         <div class='elecard'>
                         <div class='elecard-item' @click='changecrie(item)'>
                             <div>{{item.name}}</div>
@@ -37,14 +37,14 @@
                 </el-scrollbar>
                 <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>{{$t('table.temporarily')}}</span></div>
             </el-card>
-            <el-card :hidden='addview' class='addele':style="{height:height+'px'}">
+            <el-card :hidden='addview' class='addele' :style="{height:height+'px'}">
                 <div class='title'>
                     <span v-if='editfen'>{{$t('view.fence6')}}</span>
                     <span v-else>{{$t('view.fence5')}}</span>
                 </div>
                 <div class='addlist'>
                     <span>{{$t('view.fence2')}}</span>
-                    <el-input v-model='fenceName'></el-input>
+                    <el-input v-model='fenceName' maxlength="20"></el-input>
                 </div>
                 <div class='addlist'>
                     <span>{{$t('view.fence4')}}</span>
@@ -52,7 +52,7 @@
                 </div>
                 <div class='addlist'>
                     <span>{{$t('view.fence3')}}</span>
-                    <el-input v-model='fenceRadio'></el-input>
+                    <el-input v-model='fenceRadio' type="number"></el-input>
                 </div>
                 <div class='addlist'>
                     <span>{{$t('view.fence7')}}</span>
@@ -137,9 +137,9 @@
                         <el-option v-for="item in allgroup" :value="item.id" :key="item.name" :label="item.name"></el-option>
                     </el-select>
                 </el-col> -->
-                <el-col :span='2'>
+                <!-- <el-col :span='2'>
                     <el-button @click='getList()'>{{$t('button.search')}}</el-button>
-                </el-col>
+                </el-col> -->
                 <el-col :span='2'>
                     <el-button @click="morelink()">{{$t('table.butgl')}}</el-button>
                 </el-col>
@@ -232,6 +232,7 @@ export default {
             },
             addloading: true,
             fenceid: null,
+            active:-1
         }
     },
     watch: {
@@ -313,7 +314,7 @@ export default {
               var _value = e.item.value;
               myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
               that.address = myValue
-              console.log('222')
+            //   console.log('222')
               // if(that.infoEqu.address != ''){
                 that.ac.hide()
               // }
@@ -441,6 +442,11 @@ export default {
             this.inala = []
         },
         showAdd(){
+            this.fenceName = ''
+            this.address = ''
+            this.address2 = ''
+            this.fenceRadio = 0
+            this.inala = []
             this.addview = false
             this.onchangema()
             this.editfen = true
@@ -450,8 +456,8 @@ export default {
             this.onchangema()
             this.editfen = true
             let inAndOut = null
-            if(this.address.length == 0 && this.fenceName.length == 0){
-                this.$message.error(this.$t('message.fenceeror'))
+            if(this.address.length == 0 || this.fenceName.length == 0){
+                this.$message.error(this.$t('message.canshu'))
                 return
             }
             if(this.inala.length == 0){
@@ -538,6 +544,10 @@ export default {
             this.getList()
         },
         moreunlink(){
+            if(this.moreunequ.length<=0){
+                this.$message.warning(this.$t('message.selectGuanLian'))
+                return
+            }
             let val = {}
             val.imei = ''
             this.moreunequ.forEach(item => {
@@ -546,6 +556,11 @@ export default {
             this.Unlinkequ(val)
         },
         Unlinkequ(val){
+            this.$confirm(this.$t('message.cancelGuanLian'), this.$t('message.newtitle'), {
+            confirmButtonText: this.$t('button.determine'),
+            cancelButtonText: this.$t('button.cancel'),
+            type: 'warning'
+        }).then(() => {
             let delfenceid = null
             if(this.imei != null){
                 delfenceid = val.fenceId
@@ -564,6 +579,8 @@ export default {
             }).catch(err => {
                 this.$message.error(err.message)
             })
+            })
+            
         },
         handleSelectionChange(val){
             this.moreunequ = val
@@ -592,6 +609,7 @@ export default {
             this.circle.setRadius(this.fenceRadio)
             this.circle.setCenter( new BMap.Point(this.conlon, this.conlat))
             this.map.setCenter( new BMap.Point(this.conlon, this.conlat))
+            
         },
         changecrie(val){
             this.map.clearOverlays();
@@ -723,6 +741,10 @@ export default {
                ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
                return ret
         },
+        dowm(index){
+          //将点击的元素的索引赋值给变量
+            this.active = index
+        }
        },
        filters:{
            formatDate(val) {
@@ -819,4 +841,15 @@ export default {
     padding: 20px;
     width: 60%;
 }
+.addclass{
+   background-color: #8dcef3;
+}
+</style>
+<style>
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+input[type="number"]{
+        -moz-appearance: textfield;
+    }
 </style>

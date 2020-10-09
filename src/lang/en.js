@@ -1,6 +1,6 @@
 export default {
   navbar: {
-    title: 'Rinlink asset management platform'
+    title: 'Internet of vehicles management platform'
   },
   route: {
     Home: 'Home page',
@@ -434,6 +434,8 @@ export default {
     fanwei6:'Range 0~255',
     fanwei7:'Range 1~255',
     fanwei8:'Range 0~79',
-    canshu:'Parameter cannot be empty'
+    canshu:'Parameter cannot be empty',
+    selectGuanLian:'Please select the device to be disassociated',
+    cancelGuanLian:'Cancel association?'
   }
 }

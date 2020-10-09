@@ -2,7 +2,8 @@
 export default {
   // 导航栏
   navbar: {
-    'title': '零零AEP资产管理平台',
+    // 'title': '零零AEP资产管理平台',
+    'title': '车联网管理平台',
     // 'title': '中国联通资产管理平台',
     'languageSwitch': 'languageSwitch',
     'theme': 'Theme'
@@ -444,6 +445,8 @@ export default {
     fanwei6:'范围0~255',
     fanwei7:'范围1~255',
     fanwei8:'范围0~79',
-    canshu:'参数不能为空'
+    canshu:'参数不能为空',
+    selectGuanLian:'请选择需要取消关联的设备',
+    cancelGuanLian:'是否取消关联?'
   }
 }
