@@ -14,7 +14,7 @@ export default {
     Historical: 'Historical data',
     Alarm: 'Equipment alarm',
     aladata: 'Alarm data',
-    showala: 'Alarm message',
+    showala: 'Alarm management',
     User: 'User management',
     tongji: 'Alarm statistics',
     fence: 'Fence management',
@@ -90,6 +90,7 @@ export default {
     fence9:'Out',
     Photosensitive: 'Photosensitive switch triggers alarm',
     select2: 'please choose',
+    userLogin:'User login'
   },
   table: {
     seachtime: 'Choose query time',

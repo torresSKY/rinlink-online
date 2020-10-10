@@ -5,12 +5,23 @@
                 <span>{{$t('route.Location')}}</span>
             </div>
             <el-card shadow="always" :style="'height:'+height+'px'">
-                <el-row :gutter="10">
+                <!-- <el-row :gutter="10">
                     <el-col :span="6">
                         <el-input v-model="id" :placeholder="$t('table.searchimei')"></el-input>
                     </el-col>
-
+                </el-row> -->
+                <el-row v-loading="loading">
+                    <div id="map" :style="{height:height-180+'px',overflow:'hidden'}"></div>
+                </el-row>
+                <el-row :gutter="10">
                     <el-col :span="6">
+                        <span>{{$t('table.Device')}}:</span>
+                        <el-button type='text'>{{deviceName}}</el-button>
+                    </el-col>
+                    <el-col :span="3">
+                        <span>{{$t('table.seachtime')}}:</span>
+                    </el-col>
+                    <el-col :span="4">
                         <el-date-picker
                             v-model="startTime"
                             value-format="timestamp"
@@ -18,8 +29,7 @@
                             :placeholder="$t('table.startdata')">
                         </el-date-picker>
                     </el-col>
-                    
-                    <el-col :span="6">
+                    <el-col :span="4">
                         <el-date-picker
                             v-model="endTime"
                             value-format="timestamp"
@@ -28,15 +38,19 @@
                             :picker-options="pickerOptions">
                         </el-date-picker>
                     </el-col> 
-                    <el-col :span="6">
+                    <el-col :span="4">
                         <el-button class="butsearch" @click="getHistory" :disabled="listLoading">{{$t('button.search')}}</el-button>
-                        <!-- <el-button @click="getList">刷新</el-button> -->
-                        <!-- <el-button @click="">删除</el-button>
-                        <el-button @click="">123</el-button> -->
                     </el-col>
                 </el-row>
-                <el-row v-loading="loading">
-                    <div id="map" :style="{height:height-100+'px',overflow:'hidden'}"></div>
+                <el-row>
+                    <el-table class="particular-table" :data="listTrack" :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
+                        <el-table-column type="index" width="50" label="序号"></el-table-column>
+                        <el-table-column align='center'  prop="lastWAt" :label="$t('table.Update')"> </el-table-column>
+                        <el-table-column align='center' prop="imei" :label="$t('table.jing')"> </el-table-column>
+                        <el-table-column align='center' prop="deviceName" :label="$t('table.wei')"> </el-table-column>
+                        <el-table-column align='center' prop="deviceName" :label="$t('table.equlocation')"> </el-table-column>
+                        <el-table-column align='center' prop="deviceName" :label="$t('table.deladress')"> </el-table-column>
+                    </el-table>
                 </el-row>
             </el-card>
       </el-card>
@@ -47,7 +61,7 @@
     import {mapState} from 'vuex'
     import {wgs84togcj02} from '@/map/map'
     export default{
-        name:'history',
+        name:'equipmentTrack',
         computed:{
             ...mapState({user:'user',adminRoles:'roles'})
         },
@@ -72,7 +86,9 @@
                 polyline:null,
                 getimei: this.$route.params.imei,
                 equModel: this.$route.params.model,
-                loading: true,
+                loading: false,
+                deviceName:'选择设备',
+                listTrack:[]
             }
         },
         mounted(){
@@ -94,7 +110,7 @@
             },
             setMap(id){
                this.map = new BMap.Map("map");    // 创建Map实例
-  		        this.map.centerAndZoom(new BMap.Point(121.362426, 31.123795), 14);  // 初始化地图,设置中心点坐标和地图级别
+  		        this.map.centerAndZoom(new BMap.Point(121.362426, 31.123795), 15);  // 初始化地图,设置中心点坐标和地图级别
   		        //添加地图类型控件
 	  	        this.map.addControl(new BMap.MapTypeControl({
 	  	        	mapTypes:[
@@ -135,7 +151,7 @@
                     userId :this.$store.getters.usercode
                 }}).then(async _=>{
                             await api.getGroupList({imei:id2,
-                            pageNo:0,pageSize:10000,startTime:this.startTime,endTime:this.endTime}).then(res=>{
+                            pageNo:0,pageSize:6000,startTime:this.startTime,endTime:this.endTime}).then(res=>{
                                  this.listLoading = false
                                     let list=[]
                                     this.deleteMapMarker()
@@ -166,30 +182,7 @@
                         this.listLoading = false
                         this.$message.error(err.message);
                     })
-                // api.getHistory(objList[0].id,{startTime:this.startTime,endTime:this.endTime}).then(res=>{
-                    // let list=[]
-                    // this.deleteMapMarker()
-                    // this.deleteInfoWindow()
-                    // this.deletePolyline()
-                    // // console.log(this.mapMarker,t1his.mapMarkerEvent)
-                    // // console.log("结果" + res)
-                    // res.sort((a,b)=>new Date(a.eventTime).getTime()-new Date(b.eventTime).getTime())
-                    // for(let i in res){
-                    //     if(res[i].longitude&&res[i].latitude&&!list.filter(obj=>obj.time==res[i].eventTime).length){
-                    //         list.push({lang:[res[i].longitude,res[i].latitude],time:res[i].eventTime,wifiGpsFlag:res[i].wifiGpsFlag})
-                    //     }
-                    // }
-                    // if(!list.length){
-                    //     this.$message.warning('轨迹为空');
-                    //     return 
-                    // }
-                    // this.addMarker(list)
-                // }).catch(err=>{
-                //     this.$message({
-                //         type: 'error',
-                //         message: '请求错误!'
-                //     });
-                // })
+
             },
             deleteInfoWindow(){
                 if(this.infoWindow){
@@ -205,9 +198,6 @@
                 if(this.polyline){
                     this.map.remove(this.polyline);
                 }
-            },
-            asd(){
-
             },
             addMarker(list){
                  let _this=this
@@ -274,7 +264,7 @@
     }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
-#map{
-    margin-top: 20px;
-}
+// #map{
+//     margin-top: 20px;
+// }
 </style>

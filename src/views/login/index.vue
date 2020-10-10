@@ -1,10 +1,11 @@
 <template>
-  <div class="login-container">
+  <div class="login-container" :style="backgroundDiv">
+    <h3 class="title">{{$t('navbar.title')}}</h3>
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <!-- <div class="login-img">
         <img src='../../assets/img/login-logo.png'>
       </div>  -->
-      <h3 class="title">{{$t('navbar.title')}}</h3>
+      <h4 class="sub-title">{{$t('view.userLogin')}}</h4>
 
       <el-form-item prop="username" :rules="[{required: true, min: 3,  message: $t('message.loginuser')}]">
        <span class="pl10 c iconfont icon-denglu"></span>
@@ -19,7 +20,9 @@
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
 
-      <el-button type="primary" style="width:100%;margin-bottom:30px;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;background: linear-gradient(-90deg, #006DF3 0%, #00E5FC 100%);
+border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
+font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
 
       <!--div class="tips">账号:admin 密码随便填</div>
       <div class="tips">账号:editor  密码随便填</div>
@@ -67,6 +70,11 @@ export default {
       }
     }
     return {
+      backgroundDiv: {
+        backgroundImage:'url(' + require('@/assets/img/beijing.png') + ')',
+        backgroundRepeat:'no-repeat',
+        backgroundSize:'100% 100%'
+      },
       loginForm: {
         username: localStorage.getItem('username') || '',
         password: ''
@@ -163,18 +171,18 @@ export default {
   .login-container {
     @include relative;
     height: 100vh;
-    background-color: $bg;
-    input:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0px 1000px #293444 inset !important;
-      -webkit-text-fill-color: #fff !important;
-    }
+    // background-color: $bg;
+    // input:-webkit-autofill {
+    //   -webkit-box-shadow: 0 0 0px 1000px #293444 inset !important;
+    //   -webkit-text-fill-color: #fff !important;
+    // }
     input {
       background: transparent;
       border: 0px;
       -webkit-appearance: none;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
-      color: $light_gray;
+      // color: $light_gray;
       height: 47px;
     }
     .el-input {
@@ -198,26 +206,44 @@ export default {
       }
     }
     .title {
-      font-size: 26px;
-      font-weight: 400;
-      color: $light_gray;
-      margin: 0px auto 40px auto;
+      font-size: 34px;
+      font-weight: bold;
+      background: linear-gradient(to top,#006EF4 0%,#00E5FC 15%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      // text-fill-color: transparent;
+      -webkit-text-fill-color: transparent;
+      margin: 0px auto ;
+      padding-top:210px;
       text-align: center;
       font-weight: bold;
     }
     .login-form {
+      border-radius: 5px;
+      background: #FFFFFF;
       position: absolute;
       left: 0;
       right: 0;
-      width: 400px;
-      padding: 115px 35px 15px 35px;
-      margin: 120px auto;
+      width: 380px;
+      padding: 50px 35px 15px 35px;
+      margin: 40px auto;
     }
     .el-form-item {
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(0, 0, 0, 0.1);
+      border: 1px solid #0097F6;
+      background: #FFFFFF;
       border-radius: 5px;
-      color: #454545;
+      color: #333333;
+    }
+    // /deep/ .login-container input{
+    //   color: #333333;
+    // }
+    .sub-title{
+      width: 103px;
+font-size: 24px;
+font-family: Microsoft YaHei;
+font-weight: 400;
+color: #333333;
+      margin-bottom: 30px;
     }
     .show-pwd {
       
@@ -234,9 +260,9 @@ export default {
       bottom: 28px;
     }
     .lang{
-      position: relative;
-      top:10px;
-      right: -92%;
+      position: absolute;
+      top:40px;
+      right: 6%;
       width: 100px;
     }
   }

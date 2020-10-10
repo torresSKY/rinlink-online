@@ -30,11 +30,11 @@
                     <div style="overflow:hidden;">
                         <el-table v-loading="listLoading" :data="listxian" class="particular-table" :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
                             <el-table-column prop="username" :label="$t('table.username')" align='center'></el-table-column>
-                            <el-table-column  label="id" align='center'>
+                            <!-- <el-table-column  label="id" align='center'>
                                 <template slot-scope="scope">
                                     {{scope.row.id}}
                                 </template>
-                            </el-table-column>
+                            </el-table-column> -->
                             <!--<el-table-column 
                                 label="分组">
                                 <template slot-scope="scope">

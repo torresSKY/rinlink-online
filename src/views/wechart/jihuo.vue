@@ -63,7 +63,7 @@
                             <el-button @click="electTo(scope.row)" type="text" >{{$t('button.shewei')}}</el-button>
                         </template>
                     </el-table-column>
-                    <el-table-column align='center' prop="createDt" :label="$t('table.addtime')"></el-table-column>
+                    <!-- <el-table-column align='center' prop="createDt" :label="$t('table.addtime')" show-overflow-tooltip></el-table-column> -->
                     <el-table-column align='center' prop="" :label="$t('route.Alarm')">
                         <template slot-scope="scope">
                             <el-button @click="selectOperation('8',scope.row)" type="text" >{{$t('route.aladata')}}</el-button>

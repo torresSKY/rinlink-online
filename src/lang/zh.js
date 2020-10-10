@@ -19,10 +19,10 @@ export default {
     Group: '设备分组',
     Historical: '历史数据',
     Alarm: '设备告警',
-    aladata: '告警数据',
-    showala: '告警消息',
+    aladata: '报警数据',
+    showala: '报警管理',
     User: '用户管理',
-    tongji: '告警统计',
+    tongji: '报警统计',
     fence: '围栏管理',
   }, 
   button: {
@@ -96,6 +96,7 @@ export default {
     fence9: '出',
     Photosensitive: '光敏开关触发报警',
     select2: '请选择',
+    userLogin:'用户登录'
   },
   table: {
     seachtime: '选择查询时间',

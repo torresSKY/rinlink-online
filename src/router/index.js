@@ -33,6 +33,7 @@ const list={
           {path: 'history',name: 'route.Trajectory',component: () =>import('@/views/wechart/history'),hidden: false,radius:false,roles:[0,1,88,99],},
           {path: 'location',name: 'route.Location',component: () =>import('@/views/wechart/location'),hidden: true,radius:true,roles:[0,1,88,99],},
           {path: 'group',name: 'route.Group',component: () =>import('@/views/wechart/group'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
+          // {path: 'equipmentTrack',name: 'route.Trajectory',component: () =>import('@/views/wechart/equipmentTrack'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
           ]
       },      
       {
@@ -55,7 +56,7 @@ const list={
         redirect: '/Message/locationMessage',
         children: [
           // {path: 'locationMessage',name: '定位消息展示',component: () =>import('@/views/wechart/locationMessage'),meta: { keep: 'locationMessage' },radius:true,roles:[88,99],},
-          {path: 'policeMessage',name: 'route.showala',component: () =>import('@/views/wechart/policeMessage'),hidden: true,radius:true,roles:[0,1,88,99],},
+          {path: 'policeMessage',name: 'route.aladata',component: () =>import('@/views/wechart/policeMessage'),hidden: true,radius:true,roles:[0,1,88,99],},
           {path: 'statistics',name: 'route.tongji',component: () =>import('@/views/wechart/Alastatistics'),hidden: true,radius:true,roles:[0,1,88,99],},
         ]
       },
