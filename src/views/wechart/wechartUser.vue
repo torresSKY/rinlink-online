@@ -341,6 +341,11 @@ export default {
       this.addOrEditLoading = true;
       let res = null;
       if (this.isEdit) {
+         let reg = /^\w+$/g
+        if(!reg.test(this.loginForm.username)){
+           this.$message.error(this.$t('message.geshi'))
+           return
+        }
         if(this.loginForm.username.length < 3 ){
           this.$message.error(this.$t('message.namelong'))
           return
@@ -350,6 +355,10 @@ export default {
           });
         }
       } else {
+        if(this.loginForm.username.length < 3 ){
+          this.$message.error(this.$t('message.namelong'))
+          return
+        }
          let reg = /^\w+$/g
         if(!reg.test(this.loginForm.username)){
            this.$message.error(this.$t('message.geshi'))

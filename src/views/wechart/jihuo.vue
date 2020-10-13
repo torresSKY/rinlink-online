@@ -104,58 +104,70 @@
         </el-card>
      </el-card>
         <!-- 添加/编辑设备 -->
-        <el-dialog :title="isEdit?$t('table.changeinfo'):$t('route.Add')" :visible.sync="dialogState" :before-close="handleClose">
-            <div>
-                <label class="el-form-item__label">{{$t('table.imei')}}:</label>
-                <el-input v-model="imei" :disabled="isEdit" :rules="inputRules"></el-input>
-                <label class="el-form-item__label">{{$t('table.Device')}}:</label>
-                <el-input v-model="imsi"></el-input>
-                <label class="el-form-item__label" >{{$t('table.equgroup')}}:</label>
-                <!-- <el-input v-model="device_id" ></el-input> -->
-                <div style="width: 100%;display: inline-block;position: relative;margin-bottom:10px;">
-                    <el-select v-model="group_sel" :placeholder="morengroup" style="width:90%;">
+        <el-dialog width="40%" :title="isEdit?$t('table.changeinfo'):$t('route.Add')" :visible.sync="dialogState" :before-close="handleClose">
+            <el-form :rules="inputRules" model="ruleForm" ref="ruleForm" label-width="100px">
+                <el-form-item :label="$t('table.imei')+':'" prop="imei">
+                   <el-input v-model="ruleForm.imei" :disabled="isEdit" ></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('table.Device')+':'" prop="imsi">
+                   <el-input v-model="ruleForm.imsi" maxlength='20'></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('table.equgroup')+':'" prop="name">
+                    <el-select v-model="ruleForm.group_sel" :placeholder="morengroup" >
                         <el-option v-for="item in grouplist" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
-                    <!-- <router-link to="/wechart/group">
-                        <i class="el-icon-circle-plus-outline" style="color:red;font-size:20px;"></i>
-                    </router-link> -->
-                </div>
-                 <!-- <label class="el-form-item__label">{{$t('table.type')}}:</label>
-               <div style="width: 100%;display: inline-block;position: relative;margin-bottom:10px;">
-                    <template>
-                    <el-radio v-model="bind_mode" :label="$t('table.defaultdevice')">{{$t('table.defaultdevice')}}</el-radio>
-                    <el-radio v-model="bind_mode" label="CoAP/NB-IoT">CoAP/NB-IoT</el-radio>
-                    <el-radio v-model="bind_mode" label="UDP/2G">UDP/2G</el-radio>
-                    <el-radio v-model="bind_mode" label="TCP/4G">TCP/4G</el-radio>
-                    <el-radio v-model="bind_mode" :label="$t('table.lora')">{{$t('table.lora')}}</el-radio>
-                    <el-radio v-model="bind_mode" :label="$t('table.ble')">{{$t('table.ble')}}</el-radio>
-                    </template>
-                </div>-->
-                <label class="el-form-item__label">{{$t('table.model')}}:</label>
+                </el-form-item>
+                <el-form-item :label="$t('table.model')+':'" prop="name">
+                    <el-select v-model='ruleForm.model'>
+                      <el-option v-for='item in equmodel' :key='item.index' :value='item.value' :name='item.name'></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('table.touser')+':'" prop="name">
+                    <el-select v-model="ruleForm.user_sel" :placeholder="userName" >
+                        <el-option v-for="item in userlist" :key="item.id" :label="item.username" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('view.region')+':'" prop="name">
+                    <el-select v-model="ruleForm.region" :placeholder="userName" >
+                        <el-option :label="$t('view.region0')" value="true" key='0'></el-option>
+                        <el-option :label="$t('view.region1')" value="false" key='1'></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('table.carNo')+':'" prop="name">
+                   <el-input v-model="ruleForm.carNo"></el-input>
+                </el-form-item>
+                <!-- <label class="el-form-item__label">{{$t('table.imei')}}:</label>
+                <el-input v-model="imei" :disabled="isEdit" :rules="inputRules"></el-input> -->
+                <!-- <label class="el-form-item__label">{{$t('table.Device')}}:</label>
+                <el-input v-model="imsi"></el-input> -->
+                <!-- <label class="el-form-item__label" >{{$t('table.equgroup')}}:</label>
+                <div style="width: 100%;display: inline-block;position: relative;margin-bottom:10px;">
+                    <el-select v-model="group_sel" :placeholder="morengroup" >
+                        <el-option v-for="item in grouplist" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                </div> -->
+                <!-- <label class="el-form-item__label">{{$t('table.model')}}:</label>
                 <div style="width: 100%;display: inline-block;position: relative;margin-bottom:10px;">
                   <template>
                     <el-select v-model='model'>
                       <el-option v-for='item in equmodel' :key='item.index' :value='item.value' :name='item.name'></el-option>
                     </el-select>
                   </template>
-                </div>
-                <label class="el-form-item__label" >{{$t('table.touser')}}</label>
+                </div> -->
+                <!-- <label class="el-form-item__label" >{{$t('table.touser')}}</label>
                 <div style="width: 100%;display: inline-block;position: relative;margin-bottom:10px;">
-                    <el-select v-model="user_sel" :placeholder="userName" style="width:90%;">
+                    <el-select v-model="user_sel" :placeholder="userName" >
                         <el-option v-for="item in userlist" :key="item.id" :label="item.username" :value="item.id"></el-option>
                     </el-select>
-                    <!-- <router-link to="/UserManagement/wechartUser">
-                        <i class="el-icon-circle-plus-outline" style="color:red;font-size:20px;"></i>
-                    </router-link> -->
-                </div>
-                <label class="el-form-item__label" >{{$t('view.region')}}:</label>
+                </div> -->
+                <!-- <label class="el-form-item__label" >{{$t('view.region')}}:</label>
                 <div style="width: 100%;display: inline-block;position: relative;margin-bottom:10px;">
-                    <el-select v-model="region" :placeholder="userName" style="width:90%;">
+                    <el-select v-model="region" :placeholder="userName" >
                         <el-option :label="$t('view.region0')" value="true" key='0'></el-option>
                         <el-option :label="$t('view.region1')" value="false" key='1'></el-option>
                     </el-select>
-                </div>
-            </div>
+                </div> -->
+            </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">{{$t('button.cancel')}}</el-button>
                 <!-- <el-button type="primary" @click="confirmAdd" :disabled="[0,1].filter(res=>res==roles).length!==0 && isEdit" :loading="addOrEditLoading">{{[0,1].filter(res=>res==roles).length!==0 && isEdit?'无修改权限':'确认'}}</el-button> -->
@@ -344,6 +356,7 @@
                 <el-form-item style="margin: 0;"><span>{{$t('view.region')}} : {{oneInfo.abroad==true?$t('view.region0'):$t('view.region1')}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.equlocation')}} : {{oneInfo.positionType==1?"GPS":oneInfo.positionType==2?"WIFI":$t('table.equloctype')}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.Detailed')}} : {{oneInfo.address}}</span></el-form-item>
+                <el-form-item style="margin: 0;"><span>{{$t('table.carNo')}} : {{oneInfo.plate}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.creattime')}} : {{oneInfo.createDt}}</span></el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -511,8 +524,10 @@ export default{
     },
     data(){
       const validateimei = (rule, value, callback) => {
-        if (value<16) {
-        callback(new Error('imei不能小于5位'))
+        //   debugger
+         var reg = /^\d{15}$/
+        if (!reg.test(value)) {
+        callback(new Error(this.$t('message.guid15')))
         }else {
         callback()
         }
@@ -524,7 +539,17 @@ export default{
                 }
             },
         inputRules: {
-            imei: [{ required: true, trigger: 'blur', validator: validateimei }]
+            imei: [{ required: true, trigger: 'blur', validator: validateimei }],
+            imsi: [{ required: true, message: this.$t('message.devicename'), trigger: 'blur' }]
+        },
+        ruleForm:{
+            imei:'',
+            imsi:'',
+            group_sel:'',
+            model:'',
+            user_sel:'',
+            region:'',
+            carNo:''
         },
         roles:this.$store.getters.roles,
         height:0,
@@ -718,6 +743,15 @@ export default{
     },
     openDialog(state,obj){
         if(state){
+            this.ruleForm={
+                imei:obj.imei,
+                imsi:obj.deviceName,
+                group_sel:obj.groupId,
+                model:obj.deviceModel,
+                user_sel:obj.childUserId,
+                region:obj.abroad.toString(),
+                carNo:obj.plate
+            }
             this.imei=obj.imei
             this.deviceRelationId=obj.deviceRelationId
             this.device_id=obj.device_id
@@ -733,6 +767,15 @@ export default{
               this.bind_mode = this.$t('table.defaultdevice')
             }
         }else{
+            this.ruleForm={
+                imei:'',
+                imsi:'',
+                group_sel:'5D2E758127C00000',
+                model:'',
+                user_sel:'',
+                region:'',
+                carNo:''
+            }
             this.imei=''
             this.imsi=''
             this.device_id=''
@@ -780,7 +823,7 @@ export default{
         this.multipleSelection = this.checklist;
     },
     confirmAdd(){
-        if(this.imei.length==''){
+        if(this.ruleForm.imei.length==''){
             this.$message({
                 type: 'warning',
                 message: this.$t('table.inputno')
@@ -792,14 +835,14 @@ export default{
         // this.bind_mode == '5' ? this.$t('table.lora') :this.bind_mode == '6' ? this.$t('table.ble') : this.bind_mode
         if(this.isEdit){    //编辑
             let data={
-                childId: this.user_sel,
-                deviceGroupId: this.group_sel,
-                deviceImei: this.imei,
-                deviceName: this.imsi,
+                childId: this.ruleForm.user_sel,
+                deviceGroupId: this.ruleForm.group_sel,
+                deviceImei: this.ruleForm.imei,
+                deviceName: this.ruleForm.imsi,
                 deviceRelationId: this.deviceRelationId,
                 // deviceType: this.bind_mode,
-                deviceModel: this.model,
-                abroad: this.region == 'true' ? true : this.region == 'false' ? false : ''
+                deviceModel: this.ruleForm.model,
+                devicePosition: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : ''
             }
             this.addOrEditLoading=true
             api.equEdit(data).then(_=>{
@@ -823,7 +866,7 @@ export default{
                 this.addOrEditLoading=false
             })
         }else{        //添加设备
-            if(this.list.filter(obj=>obj.imei==this.imei).length){
+            if(this.list.filter(obj=>obj.imei==this.ruleForm.imei).length){
                 this.$message({
                     type: 'warning',
                     message: this.$t('message.existed')
@@ -831,14 +874,15 @@ export default{
                 return
             }
             let data={
-                childId: this.user_sel,
-                deviceGroupId: this.group_sel,
-                deviceImei: this.imei,
-                deviceName: this.imsi,
+                childId: this.ruleForm.user_sel,
+                deviceGroupId: this.ruleForm.group_sel,
+                deviceImei: this.ruleForm.imei,
+                deviceName: this.ruleForm.imsi,
                 // deviceType: this.bind_mode,
-                deviceModel: this.model,
+                deviceModel: this.ruleForm.model,
                 userId: this.$store.getters.usercode,
-                abroad: this.region == 'true' ? true : this.region == 'false' ? false : ''
+                devicePosition: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : '',
+                plate:this.ruleForm.carNo
             }
             this.addOrEditLoading=true
             api.equAdd(data).then(_=>{
@@ -889,6 +933,7 @@ export default{
     },
     handleClose(){
         this.dialogState=false
+        this.$refs['ruleForm'].resetFields()
     },
     electTo(val) {
         this.$router.push({path:'/electric/electric',query:{imei:val.imei,lon:val.lon,lat:val.lat}})
@@ -1266,10 +1311,11 @@ export default{
       }
     },
     toRouter(val,data) {
+        // debugger
         let nameloc=this.$t('route.Location')
         let nametra=this.$t('route.Trajectory')
       if(val == 0){
-        this.$router.push({name:'route.Trajectory',params: {imei:data.imei,model:data.deviceModel}})
+        this.$router.push({name:'route.Trajectory',params: {imei:data.imei,deviceName:data.deviceName}})
       }else{
         this.$router.push({name:'route.Location',params: {imei:data}})
       }

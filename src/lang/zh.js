@@ -96,7 +96,8 @@ export default {
     fence9: '出',
     Photosensitive: '光敏开关触发报警',
     select2: '请选择',
-    userLogin:'用户登录'
+    userLogin:'用户登录',
+    sel: '请选择设备'
   },
   table: {
     seachtime: '选择查询时间',
@@ -387,7 +388,8 @@ export default {
     orderCode:'指令代码',
     operLog:'系统操作日志',
     pengTime:'碰撞时间（4ms）',
-    pengSpeed:'碰撞加速度（0.1g）'
+    pengSpeed:'碰撞加速度（0.1g）',
+    carNo:'车牌号'
   },
   message: {
     equdele: '删除后无法恢复, 是否继续?',
@@ -448,6 +450,8 @@ export default {
     fanwei8:'范围0~79',
     canshu:'参数不能为空',
     selectGuanLian:'请选择需要取消关联的设备',
-    cancelGuanLian:'是否取消关联?'
+    cancelGuanLian:'是否取消关联?',
+    guid15:'请输入15位数字',
+    devicename:'请输入设备名称'
   }
 }

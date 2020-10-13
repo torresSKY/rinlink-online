@@ -30,10 +30,10 @@ const list={
         redirect: '/wechart/zhuche',
         children: [
           {path: 'jihuo',name: 'route.List',component: () =>import('@/views/wechart/jihuo'),hidden: true,meta: { keep: 'jihuo'},radius:true,roles:[0,1,88,99],},
-          {path: 'history',name: 'route.Trajectory',component: () =>import('@/views/wechart/history'),hidden: false,radius:false,roles:[0,1,88,99],},
+          // {path: 'history',name: 'route.Trajectory',component: () =>import('@/views/wechart/history'),hidden: false,radius:false,roles:[0,1,88,99],},
           {path: 'location',name: 'route.Location',component: () =>import('@/views/wechart/location'),hidden: true,radius:true,roles:[0,1,88,99],},
           {path: 'group',name: 'route.Group',component: () =>import('@/views/wechart/group'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
-          // {path: 'equipmentTrack',name: 'route.Trajectory',component: () =>import('@/views/wechart/equipmentTrack'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
+          {path: 'equipmentTrack',name: 'route.Trajectory',component: () =>import('@/views/wechart/equipmentTrack'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
           ]
       },      
       {
@@ -53,7 +53,7 @@ const list={
         roles:[0,1,88,99],
         component: _import('index'),
         icon: 'tongzhi',
-        redirect: '/Message/locationMessage',
+        redirect: '/Message/policeMessage',
         children: [
           // {path: 'locationMessage',name: '定位消息展示',component: () =>import('@/views/wechart/locationMessage'),meta: { keep: 'locationMessage' },radius:true,roles:[88,99],},
           {path: 'policeMessage',name: 'route.aladata',component: () =>import('@/views/wechart/policeMessage'),hidden: true,radius:true,roles:[0,1,88,99],},

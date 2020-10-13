@@ -4,7 +4,7 @@
             <el-col :span='6'>
             <div class='search'>
             <el-row>
-                <el-col :span='12'><el-input class='eleinput' v-model='fencesearch' clearable></el-input></el-col>
+                <el-col :span='12'><el-input class='eleinput' v-model='fencesearch' :placeholder="$t('view.fence2')" clearable></el-input></el-col>
                 <el-col :span='5'><el-button class='elebut butsearch' @click='getele()'>{{$t('button.search')}}</el-button></el-col>
                 <el-col :span='5'><el-button class='elebut butresh' @click='Resetgetele()'>{{$t('button.refresh')}}</el-button></el-col>
             </el-row>
@@ -519,9 +519,9 @@ export default {
             }else if(this.inala.length == 2){
                 inAndOut = 2
             }
-            // if(this.address == ''){
-            //     this.address = this.address2
-            // }
+            if(this.address == ''){
+                this.address = this.address2
+            }
             let data = {
                 address: this.address,
                 circleLat: this.conlat,
@@ -589,6 +589,7 @@ export default {
             this.moreequ = val
         },
         editele(val){
+            // debugger
             this.addview = false
             this.editfen = false
             this.fenceName = val.name
@@ -661,6 +662,7 @@ export default {
             }}).then(res => {
                 this.addlist(this.nowfenceid)
                 this.$message.success(this.$t('message.addsuc'))
+                this.getList()
             }).catch(err => {
                 this.$message.error(err.message)
             })

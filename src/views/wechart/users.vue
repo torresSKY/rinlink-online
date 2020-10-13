@@ -256,7 +256,7 @@ export default {
                     //     }
                     // }
                     this.listLoading=false
-                    this.alalist=res.content
+                    this.alalist=res.content.filter((item)=>{return item.isProcess==0})
                     this.alalist2 = this.alalist.slice(0,5)
                     this.page.total=res.total
                 }).catch(err=>{

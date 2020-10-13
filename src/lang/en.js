@@ -90,7 +90,8 @@ export default {
     fence9:'Out',
     Photosensitive: 'Photosensitive switch triggers alarm',
     select2: 'please choose',
-    userLogin:'User login'
+    userLogin:'User login',
+    sel: 'please choose device'
   },
   table: {
     seachtime: 'Choose query time',
@@ -375,7 +376,8 @@ export default {
     orderCode:'Instruction code',
     operLog:'System operation log',
     pengTime:'Collision time (4ms)',
-    pengSpeed:'Impact acceleration (0.1g)'
+    pengSpeed:'Impact acceleration (0.1g)',
+    carNo:'Car number'
   },
   message: {
     equdele: 'Cannot restore after deleting, continue?',

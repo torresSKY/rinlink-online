@@ -23,7 +23,9 @@ module.exports={
                 {value: 'D615',name:'D615'},
                 {value: 'D630',name:'D630'},
                 {value: 'D600N',name:'D600N'},
-                {value: 'D631',name:'D631'},],
+                {value: 'D631',name:'D631'},
+                {value: 'D650',name:'D650'},
+                {value: 'D631L',name:'D631L'}],
                 // {value: 'D652',name:'D652'},
 
         }
