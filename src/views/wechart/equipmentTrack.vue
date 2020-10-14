@@ -334,7 +334,7 @@
             // console.log(polyline)
             
             // pois[i].ba=polyline.ba; //将ba 赋值给原始数据
-            polyline.addEventListener("mouseover",attribute); //监听对象
+            polyline.addEventListener("click",attribute); //监听对象
  
             trackPoint=[];
             this.map.addOverlay(polyline);

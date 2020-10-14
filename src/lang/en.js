@@ -348,8 +348,8 @@ export default {
     Sensitivity4: 'Super high',
     params1:'Terminal heartbeat sending interval (s)',
     params2:'Master server APN',
-    params3:'Primary server address, IP or domain name',
-    params4:'Backup server address, IP or domain name',
+    params3:'Primary server address, IP',
+    params4:'Backup server address, IP',
     params5:'Server TCP port',
     params6:'Location reporting strategy',
     params7:'Report interval during sleep (s)',
@@ -377,7 +377,25 @@ export default {
     operLog:'System operation log',
     pengTime:'Collision time (4ms)',
     pengSpeed:'Impact acceleration (0.1g)',
-    carNo:'Car number'
+    carNo:'Car number',
+    chaichuala:'Demolition alarm',
+    jiasuala:'Rapid acceleration alarm',
+    jiansuala:'Rapid deceleration alarm',
+    zhuanwanala:'Sharp turn alarm',
+    jinjiala:'Emergency alarm',
+    chaosuala:'Speed Alarm',
+    power1ala:'Terminal main power supply under voltage',
+    power2ala:'Power failure of terminal main power supply',
+    weiyiala:'Illegal vehicle displacement',
+    pengzhuangala:'Collision warning',
+    cefanala:'Rollover warning',
+    params22:'Server address, IP',
+    params23:'Terminal reset (restart)',
+    params24:'Terminal restore factory settings',
+    params25:'Cut off oil and electricity',
+    params26:'Oil and electricity',
+    params27:'Fortification',
+    params28:'Withdraw'
   },
   message: {
     equdele: 'Cannot restore after deleting, continue?',
@@ -439,6 +457,10 @@ export default {
     fanwei8:'Range 0~79',
     canshu:'Parameter cannot be empty',
     selectGuanLian:'Please select the device to be disassociated',
-    cancelGuanLian:'Cancel association?'
+    cancelGuanLian:'Cancel association?',
+    guid15:'Please enter 15 digits',
+    devicename:'Please enter device name',
+    area:'Please select region',
+    checkmsg:'Please complete the information'
   }
 }

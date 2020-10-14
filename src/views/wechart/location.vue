@@ -234,7 +234,7 @@ export default {
             }
             let typeop = res[i].positionType === 2 ? "WIFI" : res[i].positionType === 1 ? "GPS" : res[i].positionType === 0 ? "基站" :""
             var content = this.$t('table.imei') + ":" + res[i].imei + "<br>" + this.$t('table.Update') + ":" +  res[i].collectDt + "<br>" + 
-            this.$t('table.loctype') + ":" + typeop + "<br>"+this.$t('view.ele') + ":" + res[i].battery + "%<br>" + this.$t('table.wei') + ":" + res[i].lat + "<br>" + this.$t('table.jing') + ":" + res[i].lon;
+            this.$t('table.loctype') + ":" + typeop + "<br>" + this.$t('table.wei') + ":" + res[i].lat + "<br>" + this.$t('table.jing') + ":" + res[i].lon;
              this.addClickHandler(content,marker);
             
           } else {

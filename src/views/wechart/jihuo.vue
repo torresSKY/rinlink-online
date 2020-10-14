@@ -105,35 +105,35 @@
      </el-card>
         <!-- 添加/编辑设备 -->
         <el-dialog width="40%" :title="isEdit?$t('table.changeinfo'):$t('route.Add')" :visible.sync="dialogState" :before-close="handleClose">
-            <el-form :rules="inputRules" model="ruleForm" ref="ruleForm" label-width="100px">
+            <el-form :rules="inputRules" :model="ruleForm" ref="ruleForm" label-width="100px">
                 <el-form-item :label="$t('table.imei')+':'" prop="imei">
-                   <el-input v-model="ruleForm.imei" :disabled="isEdit" ></el-input>
+                   <el-input v-model="ruleForm.imei" :disabled="isEdit" maxlength='15'></el-input>
                 </el-form-item>
                 <el-form-item :label="$t('table.Device')+':'" prop="imsi">
                    <el-input v-model="ruleForm.imsi" maxlength='20'></el-input>
                 </el-form-item>
-                <el-form-item :label="$t('table.equgroup')+':'" prop="name">
+                <el-form-item :label="$t('table.equgroup')+':'" prop="group_sel">
                     <el-select v-model="ruleForm.group_sel" :placeholder="morengroup" >
                         <el-option v-for="item in grouplist" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item :label="$t('table.model')+':'" prop="name">
+                <el-form-item :label="$t('table.model')+':'" prop="model">
                     <el-select v-model='ruleForm.model'>
                       <el-option v-for='item in equmodel' :key='item.index' :value='item.value' :name='item.name'></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item :label="$t('table.touser')+':'" prop="name">
+                <el-form-item :label="$t('table.touser')+':'" prop="user_sel">
                     <el-select v-model="ruleForm.user_sel" :placeholder="userName" >
                         <el-option v-for="item in userlist" :key="item.id" :label="item.username" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item :label="$t('view.region')+':'" prop="name">
-                    <el-select v-model="ruleForm.region" :placeholder="userName" >
+                <!-- <el-form-item :label="$t('view.region')+':'" prop="region">
+                    <el-select v-model="ruleForm.region" :placeholder="$t('view.region')" >
                         <el-option :label="$t('view.region0')" value="true" key='0'></el-option>
                         <el-option :label="$t('view.region1')" value="false" key='1'></el-option>
                     </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('table.carNo')+':'" prop="name">
+                </el-form-item> -->
+                <el-form-item :label="$t('table.carNo')+':'" prop="carNo">
                    <el-input v-model="ruleForm.carNo"></el-input>
                 </el-form-item>
                 <!-- <label class="el-form-item__label">{{$t('table.imei')}}:</label>
@@ -189,7 +189,7 @@
                 
                 <el-row>
                     <el-col :span="6">
-                        <el-select v-model="useritem" :placeholder="$t('view.select2')" >
+                        <el-select v-model="useritem" :placeholder="$t('view.select2')" @change="chooseType">
                             <el-option v-for='item in modellist' :key="item.val" :label="item.name" :value="item.val">
                             </el-option>
                         </el-select>    
@@ -200,10 +200,22 @@
                         ||useritem==129||useritem==130" type="number"  
                         v-model="intervalTime" :placeholder="$t('table.randomdata')" ></el-input>
 
-                        <el-input clearable v-if="useritem == 16||useritem == 19||useritem == 23||useritem == 24
+                        <el-input clearable v-if="useritem == 16
                         ||useritem == 131||useritem == 132||useritem == 78"  
                         v-model="inputContent" :placeholder="$t('table.inputtext')" ></el-input>
                         
+                    </el-col>
+                    <el-col :span='12' :offset="1" v-if="useritem == 19||useritem == 23 ">
+                        <el-col :span="24">
+                            <el-form-item :label="$t('table.params22')" >
+                              <el-input v-model="inputContent"  :placeholder="$t('table.inputtext')"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24" style="margin-top:10px">
+                            <el-form-item :label="$t('table.params5')" >
+                              <el-input v-model="inputPort"  :placeholder="$t('table.inputtext')"></el-input>
+                            </el-form-item>
+                        </el-col>
                     </el-col>
                     <el-col :span="12" :offset="1" v-if="useritem == 32 ">
                         <el-radio v-model="open" label="0" style="line-height:40px">{{$t('table.strategy1')}}</el-radio>
@@ -244,7 +256,17 @@
                         {{scope.row.cmdIdHexStr}}
                     </template>
                 </el-table-column>
-                <el-table-column align='center' prop="createAt" :label="$t('table.creattime')">
+                <el-table-column align='center' prop="cmdType" :label="$t('table.zhitype')">
+                    <template slot-scope="scope">
+                        {{scope.row.cmdType}}
+                    </template>
+                </el-table-column>
+                <el-table-column align='center' prop="data" :label="$t('table.zhidata')">
+                    <template slot-scope="scope">
+                        {{scope.row.data}}
+                    </template>
+                </el-table-column>
+                <el-table-column align='center' prop="createAt" :label="$t('table.creattime')" show-overflow-tooltip>
                     <template slot-scope="scope">
                         {{scope.row.createAt | formatDate}}
                     </template>
@@ -368,7 +390,7 @@
          <el-dialog :title="$t('route.Alarm')" :visible.sync="showaladata">
                 <el-row :gutter="20">
                 <el-col :span="6">
-                    <el-select v-model="datatype">
+                    <el-select v-model="datatype" :placeholder="$t('table.inputele')">
                       <el-option v-for='item in alatypelist' :value='item.value' :label="item.name" :key='item.value' ></el-option>
                       <!-- <el-option :label="$t('table.moveala')" :value="2"></el-option>
                       <el-option :label="$t('table.sosala')" :value="3"></el-option>
@@ -403,6 +425,8 @@
                 </el-col>
                 </el-row>
                 <el-table :data="aladata2" v-loading=''>
+                     <el-table-column align='center' prop="imei" :label="$t('table.imei')" width="180">
+                        </el-table-column>
                         <el-table-column align='center' prop="alarmType" :label="$t('table.alatype')" width="200">
                             <template slot-scope="scope">
                             {{scope.row.alarmType | alatype}}
@@ -540,7 +564,9 @@ export default{
             },
         inputRules: {
             imei: [{ required: true, trigger: 'blur', validator: validateimei }],
-            imsi: [{ required: true, message: this.$t('message.devicename'), trigger: 'blur' }]
+            imsi: [{ required: true, message: this.$t('message.devicename'), trigger: 'blur' }],
+            model: [{ required: true, message: this.$t('message.modelerror'), trigger: 'change' }],
+            // region: [{ required: true, message: this.$t('message.area'), trigger: 'change' }]
         },
         ruleForm:{
             imei:'',
@@ -563,6 +589,7 @@ export default{
         useritem:'',
         intervalTime:'',
         inputContent:'',
+        inputPort:'',
         open:'2',
         open1:'1',
         touchTime:'',
@@ -572,7 +599,7 @@ export default{
             {val: '16', name: this.$t('table.params2')},
             {val: '19', name: this.$t('table.params3')},
             {val: '23', name: this.$t('table.params4')},
-            {val: '24', name: this.$t('table.params5')},
+            // {val: '24', name: this.$t('table.params5')},
             {val: '32', name: this.$t('table.params6')},
             {val: '39', name: this.$t('table.params7')},
             {val: '41', name: this.$t('table.params8')},
@@ -589,6 +616,12 @@ export default{
             {val: '131', name: this.$t('table.params19')},
             {val: '132', name: this.$t('table.params20')},
             {val: '78', name: this.$t('table.params21')},
+            {val: '4', name: this.$t('table.params23')},
+            {val: '5', name: this.$t('table.params24')},
+            {val: '100', name: this.$t('table.params25')},
+            {val: '101', name: this.$t('table.params26')},
+            {val: '102', name: this.$t('table.params27')},
+            {val: '103', name: this.$t('table.params28')},
         ],
         deviceRelationId:'',
         device_id: '',
@@ -743,13 +776,14 @@ export default{
     },
     openDialog(state,obj){
         if(state){
+            // debugger
             this.ruleForm={
                 imei:obj.imei,
                 imsi:obj.deviceName,
                 group_sel:obj.groupId,
                 model:obj.deviceModel,
                 user_sel:obj.childUserId,
-                region:obj.abroad.toString(),
+                region:obj.abroad,
                 carNo:obj.plate
             }
             this.imei=obj.imei
@@ -759,7 +793,7 @@ export default{
             this.editId=obj.id
             this.morengroup = obj.groupName
             this.userName = obj.childUserName
-            this.region = obj.abroad.toString()
+            this.region = obj.abroad
             this.group_sel = obj.groupId
             this.user_sel = obj.childUserId
             this.model = obj.deviceModel
@@ -785,6 +819,9 @@ export default{
             this.group_sel=''
             this.editId=-1
             this.user_sel =''
+        }
+        if(this.$refs['ruleForm']){
+            this.$refs['ruleForm'].resetFields()
         }
         this.isEdit=state
         this.dialogState=true
@@ -830,6 +867,8 @@ export default{
             });
             return
         }
+        this.$refs['ruleForm'].validate((valid) => {
+            if (valid) {
         // console.log(this.bind_mode)
         // let equtype = this.bind_mode == '1' ? this.$t('table.defaultdevice'):this.bind_mode == '2' ? 'CoAP/NB-IoT' : this.bind_mode == '3' ? 'UDP/2G' :this.bind_mode == '4' ? 'TCP/4G' :
         // this.bind_mode == '5' ? this.$t('table.lora') :this.bind_mode == '6' ? this.$t('table.ble') : this.bind_mode
@@ -842,7 +881,7 @@ export default{
                 deviceRelationId: this.deviceRelationId,
                 // deviceType: this.bind_mode,
                 deviceModel: this.ruleForm.model,
-                devicePosition: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : ''
+                abroad: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : ''
             }
             this.addOrEditLoading=true
             api.equEdit(data).then(_=>{
@@ -881,7 +920,7 @@ export default{
                 // deviceType: this.bind_mode,
                 deviceModel: this.ruleForm.model,
                 userId: this.$store.getters.usercode,
-                devicePosition: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : '',
+                abroad: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : '',
                 plate:this.ruleForm.carNo
             }
             this.addOrEditLoading=true
@@ -905,6 +944,15 @@ export default{
                 this.addOrEditLoading=false
             })
         }
+
+        } else {
+            this.$message({
+                type: 'warning',
+                message: this.$t('message.checkmsg')
+            })
+            return false;
+          }
+        })
     },
     deleteEqu(id){
         this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
@@ -969,6 +1017,7 @@ export default{
         this.open1='1'
         this.touchTime=''
         this.touchSpeed=''
+        this.inputPort=''
         this.dialogTableVisible = true;
         // this.sendData(data)
         break;
@@ -1012,7 +1061,19 @@ export default{
             this.dialogLogdata=true
         }
     },
+    chooseType(val){
+        if(val){
+            this.intervalTime=''
+            this.inputContent=''
+            this.open='2'
+            this.open1='1'
+            this.touchTime=''
+            this.touchSpeed=''
+            this.inputPort =''
+        }
+    },
     sendTime() {
+        // debugger
         let data=null
         if(this.useritem==1||this.useritem == 39||this.useritem == 41||this.useritem == 44
             ||this.useritem == 48||this.useritem == 85||this.useritem == 86||this.useritem==94
@@ -1038,9 +1099,17 @@ export default{
                 paramId:this.useritem,
                 obj:this.intervalTime
             }
-        }
-        if(this.useritem == 16||this.useritem == 19||this.useritem == 23||this.useritem == 24
-            ||this.useritem == 131||this.useritem == 132||useritem == 78){
+        }else if(this.useritem == 19||this.useritem == 23){
+             if(!this.inputContent||!this.inputPort){
+                this.$message.error(this.$t('message.canshu'))
+                return
+            }
+            data={
+                imei:this.imei,
+                paramId:this.useritem,
+                obj:[this.inputContent,this.inputPort].join()
+            }
+        }else if(this.useritem == 16||this.useritem == 131||this.useritem == 132||this.useritem == 78){
             if(!this.inputContent){
                 this.$message.error(this.$t('message.canshu'))
                 return
@@ -1050,22 +1119,19 @@ export default{
                 paramId:this.useritem,
                 obj:this.inputContent
             }
-        }
-        if(this.useritem == 32){
+        }else if(this.useritem == 32){
             data={
                 imei:this.imei,
                 paramId:this.useritem,
                 obj:this.open
             }
-        }
-        if(this.useritem == 50){
+        }else if(this.useritem == 50){
             data={
                 imei:this.imei,
                 paramId:this.useritem,
                 obj:this.open1
             }
-        }
-        if(this.useritem == 93){
+        }else if(this.useritem == 93){
             if(!this.touchTime||!this.touchSpeed){
                 this.$message.error(this.$t('message.canshu'))
                 return
@@ -1083,11 +1149,28 @@ export default{
                 paramId:this.useritem,
                 obj:[this.touchTime,this.touchSpeed].join()
             }
+        }else if(this.useritem == 4||this.useritem == 5||this.useritem == 100
+        ||this.useritem == 101||this.useritem == 102||this.useritem == 103){
+            //   data={
+            //     imei:this.imei,
+            //     paramId:this.useritem,
+            //     obj:''
+            // }
+             api.sendControl(this.imei,this.useritem).then(res => {
+                 this.$message.success(this.$t('message.sendsuc'))
+                 this.dialogTableVisible = false
+                 
+              }).catch( err =>{
+                  // console.log(err)
+                   this.$message.error(err.message)
+              })
+              return
         }
         api.sendOrder(data).then(res => {
             this.$message.success(this.$t('message.sendsuc'))
             this.dialogTableVisible = false
         }).catch( err =>{
+            // console.log(err)
             this.$message.error(err.message)
         })
     //    if(this.frequency == 19){

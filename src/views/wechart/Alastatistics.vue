@@ -109,7 +109,7 @@ export default {
                 }
             },
              checkAll: false,
-             alarmType: 23,
+             alarmType: 0,
              isIndeterminate: true,
              statisticsTyep: [{lable:'日',value:3,},{lable:'月',value:1,},{lable:'年',value:0,}],
              radio: 3,

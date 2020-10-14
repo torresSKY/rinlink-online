@@ -6,17 +6,17 @@ function alatype (val) {
   //     : val === 6 ? i18n.t('table.vibala') : val === 7 ? i18n.t('table.disala') : val === 8 ? i18n.t('table.smokeala')
   //       : val === 9 ? i18n.t('table.gasala') : val === 10 ? i18n.t('table.temalarm') : val === 11 ? i18n.t('table.humalarm')
   //         : val === 18 ? i18n.t('table.External') : val === 13 ? i18n.t('table.inele') : val === 14 ? i18n.t('table.outele') : val
-  return val === 0 ? i18n.t('table.noalarm') : val === 1 ? i18n.t('table.temupala') : val === 2 ? i18n.t('table.temlowala')
+  return val === 0 ? i18n.t('table.jinjiala') : val === 1 ? i18n.t('table.chaosuala') : val === 2 ? i18n.t('table.temlowala')
   : val === 3 ? i18n.t('table.noalarm') : val === 4 ? i18n.t('table.alarm3') : val === 5 ? i18n.t('table.sosala')
-    : val === 6 ? i18n.t('table.sosalac') : val === 7 ? i18n.t('table.alarm1') : val === 8 ? i18n.t('table.alarm2')
+    : val === 6 ? i18n.t('table.sosalac') : val === 7 ? i18n.t('table.power1ala') : val === 8 ? i18n.t('table.power2ala')
       : val === 9 ? i18n.t('table.humupala') : val === 10 ? i18n.t('table.humlowala') : val === 11 ? i18n.t('table.alarm4')
         : val === 12 ? i18n.t('table.alarm4') : val === 13 ? i18n.t('table.mechanical') : val === 14 ? i18n.t('table.mechanicalcancel')
           : val === 15 ? i18n.t('table.Photosensitive') : val === 16 ? i18n.t('table.Photosensitivecancel') : val === 17 ? i18n.t('table.tiltalarm')
             : val === 18 ? i18n.t('table.tiltalarmc') : val === 19 ? i18n.t('table.capsizedalarm') : val === 20 ? i18n.t('table.capsizedalarmc')
               : val === 21 ? i18n.t('table.doorala') : val === 22 ? i18n.t('table.dooralac') : val === 23 ? i18n.t('table.powerala')
                 : val === 24 ? i18n.t('table.poweralac') : val === 25 ? i18n.t('table.alarm5') : val === 26 ? i18n.t('table.alarm6')
-                  : val === 27 ? i18n.t('table.alarm7') : val === 28 ? i18n.t('table.fccancl') : val === 29 ? i18n.t('table.offala')
-                    : val === 30 ? i18n.t('table.offcancl') : val === 31 ? i18n.t('table.alarm8') : val === 32 ? i18n.t('table.alarm9')
+                  : val === 27 ? i18n.t('table.alarm7') : val === 28 ? i18n.t('table.weiyiala') : val === 29 ? i18n.t('table.pengzhuangala')
+                    : val === 30 ? i18n.t('table.cefanala') : val === 31 ? i18n.t('table.alarm8') : val === 32 ? i18n.t('table.alarm9')
                       : val === 33 ? i18n.t('table.alarm10') : val === 34 ? i18n.t('table.alarm11') : val === 35 ? i18n.t('table.alarm12')
                         : val === 36 ? i18n.t('table.alarm13') : val === 37 ? i18n.t('table.alarm14') : val === 38 ? i18n.t('table.alarm15')
                           : val === 39 ? i18n.t('table.alarm16') : val === 40 ? i18n.t('table.alarm17') : val === 41 ? i18n.t('table.alarm18')
@@ -25,7 +25,9 @@ function alatype (val) {
                             : val === 48 ? i18n.t('table.alarm25') : val === 49 ? i18n.t('table.alarm26') : val === 50 ? i18n.t('table.alarm27')
                             : val === 51 ? i18n.t('table.alarm28') : val === 52 ? i18n.t('table.alarm4') : val === 53 ? i18n.t('table.alarm30')
                             : val === 54 ? i18n.t('table.alarm4') : val === 55 ? i18n.t('table.alarm32') : val === 56 ? i18n.t('table.alarm33')
-                            : val === 58 ? i18n.t('table.alarm34') : val === 59 ? i18n.t('table.alarm35') : val
+                            : val === 58 ? i18n.t('table.alarm34') : val === 59 ? i18n.t('table.alarm35') : val === 60 ? i18n.t('table.alarm5')
+                            : val === 61 ? i18n.t('table.chaichuala'): val === 62 ? i18n.t('table.jiasuala'): val === 63 ? i18n.t('table.jiansuala')
+                            : val === 64 ? i18n.t('table.zhuanwanala'): val
 }
 function order (val) {
   if(val.indexOf(',')){

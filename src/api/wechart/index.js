@@ -272,6 +272,9 @@ const getOrder = (imei) => { //查询指定终端参数
 const sendOrder = (data) => { //设置终端参数
     return axios.post(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/cmd/setTerminalParameter/`, data)
 }
+const sendControl = (imei,cmdWord) => { //设置终端控制参数
+    return axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/cmd/terminalControl/${imei}/${cmdWord}`)
+}
 const queryOrder = (data) => { //查询历史下发的指令记录(报表)
     return axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/cmd/queryCmd/`, data)
 }
@@ -281,6 +284,7 @@ const queryLog = (data) => { //查询操作日志
 export default {
     getOrder,
     sendOrder,
+    sendControl,
     queryOrder,
     queryLog,
     login,
