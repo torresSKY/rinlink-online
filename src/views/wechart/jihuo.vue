@@ -381,7 +381,7 @@
                 <el-form-item style="margin: 0;"><span>{{$t('table.type')}} : {{oneInfo.deviceType}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.model')}} : {{oneInfo.deviceModel}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.equadmin')}} : {{oneInfo.userName}}</span></el-form-item>
-                <el-form-item style="margin: 0;"><span>{{$t('view.region')}} : {{oneInfo.abroad==true?$t('view.region0'):$t('view.region1')}}</span></el-form-item>
+                <!-- <el-form-item style="margin: 0;"><span>{{$t('view.region')}} : {{oneInfo.abroad==true?$t('view.region0'):$t('view.region1')}}</span></el-form-item> -->
                 <el-form-item style="margin: 0;"><span>{{$t('table.equlocation')}} : {{oneInfo.positionType==1?"GPS":oneInfo.positionType==2?"WIFI":$t('table.equloctype')}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.Detailed')}} : {{oneInfo.address}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.carNo')}} : {{oneInfo.plate}}</span></el-form-item>

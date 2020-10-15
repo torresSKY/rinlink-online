@@ -150,6 +150,7 @@ export default {
   methods: {
     checkChange(obj, state) {
       console.log(obj, state)
+      // debugger
         this.equimei = obj
       if (state.checkedKeys.filter(res => res == obj.imei).length) {    // 点击选择
         obj.disabled = true;
@@ -291,9 +292,10 @@ export default {
                    if(_.content.length == 0){
                         this.$message.error('该设备不存在');
                      }else{
+                      //  debugger
                       src=_.content
                         for (let i in src) {
-                        src[i].imei = `${src[i].deviceName}`;
+                        src[i].imei = `${src[i].imei}`;
                           if (
                           this.mapMarker.filter(res => res.id == src[i].deviceId).length
                           ) {
