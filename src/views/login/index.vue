@@ -1,6 +1,6 @@
 <template>
   <div class="login-container" :style="backgroundDiv">
-    <h3 class="title">{{$t('navbar.title')}}</h3>
+    <h3 class="title" style="letter-spacing:3px">{{$t('navbar.title')}}</h3>
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <!-- <div class="login-img">
         <img src='../../assets/img/login-logo.png'>
@@ -71,7 +71,7 @@ export default {
     }
     return {
       backgroundDiv: {
-        backgroundImage:'url(' + require('@/assets/img/beijing.png') + ')',
+        backgroundImage:'url(' + require('@/assets/img/beijing2.png') + ')',
         backgroundRepeat:'no-repeat',
         backgroundSize:'100% 100%'
       },
@@ -154,7 +154,7 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
+<style rel="stylesheet/scss" lang="scss" >
 .login-img{
   width:100%;
   text-align: center;
@@ -207,14 +207,15 @@ export default {
     }
     .title {
       font-size: 34px;
-      font-weight: bold;
+      font-weight: 400;
+      font-family: CTCuHeiSJ;
       background: linear-gradient(to top,#006EF4 0%,#00E5FC 15%);
       background-clip: text;
       -webkit-background-clip: text;
       // text-fill-color: transparent;
       -webkit-text-fill-color: transparent;
-      margin: 0px auto ;
-      padding-top:210px;
+      margin: 0 0 0 35% ;
+      padding-top:20vh;
       text-align: center;
       font-weight: bold;
     }
@@ -226,7 +227,7 @@ export default {
       right: 0;
       width: 380px;
       padding: 50px 35px 15px 35px;
-      margin: 40px auto;
+      margin: 40px 0 0 55.6%;
     }
     .el-form-item {
       border: 1px solid #0097F6;
@@ -262,8 +263,11 @@ color: #333333;
     .lang{
       position: absolute;
       top:40px;
-      right: 6%;
+      right: 5%;
       width: 100px;
+    }
+    .lang .el-input__inner{
+      color: #fff!important;
     }
   }
 </style>

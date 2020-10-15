@@ -82,7 +82,8 @@ import BMap from "BMap";
 import { mapState,mapGetters } from "vuex";
 import {wgs84togcj02} from '@/map/map'
 import img from '@/assets/img/in.png'
-import img2 from '@/assets/img/out.png'
+// import img2 from '@/assets/img/out.png'
+import img2 from '@/assets/img/carpos.png'
 export default {
   name: "location",
   mixins: [mixin],
@@ -214,11 +215,14 @@ export default {
             //  let aa = wgs84togcj02(res[i].lon,res[i].lat,res.content[i].abroad)
              point = new BMap.Point( res[i].lon,res[i].lat);
              var myIcon =null
-             if(res[i].isOnline == 1){
-               myIcon = new BMap.Icon(img, new BMap.Size(40,40),{anchor: new BMap.Size(10, 35)});
-             }else{
-               myIcon = new BMap.Icon(img2, new BMap.Size(40,40),{anchor: new BMap.Size(10, 35)});
-             }
+            //  if(res[i].isOnline == 1){
+            //    myIcon = new BMap.Icon(img, new BMap.Size(40,40),{anchor: new BMap.Size(10, 35)});
+            //  }else{
+            //    myIcon = new BMap.Icon(img2, new BMap.Size(30,66),{anchor: new BMap.Size(10, 35)});
+            //    myIcon.setImageSize(new BMap.Size(15,33));//设置图标大小
+            //  }
+             myIcon = new BMap.Icon(img2, new BMap.Size(30,66),{anchor: new BMap.Size(10, 35)});
+               myIcon.setImageSize(new BMap.Size(15,33));//设置图标大小
             var marker = new BMap.Marker(point,{icon:myIcon})
              this.mapMarker.push({
                imei:res[i].imei,

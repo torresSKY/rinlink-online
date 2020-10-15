@@ -1,6 +1,6 @@
 export default {
   navbar: {
-    title: 'Internet of vehicles management platform'
+    title: 'Vehicle management platform'
   },
   route: {
     Home: 'Home page',

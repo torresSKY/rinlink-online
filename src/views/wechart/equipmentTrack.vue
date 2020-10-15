@@ -48,7 +48,7 @@
                     <el-table :style="{height:height-680 +'px',overflow:'auto' }"  :data="listTrack"   ref="listTrack"
                     highlight-current-row @current-change="handleCurrentTrack" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column align='center'  prop="receiveAt" :label="$t('table.Update')"> </el-table-column>
+                        <el-table-column align='center'  prop="collectDt" :label="$t('table.Update')"> </el-table-column>
                         <el-table-column align='center' prop="lon" :label="$t('table.jing')"> </el-table-column>
                         <el-table-column align='center' prop="lat" :label="$t('table.wei')"> </el-table-column>
                         <el-table-column align='center' prop="positionType" :label="$t('table.equlocation')">
@@ -217,28 +217,30 @@
 
                             if(!res.content.length){
                                 this.loading = false
+                                this.map.clearOverlays()
                                 this.$message.warning(this.$t('message.hisempty'));
                                 return 
                             }
                             this.list=res.content
                             for(let i=0;i<this.list.length;i++){
                                 this.getaddress(this.list[i])
-                                this.adddizhi
-                .then(res => {
-                  a.push(res)
-                  this.listTrack = a
-                })
-                .catch(err => {
-                  this.list.push(res)
-                  console.log(err)
-                })
+                                this.adddizhi.then(res => {
+                                   a.push(res)
+                                   this.listTrack = a.sort(function (a, b) {
+                                      return a.collectDt < b.collectDt ? 1 : -1
+                                    })
+                                })
+                                .catch(err => {
+                                this.list.push(res)
+                                 console.log(err)
+                                })
                             }
                             // this.$nextTick(() => {
                             //     this.listTrack=list
                             //     console.log(this.listTrack)
                             //     this.$set(this.data,index,row) 
                             // })
-                            
+                                    this.map.clearOverlays()
                                     this.addMarker(this.list)
                     }).catch(_=>{
                         this.listLoading = false
@@ -279,10 +281,11 @@
                     if(list[i].lon && list[i].lat && list[i].lon > 1 && list[i].lat > 1){
                    point = new BMap.Point(list[i].lon,list[i].lat);
                    pois.push({lon:list[i].lon,lat:list[i].lat})
-                   poisNew.push(point)
+                   poisNew.push(new BMap.Point(list[i].lon,list[i].lat))
                     // pois.idnum='index'+i
                    if(i==0){
                     //    console.log(i,1)
+                    this.map.centerAndZoom(point, 16);
                     let myIcon1 = new BMap.Icon(end, new BMap.Size(30,40),{anchor: new BMap.Size(5, 30)});
                     let marker1 = new BMap.Marker(point,{icon:myIcon1})
                     this.map.addOverlay(marker1);               // 将标注添加到地图中
@@ -294,7 +297,7 @@
                     this.map.addOverlay(marker2);               // 将标注添加到地图中
                    }
 
-                    this.map.centerAndZoom(point, 16);
+                    
                 //    let marker3 = new BMap.Marker(point)
 
                 //     let content = list[i]
@@ -305,20 +308,29 @@
                 }
                 // debugger
                  var trackPoint = [];  
-                   var sy = new BMap.Symbol(BMap_Symbol_SHAPE_FORWARD_OPEN_ARROW, {
+                 var sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
                    scale: 0.8, // 图标缩放大小
                    strokeColor: '#fff', // 设置矢量图标的线填充颜色
                    strokeWeight: '2' // 设置线宽
                  })
                  var icons = new BMap.IconSequence(sy, '20%', '1%',false)// 设置为true，可以对轨迹进行编辑
                  var PolylineOptions ={
-                     icons: [icons],
+                //  enableEditing: false,//是否启用线编辑，默认为false
+                //  enableClicking: false,//是否响应点击事件，默认为true
+                //  strokeWeight:'12',//折线的宽度，以像素为单位
+                //  strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
+                 strokeColor:"rgb(36,125,58)" //折线颜色
+                 }
+                this.map.centerAndZoom(point, 16)
+                var polyline22 =new BMap.Polyline(poisNew.reverse(), {
+                 icons: [icons],
                  enableEditing: false,//是否启用线编辑，默认为false
-                 enableClicking: false,//是否响应点击事件，默认为true
+                 enableClicking: true,//是否响应点击事件，默认为true
                  strokeWeight:'12',//折线的宽度，以像素为单位
                  strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
                  strokeColor:"rgb(36,125,58)" //折线颜色
-                 }
+              });
+                this.map.addOverlay(polyline22);          //增加折线
                  for(let a = 0; a<pois.length-1; a++){
             if(a==0) {
                 this.map.centerAndZoom(new BMap.Point(pois[a].lon, pois[a].lat), 16); //设置中心点
@@ -328,7 +340,7 @@
             trackPoint.push(new BMap.Point(pois[a+1].lon,pois[a+1].lat));
  
             
-            var polyline = new BMap.Polyline(trackPoint);  //生成线路
+            var polyline = new BMap.Polyline(trackPoint,PolylineOptions);  //生成线路
               pois[a].ca=polyline.ca
               pois[a].idnum=a
             // console.log(polyline)
@@ -342,7 +354,8 @@
         }   
 
          function attribute(e){
-            //  console.log(e)
+            //  debugger
+            //  console.log(e,11111)
             //  console.log(pois)
              for(let i = 0;i<pois.length-1;i++){
                 //  debugger
@@ -351,29 +364,34 @@
                     //  console.log(pois[i])
                     //  console.log(_this.listTrack[i])
                      _this.$refs.listTrack.setCurrentRow(_this.list[i])
+                     
                      const node = document.getElementsByClassName('current-row')
                       // console.log(node, 2)
-                    node[0].scrollIntoView({inline: 'nearest', behavior: 'smooth'})
+                    // node[0].scrollIntoView({inline: 'nearest', behavior: 'smooth'})
+                    // console.log(node[0].offsetTop)
+                    _this.$nextTick(() => {
+                    node[0].scrollIntoView({inline: 'end',block: "start", behavior: 'smooth'})
+                    })
                  }
              }
          }
          
-                this.map.centerAndZoom(point, 15); 
-                var polyline22 =new BMap.Polyline(poisNew, {
-                 icons: [icons],
-                 enableEditing: false,//是否启用线编辑，默认为false
-                 enableClicking: true,//是否响应点击事件，默认为true
-                 strokeWeight:'12',//折线的宽度，以像素为单位
-                 strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
-                 strokeColor:"rgb(36,125,58)" //折线颜色
-              });
+            //     this.map.centerAndZoom(point, 16); 
+            //     var polyline22 =new BMap.Polyline(poisNew.reverse(), {
+            //      icons: [icons],
+            //      enableEditing: false,//是否启用线编辑，默认为false
+            //      enableClicking: true,//是否响应点击事件，默认为true
+            //      strokeWeight:'12',//折线的宽度，以像素为单位
+            //      strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
+            //      strokeColor:"rgb(36,125,58)" //折线颜色
+            //   });
 
             //    polyline.addEventListener("mousemove",function(e){
             //       console.log(e)
             //       console.log(polyline)
 			//    }
 		    //    )
-              this.map.addOverlay(polyline22);          //增加折线
+            //   this.map.addOverlay(polyline22);          //增加折线
               this.loading = false
             },
             addClickHandler(content,marker){
@@ -414,12 +432,15 @@
                      }
                   }
                 }
-                let point = new BMap.Point(val.lon,val.lat)
+                if(val){
+                  let point = new BMap.Point(val.lon,val.lat)
                 var myIcon = new BMap.Icon(loc, new BMap.Size(20,30),{anchor: new BMap.Size(10, 35)});
                 let marker = new BMap.Marker(point,{icon:myIcon})
                 marker.id='12345'
                 this.map.addOverlay(marker);               // 将标注添加到地图中
                 this.map.centerAndZoom(point, 16);
+                }
+
 		        // this.addClickHandler(val,marker)
             },
             chooseDevice(){

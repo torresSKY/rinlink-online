@@ -3,7 +3,7 @@ export default {
   // 导航栏
   navbar: {
     // 'title': '零零AEP资产管理平台',
-    'title': '车联网管理平台',
+    'title': '车联管家管理平台',
     // 'title': '中国联通资产管理平台',
     'languageSwitch': 'languageSwitch',
     'theme': 'Theme'
@@ -18,7 +18,7 @@ export default {
     Trajectory: '设备轨迹',
     Group: '设备分组',
     Historical: '历史数据',
-    Alarm: '设备告警',
+    Alarm: '设备报警',
     aladata: '报警数据',
     showala: '报警管理',
     User: '用户管理',
@@ -124,7 +124,7 @@ export default {
     Mounth: '月',
     Day: '日',
     ci: '次',
-    count: '设备告警统计',
+    count: '设备报警统计',
     chuli: '处理',
     addsend: '下发指令',
     timetext: '数据上报间隔为：',
@@ -407,7 +407,12 @@ export default {
     params25:'断油电',
     params26:'通油电',
     params27:'设防',
-    params28:'撤防'
+    params28:'撤防',
+    blue:'蓝色',
+    yellow:'黄色',
+    black:'黑色',
+    white:'白色',
+    other:'其他'
   },
   message: {
     equdele: '删除后无法恢复, 是否继续?',

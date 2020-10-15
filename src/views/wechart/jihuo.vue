@@ -201,7 +201,7 @@
                         v-model="intervalTime" :placeholder="$t('table.randomdata')" ></el-input>
 
                         <el-input clearable v-if="useritem == 16
-                        ||useritem == 131||useritem == 132||useritem == 78"  
+                        ||useritem == 131||useritem == 78"  
                         v-model="inputContent" :placeholder="$t('table.inputtext')" ></el-input>
                         
                     </el-col>
@@ -238,6 +238,12 @@
                               <el-input v-model="touchSpeed" type="number" :placeholder="$t('table.randomdata')"></el-input>
                             </el-form-item>
                         </el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="1" v-if="useritem == 132 ">
+                        <el-select v-model="cardtype" :placeholder="$t('view.select2')" >
+                            <el-option v-for='item in cardlist' :key="item.val" :label="item.name" :value="item.val">
+                            </el-option>
+                        </el-select>   
                     </el-col>
                 </el-row>
                     
@@ -623,6 +629,14 @@ export default{
             {val: '102', name: this.$t('table.params27')},
             {val: '103', name: this.$t('table.params28')},
         ],
+        cardlist:[
+            {val: 1, name: this.$t('table.blue')},
+            {val: 2, name: this.$t('table.yellow')},
+            {val: 3, name: this.$t('table.black')},
+            {val: 4, name: this.$t('table.white')},
+            {val: 9, name: this.$t('table.other')},
+        ],
+        cardtype:'',
         deviceRelationId:'',
         device_id: '',
         bind_mode: this.$t('table.defaultdevice'),
@@ -749,7 +763,7 @@ export default{
     },
     getOrder(){
         api
-          .getOrder(this.imei )
+          .getOrder(this.imei)
           .then(res => {
             // let arr = []
             // for (let i in res) {
@@ -837,6 +851,7 @@ export default{
         }).catch(_=>{
             this.$message.error(_.message);
         })
+        var that =this
         api.getUsersListPagination({      //获取用户
             params:{
                 parentId:this.$store.getters.usercode,
@@ -844,10 +859,23 @@ export default{
                 pageNo:0,
                 pageSize: 2000,
             }
-        }).then(_=>{
-            if(Array.isArray(_.content)){
-                this.userlist=_.content
+        }).then(res=>{
+            if(res.content){
+                that.userlist=res.content
                 //this.filterSearch()
+                if(state){
+                    // debugger
+                    let id = res.content.filter((item) => {
+                      if(that.userName&&(that.userName==item.username)){
+                            return item.id
+                        }
+                    })    
+                    if(id[0]){
+                        that.ruleForm.user_sel=id[0].id
+                    }
+                    
+                }
+                
             }else{
                 this.$message.error(this.$t('table.nouser'));
             }
@@ -1018,6 +1046,7 @@ export default{
         this.touchTime=''
         this.touchSpeed=''
         this.inputPort=''
+        this.cardtype=''
         this.dialogTableVisible = true;
         // this.sendData(data)
         break;
@@ -1070,6 +1099,7 @@ export default{
             this.touchTime=''
             this.touchSpeed=''
             this.inputPort =''
+            this.cardtype=''
         }
     },
     sendTime() {
@@ -1109,7 +1139,7 @@ export default{
                 paramId:this.useritem,
                 obj:[this.inputContent,this.inputPort].join()
             }
-        }else if(this.useritem == 16||this.useritem == 131||this.useritem == 132||this.useritem == 78){
+        }else if(this.useritem == 16||this.useritem == 131){
             if(!this.inputContent){
                 this.$message.error(this.$t('message.canshu'))
                 return
@@ -1118,6 +1148,16 @@ export default{
                 imei:this.imei,
                 paramId:this.useritem,
                 obj:this.inputContent
+            }
+        }else if(this.useritem == 132){
+            if(!this.cardtype){
+                this.$message.error(this.$t('message.canshu'))
+                return
+            }
+                data={
+                imei:this.imei,
+                paramId:this.useritem,
+                obj:this.cardtype
             }
         }else if(this.useritem == 32){
             data={
@@ -1157,6 +1197,21 @@ export default{
             //     obj:''
             // }
              api.sendControl(this.imei,this.useritem).then(res => {
+                 this.$message.success(this.$t('message.sendsuc'))
+                 this.dialogTableVisible = false
+                 
+              }).catch( err =>{
+                  // console.log(err)
+                   this.$message.error(err.message)
+              })
+              return
+        }else if(this.useritem == 78){
+
+              api.sendInform({params:{
+                content:this.inputContent,
+                type:78,
+                imei:this.imei
+            }}).then(res => {
                  this.$message.success(this.$t('message.sendsuc'))
                  this.dialogTableVisible = false
                  
