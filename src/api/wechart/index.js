@@ -216,8 +216,8 @@ const fenceadd = (data) => { //添加电子围栏
 // }
 
 
-const addmoreequ = (data) => { //批量添加设备
-    return axios.post('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device/uploadDevExcel',data)
+const addmoreequ = (data,file) => { //批量添加设备
+    return axios.post('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device/uploadDevExcel?deviceGroup='+data.deviceGroup+'&deviceModel='+data.deviceModel,file)
 }
 
 const getowern = (data) => { //批量添加设备

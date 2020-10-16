@@ -33,7 +33,7 @@
                         :picker-options="pickerOptions">
                     </el-date-picker>
                 </el-col> 
-                <el-col :span="4">
+                <el-col :span="6">
                       <el-button class="butsearch" @click="filterSearch()">{{$t('button.search')}}</el-button>
                       <el-button class="butresh" @click="filter()">{{$t('button.refresh')}}</el-button>
                       <el-button class="butadd" @click="download()">{{$t('button.download')}}</el-button>

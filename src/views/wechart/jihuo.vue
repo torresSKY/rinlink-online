@@ -533,7 +533,7 @@
                 <div slot="tip" class="el-upload__tip">{{$t('table.clicktext')}}</div>
                 </el-upload>
             </el-form-item>
-            <el-form-item :label="$t(view.file)"
+            <!-- <el-form-item :label="$t(view.file)" -->
             <el-button @click="adddMore">{{$t('view.close')}}</el-button>
             </el-form>
         </el-dialog>
@@ -555,7 +555,7 @@ export default{
     data(){
       const validateimei = (rule, value, callback) => {
         //   debugger
-         var reg = /^\d{15}$/
+         var reg = /^\d{11,15}$/
         if (!reg.test(value)) {
         callback(new Error(this.$t('message.guid15')))
         }else {
@@ -1479,13 +1479,19 @@ export default{
       })
     },
     editstate(val){  //处理报警信息
-      api.getMessageChuli(val.id).then(res => {
-        this.$message.success(this.$t('message.changesuc'))
-        this.showaladata = false
-        this.getAla(val)
-      }).catch(err => {
-        this.$message.error(err.message)
-      })
+        this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
+            confirmButtonText: this.$t('button.determine'),
+            cancelButtonText: this.$t('button.cancel'),
+            type: "warning"
+            }).then(_ => {
+            api.getMessageChuli(val.id).then(res => {
+                this.$message.success(this.$t('message.changesuc'))
+                this.showaladata = false
+                this.getAla(val)
+            }).catch(err => {
+               this.$message.error(err.message)
+            })
+      }).catch(_ => {});
     },
     openMore() {
       this.morewin = true
@@ -1529,7 +1535,13 @@ export default{
     },
     beforeUpload(file) {
         if(this.model.length < 1){
+            this.fileList = []
             this.$message.error(this.$t('message.modelerror'))
+            return
+        }
+        if(this.group_sel.length < 1){
+            this.fileList = []
+            this.$message.error(this.$t('message.grouperror'))
             return
         }
       let fd = new FormData();
@@ -1537,9 +1549,14 @@ export default{
         //   fd.append('type',this.infoEqu.region)//其他参数
         //   fd.append('deviceType',this.infoEqu.radio)//其他参数
         //   fd.append('childId',this.infoEqu.userone)//其他参数
-        fd.append('deviceGroup',this.group_sel)//其他参数
-        fd.append('deviceModel',this.model)//其他参数
-      api.addmoreequ(fd).then(res => {
+        // fd.append('deviceGroup',this.group_sel)//其他参数
+        // fd.append('deviceModel',this.model)//其他参数
+        let data ={
+            // file:fd,
+            deviceGroup:this.group_sel,
+            deviceModel:this.model
+        }
+      api.addmoreequ(data,fd).then(res => {
         this.$message.success(this.$t('message.addsuc'))
       }).catch(err => {
         this.$message.error(err.message)

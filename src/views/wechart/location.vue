@@ -144,7 +144,7 @@ export default {
       }, 500);
     },
     lang (newVal) {
-      this.equList[0].imei = this.$t('table.seleall')
+      this.equList[0].deviceName = this.$t('table.seleall')
     }
   },
   methods: {

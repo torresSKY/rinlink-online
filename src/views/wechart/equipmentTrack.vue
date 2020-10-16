@@ -45,12 +45,20 @@
                 </el-row>
                 <el-row>
                     <el-scrollbar>
-                    <el-table :style="{height:height-680 +'px',overflow:'auto' }"  :data="listTrack"   ref="listTrack"
+                    <el-table :style="{height:120 +'px',overflow:'auto' }"  :data="listTrack"   ref="listTrack"
                     highlight-current-row @current-change="handleCurrentTrack" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
                         <el-table-column align='center'  prop="collectDt" :label="$t('table.Update')"> </el-table-column>
-                        <el-table-column align='center' prop="lon" :label="$t('table.jing')"> </el-table-column>
-                        <el-table-column align='center' prop="lat" :label="$t('table.wei')"> </el-table-column>
+                        <el-table-column align='center' prop="lon" :label="$t('table.jing')"> 
+                            <template slot-scope="scope">
+                               {{Number(scope.row.lon).toFixed(6)}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column align='center' prop="lat" :label="$t('table.wei')">
+                            <template slot-scope="scope">
+                               {{Number(scope.row.lat).toFixed(6)}}
+                            </template>                            
+                        </el-table-column>
                         <el-table-column align='center' prop="positionType" :label="$t('table.equlocation')">
                             <template slot-scope="scope">{{scope.row.positionType==1?"GPS":scope.row.positionType==2?"WIFI":scope.row.positionType==3?$t('table.equloctype'):'--'}}</template>
                         </el-table-column>
@@ -164,7 +172,8 @@
         // }
         // },
         mounted(){
-            this.height=document.body.offsetHeight-162
+            var that = this
+            that.height=document.body.offsetHeight-162
             this.setMap('map')
            // this.getList()
            this.endTime = Date.parse(new Date());
@@ -175,6 +184,11 @@
                 // this.endTime = Date.parse(new Date());
                 // this.startTime = this.endTime-24*60*60*1000
                 this.getHistory()
+           }
+           window.onresize = () => {
+             return (() => {
+                 that.height=document.body.offsetHeight-162
+             })()
            }
         },
         methods:{
@@ -279,9 +293,13 @@
                 for(let i in list){
                     // console.log(list[i])
                     if(list[i].lon && list[i].lat && list[i].lon > 1 && list[i].lat > 1){
+                        
                    point = new BMap.Point(list[i].lon,list[i].lat);
                    pois.push({lon:list[i].lon,lat:list[i].lat})
-                   poisNew.push(new BMap.Point(list[i].lon,list[i].lat))
+                //    if(i<102){
+                       poisNew.push(new BMap.Point(list[i].lon,list[i].lat))
+                //    }
+                   
                     // pois.idnum='index'+i
                    if(i==0){
                     //    console.log(i,1)
@@ -321,7 +339,8 @@
                 //  strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
                  strokeColor:"rgb(36,125,58)" //折线颜色
                  }
-                this.map.centerAndZoom(point, 16)
+                //  debugger
+                this.map.centerAndZoom(point, 15)
                 var polyline22 =new BMap.Polyline(poisNew.reverse(), {
                  icons: [icons],
                  enableEditing: false,//是否启用线编辑，默认为false
@@ -331,6 +350,7 @@
                  strokeColor:"rgb(36,125,58)" //折线颜色
               });
                 this.map.addOverlay(polyline22);          //增加折线
+
                  for(let a = 0; a<pois.length-1; a++){
             if(a==0) {
                 this.map.centerAndZoom(new BMap.Point(pois[a].lon, pois[a].lat), 16); //设置中心点
@@ -550,6 +570,6 @@
 
 .el-table--striped .el-table__body tr.el-table__row--striped.current-row td,
 .el-table__body tr.current-row > td {
-  background-color: #a0cfff;
+  background-color: #a0cfff!important;
 }
 </style>

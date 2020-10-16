@@ -146,7 +146,7 @@
             </el-row>
             <el-table v-loading='addloading' :data="allequlist" :height='height-250' :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}" @selection-change="handleSelectionChange2">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop='deviceName':label="$t('table.Device')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop='deviceName' :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
                 <el-table-column prop='imei' :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
                 <el-table-column prop='groupName' :label="$t('table.groupname')" show-overflow-tooltip></el-table-column>
                 <el-table-column prop='deviceModel' :label="$t('table.model')" show-overflow-tooltip></el-table-column>
@@ -221,6 +221,7 @@ export default {
             noeimei: '',
             moreunequ: [],
             moerequ: [],
+            moreequ:[],
             allgroup: [],
             search: '',
             selegroup: '',
@@ -460,6 +461,10 @@ export default {
                 this.$message.error(this.$t('message.canshu'))
                 return
             }
+            if(this.fenceRadio<=0){
+                this.$message.error(this.$t('message.weilanpath'))
+                return
+            }
             if(this.inala.length == 0){
                 inAndOut = -1
             }else if(this.inala.length == 1){
@@ -511,6 +516,14 @@ export default {
             })
         },
          editEle2(){
+            // if(this.address.length == 0 || this.fenceName.length == 0){
+            //     this.$message.error(this.$t('message.canshu'))
+            //     return
+            // }
+            if(this.fenceRadio<=0){
+                this.$message.error(this.$t('message.weilanpath'))
+                return
+            }
              let inAndOut = null
             if(this.inala.length == 0){
                 inAndOut = -1
@@ -648,6 +661,10 @@ export default {
             }
         },
         morelink(){
+            if(this.moreequ.length<=0){
+                this.$message.warning(this.$t('message.selGuanLian'))
+                return
+            }
             let val = {}
             val.imei = ''
             this.moreequ.forEach(item => {
