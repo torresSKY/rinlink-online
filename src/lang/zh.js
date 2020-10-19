@@ -59,7 +59,7 @@ export default {
     dengji: '等级',
     close: '关闭',
     upfile: '上传文件',
-    inputimei: '请输入imei',
+    inputimei: '请输入设备名称或设备IMEI',
     inputgroup: '请选择查询分组',
     inputstate: '请选择设备状态',
     inputtext: '请输入内容',

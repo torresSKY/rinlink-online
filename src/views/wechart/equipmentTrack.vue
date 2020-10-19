@@ -2,7 +2,9 @@
     <div id="history" :style="{height:height + 100+'px',overflow: 'hidden'}">
         <el-card shadow="always" class="mb20" style="background:#ccc">
             <div slot="header" class="clearfix">
-                <span>{{$t('route.Location')}}</span>
+                <!-- <el-page-header @back="goBack" :content="$t('route.Trajectory')">
+                </el-page-header> -->
+                <span>{{$t('route.Trajectory')}}</span>
             </div>
             <el-card shadow="always" :style="'height:'+height+'px'">
                 <!-- <el-row :gutter="10">
