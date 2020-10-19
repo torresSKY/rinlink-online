@@ -222,6 +222,11 @@
                     this.listLoading = false
                     return
                 }
+                if ((this.endTime - this.startTime) > 604800000) {
+                   this.$message.warning('查询时间不能超过7天')
+                   this.listLoading = false
+                   return
+                }
                 this.listTrack=[]
                 this.list=[]
                 let a =[]

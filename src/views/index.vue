@@ -73,7 +73,7 @@
         <div class="lang">
             <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()">
               <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button>
-              <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button>
+              <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button> -->
               <!-- <el-radio-button class="lang_btn" :label="3">{{$t('button.jpn')}}</el-radio-button> -->
             </el-radio-group>
         </div>

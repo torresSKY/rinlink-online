@@ -212,7 +212,7 @@ import {alatype} from '@/plugins/filter.js'
     },
     download(){
         api.downalalist({params:{
-          alarmType:this.datatype,
+          alarmType:this.alatype,
           endTime:this.dataendtime,
           imei:this.imei,
           startTime:this.datastarttime},
