@@ -3,6 +3,8 @@
         <el-row :gutter="20">
             <el-col :span='6'>
             <div class='search'>
+                <el-page-header v-show="!showedit" @back="goBack" style="margin-bottom:10px">
+                </el-page-header>
             <el-row>
                 <el-col :span='12'><el-input class='eleinput' v-model='fencesearch' :placeholder="$t('view.fence2')" clearable></el-input></el-col>
                 <el-col :span='5'><el-button class='elebut butsearch' @click='getele()'>{{$t('button.search')}}</el-button></el-col>
@@ -233,7 +235,8 @@ export default {
             },
             addloading: true,
             fenceid: null,
-            active:-1
+            active:-1,
+            backFlag:false
         }
     },
     watch: {
@@ -278,6 +281,9 @@ export default {
         
     },
     methods: {
+        goBack(){
+            this.$router.push({name:'route.List'})
+        },
         setMap() {
             console.log('加载地图')
             this.map = new BMap.Map("map2");

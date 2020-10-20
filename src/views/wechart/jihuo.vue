@@ -818,7 +818,7 @@ export default{
             this.ruleForm={
                 imei:'',
                 imsi:'',
-                group_sel:'5D2E758127C00000',
+                group_sel:'',
                 model:'',
                 user_sel:'',
                 region:'',
@@ -845,6 +845,16 @@ export default{
             pageNo:0}}).then(_=>{ 
             if(_.content.length > 0){
                 this.grouplist=_.content
+                if(!state){
+                    let ids = _.content.filter((item) => {
+                      if('默认分组'==item.name){
+                            return item.id
+                        }
+                    })    
+                    if(ids[0]){
+                        that.ruleForm.group_sel=ids[0].id
+                    }
+                }
             }else{
                 this.$message.error(this.$t('table.faillist'));
             }
@@ -909,6 +919,7 @@ export default{
                 deviceRelationId: this.deviceRelationId,
                 // deviceType: this.bind_mode,
                 deviceModel: this.ruleForm.model,
+                plate:this.ruleForm.carNo,
                 abroad: this.ruleForm.region == 'true' ? true : this.ruleForm.region == 'false' ? false : ''
             }
             this.addOrEditLoading=true
@@ -1453,7 +1464,7 @@ export default{
         let nameloc=this.$t('route.Location')
         let nametra=this.$t('route.Trajectory')
       if(val == 0){
-        this.$router.push({name:'route.Trajectory',params: {imei:data.imei,deviceName:data.deviceName}})
+        this.$router.push({name:'route.Trajectory',params: {imei:data.imei,deviceName:data.deviceName,state:true}})
       }else{
         this.$router.push({name:'route.Location',params: {imei:data}})
       }

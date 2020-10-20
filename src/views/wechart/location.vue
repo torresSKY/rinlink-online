@@ -2,7 +2,9 @@
     <div id="location">
       <el-card style="background:#ccc">
         <div slot="header" class="clearfix">
-          <span>{{$t('route.Location')}}</span> 
+          <el-page-header v-if="!show" @back="goBack" :content="$t('route.Trajectory')">
+          </el-page-header>
+          <span v-else>{{$t('route.Location')}}</span> 
         </div>
         <el-row :gutter="10">
             <el-col :span="8" :lg="6" :hidden="!show">
@@ -148,6 +150,9 @@ export default {
     }
   },
   methods: {
+    goBack(){
+      this.$router.push({name:'route.List'})
+    },
     checkChange(obj, state) {
       console.log(obj, state)
       // debugger

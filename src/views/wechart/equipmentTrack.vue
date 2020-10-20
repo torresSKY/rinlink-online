@@ -2,9 +2,9 @@
     <div id="history" :style="{height:height + 100+'px',overflow: 'hidden'}">
         <el-card shadow="always" class="mb20" style="background:#ccc">
             <div slot="header" class="clearfix">
-                <!-- <el-page-header @back="goBack" :content="$t('route.Trajectory')">
-                </el-page-header> -->
-                <span>{{$t('route.Trajectory')}}</span>
+                <el-page-header v-if="backFlag" @back="goBack" :content="$t('route.Trajectory')">
+                </el-page-header>
+                <span v-else>{{$t('route.Trajectory')}}</span>
             </div>
             <el-card shadow="always" :style="'height:'+height+'px'">
                 <!-- <el-row :gutter="10">
@@ -155,7 +155,8 @@
                 tableList:[],
                 currentRow: null,
                 cleanMark:null,
-                list:[]
+                list:[],
+                backFlag:false
             }
         },
         // watch: {
@@ -183,6 +184,7 @@
            if(this.getimei) {
                 this.id = this.getimei
                 this.deviceName=this.equModel
+                this.backFlag= this.$route.params.state
                 // this.endTime = Date.parse(new Date());
                 // this.startTime = this.endTime-24*60*60*1000
                 this.getHistory()
@@ -194,6 +196,9 @@
            }
         },
         methods:{
+            goBack(){
+                this.$router.push({name:'route.List'})
+            },
             isMap(){
                 if(this.active=='map'){
                     this.setMap('map') 
