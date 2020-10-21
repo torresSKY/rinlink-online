@@ -18,13 +18,13 @@
                         </el-select>
                     </el-col>
                     <el-col :span="4">
-                        <el-date-picker v-model="date1" :type="timetype" value-format="timestamp" :picker-options="pickerOptions">
+                        <el-date-picker v-model="date1" :type="timetype" value-format="timestamp" :picker-options="pickerOptions" :placeholder="$t('table.inputstart')">
                         </el-date-picker>
                     </el-col>
                     <el-col :span="4">
                         <!-- <el-date-picker v-model="starttime" type="daterange" range-separator="至" :start-placeholder="$t('table.startdata')" :end-placeholder="$t('table.enddata')" value-format="timestamp">
                         </el-date-picker> -->
-                        <el-date-picker v-model="date2" :type="timetype" value-format="timestamp" :picker-options="pickerOptions">
+                        <el-date-picker v-model="date2" :type="timetype" value-format="timestamp" :picker-options="pickerOptions" :placeholder="$t('table.inputend')">
                         </el-date-picker>
                     </el-col>
                     <el-col :span="1.5">
@@ -119,7 +119,7 @@ export default {
              showCl: false,
              timetype: 'datetime',
              stattype: 3,
-             date1: new Date().getTime() - 30*24*60*60*1000,
+             date1: new Date().getTime() - 24*60*60*1000,
              date2:new Date().getTime(),
              value1: '',
              geshi: 'timestamp',
@@ -155,7 +155,16 @@ export default {
                 let aa = new Date(this.date2).setMonth(xaa+1)
                 let a = (24*60*60-1)*1000
                 let b =aa - 1000*60*60*24
-                this.date3 = a+b
+                // let nextMonth = new Date().getMonth()  
+                // this.date3 = a+b
+                // this.date1 = new Date(new Date().getFullYear(), nextMonth, 1).getTime()
+                // this.date3 = new Date().getTime()
+                let month = new Date(this.date1).getMonth()
+                let year = new Date(this.date1).getFullYear()
+                let month2 = new Date(this.date2).getMonth()
+                let year2 = new Date(this.date2).getFullYear()
+                this.date1 = new Date(year, month, 1).getTime()
+                this.date3 = new Date(year2, month2 + 1, 0).getTime()+a
             }else{
                 this.stattype = 0
                 let a = (24*60*60-1)*1000
@@ -168,6 +177,10 @@ export default {
                 this.$message.warning(this.$t('table.timeerror'))
                 return
             }
+            if(!this.date1 || !this.date2){
+                this.$message.warning('请选择时间')
+                return
+            }
             this.getdatageshi()
             let endtime = null
             if(this.timetype == 'month'){
@@ -175,6 +188,8 @@ export default {
             }else{
                 endtime = this.date2
             }
+            // console.log(new Date(endtime),'end')
+            // console.log(new Date(this.date1),'start')
             api.getMessageCount({
                 params:{
                 statisticsTyep: this.stattype,

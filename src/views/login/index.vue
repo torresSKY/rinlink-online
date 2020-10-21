@@ -35,10 +35,10 @@ font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</
       邮箱登录成功,请选择第三方验证<br/>
       <social-sign />
     </el-dialog>
-    <el-select v-model="lang" class="lang" placeholder="请选择" @change="changeLangEvent()">
+    <!-- <el-select v-model="lang" class="lang" placeholder="请选择" @change="changeLangEvent()">
     <el-option  class="lang"  v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
     </el-option>
-  </el-select>
+  </el-select> -->
   </div>
 </template>
 

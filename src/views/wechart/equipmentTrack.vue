@@ -270,7 +270,7 @@
                                     this.addMarker(this.list)
                     }).catch(_=>{
                         this.listLoading = false
-                        this.$message.error(_.message);
+                        console.log(_)
                     })
 
 
@@ -509,7 +509,8 @@
                 this.tableLoading = false
                 }
                 }).catch(_=>{
-                 this.$message.error(_.message);
+                //  this.$message.error(_.message);
+                 console.log(_)
                  this.tableLoading=false
                 })
             },
