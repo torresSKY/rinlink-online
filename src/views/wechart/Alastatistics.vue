@@ -11,7 +11,7 @@
                         <el-input clearable v-model="imei" :placeholder="$t('view.inputimei')"></el-input>
                     </el-col>
                     <el-col :span="3" >
-                        <el-select v-model="timetype">
+                        <el-select v-model="timetype" @change='changeTimeType'>
                             <el-option value="datetime" :label="$t('table.day')"></el-option>
                             <el-option value="month" :label="$t('table.mounth')"></el-option>
                             <el-option value="year" :label="$t('table.year')"></el-option>
@@ -146,6 +146,23 @@ export default {
         this.getdata()
     },
     methods: {
+        changeTimeType(val){
+            console.log(val)
+            if(val == 'datetime'){
+                this.stattype = 2
+                this.data1 = new Date().getTime() - 24*60*60*1000
+                this.date2 = new Date().getTime()
+            }else if(val == 'month'){
+                this.stattype = 1
+                var nextMonth = new Date().getMonth() - 1 // 上个月
+                this.date1 = new Date(new Date().getFullYear(), nextMonth, 1).getTime() // 前一个月的第一天
+                this.date2 = new Date().getTime() // 当月的今天                
+            }else if (val == 'year'){
+                this.stattype = 0
+                this.date1 = Date.parse(new Date().getFullYear()) - 1000 * 60 * 60 * parseInt(8) // 今天第一天 00:00:00
+                this.date2 = new Date(new Date(this.date2).getFullYear(), 12, 0).getTime() // 今天最后一天 00:00:00
+            }
+        },
         getdatageshi (val) {
             if(this.timetype == 'datetime'){
                 this.stattype = 2
@@ -188,8 +205,8 @@ export default {
             }else{
                 endtime = this.date2
             }
-            // console.log(new Date(endtime),'end')
-            // console.log(new Date(this.date1),'start')
+            console.log(new Date(endtime),'end')
+            console.log(new Date(this.date1),'start')
             api.getMessageCount({
                 params:{
                 statisticsTyep: this.stattype,

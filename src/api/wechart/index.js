@@ -176,8 +176,9 @@ const getMessageListPagination = (data) => ( //获取报警数据
     axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/devicedata/warning`,data)
 )
 
-const getMessageChuli = (val) => ( //报警数据处理
-    axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/devicedata/warningProcess?alarmId=`+ val +`&isProcess=1`)
+const getMessageChuli = (data) => ( //报警数据处理
+    // axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/devicedata/warningProcess?alarmId=`+ val +`&isProcess=1`)
+    axios.put(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/devicedata`,data)
 )
 
 const getMessageCount = (data) => ( //获取报警统计

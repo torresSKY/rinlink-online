@@ -206,7 +206,7 @@
             },
             setMap(id){
                this.map = new BMap.Map("map");    // 创建Map实例
-  		        this.map.centerAndZoom(new BMap.Point(121.362426, 31.123795), 16);  // 初始化地图,设置中心点坐标和地图级别
+  		        this.map.centerAndZoom(new BMap.Point(121.362426, 31.123795), 15);  // 初始化地图,设置中心点坐标和地图级别
   		        //添加地图类型控件
 	  	        this.map.addControl(new BMap.MapTypeControl({
 	  	        	mapTypes:[
@@ -315,7 +315,7 @@
                     // pois.idnum='index'+i
                    if(i==0){
                     //    console.log(i,1)
-                    this.map.centerAndZoom(point, 16);
+                    this.map.centerAndZoom(point, 15);
                     let myIcon1 = new BMap.Icon(end, new BMap.Size(30,40),{anchor: new BMap.Size(5, 30)});
                     let marker1 = new BMap.Marker(point,{icon:myIcon1})
                     this.map.addOverlay(marker1);               // 将标注添加到地图中
@@ -365,7 +365,7 @@
 
                  for(let a = 0; a<pois.length-1; a++){
             if(a==0) {
-                this.map.centerAndZoom(new BMap.Point(pois[a].lon, pois[a].lat), 16); //设置中心点
+                this.map.centerAndZoom(new BMap.Point(pois[a].lon, pois[a].lat), 15); //设置中心点
             }
  
             trackPoint.push(new BMap.Point(pois[a].lon,pois[a].lat));
@@ -470,7 +470,7 @@
                 let marker = new BMap.Marker(point,{icon:myIcon})
                 marker.id='12345'
                 this.map.addOverlay(marker);               // 将标注添加到地图中
-                this.map.centerAndZoom(point, 16);
+                this.map.centerAndZoom(point, 15);
                 }
 
 		        // this.addClickHandler(val,marker)

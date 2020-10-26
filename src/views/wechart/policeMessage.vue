@@ -14,6 +14,11 @@
                         <el-option v-for='item in alatypelist' :value='item.value' :label="item.name" :key='item.value'>{{item.name}}</el-option>
                     </el-select>
                 </el-col>
+                <!-- <el-col :span="3">
+                    <el-select v-model="alatype" :placeholder="$t('table.inputele')">
+                        <el-option v-for='item in alatypelist' :value='item.value' :label="item.name" :key='item.value'>{{item.name}}</el-option>
+                    </el-select>
+                </el-col> -->
                 <el-col :span="3">
                     <el-date-picker
                         v-model="startTime"
@@ -42,7 +47,8 @@
             </el-row>
             <div style="margin-top:20px;">
                 <el-scrollbar :style="{height:height-110+'px' }" ref="scroll">
-                        <el-table class="particular-table" :data="listxian" :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
+                        <el-table class="particular-table" :data="listxian" :row-class-name="tableRowClassName" @selection-change="handleSelectionChange" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
+                            <el-table-column type="selection" > </el-table-column>
                             <el-table-column align='center' prop="imei" :label="$t('table.imei')"> </el-table-column>
                             <el-table-column align='center' prop="deviceName" :label="$t('table.Device')"> </el-table-column>
                             <el-table-column align='center'  prop="lastWAt" :label="$t('table.Update')"> </el-table-column>
@@ -53,7 +59,7 @@
                             </el-table-column>
                             <el-table-column align='center' prop="" :label="$t('table.operation')" style="width:50px;">
                                 <template slot-scope="scope">
-                                    <el-button style="width:100px;" type="primary" @click='editstate(scope.row)' :disabled='scope.row.isProcess == 0? false : true'>{{scope.row.isProcess == 0?$t('table.chuli') : $t('table.pastcl')}}</el-button>
+                                    <el-button style="width:100px;" type="primary" @click='openEditstate(scope.row)' :disabled='(scope.row.isProcess == 0||scope.row.isProcess == null)? false : true'>{{(scope.row.isProcess == 0||scope.row.isProcess == null)?$t('table.chuli') : scope.row.isProcess == 1?$t('table.pastcl') : '误报'}}</el-button>
                                 </template>
                         </el-table-column>
                         </el-table>
@@ -71,6 +77,29 @@
             </el-pagination>
         </el-card>
       </el-card>
+      <el-dialog title="报警处理" :visible.sync="showCl" width="20%">
+        <el-row :gutter="10">
+          <el-col :span='6'>
+            <span>处理状态:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-radio v-model="radio" label="1">{{$t('table.chuli')}}</el-radio>
+           <el-radio v-model="radio" label="2">误报</el-radio>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10" style="margin-top:10px">
+          <el-col :span='6'>
+            <span>处理说明:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-input type="textarea"  :rows="2"  :placeholder="$t('view.inputtext')"  v-model="textarea"></el-input>
+          </el-col>
+        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="showCl = false">{{$t('button.cancel')}}</el-button>
+          <el-button type="primary" @click="editstate()">{{$t('button.determine')}}</el-button>
+        </div>
+      </el-dialog>      
     </div>
 </template>
 <script>
@@ -99,10 +128,16 @@ import {alatype} from '@/plugins/filter.js'
                 imei:'',
                 group_sel:'',
                 alatype: null,
+                showCl:false,
+                radio:'1',
+                textarea:'',
+                row:null,
+                multipleSelection:[],
+                isPiliang: false
             }
         },
         mounted(){
-            console.log(this.alatypelist)
+            // console.log(this.alatypelist)
             // this.height=document.body.offsetHeight-235
             this.height=document.body.offsetHeight-255
             this.getList(0)
@@ -125,6 +160,8 @@ import {alatype} from '@/plugins/filter.js'
                 this.alatype = ''
                 this.startTime = ''
                 this.endTime = ''
+                this.multipleSelection = []
+                this.isPiliang = false
                 this.getList(0)
             },
             async getList(val){
@@ -195,20 +232,52 @@ import {alatype} from '@/plugins/filter.js'
                 this.getList(0)
             }
         },
+        handleSelectionChange(val){
+            this.multipleSelection = val
+        },
+        openEditstate(data){
+            this.textarea = ''
+            this.radio = '1'
+            this.row = data
+            this.isPiliang = false
+            this.showCl = true
+
+        },
         editstate(val){  //处理报警信息
-            console.log(val)
-            this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
-                confirmButtonText: this.$t('button.determine'),
-                cancelButtonText: this.$t('button.cancel'),
-                type: "warning"
-            }).then(_ => {
-                api.getMessageChuli(val.id).then(res => {
-                    this.$message.success(this.$t('message.alaedit'))
-                    this.getList(0)
-                }).catch(err => {
-                    this.$message.error(err.message)
-                })
-            }).catch(_ => {});
+            // console.log(val)
+            // this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
+            //     confirmButtonText: this.$t('button.determine'),
+            //     cancelButtonText: this.$t('button.cancel'),
+            //     type: "warning"
+            // }).then(_ => {
+            //     api.getMessageChuli(val.id).then(res => {
+            //         this.$message.success(this.$t('message.alaedit'))
+            //         this.getList(0)
+            //     }).catch(err => {
+            //         this.$message.error(err.message)
+            //     })
+            // }).catch(_ => {})
+            let data = {}
+        data.ids = []
+        data.status = Number(this.radio)
+        data.handleExplain = this.textarea
+        if (this.isPiliang) {
+          for (let i = 0; i < this.multipleSelection.length; i++) {
+            data.ids.push(this.multipleSelection[i].id)
+          }
+        } else {
+          data.ids = [this.row.id]
+        }
+        api
+          .getMessageChuli(data)
+          .then(res => {
+            this.$message.success(this.$t('message.alaedit'))
+            this.showCl = false
+            this.getList(0)
+          })
+          .catch(err => {
+            this.$message.error(err.message)
+          })
     },
     download(){
         api.downalalist({params:{
