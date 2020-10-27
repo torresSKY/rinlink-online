@@ -87,7 +87,7 @@
                         </el-table-column>
                         <el-table-column  align='center' :label="$t('table.operation')" show-overflow-tooltip>
                             <template slot-scope="scope">
-                                <el-button size="mini" @click="editstate(scope.row)" style="background:none;border:none;color:#0066c3;font-size: 16px;">{{$t('table.chuli')}}</el-button>
+                                <el-button size="mini" @click="openEditstate(scope.row)" style="background:none;border:none;color:#0066c3;font-size: 16px;">{{$t('table.chuli')}}</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -98,7 +98,29 @@
             <div id="map" style="height:810px"></div>
         </el-col>
     </el-row>
-    
+      <el-dialog title="报警处理" :visible.sync="showCl" width="20%">
+        <el-row :gutter="10">
+          <el-col :span='6'>
+            <span>处理状态:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-radio v-model="radio1" label="1">{{$t('table.chuli')}}</el-radio>
+           <el-radio v-model="radio1" label="2">误报</el-radio>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10" style="margin-top:10px">
+          <el-col :span='6'>
+            <span>处理说明:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-input type="textarea"  :rows="2"  :placeholder="$t('view.inputtext')"  v-model="textarea"></el-input>
+          </el-col>
+        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="showCl = false">{{$t('button.cancel')}}</el-button>
+          <el-button type="primary" @click="editstate()">{{$t('button.determine')}}</el-button>
+        </div>
+      </el-dialog>       
   </div>
 </template>
 
@@ -131,6 +153,10 @@ export default {
             alalist2: [],
             loading: true,
             myChart: null,
+             showCl: false,
+             radio1:'1',
+             textarea:'',
+             row:null,
         }
     },
     watch: {
@@ -256,7 +282,7 @@ export default {
                     //     }
                     // }
                     this.listLoading=false
-                    this.alalist=res.content.filter((item)=>{return item.isProcess==0})
+                    this.alalist=res.content.filter((item)=>{return item.status==0})
                     this.alalist2 = this.alalist.slice(0,5)
                     this.page.total=res.total
                 }).catch(err=>{
@@ -368,27 +394,48 @@ export default {
                 ]
             },true);
         },
-        editstate(val){  //处理报警信息
+        openEditstate(data){
+            this.textarea = ''
+            this.radio1 = '1'
+            this.showCl = true
+            this.row = data
+        },
+        editstate(){  //处理报警信息
             let a = null
             for(let i =0;i<6;i++) {
-                if(this.alalist[i].id == val.id){
+                if(this.alalist[i].id == this.row.id){
                 a = i
                 break
                 }
             }
-            this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
-                confirmButtonText: this.$t('button.determine'),
-                cancelButtonText: this.$t('button.cancel'),
-                type: "warning"
-            }).then(_ => {
-                api.getMessageChuli(val.id).then(res => {
-                    this.$message.success(this.$t('message.alaedit'))
-                    this.alalist.splice(a,1)
-                    this.alalist2 = this.alalist.slice(0,5)
-                }).catch(err => {
-                    this.$message.error(err.message)
-                })
-            }).catch(_ => {});
+            let data = {}
+             data.ids = [this.row.id]
+            data.status = Number(this.radio1)
+            data.handleExplain = this.textarea
+        api
+          .getMessageChuli(data)
+          .then(res => {
+            this.$message.success(this.$t('message.alaedit'))
+            this.showCl = false
+            this.alalist.splice(a,1)
+            this.alalist2 = this.alalist.slice(0,5)
+          })
+          .catch(err => {
+            this.$message.error(err.message)
+          })
+            // this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
+            //     confirmButtonText: this.$t('button.determine'),
+            //     cancelButtonText: this.$t('button.cancel'),
+            //     type: "warning"
+            // }).then(_ => {
+            //     api.getMessageChuli(val.id).then(res => {
+            //         this.$message.success(this.$t('message.alaedit'))
+            //         this.alalist.splice(a,1)
+            //         this.alalist2 = this.alalist.slice(0,5)
+            //     }).catch(err => {
+            //         this.$message.error(err.message)
+            //     })
+            // }).catch(_ => {});
         },
         moreAla(){
             this.$router.push({name:'route.showala',})

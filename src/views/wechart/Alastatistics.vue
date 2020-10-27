@@ -40,7 +40,7 @@
                         <label>{{$t('table.alatype')}}：</label>
                     </el-col>
                     <el-col :span="20">
-                        <el-radio-group v-model="alarmType" @change="changealarmType">
+                        <el-radio-group v-model="alarmType" @change="changealarmType" id='radioType'>
                             <el-radio v-for='item in alatypelist' :value='item.value' :label="item.value" :key='item.value'>{{item.name}}</el-radio>
                         </el-radio-group>
                     </el-col>
@@ -63,7 +63,7 @@
                             </el-table-column>
                              <el-table-column align='center' prop="" :label="$t('table.operation')" style="width:50px;">
                                 <template slot-scope="scope">
-                                    <el-button style="width:100px;" type="primary" @click='editstate(scope.row)' :disabled='scope.row.isProcess == 0? false : true'>{{scope.row.isProcess == 0?$t('table.chuli') : $t('table.pastcl')}}</el-button>
+                                    <el-button style="width:100px;" type="primary" @click='openEditstate(scope.row)' :disabled='(scope.row.status == 0||scope.row.status == null)? false : true'>{{(scope.row.status == 0||scope.row.status == null)?$t('table.chuli') : scope.row.status == 1?$t('table.pastcl') : '误报'}}</el-button>
                                 </template>
                         </el-table-column>
                     </el-table>
@@ -78,17 +78,31 @@
                 </el-pagination>
                 </div>
             </el-card>
-
-                <el-dialog :title="$t('table.alatitle')" :visible.sync="showCl" width="20%">
-                    <el-radio v-model="radio" label="1">{{$t('table.chuli')}}</el-radio>
-                    <el-radio v-model="radio" label="2">{{$t('table.errorcl')}}</el-radio>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="showCl = false">{{$t('button.cancel')}}</el-button>
-                    <el-button type="primary" @click="editstate()">{{$t('button.determine')}}</el-button>
-                </div>
-                </el-dialog>
             </el-card>
         </el-row>
+      <el-dialog title="报警处理" :visible.sync="showCl" width="20%">
+        <el-row :gutter="10">
+          <el-col :span='6'>
+            <span>处理状态:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-radio v-model="radio1" label="1">{{$t('table.chuli')}}</el-radio>
+            <el-radio v-model="radio1" label="2">误报</el-radio>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10" style="margin-top:10px">
+          <el-col :span='6'>
+            <span>处理说明:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-input type="textarea"  :rows="2"  :placeholder="$t('view.inputtext')"  v-model="textarea"></el-input>
+          </el-col>
+        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="showCl = false">{{$t('button.cancel')}}</el-button>
+          <el-button type="primary" @click="editstate()">{{$t('button.determine')}}</el-button>
+        </div>
+      </el-dialog>    
     </div>
 </template>
 <script>
@@ -117,6 +131,9 @@ export default {
              height: 1000,
              list:[],
              showCl: false,
+             radio1:'1',
+             textarea:'',
+             row:null,
              timetype: 'datetime',
              stattype: 3,
              date1: new Date().getTime() - 24*60*60*1000,
@@ -391,33 +408,40 @@ export default {
           this.radio = val
           this.getdata()
       },
-    showState(data) {
+    openEditstate(data) {
+      this.textarea = ''
+      this.radio1 = '1'
       this.showCl = true
       this.row = data
     },
-    editstate(){
-      api.getalastate(this.row.id,this.radio * 1).then(res => {
-        this.$message.success(this.$t('message.alaedit'))
-        this.showCl = false
-        this.getList()
-      }).catch(err => {
-        this.$message.error(err.message)
-      })
-    },
     editstate(val){  //处理报警信息
-            console.log(val)
-            this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
-                confirmButtonText: this.$t('button.determine'),
-                cancelButtonText: this.$t('button.cancel'),
-                type: "warning"
-            }).then(_ => {
-                api.getMessageChuli(val.id).then(res => {
-                    this.$message.success(this.$t('message.alaedit'))
-                    this.getList(0)
-                }).catch(err => {
-                    this.$message.error(err.message)
-                })
-            }).catch(_ => {});
+            // console.log(val)
+            // this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
+            //     confirmButtonText: this.$t('button.determine'),
+            //     cancelButtonText: this.$t('button.cancel'),
+            //     type: "warning"
+            // }).then(_ => {
+            //     api.getMessageChuli(val.id).then(res => {
+            //         this.$message.success(this.$t('message.alaedit'))
+            //         this.getList(0)
+            //     }).catch(err => {
+            //         this.$message.error(err.message)
+            //     })
+            // }).catch(_ => {});
+        let data = {}
+        data.ids = [this.row.id]
+        data.status = Number(this.radio1)
+        data.handleExplain = this.textarea
+        api
+          .getMessageChuli(data)
+          .then(res => {
+            this.$message.success(this.$t('message.alaedit'))
+            this.showCl = false
+            this.getList(0)
+          })
+          .catch(err => {
+            this.$message.error(err.message)
+          })
     },
  },
    filters: {
@@ -452,7 +476,7 @@ export default {
     width: 125px;
     border-right: 3px solid #41802c;
 } */
-.el-radio{
+#radioType .el-radio{
     width: 15%;
     overflow: hidden;
     white-space: nowrap;

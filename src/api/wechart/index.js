@@ -225,7 +225,7 @@ const getowern = (data) => { //批量添加设备
     return axios.get('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device/getUserIdList/' + data)
 }
 
-const downalalist = (data) => { //批量添加设备
+const downalalist = (data) => { //报警导出
     return axios.get('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/devicedata/exportAlarm' , data)
 }
 const getall = () => { //首页所有设备

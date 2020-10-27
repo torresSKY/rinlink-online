@@ -41,6 +41,7 @@
                 <el-col :span="6">
                       <el-button class="butsearch" @click="filterSearch()">{{$t('button.search')}}</el-button>
                       <el-button class="butresh" @click="filter()">{{$t('button.refresh')}}</el-button>
+                      <el-button type="primary" @click="proPiLiang">批量处理</el-button>
                       <el-button class="butadd" @click="download()">{{$t('button.download')}}</el-button>
                 </el-col>
                 
@@ -59,7 +60,7 @@
                             </el-table-column>
                             <el-table-column align='center' prop="" :label="$t('table.operation')" style="width:50px;">
                                 <template slot-scope="scope">
-                                    <el-button style="width:100px;" type="primary" @click='openEditstate(scope.row)' :disabled='(scope.row.isProcess == 0||scope.row.isProcess == null)? false : true'>{{(scope.row.isProcess == 0||scope.row.isProcess == null)?$t('table.chuli') : scope.row.isProcess == 1?$t('table.pastcl') : '误报'}}</el-button>
+                                    <el-button style="width:100px;" type="primary" @click='openEditstate(scope.row)' :disabled='(scope.row.status == 0||scope.row.status == null)? false : true'>{{(scope.row.status == 0||scope.row.status == null)?$t('table.chuli') : scope.row.status == 1?$t('table.pastcl') : '误报'}}</el-button>
                                 </template>
                         </el-table-column>
                         </el-table>
@@ -279,12 +280,29 @@ import {alatype} from '@/plugins/filter.js'
             this.$message.error(err.message)
           })
     },
+    proPiLiang(){
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning('请勾选需处理的数据！！')
+        return
+      }
+       for (let i = 0; i < this.multipleSelection.length; i++) {
+        if (this.multipleSelection[i].status !== 0) {
+          this.$message.warning('请勾选未处理的数据！！')
+          return
+        }
+      }
+        this.textarea = ''
+        this.radio = '1'
+        this.isPiliang = true
+        this.showCl = true
+    },
     download(){
-        api.downalalist({params:{
+        api.downalalist({
+         params:{
+             imei:this.imei,
           alarmType:this.alatype,
-          endTime:this.dataendtime,
-          imei:this.imei,
-          startTime:this.datastarttime},
+          endTime:this.endTime,
+          startTime:this.startTime},
           headers: { 'Content-Type': 'application/json,charset=utf-8'},    
           responseType: 'arraybuffer', }).then(res => {
             let blob = new Blob([res], {type: "application/vnd.ms-excel"});  // res就是接口返回的文件流了

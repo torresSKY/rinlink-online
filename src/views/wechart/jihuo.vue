@@ -450,7 +450,7 @@
                         </el-table-column>
                         <el-table-column align='center' prop="" :label="$t('table.operation')" style="width:50px;">
                         <template slot-scope="scope">
-                            <el-button style="width:100px;" type="primary" @click='editstate(scope.row)' :disabled='scope.row.isProcess == 0? false : true'>{{scope.row.isProcess == 0?$t('table.chuli') : $t('table.pastcl')}}</el-button>
+                            <el-button style="width:100px;" type="primary" @click='openEditstate(scope.row)' :disabled='(scope.row.status == 0||scope.row.status == null)? false : true'>{{(scope.row.status == 0||scope.row.status == null)?$t('table.chuli') : scope.row.status == 1?$t('table.pastcl') : '误报'}}</el-button>
                         </template>
                         </el-table-column>
                     </el-table>
@@ -464,6 +464,29 @@
                         style="text-align:center">
                     </el-pagination>
         </el-dialog>
+      <el-dialog title="报警处理" :visible.sync="showCl" width="20%">
+        <el-row :gutter="10">
+          <el-col :span='6'>
+            <span>处理状态:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-radio v-model="radio1" label="1">{{$t('table.chuli')}}</el-radio>
+            <el-radio v-model="radio1" label="2">误报</el-radio>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10" style="margin-top:10px">
+          <el-col :span='6'>
+            <span>处理说明:</span>
+          </el-col>
+          <el-col :span='16'>
+            <el-input type="textarea"  :rows="2"  :placeholder="$t('view.inputtext')"  v-model="textarea"></el-input>
+          </el-col>
+        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="showCl = false">{{$t('button.cancel')}}</el-button>
+          <el-button type="primary" @click="editstate()">{{$t('button.determine')}}</el-button>
+        </div>
+      </el-dialog>    
         <!-- 批量添加设备 -->
          <el-dialog :title="$t('button.addpiliang')" :visible.sync="morewin">
             <el-form label-width="150px" label-position="left">
@@ -698,7 +721,11 @@ export default{
         dialogLogdata:false,
         logStarttime:null,
         logEndtime:null,
-        logList:[]
+        logList:[],
+        showCl: false,
+        radio1:'1',
+        textarea:'',
+        row:null
       }
     },
     mounted(){
@@ -1489,20 +1516,41 @@ export default{
         })
       })
     },
+    openEditstate(data) {
+      this.textarea = ''
+      this.radio1 = '1'
+      this.showCl = true
+      this.row = data
+    },
     editstate(val){  //处理报警信息
-        this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
-            confirmButtonText: this.$t('button.determine'),
-            cancelButtonText: this.$t('button.cancel'),
-            type: "warning"
-            }).then(_ => {
-            api.getMessageChuli(val.id).then(res => {
-                this.$message.success(this.$t('message.changesuc'))
-                this.showaladata = false
-                this.getAla(val)
-            }).catch(err => {
-               this.$message.error(err.message)
-            })
-      }).catch(_ => {});
+    //     this.$confirm(this.$t('message.alachuli'), this.$t('message.newtitle'), {
+    //         confirmButtonText: this.$t('button.determine'),
+    //         cancelButtonText: this.$t('button.cancel'),
+    //         type: "warning"
+    //         }).then(_ => {
+    //         api.getMessageChuli(val.id).then(res => {
+    //             this.$message.success(this.$t('message.changesuc'))
+    //             this.showaladata = false
+    //             this.getAla(val)
+    //         }).catch(err => {
+    //            this.$message.error(err.message)
+    //         })
+    //   }).catch(_ => {});
+        let data = {}
+        data.ids = [this.row.id]
+        data.status = Number(this.radio1)
+        data.handleExplain = this.textarea
+        api
+          .getMessageChuli(data)
+          .then(res => {
+            this.$message.success(this.$t('message.alaedit'))
+            this.showCl = false
+            this.showaladata = false
+            this.getAla(this.row)
+          })
+          .catch(err => {
+            this.$message.error(err.message)
+          })
     },
     openMore() {
       this.morewin = true

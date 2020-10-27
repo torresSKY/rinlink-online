@@ -87,7 +87,7 @@ export default {
     radius: '半径范围',
     fence1: '围栏列表',
     fence2: '围栏名称',
-    fence3: '围栏半径',
+    fence3: '围栏半径(米)',
     fence4: '围栏地址',
     fence5: '编辑围栏',
     fence6: '添加围栏',

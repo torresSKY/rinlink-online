@@ -7,8 +7,8 @@
                 </el-page-header>
             <el-row>
                 <el-col :span='12'><el-input class='eleinput' v-model='fencesearch' :placeholder="$t('view.fence2')" clearable></el-input></el-col>
-                <el-col :span='5'><el-button class='elebut butsearch' @click='getele()'>{{$t('button.search')}}</el-button></el-col>
-                <el-col :span='5'><el-button class='elebut butresh' @click='Resetgetele()'>{{$t('button.refresh')}}</el-button></el-col>
+                <el-col :span='4' :offset="1"><el-button class=' butsearch' @click='getele()'>{{$t('button.search')}}</el-button></el-col>
+                <el-col :span='4' :offset="2"><el-button class=' butresh' @click='Resetgetele()'>{{$t('button.refresh')}}</el-button></el-col>
             </el-row>
                 
                 
@@ -26,7 +26,7 @@
                             <div>{{$t('view.radius')}}：{{item.radius}}{{$t('view.mi')}}</div>
                         </div>
                         <div class='elecard-edit' @click='addlist(item)' :hidden='!showedit'>
-                            <img src='../../assets/img/list.png'>
+                            <img  src='../../assets/img/list.png'>
                         </div>  
                         <div class='elecard-edit' @click='editele(item)' :hidden='!showedit'>
                             <img src='../../assets/img/edit.png'>
@@ -418,6 +418,7 @@ export default {
             }).catch(err => {})
         },
         deleold(val){
+            this.showlist = true
             console.log(val)
           this.$confirm(this.$t('message.outele'), this.$t('message.newtitle'), {
             confirmButtonText: this.$t('button.determine'),
@@ -611,6 +612,7 @@ export default {
             // debugger
             this.addview = false
             this.editfen = false
+            this.showlist = true
             this.fenceName = val.name
             this.address2 = val.address
             this.conlat = val.circleLat
@@ -840,9 +842,9 @@ export default {
     flex: 0.3;
 }
 .elecard-edit img{
-    width: 30px;
-    height:30px;
-    padding: 8px;
+    width: 26px;
+    height:26px;
+    padding: 6px;
 }
 .addele{
     width: 24%;

@@ -343,7 +343,7 @@
                    strokeColor: '#fff', // 设置矢量图标的线填充颜色
                    strokeWeight: '2' // 设置线宽
                  })
-                 var icons = new BMap.IconSequence(sy, '20%', '1%',false)// 设置为true，可以对轨迹进行编辑
+                 var icons = new BMap.IconSequence(sy, '50%', '2%',false)// 设置为true，可以对轨迹进行编辑
                  var PolylineOptions ={
                 //  enableEditing: false,//是否启用线编辑，默认为false
                 //  enableClicking: false,//是否响应点击事件，默认为true
