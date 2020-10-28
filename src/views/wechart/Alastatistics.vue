@@ -167,7 +167,7 @@ export default {
             console.log(val)
             if(val == 'datetime'){
                 this.stattype = 2
-                this.data1 = new Date().getTime() - 24*60*60*1000
+                this.date1 = new Date().getTime() - 24*60*60*1000
                 this.date2 = new Date().getTime()
             }else if(val == 'month'){
                 this.stattype = 1
@@ -244,12 +244,18 @@ export default {
         },
     getList(){
         let data = {}
+        let endtime = null
+        if(this.timetype == 'month'){
+            endtime = this.date3
+        }else{
+            endtime = this.date2
+        }        
         if(this.imei){
             data = {
                 imei: this.imei,
                 type: this.alarmType,
                 startTime: this.date1,
-                endTime: this.date2,
+                endTime: endtime,
                 pageSize:this.page.size,
                 pageNo:this.page.index-1,
             }
@@ -257,7 +263,7 @@ export default {
             data = {
                 type: this.alarmType,
                 startTime: this.date1,
-                endTime: this.date2,
+                endTime: endtime,
                 pageSize:this.page.size,
                 pageNo:this.page.index-1,
             }

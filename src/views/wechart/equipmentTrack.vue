@@ -1,6 +1,6 @@
 <template>
     <div id="history" :style="{height:height + 100+'px',overflow: 'hidden'}">
-        <el-card shadow="always" class="mb20" style="background:#ccc">
+        <el-card shadow="always"  style="background:#ccc">
             <div slot="header" class="clearfix">
                 <el-page-header v-if="backFlag" @back="goBack" :content="$t('route.Trajectory')">
                 </el-page-header>
@@ -267,7 +267,7 @@
                             //     this.$set(this.data,index,row) 
                             // })
                                     this.map.clearOverlays()
-                                    this.addMarker(this.list)
+                                    this.addMarker(this.list,15,'1%')
                     }).catch(_=>{
                         this.listLoading = false
                         console.log(_)
@@ -290,7 +290,7 @@
                     this.map.remove(this.polyline);
                 }
             },
-            addMarker(list){
+            addMarker(list,zoom,percent){
                  let _this=this
                 //  var sy = new BMap.Symbol(BMap_Symbol_SHAPE_FORWARD_OPEN_ARROW, {
                 //    scale: 0.8, // 图标缩放大小
@@ -315,7 +315,7 @@
                     // pois.idnum='index'+i
                    if(i==0){
                     //    console.log(i,1)
-                    this.map.centerAndZoom(point, 15);
+                    this.map.centerAndZoom(point, zoom);
                     let myIcon1 = new BMap.Icon(end, new BMap.Size(30,40),{anchor: new BMap.Size(5, 30)});
                     let marker1 = new BMap.Marker(point,{icon:myIcon1})
                     this.map.addOverlay(marker1);               // 将标注添加到地图中
@@ -337,13 +337,14 @@
                    }
                 }
                 // debugger
-                 var trackPoint = [];  
+                 var trackPoint = []; 
+                //  var percent = '5%' 
                  var sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
                    scale: 0.8, // 图标缩放大小
                    strokeColor: '#fff', // 设置矢量图标的线填充颜色
                    strokeWeight: '2' // 设置线宽
                  })
-                 var icons = new BMap.IconSequence(sy, '50%', '2%',false)// 设置为true，可以对轨迹进行编辑
+                 var icons = new BMap.IconSequence(sy, '100%', percent ,false)// 设置为true，可以对轨迹进行编辑
                  var PolylineOptions ={
                 //  enableEditing: false,//是否启用线编辑，默认为false
                 //  enableClicking: false,//是否响应点击事件，默认为true
@@ -352,7 +353,7 @@
                  strokeColor:"rgb(36,125,58)" //折线颜色
                  }
                 //  debugger
-                this.map.centerAndZoom(point, 15)
+                this.map.centerAndZoom(point, zoom)
                 var polyline22 =new BMap.Polyline(poisNew.reverse(), {
                  icons: [icons],
                  enableEditing: false,//是否启用线编辑，默认为false
@@ -362,10 +363,39 @@
                  strokeColor:"rgb(36,125,58)" //折线颜色
               });
                 this.map.addOverlay(polyline22);          //增加折线
+                 
+                 _this.map.addEventListener("zoomend",zoomEvent)     
+                 
+                 function zoomEvent(e){
+                    let zoomnum = _this.map.getZoom()
+                    console.log(zoomnum,'asdas')
+                    _this.map.clearOverlays()
+                     _this.map.removeEventListener("zoomend",zoomEvent) 
+                    if(zoomnum>15){
+                        _this.addMarker(list,zoomnum,'0.5%')
+                    }else if(zoomnum==15){
+                        _this.addMarker(list,zoomnum,'1%')
+                    }else if(zoomnum==14){
+                        _this.addMarker(list,zoomnum,'2%')
+                    }else if(zoomnum==13){
+                        // debugger
+                        // percent = '50%'
+                        // polyline22.remove()
+                        // polyline.remove()
+                        _this.addMarker(list,zoomnum,'3%')
+                        // _this.map.addOverlay(polyline22)
+                    }else if(zoomnum==12){
+                        _this.addMarker(list,zoomnum,'6%')
+                    }else if(zoomnum==11){
+                        _this.addMarker(list,zoomnum,'10%')
+                    }else if(zoomnum<11){
+                        _this.addMarker(list,zoomnum,'20%')
+                    }
+                }
 
                  for(let a = 0; a<pois.length-1; a++){
             if(a==0) {
-                this.map.centerAndZoom(new BMap.Point(pois[a].lon, pois[a].lat), 15); //设置中心点
+                this.map.centerAndZoom(new BMap.Point(pois[a].lon, pois[a].lat), zoom); //设置中心点
             }
  
             trackPoint.push(new BMap.Point(pois[a].lon,pois[a].lat));
@@ -378,16 +408,35 @@
             // console.log(polyline)
             
             // pois[i].ba=polyline.ba; //将ba 赋值给原始数据
-            polyline.addEventListener("click",attribute); //监听对象
+            polyline.addEventListener("mouseover",attribute); //监听对象
+
+            polyline.addEventListener("mouseout",removeAtt); //监听对象
  
             trackPoint=[];
             this.map.addOverlay(polyline);
  
         }   
-
+            var s = null
+          function removeAtt() {
+              console.log(1122)
+              window.clearTimeout(s)
+              s = null
+          }
+           
+           
+         
          function attribute(e){
             //  debugger
-            //  console.log(e,11111)
+             if(s){
+                window.clearTimeout(s)
+                s = null
+                // return
+             }
+             
+            //  debugger
+            let data = e
+            s = setTimeout(function(){
+            console.log(e,11111)
             //  console.log(pois)
              for(let i = 0;i<pois.length-1;i++){
                 //  debugger
@@ -406,8 +455,10 @@
                     })
                  }
              }
-         }
-         
+            }, 2000)
+             
+         }         
+
             //     this.map.centerAndZoom(point, 16); 
             //     var polyline22 =new BMap.Polyline(poisNew.reverse(), {
             //      icons: [icons],
@@ -469,8 +520,9 @@
                 var myIcon = new BMap.Icon(loc, new BMap.Size(20,30),{anchor: new BMap.Size(10, 35)});
                 let marker = new BMap.Marker(point,{icon:myIcon})
                 marker.id='12345'
-                this.map.addOverlay(marker);               // 将标注添加到地图中
+
                 this.map.centerAndZoom(point, 15);
+                this.map.addOverlay(marker);               // 将标注添加到地图中
                 }
 
 		        // this.addClickHandler(val,marker)
