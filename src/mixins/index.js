@@ -10,23 +10,31 @@ module.exports={
             sort:'',                                    //升序降序
             sort_type:'',                                //升序降序的类型
             
-            equmodel:[{value: 'D916',name:'D916'},
-                {value: 'D636',name:'D636'},
-                {value: 'D635',name:'D635'},
+            equmodel:[
+                // {value: 'D916',name:'D916'},
+                // {value: 'D636',name:'D636'},
+                // {value: 'D635',name:'D635'},
                 // {value: 'D620',name:'D620'},
-                {value: 'D625',name:'D625'},
-                {value: 'D601',name:'D601'},
-                {value: 'D603',name:'D603'},
-                {value: 'D606',name:'D606'},
-                {value: 'D608',name:'D608'},
+                // {value: 'D625',name:'D625'},
+                // {value: 'D601',name:'D601'},
+                // {value: 'D603',name:'D603'},
+                // {value: 'D606',name:'D606'},
+                // {value: 'D608',name:'D608'},
                 // {value: 'D611G',name:'D611G'},
-                {value: 'D615',name:'D615'},
-                {value: 'D630',name:'D630'},
-                {value: 'D600N',name:'D600N'},
-                {value: 'D631',name:'D631'},
+                // {value: 'D615',name:'D615'},
+                {value: 'D630L',name:'D630L'},
                 {value: 'D650',name:'D650'},
-                {value: 'D631L',name:'D631L'},
-                {value: 'D950',name:'D950'}],
+                {value: 'D650C',name:'D650C'},
+                {value: 'D658',name:'D658'},
+                {value: 'D660C',name:'D660C'},
+                {value: 'D660A',name:'D660A'},
+                {value: 'D670',name:'D670'},
+                // {value: 'D600N',name:'D600N'},
+                // {value: 'D631',name:'D631'},
+ 
+                // {value: 'D631L',name:'D631L'},
+                // {value: 'D950',name:'D950'}
+            ],
                 // {value: 'D652',name:'D652'},
 
         }
