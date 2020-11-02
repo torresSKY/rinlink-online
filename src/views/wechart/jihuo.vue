@@ -382,7 +382,7 @@
                 <el-form-item style="margin: 0;"><span>{{$t('table.model')}} : {{oneInfo.deviceModel}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.equadmin')}} : {{oneInfo.userName}}</span></el-form-item>
                 <!-- <el-form-item style="margin: 0;"><span>{{$t('view.region')}} : {{oneInfo.abroad==true?$t('view.region0'):$t('view.region1')}}</span></el-form-item> -->
-                <el-form-item style="margin: 0;"><span>{{$t('table.equlocation')}} : {{oneInfo.positionType==1?"GPS":oneInfo.positionType==2?"WIFI":$t('table.equloctype')}}</span></el-form-item>
+                <el-form-item style="margin: 0;"><span>{{$t('table.equlocation')}} : {{oneInfo.positionType==1?"GPS":oneInfo.positionType==2?"WIFI":oneInfo.positionType==3?$t('table.equloctype'):'无定位'}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.Detailed')}} : {{oneInfo.address}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.carNo')}} : {{oneInfo.plate}}</span></el-form-item>
                 <el-form-item style="margin: 0;"><span>{{$t('table.creattime')}} : {{oneInfo.createDt}}</span></el-form-item>
@@ -745,6 +745,9 @@ export default{
     },
     getList(){  // 获取所有设备
         this.listxian=[]
+        if(this.search||this.selegroup||this.selestate){
+            this.page.index = 1
+        }
         let data = {}
             data = {params:{
                     pageSize:this.page.size,
@@ -772,9 +775,10 @@ export default{
                     this.listxian=this.list
                     }).catch(err => {
                       this.list.push(res)
+                      this.listxian=this.list
                     })
                 }
-                this.listxian=this.list
+                
                 this.listLoading = false
                 // that.list = res.content
                 this.page.total = res.total

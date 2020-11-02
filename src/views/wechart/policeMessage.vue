@@ -221,7 +221,7 @@ import {alatype} from '@/plugins/filter.js'
                     this.listLoading=false
                     this.$message({
                         type: 'error',
-                        message: _.message
+                        message: err.message
                     });
                 })
             },

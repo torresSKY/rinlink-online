@@ -535,9 +535,12 @@
             },
             getequone(){
                 // debugger
+                if(this.writimei){
+                    this.page.index = 1
+                }
                 let data ={
                     params:{
-                        pageSize:this.page.size,
+                    pageSize:this.page.size,
                     pageNo:this.page.index-1,
                     userId:this.$store.getters.usercode,
                     imei: this.writimei

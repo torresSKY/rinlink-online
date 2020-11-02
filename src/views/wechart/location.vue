@@ -2,7 +2,7 @@
     <div id="location">
       <el-card style="background:#ccc">
         <div slot="header" class="clearfix">
-          <el-page-header v-if="!show" @back="goBack" :content="$t('route.Trajectory')">
+          <el-page-header v-if="!show" @back="goBack" :content="$t('route.Location')">
           </el-page-header>
           <span v-else>{{$t('route.Location')}}</span> 
         </div>
@@ -203,6 +203,7 @@ export default {
     },
 
     getmark(data){
+      this.map.clearOverlays()
       let ding = this.$t('table.Update')
       let loctype = this.$t('table.loctype')
       let dian = this.$t('view.ele')
@@ -227,7 +228,7 @@ export default {
             //    myIcon = new BMap.Icon(img2, new BMap.Size(30,66),{anchor: new BMap.Size(10, 35)});
             //    myIcon.setImageSize(new BMap.Size(15,33));//设置图标大小
             //  }
-             myIcon = new BMap.Icon(img2, new BMap.Size(30,66),{anchor: new BMap.Size(10, 35)});
+             myIcon = new BMap.Icon(img2, new BMap.Size(30,66),{anchor: new BMap.Size(10, 25)});
                myIcon.setImageSize(new BMap.Size(15,33));//设置图标大小
             var marker = new BMap.Marker(point,{icon:myIcon})
              this.mapMarker.push({
@@ -242,7 +243,7 @@ export default {
             if(!res[i].collectDt){
               res[i].collectDt =  res[i].lastAt
             }
-            let typeop = res[i].positionType === 2 ? "WIFI" : res[i].positionType === 1 ? "GPS" : res[i].positionType === 0 ? "基站" :""
+            let typeop = res[i].positionType === 2 ? "WIFI" : res[i].positionType === 1 ? "GPS" : res[i].positionType === 3 ? "基站" :""
             var content = this.$t('table.imei') + ":" + res[i].imei + "<br>" + this.$t('table.Update') + ":" +  res[i].collectDt + "<br>" + 
             this.$t('table.loctype') + ":" + typeop + "<br>" + this.$t('table.wei') + ":" + res[i].lat + "<br>" + this.$t('table.jing') + ":" + res[i].lon;
              this.addClickHandler(content,marker);
