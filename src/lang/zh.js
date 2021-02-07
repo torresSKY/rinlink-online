@@ -3,7 +3,7 @@ export default {
   // 导航栏
   navbar: {
     // 'title': '零零AEP资产管理平台',
-    'title': '车联管家管理平台',
+    'title': '零零在线',
     // 'title': '中国联通资产管理平台',
     'languageSwitch': 'languageSwitch',
     'theme': 'Theme'
@@ -11,7 +11,7 @@ export default {
   route: {
     Home: '首页',
     Equmanage: '设备管理',
-    List: '设备列表',
+    List: '设备管理',
     Data: '设备数据',
     Add: '添加设备',
     Location: '设备定位',
@@ -24,6 +24,9 @@ export default {
     User: '用户管理',
     tongji: '报警统计',
     fence: '围栏管理',
+    control:'控制台',
+    statistics:'统计列表',
+    setting:'系统设置'
   }, 
   button: {
     addpiliang: '批量添加',
@@ -53,6 +56,7 @@ export default {
     jpn: '日文',
     more: '更多',
     clickip: '点击上传 ',
+    control:'控制台'
   },
   view: {
     mi: '米',

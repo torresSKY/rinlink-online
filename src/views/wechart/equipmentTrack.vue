@@ -13,7 +13,7 @@
                     </el-col>
                 </el-row> -->
                 <el-row v-loading="loading">
-                    <div id="map" :style="{height:height-200+'px',overflow:'hidden'}"></div>
+                    <div id="map" :style="{height:height-250+'px',overflow:'hidden'}"></div>
                     <!-- <div id="map" :style="{height:height-680+'px',overflow:'hidden'}"></div> -->
                 </el-row>
                 <el-row :gutter="10">
@@ -24,7 +24,17 @@
                     <el-col :span="3" style="line-height:40px">
                         <span>{{$t('table.seachtime')}}:</span>
                     </el-col>
-                    <el-col :span="4">
+                    <el-col :span="8">
+                        <el-date-picker
+                             v-model="datetimevalue"
+                             type="datetimerange"
+                             value-format="timestamp"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期">
+                        </el-date-picker>
+                    </el-col>
+                    <!-- <el-col :span="4">
                         <el-date-picker
                             v-model="startTime"
                             value-format="timestamp"
@@ -40,14 +50,14 @@
                             :placeholder="$t('table.enddata')"
                             :picker-options="pickerOptions">
                         </el-date-picker>
-                    </el-col> 
+                    </el-col>  -->
                     <el-col :span="4">
                         <el-button class="butsearch" @click="getHistory" :disabled="listLoading">{{$t('button.search')}}</el-button>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-scrollbar>
-                    <el-table :style="{height:120 +'px',overflow:'auto' }"  :data="listTrack"   ref="listTrack"
+                    <el-table :style="{height:170 +'px',overflow:'auto' }"  :data="listTrack"   ref="listTrack"
                     highlight-current-row @current-change="handleCurrentTrack" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}">
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
                         <el-table-column align='center'  prop="collectDt" :label="$t('table.Update')"> </el-table-column>
@@ -139,6 +149,7 @@
                 id:'',
                 startTime:'',
                 endTime:'',
+                datetimevalue:[],
                 map:null,
                 mapMarker:[],
                 mapMarkerEvent:[],
@@ -181,6 +192,7 @@
            // this.getList()
            this.endTime = Date.parse(new Date());
             this.startTime = this.endTime-24*60*60*1000
+            this.datetimevalue=[this.startTime,this.endTime]
            if(this.getimei) {
                 this.id = this.getimei
                 this.deviceName=this.equModel
@@ -223,12 +235,20 @@
                     this.$message.warning(this.$t('message.imeiempty'));
                     this.listLoading = false
                     return
-                }else if(!this.startTime||!this.endTime || new Date(this.startTime)>new Date(this.endTime)){
+                }else if(!this.datetimevalue){
                     this.listLoading = false
-                    this.$message.warning(this.$t('message.timeno'));
                     this.listLoading = false
+                    this.$message.warning('请选择查询时间')
                     return
                 }
+                this.startTime = this.datetimevalue[0]
+                this.endTime = this.datetimevalue[1]
+                // else if(!this.startTime||!this.endTime || new Date(this.startTime)>new Date(this.endTime)){
+                //     this.listLoading = false
+                //     this.$message.warning(this.$t('message.timeno'));
+                //     this.listLoading = false
+                //     return
+                // }
                 if ((this.endTime - this.startTime) > 604800000) {
                    this.$message.warning('查询时间不能超过7天')
                    this.listLoading = false

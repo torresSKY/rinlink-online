@@ -94,8 +94,8 @@
                 </el-scrollbar>
             </div>
         </el-col>
-        <el-col :span="13" v-loading="loading">
-            <div id="map" style="height:810px"></div>
+        <el-col :span="13" v-loading="loading" >
+            <div id="map" ></div>
         </el-col>
     </el-row>
       <el-dialog title="报警处理" :visible.sync="showCl" width="20%">
@@ -222,7 +222,8 @@ export default {
             this.loading = false
     		this.map = new BMap.Map("map",{ enableMapClick: false });
 	        this.map.centerAndZoom(new BMap.Point(110.404, 28.915), 5);
-            this.map.enableScrollWheelZoom();
+            this.map.enableScrollWheelZoom(true);
+            this.map.enableAutoResize()
             // 3.0版本样式：但是这个发布的样式ID需要在申请AK秘钥的账号下发布
             this.map.setMapStyleV2({
                 styleId: 'dd014efdbb6eadad2cceaa52401c1773'
@@ -461,7 +462,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 #users{
     background: #12191f;
-    padding: 20px;
+    padding: 20px 20px 40px 20px;
     // height: 100%;
 }
   #users {
@@ -485,7 +486,7 @@ export default {
     }
     #map {
        width: 100%;
-       height: 600px;
+       height: 84vh;
     }
     .header{
         height: 50px;

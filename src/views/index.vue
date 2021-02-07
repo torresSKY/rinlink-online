@@ -1,97 +1,56 @@
 <!-- by your name -->
 <template>
   <div class="main">
-    <div class="sidebar" :style="{width:sidebarWidth,'overflow':'auto'}">
-      <div class="logo_title">
-          <img src="../assets/img/logo.png">
-          <!--   <img src="../assets/img/logo-lt.png">  -->
-        </div>
-      <el-menu :unique-opened='true' :default-active="$route.path" class="el-menu-vertical-demo teat1" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#001832" :collapse="isCollapse">
-          <template v-for="(item,index) in routerList">
-            <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
-              <el-menu-item :index="item.path+'/'+item.children[0].path" class='submenu-title-noDropdown'>
-                <i :class="'icon iconfont icon-'+item.icon"></i>
-                <span slot="title">{{$t(item.children[0].name)}}</span>
-              </el-menu-item>
-            </router-link>
-
-            <el-submenu class="teat2" v-if="item.children&& item.radius && (item.children.length!==1 || (item.children.length===1 && item.children[0].children)) && item.roles.filter(res=>res==roles).length" :index="item.path" :key="item.name">
-              <template slot="title">
-                <i :class="'icon iconfont icon-'+item.icon"></i>
-                <span slot="title">{{$t(item.name)}}</span>
-              </template>
-
-              <template v-for="child in item.children">
-
-                <el-submenu class="teat3" v-if="child.radius && child.children && child.children.length>0 && child.roles.filter(res=>res==roles).length" :index="item.path+'/'+child.path" :key="child.name">
-                  <template slot="title">
-                    <i :class="'icon iconfont icon-'+child.icon"></i>
-                    <span slot="title">{{$t(child.name)}}</span>
-                  </template>
-
-                  <template class="teat4" v-for="son in child.children">
-                    <router-link :to="item.path+'/'+child.path+'/'+son.path" :key="son.name" v-if="son.hidden && son.radius && son.roles.filter(res=>res==roles).length">
-                      <el-menu-item :index="item.path+'/'+child.path+'/'+son.path">
-                        <i :class="son.icon"></i>
-                        <span slot="title">{{$t(son.name)}}</span>
-                      </el-menu-item>
-                    </router-link>
-                  </template>
-                </el-submenu>
-
-                <router-link v-if="child.radius && (!child.children || (child.children&&child.children.length==0))&& child.roles.filter(res=>res==roles).length" :to="item.path+'/'+child.path" :key="child.name">
-                  <el-menu-item :index="item.path+'/'+child.path" >
-                    <i :class="child.icon"></i>
-                    <span slot="title">{{$t(child.name)}}</span>
+    <div class="content " >
+      <div class="topBar" >
+        <el-row>
+          <el-col :span='2'>
+            <span class="title_top">
+              {{$t('navbar.title')}}
+            </span>
+          </el-col>
+          <el-col :span='17'>
+            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#001832" >
+              <template v-for="(item,index) in routerList">
+                <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
+                  <el-col :span='3'>
+                  <el-menu-item :index="item.path+'/'+item.children[0].path" >
+                    <i :class="'icon iconfont icon-'+item.icon"></i>
+                    <span slot="title">{{$t(item.children[0].name)}}</span>
                   </el-menu-item>
+                  </el-col>
                 </router-link>
               </template>
-            </el-submenu>
-          </template>
-      </el-menu> 
-    </div>
-
-    <div class="content " :style="{'margin-left':sidebarWidth}">
-      <div class="topBar">
-        <el-button @click="isCollapse=!isCollapse" type="text" style="color:#fff;height:60px;" :class="`iconfont ${isCollapse?'icon-kuaijiecaidan':'icon-caidan'} collapse fl`"></el-button>
-        <!-- <el-breadcrumb separator-class="el-icon-arrow-right" class="fl topBar-title">
-          <el-breadcrumb-item :to="{ path: '/index/index' }" >{{$t('navbar.title')}}</el-breadcrumb-item>
-          <el-breadcrumb-item v-for="item in $route.matched" v-if="item.name" :key="item.path" class="no-redirect">{{$t(item.name)}}</el-breadcrumb-item>    
-        </el-breadcrumb>-->
-        <el-dropdown class="fr" @command="handleCommand">
-          
-          <el-button class="fr btn-loading" size="medium">
-            <i class="el-icon-user-solid" style="color:#ccc;font-size:30px;margin-right:5px;"></i>
-            {{logname}}
-            <i class="el-icon-caret-bottom" style="color:#ccc;font-size:18px;margin-right:5px;"></i>
-          </el-button>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="a"><b>{{$t('button.changepassword')}}</b></el-dropdown-item>
-            <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-        <div class="lang">
-            <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()">
-              <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button>
-              <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button> -->
+            </el-menu> 
+          </el-col>
+          <el-col :span='2'>
+            <div class="lang">
+              <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()">
+                <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button>
+                <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button> -->
               <!-- <el-radio-button class="lang_btn" :label="3">{{$t('button.jpn')}}</el-radio-button> -->
-            </el-radio-group>
-        </div>
-        <el-button  v-if="loading" size="medium" class="fr btn-loading"></el-button> 
+              </el-radio-group>
+            </div>
+           </el-col> 
+          <el-col :span='3'>
+            <el-dropdown class="fr" @command="handleCommand">
+              <el-button class="fr btn-loading" size="medium">
+                <i class="el-icon-user-solid" style="color:#ccc;font-size:30px;margin-right:5px;"></i>
+                {{logname}}
+                <i class="el-icon-caret-bottom" style="color:#ccc;font-size:18px;margin-right:5px;"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="a"><b>{{$t('button.changepassword')}}</b></el-dropdown-item>
+                <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </el-col>
+        </el-row>
+        
 
-        <span class="title_top">
-            {{$t('navbar.title')}}
-        </span>
+
+
       </div>
-      
-      
-     
-      <!-- <div class="viewTag" >  //页面导航
-          <el-tag v-for="(tag,index) in viewTagList" :key="tag.name" closable :class="{active:tag.path==$route.path}" 
-          @close="handleClose(index,tag.path)"
-          @click.native="jump(tag.path)"
-          >{{$t(tag.name)}} </el-tag>    
-      </div> -->
       
       <el-dialog
           class="editpass"
@@ -131,7 +90,6 @@
               <el-button size="medium" @click="closetab">{{$t('button.cancel')}}</el-button>
           </span>
       </el-dialog>
-
       
      <div class="routerView" :style="{height:height + 'px'}">
        <transition name="el-fade-in-linear">
@@ -141,11 +99,8 @@
       </transition>
      </div>
     
-      
-      
     </div>
 
-    
   </div>
 </template>
 
@@ -382,32 +337,9 @@ export default {
     text-decoration: none;
   }
 }
-.sidebar {
-  transition: width 0.28s;
-  width: 200px;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 1001;
-  background-color: #00192e;
-  box-sizing: border-box;
-}
 
-.sidebar::-webkit-scrollbar {
-  width: 0px;
-}
-.logo_title {
-      background: #19232c;
-      height: 60px;
-      text-align: center;
-    }
-.logo_title img {
-      width: 130px;
-      height: 40px;
-      margin: 10px auto;
-  }
+
+
   
   .title_top {
       line-height: 60px;
@@ -423,7 +355,7 @@ export default {
   min-height: 100%;
   -webkit-transition: margin-left 0.28s;
   transition: margin-left 0.28s;
-  margin-left: 200px;
+  // margin-left: 200px;
   background: #fff;
 }
 
@@ -433,11 +365,6 @@ export default {
   background: #19232c;
 }
 
-.collapse {
-  font-size: 25px;
-  color: #000;
-  padding-left: 10px;
-}
 
 .topBar-title {
   color: #97a8be;

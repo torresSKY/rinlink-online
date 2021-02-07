@@ -187,11 +187,15 @@ export default {
       }
     },
     getLocation(obj) {
+      this.map.clearOverlays()
+      var _this = this
       api.getLocation(obj.imei)
         .then(res => {
-          this.getmark(res)
+          setTimeout(function(){
+          _this.getmark(res)
           obj.disabled = false;
-          this.$refs.tree2.setCheckedKeys(this.$refs.tree2.getCheckedKeys());
+          _this.$refs.tree2.setCheckedKeys(_this.$refs.tree2.getCheckedKeys());
+          }, 200)
         })
         .catch(err => {
           obj.disabled = false;
@@ -203,7 +207,6 @@ export default {
     },
 
     getmark(data){
-      this.map.clearOverlays()
       let ding = this.$t('table.Update')
       let loctype = this.$t('table.loctype')
       let dian = this.$t('view.ele')
@@ -215,7 +218,7 @@ export default {
         res.push(data)
       }
       let nolocaList = []
-      let point = new BMap.Point();
+      let point = null
       for (let i = 0;i<res.length;i++ ){
            if (res[i].lat && res[i].lon) {
             
