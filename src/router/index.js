@@ -7,7 +7,7 @@ Vue.use(Router)
 
 const list={
     routes: [
-      { path: '/', redirect: '/wechart/location'},
+      { path: '/', redirect: '/login'},
       { path: '/404', component: _import('errorPage/404')},
       { path: '/401', component: _import('errorPage/401')},
       { path: '/login',name: 'login', component: _import('login/index')},
@@ -21,19 +21,15 @@ const list={
         children: [{path: 'index',name:'route.Home',radius:true,roles:[0,1,88,99],component: () =>import('@/views/wechart/users'),meta: { keep:'users',keepAlive: true }}]
       }, 
       {
-        path: '/wechart',
+        path: '/equManage',
         name: 'route.Equmanage',
         radius:true,
         roles:[0,1,88,99],
         component: _import('index'),
         icon: 'shebeiguanli1',
-        redirect: '/wechart/zhuche',
+        redirect: '/equManage',
         children: [
-          {path: 'jihuo',name: 'route.List',component: () =>import('@/views/wechart/jihuo'),hidden: true,meta: { keep: 'jihuo'},radius:true,roles:[0,1,88,99],},
-          // {path: 'history',name: 'route.Trajectory',component: () =>import('@/views/wechart/history'),hidden: false,radius:false,roles:[0,1,88,99],},
-          // {path: 'location',name: 'route.Location',component: () =>import('@/views/wechart/location'),hidden: true,radius:true,roles:[0,1,88,99],},
-          // {path: 'group',name: 'route.Group',component: () =>import('@/views/wechart/group'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
-          // {path: 'equipmentTrack',name: 'route.Trajectory',component: () =>import('@/views/wechart/equipmentTrack'),hidden: true,meta: { keep: 'group'},radius:true,roles:[0,1,88,99],},
+          {path: 'equManage',name: 'route.Equmanage',component: () =>import('@/views/wechart/equManage'),hidden: true,meta: { keep: 'jihuo'},radius:true,roles:[0,1,88,99],},
           ]
       },   
       {
@@ -78,8 +74,6 @@ const list={
         redirect: '/UserManagement/wechartUser',
         children: [
           {path: 'wechartUser',name: 'route.User',component: () =>import('@/views/wechart/wechartUser'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[0,1,88,99],},
-          // {path: 'user',name: '系统用户',component: () =>import('@/views/wechart/user'),meta: { keep: 'user' },radius:true,roles:[0,1,88,99],},
-          // {path: 'Customerlist',name: '客户管理',component: () =>import('@/views/wechart/Customerlist'),meta: { keep: 'Customerlist' },radius:true,roles:[88,99],},
         ]
       },
       {

@@ -14,10 +14,10 @@
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
                   <el-col :span='3'>
-                  <el-menu-item :index="item.path+'/'+item.children[0].path" >
-                    <i :class="'icon iconfont icon-'+item.icon"></i>
-                    <span slot="title">{{$t(item.children[0].name)}}</span>
-                  </el-menu-item>
+                    <el-menu-item :index="item.path+'/'+item.children[0].path" >
+                      <i :class="'icon iconfont icon-'+item.icon"></i>
+                      <span slot="title">{{$t(item.children[0].name)}}</span>
+                    </el-menu-item>
                   </el-col>
                 </router-link>
               </template>

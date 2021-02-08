@@ -18,6 +18,9 @@ export default {
     User: 'User management',
     tongji: 'Alarm statistics',
     fence: 'Fence management',
+    control:'Console',
+    statistics:'Statistics list',
+    setting:'System settings'
   },
   button: {
     addpiliang: 'Add in bulk',
@@ -49,6 +52,10 @@ export default {
     clickip: 'Click upload ',
   },
   view: {
+    customerList:'Customer list',
+    allCust:'All customers',
+    expire:'Expire',
+    searchUser:'Please enter the customer name or account number',
     mi: 'meter',
     dengji: 'grade',
     close: 'Close',

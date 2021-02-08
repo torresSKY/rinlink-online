@@ -11,7 +11,7 @@ export default {
   route: {
     Home: '首页',
     Equmanage: '设备管理',
-    List: '设备管理',
+    List: '设备列表',
     Data: '设备数据',
     Add: '添加设备',
     Location: '设备定位',
@@ -59,6 +59,10 @@ export default {
     control:'控制台'
   },
   view: {
+    customerList:'客户列表',
+    allCust:'全部客户',
+    expire:'到期',
+    searchUser:'请输入客户名称或账号',
     mi: '米',
     dengji: '等级',
     close: '关闭',
