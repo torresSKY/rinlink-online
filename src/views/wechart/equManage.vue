@@ -22,6 +22,58 @@
                 <el-row class="cust-title">
                     <span>{{$t('route.List')}}</span>
                 </el-row>
+                <el-row class="list-search" :gutter="22">
+                  <el-col :span='3'>
+                    <el-input v-model="search" :placeholder="$t('view.inputimei')"></el-input>
+                  </el-col>
+                  <el-col :span='3'>
+                    <el-select v-model="value" :placeholder="$t('table.model')">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                  <el-col :span='3'>
+                    <el-select v-model="value" :placeholder="$t('view.inputstate')">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                  <el-col :span='3'>
+                    <el-select v-model="value" :placeholder="$t('view.inputlabel')">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                  <el-col :span='3'>
+                    <el-select v-model="value" :placeholder="$t('view.inputstate2')">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                  <el-col :span='2' style="line-height:40px">
+                    <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
+                  </el-col>
+                  <el-col :span='4'>
+                    <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                    <el-button class="butdele" >{{$t('button.more')}}</el-button>
+                  </el-col>
+                </el-row>
             </el-col>
         </el-row>
      
@@ -98,7 +150,25 @@ export default{
         defaultProps: {
           children: 'children',
           label: 'label'
-        }
+        },
+        value:null,
+        options: [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }],
+        checked:true
         
       }
     },
@@ -144,5 +214,7 @@ export default{
     margin-top: 10px;
     border: 1px solid #EDF3FF;
 }
-
+.list-search{
+  padding: 10px 0 0 14px;
+}
 </style>

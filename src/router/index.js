@@ -73,7 +73,7 @@ const list={
         icon: 'yonghuguanli1',
         redirect: '/UserManagement/wechartUser',
         children: [
-          {path: 'wechartUser',name: 'route.User',component: () =>import('@/views/wechart/wechartUser'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[0,1,88,99],},
+          {path: 'wechartUser',name: 'route.User',component: () =>import('@/views/wechart/userManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[0,1,88,99],},
         ]
       },
       {
