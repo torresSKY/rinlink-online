@@ -50,13 +50,14 @@
                     </el-col>
                 </el-row>
                 <el-row style="margin-top:10px">
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  height='60vh' ></BaseTable>
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
                 </el-row>
             </el-col>
         </el-row>
+        <!-- 添加/编辑客户 -->
         <el-dialog
             :title="isEdit? $t('button.editCustomer'): $t('button.addCustomer')"
-            :visible.sync="dialogVisible"
+            :visible.sync="dialogCustomer"
             width="60%">
             <el-row :gutter="22">
                 <el-col :span='12'>
@@ -88,13 +89,56 @@
                               </el-option>
                             </el-select>
                         </el-form-item>
+                        <el-form-item :label="$t('table.contacts')" prop="name">
+                           <el-input v-model="customerForm.name"></el-input>
+                        </el-form-item>
+                        <el-form-item :label="$t('table.phone')" prop="name">
+                           <el-input v-model="customerForm.name"></el-input>
+                        </el-form-item>
+                        <el-form-item :label="$t('view.email')" prop="name">
+                           <el-input v-model="customerForm.name"></el-input>
+                        </el-form-item>
+                        <el-form-item :label="$t('table.note')" prop="name">
+                           <el-input v-model="customerForm.name"></el-input>
+                        </el-form-item>
                     </el-form>    
+                </el-col>
+                <el-col :span='12'>
+                  <el-row :gutter="22">
+                    <el-input :placeholder="$t('view.searchUser')" v-model="input3" class="input-with-select">
+                      <el-button slot="append" icon="el-icon-search"></el-button>
+                    </el-input>
+                  </el-row>
+                  <el-row :gutter="22" style="margin-top:10px">
+                    <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                  </el-row>
                 </el-col>
             </el-row>
             <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+              <el-button @click="dialogCustomer = false">取 消</el-button>
+              <el-button type="primary" @click="dialogCustomer = false">确 定</el-button>
             </span>
+        </el-dialog>
+        <!-- 修改密码 -->
+        <el-dialog
+          :title="$t('button.changepassword')"
+          :visible.sync="dialogPwd"
+          width="30%">
+          <el-form :model="pwdForm" ref="pwdForm" :rules="pwdRules" label-width="100px">
+                <el-form-item :label="$t('table.username')" prop="username" >
+                  <el-input name="username" v-model="pwdForm.username" :placeholder="$t('table.username')" ></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('view.paw')" prop="password" >
+                  <el-input  name="password"  v-model="pwdForm.password"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('view.confirmPaw')" prop="confirmPaw" >
+                  <el-input  name="password"  v-model="pwdForm.confirmPaw"></el-input>
+                </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogPwd = false">取 消</el-button>
+            <el-button type="primary" @click="dialogPwd = false">确 定</el-button>
+          </span>
         </el-dialog>
     </div>
 </template>
@@ -180,12 +224,23 @@ export default {
           {command: '3', text: this.$t('button.changepassword'), index: 3} ]
         }
       ],
-      dialogVisible: false,
+      dialogCustomer: false,
       isEdit:false,
       customerForm:{
           name:''
       },
-      rules:[]
+      rules:[],
+      dialogPwd:false,
+      pwdForm:{
+        username:'',
+        password:'',
+        confirmPaw:''
+      },
+      pwdRules: {
+        username: [{ required: true, min: 3,  message: this.$t('message.namelong') }],
+        password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
+        confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
+      },
     }
   },
   mounted() {
@@ -196,8 +251,9 @@ export default {
         console.log(data)
     },
     addCustomer(){ // 添加客户
-        this.dialogVisible = true 
+        this.dialogCustomer = true 
         this.isEdit = false
+
     }
   }
 }

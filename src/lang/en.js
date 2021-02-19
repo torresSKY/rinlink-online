@@ -23,6 +23,10 @@ export default {
     setting:'System settings'
   },
   button: {
+    editAdmin:'Edit administrator',
+    addAdmin:'Add administrator',
+    editrole:'Edit role',
+    addrole:'Add role',
     addpiliang: 'Add in bulk',
     download: 'Download',
     login: 'Login',
@@ -54,6 +58,7 @@ export default {
     editCustomer:'Edit customer'
   },
   view: {
+    permission:'Permission configuration',
     user:'User',
     admin:'Login account',
     username:'Username',
@@ -113,6 +118,12 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    status: 'Device status',
+    usestatus: 'Usage status',
+    label:'label',
+    adminName:'Administrator name',
+    roleName:'Role name',
+    roleType:'Role type',
     index:'index',
     customerName:'Customer name',
     count:'Count',

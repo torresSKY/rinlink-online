@@ -74,6 +74,15 @@
                     <el-button class="butdele" >{{$t('button.more')}}</el-button>
                   </el-col>
                 </el-row>
+                <el-row class="list-search" :gutter="22">
+                    <el-col :span='4'>
+                      <el-button size="mini" >{{$t('button.download')}}</el-button>
+                      <el-button size="mini" >{{$t('button.send')}}</el-button>
+                    </el-col>  
+                </el-row>
+                <el-row :gutter="22" class="list-search">
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
+                </el-row>
             </el-col>
         </el-row>
      
@@ -86,8 +95,10 @@ import axios from 'axios'
 import {mapState} from 'vuex'
 import {alatype,order} from '@/plugins/filter.js'
 import { formatDate } from '@/plugins/date.js'
+import BaseTable from '@/components/table'
 export default{
     name:'jihuo',
+    components:{ BaseTable },
     mixins:[mixin],
     computed:{
         ...mapState({user:'user',adminRoles:'roles'})
@@ -168,7 +179,30 @@ export default{
           value: '选项5',
           label: '北京烤鸭'
         }],
-        checked:true
+        checked:true,
+        loading:false,
+        dataList:[],
+        tableLabel: [
+          {label: this.$t('table.index'), type: 'index'},
+          {label: this.$t('table.Device'), prop: 'serial_number'},
+          {label: this.$t('table.imei'), prop: 'category'},
+          {label: this.$t('table.label'), prop: 'category'},
+          {label: this.$t('table.model'), prop: 'category'},
+          {label: this.$t('table.status'), prop: 'category'},
+          {label: this.$t('table.usestatus'), prop: 'category'},
+          {label: this.$t('table.phone'), prop: 'partner_contacts'},
+          {label: this.$t('table.roleName'), prop: 'partner_contacts'},
+          {label: this.$t('table.creattime'), prop: 'partner_contacts'},
+          {label: this.$t('table.note'), prop: 'partner_contacts'},
+          {label: this.$t('table.operation'),
+            type: 'clickSelect',
+            selectOperation: (index, row) => {
+              this.showDialog(index, row)
+            },
+            selectText: [{command: '1', text: this.$t('button.editor'), index: 1},
+            {command: '2', text: this.$t('button.dele'), index: 2},
+            {command: '3', text: this.$t('button.changepassword'), index: 3} ]
+        }],
         
       }
     },

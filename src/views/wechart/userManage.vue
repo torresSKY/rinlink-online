@@ -5,8 +5,12 @@
                <el-tab-pane :label="$t('view.customerManage')" name="first">
                    <customer-manage ref="customerManage"  :style="{height:80 + 'vh'}"/>
                </el-tab-pane>
-               <el-tab-pane :label="$t('view.usersManage')" name="second">配置管理</el-tab-pane>
-               <el-tab-pane :label="$t('view.adminManage')" name="third">角色管理</el-tab-pane>
+               <el-tab-pane :label="$t('view.usersManage')" name="second">
+                   <role-manage ref="customerManage"  :style="{height:80 + 'vh'}"/>
+               </el-tab-pane>
+               <el-tab-pane :label="$t('view.adminManage')" name="third">
+                   <admin-manage ref="customerManage"  :style="{height:80 + 'vh'}"/>
+               </el-tab-pane>
             </el-tabs>
         </el-card>
     </div>
@@ -15,9 +19,11 @@
     import api from '@/api/wechart/index'
     import axios from 'axios'
     import CustomerManage from './CustomerManage.vue'
+    import roleManage from './roleManage.vue'
+    import adminManage from './adminManage.vue'
     export default{
-        name:'user',
-        components:{ CustomerManage },
+        name:'userManage',
+        components:{ CustomerManage,roleManage,adminManage },
         data(){
             return {
                 activeName: 'first',

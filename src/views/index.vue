@@ -1,16 +1,16 @@
 <!-- by your name -->
 <template>
   <div class="main">
-    <div class="content " >
+    <div class="content" >
       <div class="topBar" >
-        <el-row>
+        <el-row >
           <el-col :span='2'>
             <span class="title_top">
               {{$t('navbar.title')}}
             </span>
           </el-col>
-          <el-col :span='17'>
-            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#001832" >
+          <el-col :span='16'>
+            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#576CE5"  background-color="#576CE5" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
                   <el-col :span='3'>
@@ -47,11 +47,7 @@
           </el-col>
         </el-row>
         
-
-
-
       </div>
-      
       <el-dialog
           class="editpass"
           :visible.sync="editpassstate"
@@ -323,7 +319,7 @@ export default {
 </script>
 <style lang='scss' scoped>
 .main {
-  position: relative;
+  // position: relative;
   height: 100%;
   width: 100%;
   background: #eee;
@@ -338,9 +334,6 @@ export default {
   }
 }
 
-
-
-  
   .title_top {
       line-height: 60px;
       font-size: 20px;
@@ -352,9 +345,9 @@ export default {
     }
 
 .content {
-  min-height: 100%;
-  -webkit-transition: margin-left 0.28s;
-  transition: margin-left 0.28s;
+  // min-height: 100%;
+  // -webkit-transition: margin-left 0.28s;
+  // transition: margin-left 0.28s;
   // margin-left: 200px;
   background: #fff;
 }
@@ -362,7 +355,7 @@ export default {
 .topBar {
   line-height: 50px;
   height: 60px;
-  background: #19232c;
+  background: #576CE5;
 }
 
 
@@ -426,7 +419,7 @@ export default {
 /deep/.el-radio-button .el-radio-button__inner {
   color: #2688ff;
   font-size: 14px;
-  background-color: #19232c;
+  background-color: #576CE5;
   border: none;
   border-radius: 5px 5px 5px 5px;
 }
@@ -442,5 +435,9 @@ export default {
   top: 25%;
 }
 
+.el-menu-item.is-active {
+    background-color: #fff !important;
+    border-bottom: 0!important;
+}
 
 </style>

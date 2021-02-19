@@ -29,6 +29,10 @@ export default {
     setting:'系统设置'
   }, 
   button: {
+    editAdmin:'编辑管理员',
+    addAdmin:'添加管理员',
+    editrole:'编辑角色',
+    addrole:'新增角色',
     addpiliang: '批量添加',
     download: '导出',
     login: '登录',
@@ -61,6 +65,7 @@ export default {
     editCustomer:'编辑客户'
   },
   view: {
+    permission:'权限配置',
     user:'角色',
     admin:'登录账号',
     username:'用户名称',
@@ -121,6 +126,12 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    status: '设备状态',
+    usestatus: '使用状态',
+    label:'标签',
+    adminName:'管理员名称',
+    roleName:'角色名称',
+    roleType:'角色类型',
     index:'序号',
     customerName:'客户名称',
     count:'账号',
