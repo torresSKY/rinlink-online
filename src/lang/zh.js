@@ -29,6 +29,7 @@ export default {
     setting:'系统设置'
   }, 
   button: {
+    playback:'轨迹回放',
     editAdmin:'编辑管理员',
     addAdmin:'添加管理员',
     editrole:'编辑角色',
@@ -126,6 +127,13 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    importtime:'导入时间',
+    mileage:'总里程',
+    salesTime:'销售时间',
+    expire:'平台服务到期时间',
+    activeTime:'激活时间',
+    customers:'所属客户',
+    iccid:'设备ICCID',
     status: '设备状态',
     usestatus: '使用状态',
     label:'标签',

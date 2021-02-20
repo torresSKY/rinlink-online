@@ -118,6 +118,14 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    playback:'Track playback',
+    importtime:'Import time',
+    mileage:'Total mileage',
+    salesTime:'Sales time',
+    expire:'Platform service expiration time',
+    activeTime:'Activation time',
+    customers:'Customers',
+    iccid:'Device ICCID',
     status: 'Device status',
     usestatus: 'Usage status',
     label:'label',

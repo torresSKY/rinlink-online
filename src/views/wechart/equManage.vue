@@ -1,6 +1,6 @@
 <template>
-    <div id="equ" v-loading="listLoading" :style="{height:height + 'px'}">
-        <el-row>
+    <div  >
+        <el-card  :style="{height:height + 'px'}" >
             <el-col :span='4'>
                 <el-row class="cust-title">
                     <span>{{$t('view.customerList')}}</span>
@@ -80,12 +80,11 @@
                       <el-button size="mini" >{{$t('button.send')}}</el-button>
                     </el-col>  
                 </el-row>
-                <el-row :gutter="22" class="list-search">
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
+                <el-row :gutter="22" class="list-search" >
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
                 </el-row>
             </el-col>
-        </el-row>
-     
+        </el-card>
     </div>
 </template>
 <script>
@@ -119,7 +118,6 @@ export default{
                 return time.getTime() > Date.now();
                 }
             },
-        listLoading:false,
         height:1000,
         activeName: 'first',
         search:null,
@@ -190,10 +188,13 @@ export default{
           {label: this.$t('table.model'), prop: 'category'},
           {label: this.$t('table.status'), prop: 'category'},
           {label: this.$t('table.usestatus'), prop: 'category'},
-          {label: this.$t('table.phone'), prop: 'partner_contacts'},
-          {label: this.$t('table.roleName'), prop: 'partner_contacts'},
-          {label: this.$t('table.creattime'), prop: 'partner_contacts'},
-          {label: this.$t('table.note'), prop: 'partner_contacts'},
+          {label: this.$t('table.iccid'), prop: 'partner_contacts'},
+          {label: this.$t('table.customers'), prop: 'partner_contacts'},
+          {label: this.$t('table.activeTime'), prop: 'partner_contacts'},
+          {label: this.$t('table.expire'), prop: 'partner_contacts'},
+          {label: this.$t('table.salesTime'), prop: 'partner_contacts'},
+          {label: this.$t('table.mileage'), prop: 'partner_contacts'},
+          {label: this.$t('table.importtime'), prop: 'partner_contacts'},
           {label: this.$t('table.operation'),
             type: 'clickSelect',
             selectOperation: (index, row) => {
@@ -201,13 +202,16 @@ export default{
             },
             selectText: [{command: '1', text: this.$t('button.editor'), index: 1},
             {command: '2', text: this.$t('button.dele'), index: 2},
-            {command: '3', text: this.$t('button.changepassword'), index: 3} ]
+            {command: '3', text: this.$t('button.equinfo'), index: 3},
+            {command: '4', text: this.$t('button.playback'), index: 4},
+            {command: '5', text: this.$t('button.shewei'), index: 5},
+            {command: '6', text: this.$t('button.send'), index: 6} ]
         }],
         
       }
     },
     mounted(){
-        this.height=document.body.offsetHeight-162
+        this.height=document.body.offsetHeight-62
   
     },
     methods:{
@@ -249,6 +253,6 @@ export default{
     border: 1px solid #EDF3FF;
 }
 .list-search{
-  padding: 10px 0 0 14px;
+  padding: 10px 0 0 15px;
 }
 </style>
