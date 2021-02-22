@@ -66,6 +66,9 @@ export default {
     editCustomer:'编辑客户'
   },
   view: {
+    punchReport:'打卡报表',
+    aladetail:'报警详情',
+    alaoverview:'报警总览',
     permission:'权限配置',
     user:'角色',
     admin:'登录账号',
@@ -127,6 +130,15 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    clockAddress:'打卡位置',
+    clockType:'打卡类型',
+    clockTime:'打卡时间',
+    equPhone:'设备卡电话',
+    process:'处理说明',
+    proTime:'处理时间',
+    proStatus:'处理状态',
+    handler:'处理人',
+    alarmAddress:'报警地址',
     importtime:'导入时间',
     mileage:'总里程',
     salesTime:'销售时间',

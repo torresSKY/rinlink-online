@@ -58,6 +58,9 @@ export default {
     editCustomer:'Edit customer'
   },
   view: {
+    punchReport:'Punch in report',
+    aladetail:'Alarm detail',
+    alaoverview:'Alarm overview',
     permission:'Permission configuration',
     user:'User',
     admin:'Login account',
@@ -118,6 +121,15 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    clockAddress:'Clock in address',
+    clockType:'Clock in type',
+    clockTime:'Clock in time',
+    equPhone:'Device card phone',
+    process:'Process',
+    proTime:'Processing time',
+    proStatus:'Processing status',
+    handler:'Handler',
+    alarmAddress:'Alarm address',
     playback:'Track playback',
     importtime:'Import time',
     mileage:'Total mileage',

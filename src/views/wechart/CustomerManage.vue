@@ -115,8 +115,8 @@
                 </el-col>
             </el-row>
             <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogCustomer = false">取 消</el-button>
-              <el-button type="primary" @click="dialogCustomer = false">确 定</el-button>
+              <el-button @click="dialogCustomer = false">{{$t('button.cancel')}}</el-button>
+              <el-button type="primary" @click="dialogCustomer = false">{{$t('button.determine')}}</el-button>
             </span>
         </el-dialog>
         <!-- 修改密码 -->
@@ -136,8 +136,8 @@
                 </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogPwd = false">取 消</el-button>
-            <el-button type="primary" @click="dialogPwd = false">确 定</el-button>
+            <el-button @click="dialogPwd = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogPwd = false">{{$t('button.determine')}}</el-button>
           </span>
         </el-dialog>
     </div>

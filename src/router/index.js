@@ -59,9 +59,9 @@ const list={
         roles:[0,1,88,99],
         component: _import('index'),
         icon: 'tongzhi',
-        redirect: '/Statistics/policeMessage',
+        redirect: '/Statistics/list',
         children: [
-          {path: 'policeMessage',name: 'route.statistics',component: () =>import('@/views/wechart/policeMessage'),hidden: true,radius:true,roles:[0,1,88,99],},
+          {path: 'list',name: 'route.statistics',component: () =>import('@/views/wechart/statisticsList'),hidden: true,radius:true,roles:[0,1,88,99],},
         ]
       },
       {

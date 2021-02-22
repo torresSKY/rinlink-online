@@ -77,7 +77,7 @@
                 <el-row class="list-search" :gutter="22">
                     <el-col :span='4'>
                       <el-button size="mini" >{{$t('button.download')}}</el-button>
-                      <el-button size="mini" >{{$t('button.send')}}</el-button>
+                      <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
                     </el-col>  
                 </el-row>
                 <el-row :gutter="22" class="list-search" >
@@ -85,6 +85,13 @@
                 </el-row>
             </el-col>
         </el-card>
+        <!-- 下发指令 -->
+        <el-dialog
+            :title="$t('button.send')"
+            :visible.sync="dialogSend"
+            width="40%">
+            <send-order ref="sendOrder" @confrimSend='confrimSend'/>
+          </el-dialog>
     </div>
 </template>
 <script>
@@ -95,9 +102,10 @@ import {mapState} from 'vuex'
 import {alatype,order} from '@/plugins/filter.js'
 import { formatDate } from '@/plugins/date.js'
 import BaseTable from '@/components/table'
+import sendOrder from './sendOrder.vue'
 export default{
     name:'jihuo',
-    components:{ BaseTable },
+    components:{ BaseTable,sendOrder },
     mixins:[mixin],
     computed:{
         ...mapState({user:'user',adminRoles:'roles'})
@@ -207,7 +215,7 @@ export default{
             {command: '5', text: this.$t('button.shewei'), index: 5},
             {command: '6', text: this.$t('button.send'), index: 6} ]
         }],
-        
+        dialogSend:false
       }
     },
     mounted(){
@@ -220,10 +228,13 @@ export default{
         },
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
-        } 
-    
-    
-    
+        }, 
+        send(){ // 下发指令
+          this.dialogSend = true
+        },
+        confrimSend(data){ // 关闭下发指令框
+          this.dialogSend = data
+        }
     
    },
   // 过滤器格式化时间戳
