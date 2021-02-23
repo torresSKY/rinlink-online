@@ -20,9 +20,13 @@ export default {
     fence: 'Fence management',
     control:'Console',
     statistics:'Statistics list',
+    sell:'shipping management',
     setting:'System settings'
   },
   button: {
+    sellMore:'Batch shipment',
+    sell:'Shipment',
+    playback:'Track playback',
     editAdmin:'Edit administrator',
     addAdmin:'Add administrator',
     editrole:'Edit role',
@@ -58,6 +62,9 @@ export default {
     editCustomer:'Edit customer'
   },
   view: {
+    customerInfo:'Customer information',
+    service:'Service',
+    mine:'Mine',
     punchReport:'Punch in report',
     aladetail:'Alarm detail',
     alaoverview:'Alarm overview',
@@ -121,6 +128,14 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    deliveryTime:'Delivery time',
+    serviceLife:'service life',
+    batch:'Batch',
+    isCard:'With card',
+    date:'date of manufacture',
+    activationTime:'Activation time',
+    activationType:'Activation type',
+    agent:'Agent',
     clockAddress:'Clock in address',
     clockType:'Clock in type',
     clockTime:'Clock in time',
@@ -130,7 +145,6 @@ export default {
     proStatus:'Processing status',
     handler:'Handler',
     alarmAddress:'Alarm address',
-    playback:'Track playback',
     importtime:'Import time',
     mileage:'Total mileage',
     salesTime:'Sales time',

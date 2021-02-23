@@ -77,6 +77,18 @@ const list={
         ]
       },
       {
+        path: '/sellManage',
+        name: 'route.User',
+        radius:true,
+        roles:[0,1,88,99],
+        component: _import('index'),
+        icon: 'yonghuguanli1',
+        redirect: '/sellManage/sell',
+        children: [
+          {path: 'sell',name: 'route.sell',component: () =>import('@/views/wechart/sellManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[0,1,88,99],},
+        ]
+      },
+      {
         path: '/setting',
         name: 'route.setting',
         radius:true,

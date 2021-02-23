@@ -104,7 +104,7 @@ import { formatDate } from '@/plugins/date.js'
 import BaseTable from '@/components/table'
 import sendOrder from './sendOrder.vue'
 export default{
-    name:'jihuo',
+    name:'equManage',
     components:{ BaseTable,sendOrder },
     mixins:[mixin],
     computed:{

@@ -1,5 +1,6 @@
 <template>
     <div >
+        
         <span slot="footer" class="dialog-footer">
            <el-button >{{$t('button.cancel')}}</el-button>
            <el-button type="primary" @click="confrim">{{$t('button.determine')}}</el-button>

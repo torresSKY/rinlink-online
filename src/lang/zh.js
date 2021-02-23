@@ -26,9 +26,12 @@ export default {
     fence: '围栏管理',
     control:'控制台',
     statistics:'统计列表',
+    sell:'出货管理',
     setting:'系统设置'
   }, 
   button: {
+    sellMore:'批量出货',
+    sell:'出货',
     playback:'轨迹回放',
     editAdmin:'编辑管理员',
     addAdmin:'添加管理员',
@@ -66,6 +69,9 @@ export default {
     editCustomer:'编辑客户'
   },
   view: {
+    customerInfo:'客户信息',
+    service:'服务商',
+    mine:'我的',
     punchReport:'打卡报表',
     aladetail:'报警详情',
     alaoverview:'报警总览',
@@ -130,6 +136,14 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    deliveryTime:'出货时间',
+    serviceLife:'使用年限',
+    batch:'批次',
+    isCard:'是否带卡',
+    date:'生产日期',
+    activationTime:'激活时间',
+    activationType:'激活类型',
+    agent:'代理商',
     clockAddress:'打卡位置',
     clockType:'打卡类型',
     clockTime:'打卡时间',
