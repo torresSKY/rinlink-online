@@ -78,7 +78,7 @@ const list={
       },
       {
         path: '/sellManage',
-        name: 'route.User',
+        name: 'route.sell',
         radius:true,
         roles:[0,1,88,99],
         component: _import('index'),

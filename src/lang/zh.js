@@ -30,6 +30,8 @@ export default {
     setting:'系统设置'
   }, 
   button: {
+    sale:'销售',
+    moveLable:'移动到其他标签',
     SIM:'SIM卡信息',
     commLog:'通信日志',
     viewAlarm:'查看报警',
@@ -139,6 +141,7 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    expire2:'到期时间',
     SIMcardtype:'SIM卡状态',
     SIMcardnum:'SIM卡号码',
     packet:'数据包',

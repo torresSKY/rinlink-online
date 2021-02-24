@@ -75,9 +75,11 @@
                   </el-col>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
-                    <el-col :span='4'>
+                    <el-col :span='8'>
+                      <el-button size="mini" >{{$t('button.sale')}}</el-button>
                       <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
                       <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
+                      <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button>
                     </el-col>  
                 </el-row>
                 <el-row :gutter="22" class="list-search" >
@@ -85,6 +87,27 @@
                 </el-row>
             </el-col>
         </el-card>
+        <!-- 移动到其他标签 -->
+        <el-dialog
+          :title="$t('button.moveLable')"
+          :visible.sync="dialogLable"
+          width="30%">
+          <el-select v-model="value" multiple >
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+              <el-checkbox-group v-model="checkList">
+                <el-checkbox :label="item.label"></el-checkbox>
+              </el-checkbox-group>
+            </el-option>
+          </el-select>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogLable = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogLable = false">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog>  
         <!-- 设备详情 -->
         <el-dialog
           :title="$t('table.equinfo')"
@@ -233,7 +256,7 @@
             :title="$t('button.SIM')"
             :visible.sync="dialogSIM"
             width="40%">
-            <el-form :model="SIMForm" ref="SIMForm"  label-width="120px">
+            <el-form :model="SIMForm" ref="SIMForm"  label-width="120px" style="height:200px">
               <el-col :span='12'>
                 <el-form-item :label="$t('table.SIMcardnum')"  >
                   <span>{{SIMForm.value}}</span>
@@ -241,6 +264,16 @@
               </el-col>
               <el-col :span='12'>
                 <el-form-item :label="$t('table.SIMcardtype')"  >
+                  <span>{{SIMForm.value}}</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.activationTime')"  >
+                  <span>{{SIMForm.value}}</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.expire2')"  >
                   <span>{{SIMForm.value}}</span>
                 </el-form-item>
               </el-col>
@@ -398,7 +431,10 @@ export default{
         dialogSIM:false,
         SIMForm:{
           value:''
-        }
+        },
+        dialogLable:false,
+        checkList:[]
+
       }
     },
     mounted(){
@@ -412,6 +448,9 @@ export default{
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
         }, 
+        moveLable(){ // 移动到其他标签
+          this.dialogLable = true
+        },
         download(){ // 导出
           this.dialogSIM = true
         },

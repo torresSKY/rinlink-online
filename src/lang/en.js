@@ -24,6 +24,8 @@ export default {
     setting:'System settings'
   },
   button: {
+    sale:'sale',
+    moveLable:'Move to another label',
     SIM:'SIM card information',
     commLog:'Communication log',
     viewAlarm:'View alarms',
@@ -131,6 +133,7 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    expire2:'Expiration time',
     SIMcardtype:'SIM card type',
     SIMcardnum:'SIM card number',
     packet:'data packet',
