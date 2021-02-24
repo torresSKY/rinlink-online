@@ -30,6 +30,9 @@ export default {
     setting:'系统设置'
   }, 
   button: {
+    SIM:'SIM卡信息',
+    commLog:'通信日志',
+    viewAlarm:'查看报警',
     sellMore:'批量出货',
     sell:'出货',
     playback:'轨迹回放',
@@ -136,6 +139,10 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    SIMcardtype:'SIM卡状态',
+    SIMcardnum:'SIM卡号码',
+    packet:'数据包',
+    useLimit:'使用范围',
     deliveryTime:'出货时间',
     serviceLife:'使用年限',
     batch:'批次',

@@ -76,7 +76,7 @@
                 </el-row>
                 <el-row class="list-search" :gutter="22">
                     <el-col :span='4'>
-                      <el-button size="mini" >{{$t('button.download')}}</el-button>
+                      <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
                       <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
                     </el-col>  
                 </el-row>
@@ -85,13 +85,167 @@
                 </el-row>
             </el-col>
         </el-card>
+        <!-- 设备详情 -->
+        <el-dialog
+          :title="$t('table.equinfo')"
+          :visible.sync="dialogEquinfo"
+          width="40%">
+          <el-form :model="equinfoForm" ref="equinfoForm"  label-width="140px">
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.Device')"  >
+                <el-input  v-model="equinfoForm.value" :placeholder="$t('table.Device')" ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.imei')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.model')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.status')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-form-item :label="$t('table.label')"  >
+              <span>{{equinfoForm.value}}</span>
+            </el-form-item>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.activationTime')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.salesTime')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.expire')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.importtime')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.useLimit')"  >
+                <span>{{equinfoForm.value}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span='12'>
+              <el-form-item :label="$t('table.iccid')"  >
+                <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-form-item :label="$t('table.note')"  >
+              <el-input type='textarea' :rows="2" v-model="equinfoForm.value" :placeholder="$t('table.note')" ></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogEquinfo = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogEquinfo = false">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog>
         <!-- 下发指令 -->
         <el-dialog
             :title="$t('button.send')"
             :visible.sync="dialogSend"
             width="40%">
             <send-order ref="sendOrder" @confrimSend='confrimSend'/>
-          </el-dialog>
+        </el-dialog>
+        <!-- 历史指令 -->
+        <el-dialog
+            :title="$t('button.historysend')"
+            :visible.sync="dialogHistorysend"
+            width="50%">
+            <el-row :gutter='22'>
+              <el-col :span='4'>
+                <el-select v-model="value" :placeholder="$t('table.zhitype')">
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-col>
+              <el-col :span='12'>
+                <el-date-picker
+                  style="height:98%"
+                  v-model="value1"
+                  type="datetimerange"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期">
+                </el-date-picker>
+              </el-col>
+              <el-col :span='5'>
+                <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                <el-button  >{{$t('button.refresh')}}</el-button>
+              </el-col>
+            </el-row>
+            <el-row :gutter='22' style="margin-top:10px">
+              <BaseTable v-loading="loading" :dataList="historysendList" :tableLabel="tableHistorysend"  ></BaseTable>
+            </el-row>
+            <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogHistorysend = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogHistorysend = false">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog>
+        <!-- 通信日志 -->
+        <el-dialog
+            :title="$t('button.commLog')"
+            :visible.sync="dialogCommLog"
+            width="50%">
+            <el-row :gutter='22'>
+              <el-col :span='12'>
+                <el-date-picker
+                  style="height:98%"
+                  v-model="value1"
+                  type="datetimerange"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期">
+                </el-date-picker>
+              </el-col>
+              <el-col :span='5'>
+                <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                <el-button  >{{$t('button.refresh')}}</el-button>
+              </el-col>
+            </el-row>
+            <el-row :gutter='22' style="margin-top:10px">
+              <BaseTable v-loading="loading" :dataList="commLogList" :tableLabel="tableCommLog"  ></BaseTable>
+            </el-row>
+            <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogCommLog = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogCommLog = false">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog>
+        <!-- SIM卡信息 -->
+        <el-dialog
+            :title="$t('button.SIM')"
+            :visible.sync="dialogSIM"
+            width="40%">
+            <el-form :model="SIMForm" ref="SIMForm"  label-width="120px">
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.SIMcardnum')"  >
+                  <span>{{SIMForm.value}}</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.SIMcardtype')"  >
+                  <span>{{SIMForm.value}}</span>
+                </el-form-item>
+              </el-col>
+            </el-form> 
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -168,6 +322,7 @@ export default{
           children: 'children',
           label: 'label'
         },
+        value1:null,
         value:null,
         options: [{
           value: '选项1',
@@ -208,14 +363,42 @@ export default{
             selectOperation: (index, row) => {
               this.showDialog(index, row)
             },
-            selectText: [{command: '1', text: this.$t('button.editor'), index: 1},
-            {command: '2', text: this.$t('button.dele'), index: 2},
-            {command: '3', text: this.$t('button.equinfo'), index: 3},
-            {command: '4', text: this.$t('button.playback'), index: 4},
-            {command: '5', text: this.$t('button.shewei'), index: 5},
-            {command: '6', text: this.$t('button.send'), index: 6} ]
+            selectText: [{command: '1', text: this.$t('button.equinfo'), index: 1},
+            {command: '2', text: this.$t('button.playback'), index: 2},
+            {command: '3', text: this.$t('button.shewei'), index: 3},
+            {command: '4', text: this.$t('button.send'), index: 4},
+            {command: '5', text: this.$t('button.historysend'), index: 5},
+            {command: '6', text: this.$t('button.viewAlarm'), index: 6},
+            {command: '7', text: this.$t('button.commLog'), index: 7},
+            {command: '8', text: this.$t('button.SIM'), index: 8} ]
         }],
-        dialogSend:false
+        dialogEquinfo:false,
+        dialogSend:false,
+        dialogHistorysend:false,
+        equinfoForm:{
+          value:''
+        },
+        historysendList:[],
+        tableHistorysend:[
+          {label: this.$t('table.index'), type: 'index'},
+          {label: this.$t('table.orderCode'), prop: 'serial_number'},
+          {label: this.$t('table.zhitype'), prop: 'category'},
+          {label: this.$t('table.zhidata'), prop: 'category'},
+          {label: this.$t('table.creattime'), prop: 'category'},
+          {label: this.$t('table.jie'), prop: 'category'}
+        ],
+        dialogCommLog:false,
+        commLogList:[],
+        tableCommLog:[
+          {label: this.$t('table.index'), type: 'index'},
+          {label: this.$t('table.packet'), prop: 'serial_number'},
+          {label: this.$t('table.datatype'), prop: 'category'},
+          {label: this.$t('table.creattime'), prop: 'category'},
+        ],
+        dialogSIM:false,
+        SIMForm:{
+          value:''
+        }
       }
     },
     mounted(){
@@ -229,6 +412,9 @@ export default{
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
         }, 
+        download(){ // 导出
+          this.dialogSIM = true
+        },
         send(){ // 下发指令
           this.dialogSend = true
         },

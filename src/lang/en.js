@@ -24,6 +24,9 @@ export default {
     setting:'System settings'
   },
   button: {
+    SIM:'SIM card information',
+    commLog:'Communication log',
+    viewAlarm:'View alarms',
     sellMore:'Batch shipment',
     sell:'Shipment',
     playback:'Track playback',
@@ -128,6 +131,10 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    SIMcardtype:'SIM card type',
+    SIMcardnum:'SIM card number',
+    packet:'data packet',
+    useLimit:'Limit for the use',
     deliveryTime:'Delivery time',
     serviceLife:'service life',
     batch:'Batch',
