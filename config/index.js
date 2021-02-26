@@ -12,17 +12,23 @@ module.exports = {
     dev_zs: require('./dev_zs.env'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    
+
+
     proxyTable: {//配置请求代理
       '/api':{
-        // target:process.env.type.indexOf('zs')!==-1?'https://api.rinlink.com':'https://tapi.rinlink.com',
-        // target:process.env.type.indexOf('zs')!==-1?'https://location.rinlink.com/v1.0':'https://location.rinlink.com/v1.0',
         target:'http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com',
         changeOrigin: true,
         pathRewrith:{
            '^/api': ''
         }
-      }
+      },
+      // '/post':{
+      //   target:'http://rap2api.taobao.org/app/mock/277955',
+      //   changeOrigin: true,
+      //   pathRewrith:{
+      //      '^/post': '/'
+      //   }
+      // }
     },
 
     // Various Dev Server settings

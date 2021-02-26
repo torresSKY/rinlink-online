@@ -67,6 +67,9 @@ export default {
     editCustomer:'Edit customer'
   },
   view: {
+    changeSalesdate:'Do not change sales date',
+    sellTo:'Sell to',
+    selEqu:'Selected devices',
     customerInfo:'Customer information',
     service:'Service',
     mine:'Mine',
@@ -133,6 +136,8 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    template:'Instruction template',
+    communication:'Equipment communication mode',
     expire2:'Expiration time',
     SIMcardtype:'SIM card type',
     SIMcardnum:'SIM card number',
@@ -477,6 +482,8 @@ export default {
     params28:'Withdraw'
   },
   message: {
+    selCommun:'Please select the communication protocol',
+    enterModel:'Please enter the device model',
     equdele: 'Cannot restore after deleting, continue?',
     xuanze: 'Please select the fence center',
     delesuc: 'Delete the success',

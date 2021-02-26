@@ -76,7 +76,7 @@
                 </el-row>
                 <el-row class="list-search" :gutter="22">
                     <el-col :span='8'>
-                      <el-button size="mini" >{{$t('button.sale')}}</el-button>
+                      <el-button size="mini" @click="sale">{{$t('button.sale')}}</el-button>
                       <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
                       <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
                       <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button>
@@ -87,6 +87,61 @@
                 </el-row>
             </el-col>
         </el-card>
+        <!-- 销售 -->
+        <el-dialog
+          :title="$t('button.sale')"
+          :visible.sync="dialogSale"
+          width="50%">
+          <el-row :gutter="22">
+            <el-col :span='14'>
+              <el-row>
+                <span>{{$t('view.selEqu')}}：</span>
+              </el-row>
+              <el-row style="margin:10px 0">
+                <el-input v-model="search" :placeholder="$t('view.inputimei')"></el-input>
+              </el-row>
+              <el-row>
+                <BaseTable v-loading="loading" :dataList="saleList" :tableLabel="tableSale"   ></BaseTable>
+              </el-row>
+            </el-col>
+            <el-col :span='10'>
+              <el-row>
+                <span>{{$t('view.sellTo')}}：</span>
+              </el-row>
+              <el-row style="margin:10px 0">
+                <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select">
+                    <el-button slot="append" icon="el-icon-search"></el-button>
+                </el-input>
+                <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+              </el-row>
+            </el-col>
+          </el-row>
+          <el-row :gutter="22" style="margin:10px 0;line-height:40px">
+            <el-col :span='3'>
+              <span>{{$t('table.expire2')}}：</span>
+            </el-col>
+            <el-col :span='4'>
+              <el-select v-model="value" :placeholder="$t('view.select2')">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :span='3'>
+              <el-button class="butresh" >{{$t('button.refresh')}}</el-button>
+            </el-col>
+            <el-col :span='4'>
+              <el-checkbox v-model="checked">{{$t('view.changeSalesdate')}}</el-checkbox>
+            </el-col>
+          </el-row>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogSale = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogSale = false">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog> 
         <!-- 移动到其他标签 -->
         <el-dialog
           :title="$t('button.moveLable')"
@@ -433,8 +488,22 @@ export default{
           value:''
         },
         dialogLable:false,
-        checkList:[]
-
+        checkList:[],
+        dialogSale:false,
+        saleList:[],
+        tableSale:[
+          {label: this.$t('table.imei'), type: 'serial_number'},
+          {label: this.$t('table.Device'), prop: 'serial_number'},
+          {label: this.$t('table.model'), prop: 'category'},
+          {label: this.$t('table.customers'), prop: 'category'},
+          {label: this.$t('table.operation'),
+            type: 'clickSelect',
+            selectOperation: (index, row) => {
+              this.showDialog(index, row)
+            },
+            selectText: [{command: '1', text: this.$t('button.dele'), index: 1}, ]
+         }
+        ],
       }
     },
     mounted(){
@@ -448,6 +517,9 @@ export default{
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
         }, 
+        sale(){ // 销售
+          this.dialogSale = true
+        },
         moveLable(){ // 移动到其他标签
           this.dialogLable = true
         },

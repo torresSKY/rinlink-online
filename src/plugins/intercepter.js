@@ -15,6 +15,7 @@ export default (Vue) => {
   // axios.defaults.baseURL = config[process.env.NODE_ENV].host
   // axios.defaults.baseURL = '/api'
   axios.defaults.baseURL = process.env.host
+  // axios.defaults.baseURL = 'http://rap2.taobao.org/app/mock/277955/post'
   axios.defaults.timeout = 100000
   axios.defaults.withCredentials = true
   // axios.defaults.headers['jwt'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsIm9wZW5pZCI6Im9rcERXNVh6dmtENDFlc25ZdkVNR29ZYlI3V1EiLCJpYXQiOjE1MzM3ODUyMDMsImV4cCI6MTU0MTU2MTIwM30.UOYEz0JsLr4hXDCSxOyMJSUnA2LrxAIMCTNTXt9nbNY';

@@ -74,6 +74,9 @@ export default {
     editCustomer:'编辑客户'
   },
   view: {
+    changeSalesdate:'不改变销售日期',
+    sellTo:'销售给',
+    selEqu:'已选设备',
     customerInfo:'客户信息',
     service:'服务商',
     mine:'我的',
@@ -141,6 +144,8 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    template:'指令模板',
+    communication:'设备通信方式',
     expire2:'到期时间',
     SIMcardtype:'SIM卡状态',
     SIMcardnum:'SIM卡号码',
@@ -496,6 +501,8 @@ export default {
     other:'其他'
   },
   message: {
+    selCommun:'请选择通信协议',
+    enterModel:'请输入设备型号',
     equdele: '删除后无法恢复, 是否继续?',
     xuanze: '请选择电子围栏中心',
     delesuc: '删除成功',
