@@ -136,6 +136,7 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    orderMsg:'order message',
     template:'Instruction template',
     communication:'Equipment communication mode',
     expire2:'Expiration time',

@@ -69,7 +69,7 @@ import { formatDate } from '@/plugins/date.js'
 import BaseTable from '@/components/table'
 
 export default{
-    name:'modelManage',
+    name:'orderMsg',
     components:{ BaseTable, },
     mixins:[mixin],
     computed:{
@@ -99,7 +99,7 @@ export default{
         tableLabel: [
           {label: this.$t('table.model'), prop: 'name'},
           {label: this.$t('table.communication'), prop: 'iotServiceName'},
-          {label: this.$t('table.orderMsg'), type:'clickEvent',
+          {label: this.$t('table.template'), type:'clickEvent',
           tableClick: (val) => {
             this.showDialog('a', val)
           }},
@@ -153,83 +153,32 @@ export default{
               this.$message.error(err.errMsg)
             })
         },
-        getServices(){ // 获取通信协议
-            api.getServices().then(res => {
-              this.options = res.data
-            }).catch(err => {
-              this.options = []
-              this.$message.error(err.errMsg)
-            })
-        },
-        addModel(){ // 添加设备型号
-          if(this.$refs['modelForm']){
-            this.$refs['modelForm'].resetFields()
-          }
-          this.modelForm={
-            name:'',
-            iotServiceId:'',
-            description:''
-          }
-          this.dialogModel = true
-          this.getServices()
-        },
-        confrimModel(){ // 确认添加设备型号
-          this.$refs['modelForm'].validate((valid) => {
-            if (valid) {
-              let data = {
-                name:this.modelForm.name,
-                iotServiceId:this.modelForm.iotServiceId,
-                description:this.modelForm.description
+        
+        showDialog(index, data){ // 操作
+          console.log(index, data)
+          if(index == 2){
+            this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+              confirmButtonText: this.$t('button.determine'),
+              cancelButtonText: this.$t('button.cancel'),
+              type: 'warning'
+            }).then(() => {
+              let id = {
+                deviceModelId:data.id
               }
-              api.addModel(data).then(res => {
-                // debugger
+              api.deleModel(id).then(res => {
                 if(res.msg=='OK'){
-                  this.$message.success(this.$t('message.addsuc'))
-                  this.$refs['modelForm'].resetFields()
-                  this.dialogModel = false
+                  this.$message.success(this.$t('message.delesuc'))
                   this.getlist()
-                }else {
+                }else{
                   this.$message.error(res.msg)
                 }
+                
               }).catch(err => {
                 this.$message.error(err.errMsg)
               })
-            } else {
-              this.$message.warning(this.$t('message.checkmsg'))
-              return false;
-            }
-          })
-        },
-        showDialog(index, data){ // 操作
-          console.log(index, data)
-          switch (index) {
-            case '2': // 删除设备型号
-              this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
-                confirmButtonText: this.$t('button.determine'),
-                cancelButtonText: this.$t('button.cancel'),
-                type: 'warning'
-              }).then(() => {
-                let id = {
-                  deviceModelId:data.id
-                }
-                api.deleModel(id).then(res => {
-                  if(res.msg=='OK'){
-                    this.$message.success(this.$t('message.delesuc'))
-                    this.getlist()
-                  }else{
-                    this.$message.error(res.msg)
-                  }
-                  
-                }).catch(err => {
-                  this.$message.error(err.errMsg)
-                })
-              }).catch(err => {
-                console.log(err)
-              })
-              break
-            case 'a' : // 跳转指令信息
-              // this.$router.push({ name: 'orderMsg' })
-              break
+            }).catch(err => {
+              console.log(err)
+            })
           }
         }
     

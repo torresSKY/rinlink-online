@@ -6,53 +6,31 @@ const login=(data)=>(
     axios.post('/users/login',data)
 )
 
-const getzhucheList = (imei) => (
-    axios.get(`/deviceInfos?imei=${imei}`)
-)
+// const getzhucheList = (imei) => (
+//     axios.get(`/deviceInfos?imei=${imei}`)
+// )
 
-const getEqulistnew = (data) => {  // 获取所有设备
-    return axios.get('/device', data)
-}
+// const getEqulistnew = (data) => {  // 获取所有设备
+//     return axios.get('/device', data)
+// }
 
-const getzhucheListPagination = (data) => (
-    axios.post('/deviceInfos/pagination',data)
-)
+// const getzhucheListPagination = (data) => (
+//     axios.post('/deviceInfos/pagination',data)
+// )
 
-const zhucheAdd = (data) =>(
-    axios.post('/deviceInfos',data)
-)
+// const zhucheAdd = (data) =>(
+//     axios.post('/deviceInfos',data)
+// )
 
-const zhucheEdit = (id,data) =>(
-    axios.put('/deviceInfos/'+id,data)
-)
+// const zhucheEdit = (id,data) =>(
+//     axios.put('/deviceInfos/'+id,data)
+// )
 
-const zhucheDelete=(id)=>(
-    axios.delete('/deviceInfos/'+id)
-)
+// const zhucheDelete=(id)=>(
+//     axios.delete('/deviceInfos/'+id)
+// )
 
-const getEquList = (data) => (  //查询单个设备
-    axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device/check`, data)
-)
 
-const getEquListtwo = (data) => (   //模糊查询设备
-    axios.get(`http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device/getDevInfoByLike`, data)
-)
-
-const getEquListPagination = (data) => (
-    axios.post('/devices/pagination',data)
-)
-
-const equAdd = (data) =>(
-    axios.post('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device',data)
-)
-
-const equEdit = (data) => (
-   axios.put('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device',data)
-)
-
-const equDelete=(id)=>(
-    axios.delete('http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com/device/' + id)
-)
 
 const getUsersList = (obj) => {
     let data={}
@@ -83,21 +61,20 @@ const getServices = (data) => (   //查询所有IOT服务
 const addModel = (data) => (   //创建设备型号
     axios.post(url+'/create_device_model', data)
 )
+const deleModel = (data) => (   //删除设备型号
+    axios.post(url+'/delete_device_model', data)
+)
 export default {
     login,
-    getEqulistnew,
-    getzhucheList,
-    getzhucheListPagination,
-    zhucheAdd,
-    zhucheEdit,
-    zhucheDelete,
-    getEquList,
-    getEquListtwo,
-    getEquListPagination,
-    equAdd,
-    equEdit,
-    equDelete,
+    // getEqulistnew,
+    // getzhucheList,
+    // getzhucheListPagination,
+    // zhucheAdd,
+    // zhucheEdit,
+    // zhucheDelete,
     getUsersList,
     getModelList,
-    getServices
+    getServices,
+    addModel,
+    deleModel
 }
