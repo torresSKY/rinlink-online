@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="users"
-    :style="{ minWidth: main_width * 0.5 + 'px', overflow: 'hidden' }"
-  >
+  <div id="users">
     <el-row :gutter="20" class="item_row_L">
       <el-col :span="8" class="top_left">
         <el-card>
@@ -33,10 +30,10 @@
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card>
+        <el-card v-loading="loading_two">
           <div class="myChart_top">
             <div>设备状态统计</div>
-            <img src="../../assets/img/refresh.png" alt="" />
+            <img @click="evt_refresh" data-type="2" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
             <el-col :span="17">
@@ -47,18 +44,18 @@
             </el-col>
             <el-col :span="7">
               <div class="myChart_text_content myChart2_text_content">
-                <div>在线：50</div>
-                <div>离线：150</div>
+                <div>在线：{{OnlineDviceCount}}</div>
+                <div>离线：{{OfflineDeviceCount}}</div>
               </div>
             </el-col>
           </el-row>
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card>
+        <el-card v-loading="loading_three">
           <div class="myChart_top">
             <div>激活统计</div>
-            <img src="../../assets/img/refresh.png" alt="" />
+            <img @click="evt_refresh" data-type="3" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
             <el-col :span="17">
@@ -69,8 +66,8 @@
             </el-col>
             <el-col :span="7">
               <div class="myChart_text_content myChart3_text_content">
-                <div>激活：50</div>
-                <div>未激活：150</div>
+                <div>激活：{{ActivatedCount}}</div>
+                <div>未激活：{{Unactivated_deviceCount}}</div>
               </div>
             </el-col>
           </el-row>
@@ -120,10 +117,10 @@
     </el-row>
     <el-row :gutter="20" class="item_row_item">
       <el-col :span="8">
-        <el-card>
+        <el-card v-loading="loading_one">
           <div class="myChart_top">
             <div>库存统计</div>
-            <img src="../../assets/img/refresh.png" alt="" />
+            <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
             <el-col :span="17">
@@ -134,19 +131,19 @@
             </el-col>
             <el-col :span="7">
               <div class="myChart_text_content myChart1_text_content">
-                <div>总进货数：1000</div>
-                <div>库存：750</div>
-                <div>已销售：250</div>
+                <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
+                <div>库存：{{Inventory_deviceCount}}</div>
+                <div>已销售：{{Sold_deviceCount}}</div>
               </div>
             </el-col>
           </el-row>
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card>
+        <el-card v-loading="loading_four">
           <div class="myChart_top">
             <div>设备期限</div>
-            <img src="../../assets/img/refresh.png" alt="" />
+            <img @click="evt_refresh" data-type="4" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
             <el-col :span="17">
@@ -157,9 +154,9 @@
             </el-col>
             <el-col :span="7">
               <div class="myChart_text_content myChart4_text_content">
-                <div>正在使用：200</div>
-                <div>已过期：100</div>
-                <div>未过期：300</div>
+                <div>正在使用：{{Using_deviceCount}}</div>
+                <div>已过期：{{Expired_deviceCount}}</div>
+                <div>未过期：{{Unexpired_deviceCount}}</div>
               </div>
             </el-col>
           </el-row>
@@ -176,14 +173,14 @@
                 <el-input placeholder="请输入设备IMEI"></el-input>
                 <div class="track_info_btn">
                   <el-row>
-                    <el-col :span="8" offset="8">
+                    <el-col :span="8" :offset="8">
                       <el-button size="small" class="track_info_btn_bt"
                         >查看轨迹</el-button
                       >
                     </el-col>
                   </el-row>
                   <el-row>
-                    <el-col :span="8" offset="8">
+                    <el-col :span="8" :offset="8">
                       <el-button size="small" class="track_info_btn_bt"
                         >追踪</el-button
                       >
@@ -249,8 +246,8 @@ export default {
             type: "pie",
             radius: ["60%", "70%"],
             data: [
-              { value: 250, name: "已销售" },
-              { value: 750, name: "库存" },
+              { value: 0, name: "已销售" },
+              { value: 0, name: "库存" },
             ],
           },
         ],
@@ -269,8 +266,8 @@ export default {
             type: "pie",
             radius: ["60%", "70%"],
             data: [
-              { value: 50, name: "在线" },
-              { value: 150, name: "离线" },
+              { value: 0, name: "在线" },
+              { value: 0, name: "离线" },
             ],
           },
         ],
@@ -289,8 +286,8 @@ export default {
             type: "pie",
             radius: ["60%", "70%"],
             data: [
-              { value: 50, name: "激活" },
-              { value: 150, name: "未激活" },
+              { value: 0, name: "激活" },
+              { value: 0, name: "未激活" },
             ],
           },
         ],
@@ -309,9 +306,9 @@ export default {
             type: "pie",
             radius: ["60%", "70%"],
             data: [
-              { value: 100, name: "正在使用" },
-              { value: 200, name: "已过期" },
-              { value: 300, name: "未过期" },
+              { value: 0, name: "正在使用" },
+              { value: 0, name: "已过期" },
+              { value: 0, name: "未过期" },
             ],
             labelLine: {
               show: true,
@@ -325,31 +322,35 @@ export default {
       echarts_2: null,
       echarts_3: null,
       echarts_4: null,
+      OnlineDviceCount:0,//在线设备
+      OfflineDeviceCount:0,//离线设备
+      ActivatedCount:0,//激活设备
+      Unactivated_deviceCount:0,//未激活设备
+      Using_deviceCount:0,//正在使用中设备
+      Unexpired_deviceCount:0,//未过期设备
+      Expired_deviceCount:0,//已过期设备
+      Inventory_deviceCount:0, //设备库存
+      Sold_deviceCount:0,//已销售设备
+      loading_one:false,
+      loading_two:false,
+      loading_three:false,
+      loading_four:false,
     };
   },
   watch: {},
   computed: {
     ...mapGetters(["lang"]),
   },
+  created:function(){
+    var _this = this;
+    _this.getEchartsData_one();
+    _this.getEchartsData_two();
+    _this.getEchartsData_three();
+    _this.getEchartsData_four();
+  },
   mounted() {
     this.height = document.body.offsetHeight - 150;
-    this.main_width = document.body.offsetWidth - 236; // 可视区域的宽度 - 左侧导航栏的宽度
-
-    var chartDom = document.getElementById("myChart1");
-    this.echarts_1 = echarts.init(chartDom);
-    this.echarts_1.setOption(this.option);
-
-    var chartDom_2 = document.getElementById("myChart2");
-    this.echarts_2 = echarts.init(chartDom_2);
-    this.echarts_2.setOption(this.option_2);
-
-    var chartDom_3 = document.getElementById("myChart3");
-    this.echarts_3 = echarts.init(chartDom_3);
-    this.echarts_3.setOption(this.option_3);
-
-    var chartDom_4 = document.getElementById("myChart4");
-    this.echarts_4 = echarts.init(chartDom_4);
-    this.echarts_4.setOption(this.option_4);
+    // this.main_width = document.body.offsetWidth - 236; // 可视区域的宽度 - 左侧导航栏的宽度
   },
   beforeDestroy() {},
   methods: {
@@ -357,6 +358,138 @@ export default {
       // 选择用户节点
       console.log(data);
     },
+
+    // 库存和已销售
+    getEchartsData_one:function(){
+      var _this = this;
+      api.getInventory_device().then((res) => {
+        if(res.success){
+          _this.Inventory_deviceCount = res.data.devices;
+          api.getSold_device().then((_res) => {
+            if(_res.success){
+              _this.Sold_deviceCount = _res.data.devices;
+              _this.$nextTick(function(){
+                var chartDom = document.getElementById("myChart1");
+                _this.echarts_1 = echarts.init(chartDom);
+                _this.option.series[0].data[0].value = _this.Sold_deviceCount;
+                _this.option.series[0].data[1].value = _this.Inventory_deviceCount;
+                _this.echarts_1.setOption(_this.option);
+                _this.loading_one = false;
+              })
+            }
+          }).catch((_err) => {
+            _this.$message.error(_err.errMsg)
+          })
+        }
+      }).catch((err) => {
+        _this.$message.error(err.errMsg)
+      })
+    },
+    // 设备状态
+    getEchartsData_two:function(){
+      var _this = this;
+      api.getOnlineDvice().then((res) => {
+        if(res.success){
+          _this.OnlineDviceCount = res.data.devices;
+          api.getOfflineDevice().then((_res) => {
+            if(_res.success){
+              _this.OfflineDeviceCount = _res.data.devices;
+              _this.$nextTick(function(){
+                var chartDom_2 = document.getElementById("myChart2");
+                _this.echarts_2 = echarts.init(chartDom_2);
+                _this.option_2.series[0].data[0].value = _this.OnlineDviceCount;
+                _this.option_2.series[0].data[1].value = _this.OfflineDeviceCount;
+                _this.echarts_2.setOption(_this.option_2);
+                _this.loading_two = false;
+              })
+            }
+          }).catch((_err) => {
+            _this.$message.error(_err.errMsg)
+          })
+        }
+      }).catch((err) => {
+        _this.$message.error(err.errMsg)
+      })
+    },
+    // 激活统计
+    getEchartsData_three:function(){
+      var _this = this;
+      api.getActivated().then((res) => {
+        if(res.success){
+          _this.ActivatedCount = res.data.devices;
+          api.getUnactivated_device().then((_res) => {
+            if(_res.success){
+              _this.Unactivated_deviceCount = _res.data.devices;
+              _this.$nextTick(function(){
+                var chartDom_3 = document.getElementById("myChart3");
+                _this.echarts_3 = echarts.init(chartDom_3);
+                _this.option_3.series[0].data[0].value = _this.ActivatedCount;
+                _this.option_3.series[0].data[1].value = _this.Unactivated_deviceCount;
+                _this.echarts_3.setOption(_this.option_3);
+                _this.loading_three = false;
+              })
+            }
+          }).catch((_err) => {
+            _this.$message.error(_err.errMsg)
+          })
+        }
+      }).catch((err) => {
+        _this.$message.error(err.errMsg)
+      })
+    },
+    // 设备期限
+    getEchartsData_four:function(){
+      var _this = this;
+      api.getUsing_device().then((res) => {
+        if(res.success){
+          _this.Using_deviceCount = res.data.devices;
+          api.getUnexpired_device().then((_res) => {
+            if(_res.success){
+              _this.Unexpired_deviceCount = _res.data.devices;
+              api.getExpired_device().then((res_) => {
+                if(res_.success){
+                  _this.Expired_deviceCount = res_.data.devices;
+                  _this.$nextTick(function(){
+                    var chartDom_4 = document.getElementById("myChart4");
+                    _this.echarts_4 = echarts.init(chartDom_4);
+                    _this.option_4.series[0].data[0].value = _this.Using_deviceCount;
+                    _this.option_4.series[0].data[1].value = _this.Expired_deviceCount;
+                    _this.option_4.series[0].data[2].value = _this.Unexpired_deviceCount;
+                    _this.echarts_4.setOption(_this.option_4);
+                    _this.loading_four = false;
+                  })
+                }
+              }).catch((err_) => {
+                _this.$message.error(err_.errMsg)
+              })
+            }
+          }).catch((_err) => {
+            _this.$message.error(_err.errMsg)
+          })
+        }
+      }).catch((err) => {
+        _this.$message.error(err.errMsg)
+      })
+    },
+    // 刷新
+    evt_refresh:function(e){
+      if(e.target.getAttribute('data-type') == '1'){
+        this.loading_one = true;
+        this.getEchartsData_one();
+      }else if(e.target.getAttribute('data-type') == '2'){
+        this.loading_two = true;
+        this.getEchartsData_two();
+      }else if(e.target.getAttribute('data-type') == '3'){
+        this.loading_three = true;
+        this.getEchartsData_three();
+      }else if(e.target.getAttribute('data-type') == '4'){
+        this.loading_four = true;
+        this.getEchartsData_four();
+      }
+    }
+
+
+
   },
   // 过滤器格式化时间戳
   filters: {
@@ -495,6 +628,7 @@ export default {
   > img {
     width: 18px;
     height: 18px;
+    cursor: pointer;
   }
 }
 .myChart_text_content {
