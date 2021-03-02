@@ -196,7 +196,7 @@ export default{
               })
             } else {
               this.$message.warning(this.$t('message.checkmsg'))
-              return false;
+              return false
             }
           })
         },

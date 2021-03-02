@@ -12,39 +12,40 @@
             :visible.sync="dialogRole"
             width="30%">
             <el-form :model="roleForm" :rules="rules" ref="roleForm" label-width="100px" class="demo-ruleForm">
-                <el-form-item :label="$t('table.roleName')" prop="name">
-                   <el-input v-model="roleForm.name"></el-input>
+                <el-form-item :label="$t('table.roleName')" prop="roleName">
+                   <el-input v-model="roleForm.roleName"></el-input>
                 </el-form-item>
-                <el-form-item :label="$t('view.permission')" prop="name">
-                    <el-tree :data="roleForm.data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                <el-form-item :label="$t('view.permission')" prop="authoritites">
+                    <el-tree :data="roleForm.authoritites" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
                 </el-form-item>
-                <el-form-item :label="$t('table.note')" prop="name">
-                    <el-input v-model="roleForm.name" type="textarea" :rows="2"></el-input>
+                <el-form-item :label="$t('table.note')" prop="remark">
+                    <el-input v-model="roleForm.remark" type="textarea" :rows="2"></el-input>
                 </el-form-item>   
             </el-form>    
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogRole = false">取 消</el-button>
-                <el-button type="primary" @click="dialogRole = false">确 定</el-button>
+                <el-button @click="dialogRole = false">{{$t('button.cancel')}}</el-button>
+                <el-button type="primary" @click="dialogRole = false">{{$t('button.determine')}}</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 <script>
     import api from '@/api/wechart/index'
+    import mixin from '@/mixins/index'
     import axios from 'axios'
     import BaseTable from '@/components/table'
     export default{
         name:'roleManage',
         components:{ BaseTable },
+        mixins:[mixin],
         data(){
             return {
                 loading:false,
                 dataList:[],
                 tableLabel: [
-                  {label: this.$t('table.roleName'), prop: 'serial_number'},
-                  {label: this.$t('table.roleType'), prop: 'category'},
-                  {label: this.$t('table.note'), prop: 'partner_contacts'},
-                  {label: this.$t('table.creattime'), prop: 'partner_contacts'},
+                  {label: this.$t('table.roleName'), prop: 'roleName'},
+                  {label: this.$t('table.note'), prop: 'roleDescription'},
+                  {label: this.$t('table.creattime'), prop: 'createTime', type: 'Timestamp'},
                   {label: this.$t('table.operation'),
                     type: 'clickSelect',
                     selectOperation: (index, row) => {
@@ -57,8 +58,9 @@
                 dialogRole:false,
                 rules:[],
                 roleForm:{
-                    name:'',
-                    data:[]
+                    roleName:'',
+                    authoritites:[],
+                    remark:''
                 },
                 defaultProps: {
                    children: 'children',
@@ -68,10 +70,37 @@
             }
         },
         mounted(){
-           
+           this.getlist()
         },
         methods:{
+            getlist(){ // 获取角色列表
+                this.loading = true
+                api.getRolesList().then(res => {
+                  this.loading = false
+                  this.dataList = res.data.content
+                  this.page.total = res.data.pageTotal
+                }).catch(err => {
+                  this.loading = false
+                  this.dataList = []
+                  this.$message.error(err.errMsg)
+                })
+            },
+            getAuthority(){ // 查询权限
+                api.getAuthority().then(res => {
+                  this.roleForm.data = res.data
+                }).catch(err => {
+                  this.roleForm.data = []
+                  this.$message.error(err.errMsg)
+                })
+            },
             addrole(){ // 添加角色
+                this.getAuthority()
+                this.roleForm = {
+                    roleName:'',
+                    authoritites:[],
+                    remark:''
+                }
+                this.isEdit = false
                 this.dialogRole = true 
             },
             handleNodeClick(data) { // 选择用户节点

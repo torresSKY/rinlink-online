@@ -483,6 +483,8 @@ export default {
     params28:'Withdraw'
   },
   message: {
+    username:'Please enter the account number',
+    nickname:'Please enter the administrator name',
     selCommun:'Please select the communication protocol',
     enterModel:'Please enter the device model',
     equdele: 'Cannot restore after deleting, continue?',

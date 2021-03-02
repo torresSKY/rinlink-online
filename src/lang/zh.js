@@ -502,6 +502,8 @@ export default {
     other:'其他'
   },
   message: {
+    username:'请输入账号',
+    nickname:'请输入管理员名称',
     selCommun:'请选择通信协议',
     enterModel:'请输入设备型号',
     equdele: '删除后无法恢复, 是否继续?',

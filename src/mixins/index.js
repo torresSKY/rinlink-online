@@ -110,7 +110,7 @@ module.exports={
             this.page.size=val
             this.page.index=1
             try{
-                this.getList()
+                this.getlist()
             }catch(res){
                 
             }
@@ -118,7 +118,7 @@ module.exports={
         changeindex(val){                                //改变当前页
             this.page.index=val
             try{
-                this.getList()
+                this.getlist()
             }catch(res){
                 
             }

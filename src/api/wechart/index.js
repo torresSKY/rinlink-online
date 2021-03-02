@@ -52,6 +52,27 @@ const getUsersList = (obj) => {
 }
 const url = 'http://rap2api.taobao.org/app/mock/277955'
 
+const getManagerList = (data) => (   //分页查询系统管理员
+    axios.post(url+'/paging_query_system_manager_user', data)
+)
+const addManager = (data) => (   //添加系统管理员
+    axios.post(url+'/create_system_manager_user', data)
+)
+const editManager = (data) => (   //修改系统管理员
+    axios.post(url+'/update_system_manager_user', data)
+)
+const deleManager = (data) => (   //删除系统管理员
+    axios.post(url+'/delete_system_manager_user', data)
+)
+const upsetPwd = (data) => (   //重置系统管理员密码
+    axios.post(url+'/reset_system_manager_user_password', data)
+)
+const getAuthority = (data) => (   //查询权限
+    axios.post(url+'/query_system_manager_user_authorities', data)
+)
+const getRolesList = (data) => (   //分页查询角色
+    axios.post(url+'/paging_query_system_manager_user_roles', data)
+)
 const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_model', data)
 )
@@ -66,6 +87,13 @@ const deleModel = (data) => (   //删除设备型号
 )
 export default {
     login,
+    getManagerList,
+    addManager,
+    editManager,
+    deleManager,
+    upsetPwd,
+    getAuthority,
+    getRolesList,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,
