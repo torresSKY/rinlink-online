@@ -206,6 +206,119 @@
             </div>
         </el-dialog>
 
+        <!-- 设备信息 -->
+        <el-dialog class="device_info" lock-scroll title="设备信息" :visible="device_info_visible">
+            <el-row :gutter="10">
+                <el-col :span="12" class="device_info_left">
+                    <el-form :model="form_data">
+                        <el-form-item label="设备名称:">
+                            <el-input class="device_info_left_input_1" size="small" value="D600N测试1"></el-input>
+                        </el-form-item>
+                        <el-form-item label="设备型号:">
+                            <el-select class="device_info_left_select" size="small" v-model="device_info_model"  placeholder="请选择">
+                                <el-option key="选项1" label="选项1" value="选项1"></el-option>
+                                <el-option key="选项2" label="选项2" value="选项2"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="标签:">
+                            <el-tag type="info" closable size="small">标签三</el-tag>
+                            <el-tag type="info" closable size="small">标签三</el-tag>
+                            <el-tag type="info" closable size="small">标签三</el-tag>
+                            <el-tag type="info" closable size="small">标签三</el-tag>
+                        </el-form-item>
+                        <el-form-item label="激活时间:">
+                            <span>2020-10-01</span>
+                        </el-form-item>
+                        <el-form-item label="服务到期时间:">
+                            <span>2020-10-01</span>
+                        </el-form-item>
+                         <el-form-item label="适用范围:">
+                            <el-tag size="mini" class="el-icon-s-custom"></el-tag>
+                            <el-tag size="mini" class="el-icon-s-custom"></el-tag>
+                            <el-tag size="mini" class="el-icon-s-custom"></el-tag>
+                        </el-form-item>
+                    </el-form>
+                </el-col>
+                <el-col :span="12" class="device_info_right">
+                    <el-form :model="form_data">
+                        <el-form-item label="设备IMEI:">
+                            <span>855008846416846</span>
+                        </el-form-item>
+                        <el-form-item label="网络状态:">
+                            <span>在线</span>
+                        </el-form-item>
+                        <el-form-item label="销售时间:">
+                            <span>2020-10-01</span>
+                        </el-form-item>
+                        <el-form-item label="导入时间:">
+                            <span>2020-10-01</span>
+                        </el-form-item>
+                        <el-form-item label="ICCID:">
+                            <el-input class="device_info_right_input_1" size="small" value="887887788789"></el-input>
+                        </el-form-item>
+                    </el-form>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col style="text-align: right;" :span="2">备注：</el-col>
+                <el-col :span="22">
+                    <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="textarea_data"></el-input>
+                </el-col>
+            </el-row>
+            <div class="device_info_btn">
+                <el-button type="info" size="small">取消</el-button>
+                <el-button type="primary" size="small">确认</el-button>
+            </div>
+        </el-dialog>
+
+        <!-- 设备指令 -->
+        <el-drawer class="device_order" modal direction="rtl" :show-close="false" :visible="visible_drawer" size="50%">
+            <template slot="title">
+                <i class="device_order_top_icon el-icon-back"></i>
+                <span class="device_order_top_text">返回</span>
+            </template>
+            <el-tabs type="border-card">
+                <el-tab-pane label="指令参数">
+                    <el-form :model="form_data_order">
+                        <div class="order_form_item">
+                            <el-form-item label="指令类型:">
+                                <el-select v-model="order_form_value" placeholder="请选择指令类型">
+                                    <el-option key="选项1" label="选项1" value="选项1"> </el-option>
+                                    <el-option key="选项2" label="选项2" value="选项2"> </el-option>
+                                    <el-option key="选项3" label="选项3" value="选项3"> </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="指令参数:">
+                                <el-input v-model="order_form_parameter"></el-input>
+                            </el-form-item>
+                        </div>
+                        <el-form-item label="缓存时长:">
+                            <el-select v-model="order_form_value" placeholder="请选择指令缓存时长">
+                                <el-option key="选项1" label="选项1" value="选项1"> </el-option>
+                                <el-option key="选项2" label="选项2" value="选项2"> </el-option>
+                                <el-option key="选项3" label="选项3" value="选项3"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <div class="order_time_text">提示：设备下发指令时超过设定时间，则不进行下发指令，默认为30分钟。</div>
+                        <div class="order_form_btn">
+                            <el-button type="primary">下发指令</el-button>
+                        </div>
+                        
+                    </el-form>
+                </el-tab-pane>
+                <el-tab-pane label="历史指令">
+                    <el-table class="" :data="tableData" border style="width: 100%" size="small">
+                        <el-table-column fixed prop="date" label="序号" min-width="60"></el-table-column>
+                        <el-table-column prop="name" label="指令类型" min-width="120"></el-table-column>
+                        <el-table-column prop="province" label="指令数据" min-width="120"></el-table-column>
+                        <el-table-column prop="city" label="创建时间" min-width="120"></el-table-column>
+                        <el-table-column prop="zip" label="指令结果" min-width="100"></el-table-column>
+                    </el-table>
+                    <el-pagination small background layout="total,prev, pager, next,jumper" hide-on-single-page :page-size="5" :total="100" style="text-align:center;margin-top:30px;"></el-pagination>
+                </el-tab-pane>
+            </el-tabs>
+        </el-drawer>
+
         <!-- <el-row :gutter="20">
             <el-col :span='6'>
             <div class='search'>
@@ -548,7 +661,15 @@ export default {
                 address: '上海市普陀区金沙江路 1516 弄',
                 zip: 200333
                 }
-            ]
+            ],
+            device_info_visible:false,
+            form_data:{},
+            device_info_model:'',
+            textarea_data:'',
+            visible_drawer:false,
+            form_data_order:{},
+            order_form_value:'',
+            order_form_parameter:''
         }
     },
     watch: {
@@ -1090,13 +1211,13 @@ export default {
             this.active = index
         }
        },
-       filters:{
-           formatDate(val) {
-               let date = new Date(val)
-                // 判断这个时间格式是否为NaN-aN-aN aN:aN:aN，
-                return isNaN(date) ? " " : formatDate(date, 'yyyy-MM-dd hh:mm:ss')
-           }
-       }
+    filters:{
+        formatDate(val) {
+            let date = new Date(val)
+            // 判断这个时间格式是否为NaN-aN-aN aN:aN:aN，
+            return isNaN(date) ? " " : formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+        }
+    }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -1625,14 +1746,117 @@ export default {
     }
  
 }
+.device_info{
+    /deep/  .el-dialog__header{
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        background: #648EF8;
+    }
+    /deep/ .el-dialog__body{
+        padding-top: 0px;
+    }
+    /deep/ .el-form-item{
+        margin-bottom: 5px;
+    }
+    /deep/ .el-form-item__content{
+        line-height: 30px;
+    }
+    /deep/ .el-form-item__label{
+        line-height: 30px;
+    }
+    /deep/ .el-dialog__title{
+        font-size: 14px;
+        font-family: Source Han Sans CN;
+        font-weight: 400;
+        color: #EFEFEF;
+    }
+    /deep/ .el-dialog__headerbtn .el-dialog__close{
+        color: #EFEFEF;
+    }
+    /deep/ .el-dialog__headerbtn{
+        top: 14px;
+    }
 
-
-
-
-
-
-
-
+}
+.device_info_left{
+    .device_info_left_input_1{
+        width: 60%;
+    }
+    .device_info_left_select{
+        width: 60%;
+    }
+}
+.device_info_right{
+    .device_info_right_input_1{
+        width: 60%;
+    }
+}
+.device_info_btn{
+    display: flex;
+    justify-content: center;
+    margin-top: 4vh;
+}
+.device_order{
+    .device_order_top_icon{
+        font-size: 18px;
+        color: #218FFF;
+        cursor: pointer;
+    }
+    .device_order_top_text{
+        font-size: 14px;
+        font-family: Source Han Sans CN;
+        font-weight: 400;
+        color: #545D6A;
+        cursor: pointer;
+    }
+    .order_form_item{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .order_time_text{
+        font-size: 13px;
+        font-family: Source Han Sans CN;
+        font-weight: 400;
+        color: #AAAAAA;
+        position: relative;
+        left: 75px;
+        top: -16px;
+    }
+    .order_form_btn{
+        margin-top: 50vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    /deep/ .el-drawer__header {
+        margin: 0px;
+        padding: 20px;
+    }
+    /deep/ .el-drawer__header>:first-child{
+        flex-grow: 0;
+    }
+    /deep/ .el-drawer__body{
+        padding: 0px 20px;
+    }
+    /deep/ .el-tabs__content{
+        height: 80vh;
+    }
+    /deep/ .el-form-item{
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    /deep/ .el-table td,.el-table th {
+        text-align: center !important;
+    }
+    /deep/ .el-table th>.cell{
+        text-align: center !important;
+    }
+    /deep/ .el-table th {
+        background: #F2F2F2 !important;
+    }
+}
 
 .search{
     margin-bottom: 20px;
