@@ -16,7 +16,8 @@
                    <el-input v-model="roleForm.roleName"></el-input>
                 </el-form-item>
                 <el-form-item :label="$t('view.permission')" prop="authoritites">
-                    <el-tree :data="roleForm.authoritites" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                    <el-tree :data="roleForm.authoritites" ref="tree"
+                      node-key="authorityIdentifier" show-checkbox  :props="defaultProps" @check="checkChange"  ></el-tree>
                 </el-form-item>
                 <el-form-item :label="$t('table.note')" prop="remark">
                     <el-input v-model="roleForm.remark" type="textarea" :rows="2"></el-input>
@@ -24,7 +25,7 @@
             </el-form>    
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogRole = false">{{$t('button.cancel')}}</el-button>
-                <el-button type="primary" @click="dialogRole = false">{{$t('button.determine')}}</el-button>
+                <el-button type="primary" @click="confrimRole">{{$t('button.determine')}}</el-button>
             </span>
         </el-dialog>
     </div>
@@ -56,17 +57,25 @@
                 }],
                 isEdit :false,
                 dialogRole:false,
-                rules:[],
+                rules:{
+                    roleName: [
+                      { required: true, message: this.$t('table.roleName'), trigger: 'blur' },
+                    ],
+                    authoritites: [
+                      { type: 'array', required: true, message: this.$t('view.permission'), trigger: 'change' }
+                    ]
+                },
                 roleForm:{
+                    roleId:'',
                     roleName:'',
                     authoritites:[],
                     remark:''
                 },
                 defaultProps: {
                    children: 'children',
-                   label: 'label'
+                   label: 'authorityName'
                 },
-
+                checkedAuthor:[]
             }
         },
         mounted(){
@@ -87,15 +96,64 @@
             },
             getAuthority(){ // 查询权限
                 api.getAuthority().then(res => {
-                  this.roleForm.data = res.data
+                  let data = res.data
+   
+                // this.$set(this.roleForm, 'authoritites', this.setTreeData(data))
+                  this.roleForm.authoritites = this.setTreeData(data)
+                    // console.log(this.roleForm.authoritites)
                 }).catch(err => {
-                  this.roleForm.data = []
+                  this.roleForm.authoritites = []
+                  this.$message.error(err.errMsg)
+                })
+            },
+            setTreeData(arr){ // 遍历权限
+                // 删除所有的children,以防止多次调用
+                arr.forEach(function(item) {
+                    delete item.children;
+                });
+                // debugger
+                let map = {}; //构建map
+                arr.forEach(i => {
+                    map[i.authorityIdentifier] = i; //构建以id为键 当前数据为值
+                });
+                let treeData = [];
+                arr.forEach(child => {
+                    const mapItem = map[child.parentAuthorityIdentifier]; //判断当前数据的parentId是否存在map中
+                    if (mapItem) {
+                        //存在则表示当前数据不是最顶层的数据
+                        //注意： 这里的map中的数据是引用了arr的它的指向还是arr,当mapItem改变时arr也会改变，踩坑点
+                        (mapItem.children || (mapItem.children = [])).push(child); //这里判断mapItem中是否存在child
+                    } else {
+                        //不存在则是顶层数据
+                        treeData.push(child);
+                    }
+                });
+                return treeData;
+            },
+            getCheckedAuthority(){
+                api.getCheckedAuthority().then(res => {
+                  this.checkedAuthor = res.data
+                  if(this.checkedAuthor.length>0){
+                      let arr =[]
+                      this.checkedAuthor.forEach(item => {
+                          arr.push(item.authorityIdentifier)
+                      }) 
+                      if(arr.length>0){
+                          this.$refs.tree.setCheckedKeys(arr)
+                      }   
+                  }
+                }).catch(err => {
+                  this.checkedAuthor = []
                   this.$message.error(err.errMsg)
                 })
             },
             addrole(){ // 添加角色
+                if(this.$refs['roleForm']){
+                  this.$refs['roleForm'].resetFields()
+                }
                 this.getAuthority()
                 this.roleForm = {
+                    roleId:'',
                     roleName:'',
                     authoritites:[],
                     remark:''
@@ -103,9 +161,119 @@
                 this.isEdit = false
                 this.dialogRole = true 
             },
-            handleNodeClick(data) { // 选择用户节点
-                console.log(data)
+            handleClick(data, checked, node) { // 选择用户节点
+                console.log(data, checked, node)
             },
+            checkChange(obj, state){ // 选中的节点
+                console.log(obj, state)
+                this.checkedAuthor = []
+                if(state.checkedNodes.length>0){
+                    state.checkedNodes.forEach(item => {
+                        this.checkedAuthor.push(item)
+                    })    
+                }
+                if(state.halfCheckedNodes.length>0){
+                    state.halfCheckedNodes.forEach(item => {
+                        this.checkedAuthor.push(item)
+                    })    
+                }
+            },
+            confrimRole(){ // 添加角色
+              if(this.checkedAuthor.length<0){
+                  this.$message.warning(this.$t('message.checkmsg'))
+                  return false
+              }
+              this.$refs['roleForm'].validate((valid) => {
+                if (valid) {
+                  // debugger
+                  console.log(this.roleForm)
+                  var data = null
+                  if(!this.isEdit){
+                    data = {
+                      roleName:this.roleForm.roleName,
+                      authoritites:this.checkedAuthor,
+                      remark:this.roleForm.remark
+                    }
+                    api.addRoles(data).then(res => {
+                      if(res.msg=='OK'){
+                        this.$message.success(this.$t('message.addsuc'))
+                        this.$refs['roleForm'].resetFields()
+                        this.dialogRole = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.errMsg)
+                    })
+                  } else {
+                    data = {
+                      roleName:this.roleForm.roleName,
+                      authoritites:this.checkedAuthor,
+                      remark:this.roleForm.remark,
+                      roleId:this.roleForm.roleId,
+                    }
+                    api.editRoles(data).then(res => {
+                      if(res.msg=='OK'){
+                        this.$message.success(this.$t('message.changesuc'))
+                        this.$refs['roleForm'].resetFields()
+                        this.dialogRole = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.errMsg)
+                    })
+                  }
+                  
+                } else {
+                  this.$message.warning(this.$t('message.checkmsg'))
+                  return false
+                }
+              })
+            },
+            showDialog(index, data){ // 操作
+                switch (index) {
+                    case '1': // 修改角色
+                        // debugger
+                      this.roleForm = {
+                        roleName:data.roleName,
+                        authoritites:[],
+                        remark:data.roleDescription,
+                        roleId:data.roleId
+                      }
+                      this.getAuthority()
+                      this.getCheckedAuthority()
+                      this.isEdit = true
+                      this.dialogRole = true
+                      break
+                    case '2' : //删除角色
+                      this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+                        confirmButtonText: this.$t('button.determine'),
+                        cancelButtonText: this.$t('button.cancel'),
+                        type: 'warning'
+                      }).then(() => {
+                        let id = {
+                          roleId:data.roleId
+                        }
+                        api.deleRoles(id).then(res => {
+                          if(res.msg=='OK'){
+                            this.$message.success(this.$t('message.delesuc'))
+                            this.getlist()
+                          }else{
+                            this.$message.error(res.msg)
+                          }
+                          
+                        }).catch(err => {
+                          this.$message.error(err.errMsg)
+                        })
+                      }).catch(err => {
+                        console.log(err)
+                      })
+                      break 
+                }
+            }
         }
     }
 </script>

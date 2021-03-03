@@ -147,7 +147,7 @@
               this.loading = true
               api.getManagerList({params: {
                 pageSize: this.page.size,
-                pageNo: this.page.index - 1,
+                page: this.page.index - 1,
               }}).then(res => {
                 this.loading = false
                 this.dataList = res.data.content

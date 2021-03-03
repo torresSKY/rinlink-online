@@ -4,48 +4,36 @@
             <span>{{$t('route.List')}}</span>
         </el-row>
         <el-card  :style="{height:height + 'px'}" >
-            
             <el-col :span='24'>
-                
                 <el-row class="list-search" :gutter="22">
                   <el-col :span='3'>
-                    <el-input v-model="search" :placeholder="$t('view.inputimei')"></el-input>
+                    <el-input v-model="deviceNumber" :placeholder="$t('view.inputimei')"></el-input>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('table.model')">
+                    <el-select v-model="deviceModelId" clearable :placeholder="$t('view.inputstate')">
                       <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="item in modelList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
                       </el-option>
                     </el-select>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputstate')">
+                    <el-select v-model="businessUserId" clearable :placeholder="$t('table.agent')">
                       <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
-                  </el-col>
-                  <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputstate')">
-                      <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="item in businessoptions"
+                        :key="item.parentId"
+                        :label="item.username"
+                        :value="item.parentId">
                       </el-option>
                     </el-select>
                   </el-col>
                   
                   <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputlabel')">
+                    <el-select v-model="isWithCard" clearable :placeholder="$t('table.isCard')">
                       <el-option
-                        v-for="item in options"
+                        v-for="item in isCardoptions"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -53,14 +41,7 @@
                     </el-select>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputstate2')">
-                      <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
+                     <el-input v-model="batchNumber" :placeholder="$t('table.batch')"></el-input>
                   </el-col>
                   <el-col :span='5'>
                     <el-button class="butresh" >{{$t('button.search')}}</el-button>
@@ -71,9 +52,9 @@
                 </el-row>
                 <el-row class="list-search" :gutter="22">
                     <el-col :span='3'>
-                      <el-select v-model="value" :placeholder="$t('view.inputstate2')">
+                      <el-select v-model="timeType" clearable :placeholder="$t('table.timeType')">
                         <el-option
-                          v-for="item in options"
+                          v-for="item in timeTypeoptions"
                           :key="item.value"
                           :label="item.label"
                           :value="item.value">
@@ -82,18 +63,20 @@
                     </el-col>
                     <el-col :span='5' >
                         <el-date-picker
+                          clearable
                           style="width:98%"
-                          v-model="value1"
+                          v-model="timevalue"
                           type="datetimerange"
+                          value-format="timestamp"
                           range-separator="-"
                           start-placeholder="开始日期"
                           end-placeholder="结束日期">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3'>
-                      <el-select v-model="value" :placeholder="$t('view.inputstate2')">
+                      <el-select v-model="useStatus" clearable :placeholder="$t('view.inputstate2')">
                         <el-option
-                          v-for="item in options"
+                          v-for="item in useStatusoptions"
                           :key="item.value"
                           :label="item.label"
                           :value="item.value">
@@ -104,6 +87,15 @@
                 <el-row :gutter="22" class="list-search" >
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
                 </el-row>
+                <el-pagination
+                    @current-change='changeindex'
+                    layout="prev, pager, next"
+                    :current-page.sync="page.index"
+                    :page-size="page.size"
+                    :total="page.total"
+                    background
+                    style="text-align:center">
+                </el-pagination>
             </el-col>
         </el-card>
         <!-- 出货/批量出货 -->
@@ -112,68 +104,68 @@
           :visible.sync="dialogShipment"
           width="30%">
           <el-form :model="shipmentForm" :rules="rules" ref="shipmentForm" label-width="100px" class="demo-ruleForm">
-              <el-form-item :label="$t('table.model')" prop="name">
-                 <el-select v-model="shipmentForm.value" :placeholder="$t('table.model')">
+              <el-form-item :label="$t('table.model')" prop="deviceModelId">
+                 <el-select v-model="shipmentForm.deviceModelId" :placeholder="$t('table.model')">
                     <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in modelList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                     </el-option>
                   </el-select>
               </el-form-item>
-              <el-form-item :label="$t('table.agent')" prop="name">
-                 <el-select v-model="shipmentForm.value" :placeholder="$t('table.agent')">
+              <el-form-item :label="$t('table.agent')" prop="businessUserId">
+                 <el-select v-model="shipmentForm.businessUserId" :placeholder="$t('table.agent')">
                     <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in businessoptions"
+                      :key="item.parentId"
+                      :label="item.username"
+                      :value="item.parentId">
                     </el-option>
                   </el-select>
               </el-form-item>
-              <el-form-item :label="$t('table.imei')" prop="name" v-if="!isMore">
-                  <el-input v-model="shipmentForm.name" :placeholder="$t('table.imei')"></el-input>
+              <el-form-item :label="$t('table.imei')" prop="deviceNumber" v-if="!isMore">
+                  <el-input v-model="shipmentForm.deviceNumber" :placeholder="$t('table.imei')"></el-input>
               </el-form-item>
               <el-form-item :label="$t('view.upfile')" prop="name" v-if="isMore">
                   <el-input v-model="shipmentForm.name" :placeholder="$t('view.upfile')"></el-input>
               </el-form-item>
-              <el-form-item :label="$t('table.isCard')" prop="name">
-                 <el-select v-model="shipmentForm.value" :placeholder="$t('table.isCard')">
+              <el-form-item :label="$t('table.isCard')" prop="isWithCard">
+                 <el-select v-model="shipmentForm.isWithCard" :placeholder="$t('table.isCard')">
                     <el-option
-                      v-for="item in options"
+                      v-for="item in isCardoptions"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value">
                     </el-option>
                   </el-select>
               </el-form-item>
-              <el-form-item :label="$t('table.serviceLife')" prop="name">
-                 <el-select v-model="shipmentForm.value" :placeholder="$t('table.serviceLife')">
+              <el-form-item :label="$t('table.serviceLife')" prop="usageYears">
+                 <el-select v-model="shipmentForm.usageYears" :placeholder="$t('table.serviceLife')">
                     <el-option
-                      v-for="item in options"
+                      v-for="item in usageYearsoptions"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value">
                     </el-option>
                   </el-select>
               </el-form-item>
-              <el-form-item :label="$t('table.activationType')" prop="name">
-                 <el-select v-model="shipmentForm.value" :placeholder="$t('table.activationType')">
+              <el-form-item :label="$t('table.activationType')" prop="activationType">
+                 <el-select v-model="shipmentForm.activationType" :placeholder="$t('table.activationType')">
                     <el-option
-                      v-for="item in options"
+                      v-for="item in activationoptions"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value">
                     </el-option>
                   </el-select>
               </el-form-item>
-              <el-form-item :label="$t('table.batch')" prop="name">
-                  <el-input v-model="shipmentForm.name" :placeholder="$t('table.batch')"></el-input>
+              <el-form-item :label="$t('table.batch')" >
+                  <el-input v-model="shipmentForm.batchNumber" :placeholder="$t('table.batch')"></el-input>
               </el-form-item>
-              <el-form-item :label="$t('table.date')" prop="name">
+              <el-form-item :label="$t('table.date')" >
                   <el-date-picker
-                    v-model="shipmentForm.name"
+                    v-model="shipmentForm.productionDate"
                     type="date"
                     :placeholder="$t('table.date')">
                   </el-date-picker>
@@ -219,57 +211,142 @@ export default{
                 }
             },
         height:1000,
-        search:null,
-        value:null,
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
-        value1:'',
+        deviceNumber:null,
+        deviceModelId:'',
+        modelList:[],
+        isWithCard:'',
+        isCardoptions:[
+          {value: true,label: '是'},{value: false,label: '否'},
+        ],
+        batchNumber:'',
+        businessUserId:'',
+        businessoptions:[],
+        useStatus:'',
+        useStatusoptions:[
+          {value: 0,label: '未激活'},{value: 1,label: '激活'},{value: 2,label: '到期'}
+        ],
+        timeType:'',
+        timeTypeoptions: [
+          {value: 0,label: '激活时间'},{value: 1,label: '生产时间'},{value: 2,label: '出货时间'}
+        ],
+        timevalue:'',
+        usageYearsoptions:[
+          {value: 1,label: '1年'},{value: 2,label: '2年'},{value: 3,label: '3年'},
+          {value: 5,label: '5年'},{value: 0,label: '无限制'}
+        ],
+        activationoptions:[
+          {value: 0,label: '开机激活'},{value: 1,label: '注册激活'},{value: 2,label: '固定时间激活'}
+        ],
         loading:false,
         dataList:[],
         tableLabel: [
           {label: this.$t('table.index'), type: 'index'},
-          {label: this.$t('table.type'), prop: 'serial_number'},
-          {label: this.$t('table.model'), prop: 'category'},
-          {label: this.$t('table.imei'), prop: 'category'},
-          {label: this.$t('table.agent'), prop: 'category'},
-          {label: this.$t('table.activationType'), prop: 'category'},
-          {label: this.$t('table.activationTime'), prop: 'category'},
-          {label: this.$t('table.date'), prop: 'partner_contacts'},
-          {label: this.$t('table.isCard'), prop: 'partner_contacts'},
-          {label: this.$t('table.iccid'), prop: 'partner_contacts'},
-          {label: this.$t('table.batch'), prop: 'partner_contacts'},
-          {label: this.$t('table.serviceLife'), prop: 'partner_contacts'},
-          {label: this.$t('table.deliveryTime'), prop: 'partner_contacts'},
-          {label: this.$t('table.usestatus'), prop: 'partner_contacts'},
+          {label: this.$t('table.Device'), prop: 'deviceName'},
+          {label: this.$t('table.model'), prop: 'deviceModelName'},
+          {label: this.$t('table.imei'), prop: 'deviceNumber'},
+          {label: this.$t('table.agent'), prop: 'businessUserName'},
+          {label: this.$t('table.activationType'), prop: 'activationType'},
+          {label: this.$t('table.activationTime'), prop: 'activationTime'},
+          {label: this.$t('table.date'), prop: 'productionDate'},
+          {label: this.$t('table.isCard'), prop: 'isWithCard'},
+          {label: this.$t('table.iccid'), prop: 'iccid'},
+          {label: this.$t('table.batch'), prop: 'batchNumber'},
+          {label: this.$t('table.serviceLife'), prop: 'usageYears'},
+          {label: this.$t('table.deliveryTime'), prop: 'shipmentTime'},
+          {label: this.$t('table.usestatus'), prop: 'status'},
         ],
         dialogShipment:false,
         isMore:false,
         shipmentForm:{
-            value:''
+            deviceModelId:'',
+            businessUserId:'',
+            deviceNumber:'',
+            isWithCard:'',
+            usageYears:'',
+            activationType:'',
+            activationTime:'',
+            batchNumber:'',
+            productionDate:''
         },
-        rules:[]
+        rules:{
+          deviceModelId: [
+            { required: true, message: this.$t('table.model'), trigger: 'change' }
+          ],
+          businessUserId: [
+            { required: true, message: this.$t('table.agent'), trigger: 'change' }
+          ],
+          deviceNumber: [
+            { required: true, message: this.$t('table.imei'), trigger: 'blur' }
+          ],
+          isWithCard: [
+            { required: true, message: this.$t('table.isCard'), trigger: 'change' }
+          ],
+          usageYears: [
+            { required: true, message: this.$t('table.serviceLife'), trigger: 'change' }
+          ],
+          activationType: [
+            { required: true, message: this.$t('table.activationType'), trigger: 'change' }
+          ],
+        }
       }
     },
     mounted(){
         this.height=document.body.offsetHeight-152
-  
+        this.getlist()
+        this.getModel()
+        this.getBusiness()
     },
     methods:{
-        sell(data){
+        getlist(){ // 获取出货列表
+            this.loading = true
+            let start = ''
+            let end = ''
+            if(this.timevalue.length>0){
+              start = this.timevalue[0]
+              end = this.timevalue[1]
+            }
+            api.getShipmentList({params: {
+              pageSize: this.page.size,
+              page: this.page.index - 1,
+              deviceNumber:this.deviceNumber,
+              deviceModelId:this.deviceModelId,
+              businessUserId:this.businessUserId,
+              isWithCard:this.isWithCard,
+              batchNumber:this.batchNumber,
+              usageStatus:this.usageStatus,
+              timeType:this.timeType,
+              startTime:start,
+              endTime:end
+            }}).then(res => {
+              this.loading = false
+              this.dataList = res.data.content
+              this.page.total = res.data.pageTotal
+            }).catch(err => {
+              this.loading = false
+              this.dataList = []
+              this.$message.error(err.errMsg)
+            })
+        },
+        getModel(){ // 获取设备型号
+          api.getModelList({params: {
+              pageSize: 100,
+              page: this.page.index - 1
+            }}).then(res => {
+              this.modelList = res.data.content
+            }).catch(err => {
+              this.modelList = []
+              this.$message.error(err.errMsg)
+            })
+        },
+        getBusiness(){ // 获取代理商
+          api.getBusiness().then(res => {
+              this.businessoptions = res.data
+            }).catch(err => {
+              this.businessoptions = []
+              this.$message.error(err.errMsg)
+            })
+        },
+        sell(data){  // 出货/批量出货
             if(data=='one'){
                 this.isMore = false
             }else{

@@ -144,6 +144,7 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    timeType:'时间类型',
     orderMsg:'指令信息',
     template:'指令模板',
     communication:'设备通信方式',
