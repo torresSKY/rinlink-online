@@ -20,9 +20,9 @@
                 <div class="row_item_middle">
                      <div class="row_item_middle_top">
                         <div>
-                            <div class="select_item">全部(800)</div>
-                            <div>在线(700)</div>
-                            <div>离线(100)</div>
+                            <div @click="evt_change_type" data-type="all" :class="change_type == 'all' ? 'select_item' :''">全部(800)</div>
+                            <div @click="evt_change_type" data-type="on" :class="change_type == 'on' ? 'select_item' :''">在线(700)</div>
+                            <div @click="evt_change_type" data-type="off" :class="change_type == 'off' ? 'select_item' :''">离线(100)</div>
                         </div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
@@ -31,7 +31,37 @@
                         <div class="row_item_bottom_left_search_icon"><i class="el-icon-search"></i></div>
                     </div>
                     <div class="row_item_middle_bottom">
-                        <div class="row_item_middle_bottom_add_tag">添加标签</div>
+                        <div class="item_content">
+                            <div class="devices_item">
+                                <div class="devices_item_top">
+                                    <el-checkbox></el-checkbox>
+                                    <el-avatar class="devices_item_top_avatar" size="small"></el-avatar>
+                                    <div class="devices_item_top_right">
+                                    <div class="devices_item_top_right_top">
+                                        <div class="devices_item_top_right_top_left">D600N测试2</div>
+                                            <div class="devices_item_top_right_top_right">在线</div>
+                                        </div>
+                                        <div class="devices_item_top_right_bottom">
+                                            <!-- 电池辅助元素 -->
+                                            <div><div style="background:#02C602;"></div></div>
+                                            <div>80%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="devices_item_bottom">
+                                    <el-menu mode="horizontal">
+                                        <el-menu-item index="1">跟踪</el-menu-item>
+                                        <el-menu-item index="2">回放</el-menu-item>
+                                        <el-submenu index="3">
+                                            <template slot="title">更多</template>
+                                            <el-menu-item index="3-1">设备详情</el-menu-item>
+                                            <el-menu-item index="3-2">设备指令</el-menu-item>
+                                         </el-submenu>
+                                    </el-menu>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="row_item_middle_bottom_add_tag">添加标签</div>
                         <el-collapse accordion v-model="collapse_value">
                             <el-collapse-item name="1">
                                 <template slot="title">
@@ -53,41 +83,8 @@
                                         <span>诺德国际(788)</span>
                                     </div>
                                 </template>
-                                <div class="item_content">
-                                    <!-- <el-checkbox-group> -->
-                                        <div class="devices_item">
-                                            <div class="devices_item_top">
-                                                <el-checkbox></el-checkbox>
-                                                <el-avatar class="devices_item_top_avatar" size="small"></el-avatar>
-                                                <div class="devices_item_top_right">
-                                                    <div class="devices_item_top_right_top">
-                                                        <div class="devices_item_top_right_top_left">D600N测试2</div>
-                                                        <div class="devices_item_top_right_top_right">在线</div>
-                                                    </div>
-                                                    <div class="devices_item_top_right_bottom">
-                                                        <!-- 电池辅助元素 -->
-                                                        <div><div style="background:#02C602;"></div></div>
-                                                        <div>80%</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="devices_item_bottom">
-                                                <el-menu mode="horizontal">
-                                                    <el-menu-item index="1">跟踪</el-menu-item>
-                                                    <el-menu-item index="2">回放</el-menu-item>
-                                                    <el-submenu index="3">
-                                                        <template slot="title">更多</template>
-                                                        <el-menu-item index="3-1">设备详情</el-menu-item>
-                                                        <el-menu-item index="3-2">设备指令</el-menu-item>
-                                                        <el-menu-item index="3-2">报警设置</el-menu-item>
-                                                    </el-submenu>
-                                                </el-menu>
-                                            </div>
-                                        </div>
-                                    <!-- </el-checkbox-group> -->
-                                </div>
                             </el-collapse-item>
-                        </el-collapse>
+                        </el-collapse> -->
                     </div>
                 </div>
             </el-col>
@@ -669,7 +666,9 @@ export default {
             visible_drawer:false,
             form_data_order:{},
             order_form_value:'',
-            order_form_parameter:''
+            order_form_parameter:'',
+
+            change_type:'all',//切换全部、在线、离线设备统计
         }
     },
     watch: {
@@ -719,6 +718,10 @@ export default {
         
     },
     methods: {
+        evt_change_type:function(e){
+            this.change_type = e.target.getAttribute('data-type');
+        },
+
         goBack(){
             this.$router.push({name:'route.List'})
         },
