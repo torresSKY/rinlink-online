@@ -70,11 +70,32 @@ const upsetPwd = (data) => (   //重置系统管理员密码
 const getAuthority = (data) => (   //查询权限
     axios.post(url+'/query_system_manager_user_authorities', data)
 )
+const getCheckedAuthority = (data) => (   //查询选中的权限
+    axios.post(url+'/query_system_manager_user_role_authorities', data)
+)
 const getRolesList = (data) => (   //分页查询角色
     axios.post(url+'/paging_query_system_manager_user_roles', data)
 )
+const addRoles = (data) => (   //添加角色
+    axios.post(url+'/create_system_manager_user_role', data)
+)
+const editRoles = (data) => (   //更新角色
+    axios.post(url+'/update_system_manager_user_role', data)
+)
+const deleRoles = (data) => (   //删除角色
+    axios.post(url+'/delete_system_manager_user_role', data)
+)
+const getShipmentList = (data) => (   //分页查询出货的设备
+    axios.post(url+'/paging_query_shipment_device', data)
+)
+const shipment = (data) => (   //出货
+    axios.post(url+'/shipment_device', data)
+)
 const getModelList = (data) => (   //分页查询设备型号
-    axios.post(url+'/paging_query_device_model', data)
+    axios.post(url+'/paging_query_device_models', data)
+)
+const getBusiness = (data) => (   //查询代理商
+    axios.post(url+'/query_business_users', data)
 )
 const getServices = (data) => (   //查询所有IOT服务
     axios.post(url+'/query_all_iot_services', data)
@@ -120,7 +141,14 @@ export default {
     deleManager,
     upsetPwd,
     getAuthority,
+    getCheckedAuthority,
     getRolesList,
+    addRoles,
+    editRoles,
+    deleRoles,
+    getShipmentList,
+    shipment,
+    getBusiness,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

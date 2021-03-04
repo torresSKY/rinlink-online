@@ -141,7 +141,7 @@ export default{
             this.loading = true
             api.getModelList({params: {
               pageSize: this.page.size,
-              pageNo: this.page.index - 1,
+              page: this.page.index - 1,
               deviceModelName: this.deviceModelName,
             }}).then(res => {
               this.loading = false
