@@ -1,173 +1,149 @@
 <template>
     <div class="app" :style="{height:height +'px',overflow:'hidden' }">
-        <el-row :gutter="20">
+        <el-row>
             <el-col :span='6'>
-            <div class='search'>
-                <el-page-header v-show="!showedit" @back="goBack" style="margin-bottom:10px">
-                </el-page-header>
-            <el-row>
-                <el-col :span='12'><el-input class='eleinput' v-model='fencesearch' :placeholder="$t('view.fence2')" clearable></el-input></el-col>
-                <el-col :span='4' :offset="1"><el-button class=' butsearch' @click='getele()'>{{$t('button.search')}}</el-button></el-col>
-                <el-col :span='4' :offset="2"><el-button class=' butresh' @click='Resetgetele()'>{{$t('button.refresh')}}</el-button></el-col>
-            </el-row>
-                
-                
-            </div>
-            <el-card :style="{height:height - 100 +'px',overflow:'hidden' }">
-                <div class='title'>
-                    <span>{{$t('view.fence1')}}</span>
-                    <el-button class="butsearch" @click='showAdd'>{{$t('button.add')}}</el-button>
-                </div>
-                <el-scrollbar v-if='list.length > 0'  :style="{height:height - 180 +'px'}" ref="scroll" class='el-scro'>
-                    <div class='list' v-for='(item,index) in list' :key='item.name' :class = "active == index ? 'addclass' : '' " @click='dowm(index)'>
-                        <div class='elecard'>
-                        <div class='elecard-item' @click='changecrie(item)'>
-                            <div>{{item.name}}</div>
-                            <div>{{$t('view.radius')}}：{{item.radius}}{{$t('view.mi')}}</div>
+                <div class="left" :style="{height:height +'px'}">
+                    <div class='search'>
+                        <div class="search_top">电子围栏</div>
+                        <el-row class="select_type_name" :gutter="4" type="flex" align="center">
+                            <el-col :span="10">
+                                <el-select v-model="select_type_name" placeholder="请选择查询类型" size="small">
+                                <el-option key="设备名称/IMEI"  label="设备名称/IMEI" value="设备名称/IMEI"></el-option>
+                                <el-option  key="围栏名称" label="围栏名称" value="围栏名称"></el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="10">
+                                <el-input size="small" v-model='fencesearch'></el-input>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-button @click='getele()' size="small" type="primary">{{$t('button.search')}}</el-button>
+                            </el-col>
+                        </el-row>   
+                    </div>
+                    <div class="search_content">
+                        <div class="search_content_title">
+                            <div>{{$t('view.fence1')}}</div>
+                            <div @click='showAdd'>添加围栏</div>
                         </div>
-                        <div class='elecard-edit' @click='addlist(item)' :hidden='!showedit'>
-                            <img  src='../../assets/img/list.png'>
-                        </div>  
-                        <div class='elecard-edit' @click='editele(item)' :hidden='!showedit'>
-                            <img src='../../assets/img/edit.png'>
-                        </div>
-                        <div class='elecard-edit' @click='deleold(item)'>
-                            <img src='../../assets/img/delet.png'>
-                        </div>  
+                        <div class="search_content_list" v-infinite-scroll>
+                            <template v-if='list.length > 0'>
+                                <div class='list' v-for='(item,index) in list' :key='item.name'  @click='dowm(index)'>
+                                    <div class='elecard' :class = "active == index ? 'addclass' : '' ">
+                                        <div class='elecard_item_left' @click='changecrie(item)'>{{item.name}}</div>
+                                        <div class="elecard_item_right">
+                                            <div>{{$t('view.radius')}}：{{item.radius}}{{$t('view.mi')}}</div>
+                                            <div>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click='addlist(item)' :hidden='!showedit'></el-image>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click='editele(item)' :hidden='!showedit'></el-image>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/delet.png')" fit="contain"  @click='deleold(item)'></el-image>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>{{$t('table.temporarily')}}</span></div>
                         </div>
                     </div>
-                </el-scrollbar>
-                <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>{{$t('table.temporarily')}}</span></div>
-            </el-card>
-            <el-card :hidden='addview' class='addele' :style="{height:height+'px'}">
-                <div class='title'>
-                    <span v-if='editfen'>{{$t('view.fence6')}}</span>
-                    <span v-else>{{$t('view.fence5')}}</span>
+                    
+                    <el-card :hidden='addview' class='addele' :style="{height:height+'px'}">
+                        <div class='title'>
+                            <span v-if='editfen'>{{$t('view.fence6')}}</span>
+                            <span v-else>{{$t('view.fence5')}}</span>
+                        </div>
+                        <div class='addlist'>
+                            <span>{{$t('view.fence2')}}</span>
+                            <el-input v-model='fenceName' maxlength="20"></el-input>
+                        </div>
+                        <div class='addlist'>
+                            <span>{{$t('view.fence4')}}</span>
+                            <el-input id='fenceradio' v-model='address' :placeholder='address2'></el-input>
+                        </div>
+                        <div class='addlist'>
+                            <span>{{$t('view.fence3')}}</span>
+                            <el-input v-model='fenceRadio' type="number"></el-input>
+                        </div>
+                        <div class='addlist'>
+                            <span>{{$t('view.fence7')}}</span>
+                            <el-checkbox-group v-model="inala">
+                                <el-checkbox :label="0" value='0'>{{$t('view.fence8')}}</el-checkbox>
+                                <el-checkbox :label="1" value='1'>{{$t('view.fence9')}}</el-checkbox>
+                            </el-checkbox-group>
+                        </div>
+                        <div class='addlist'>
+                            <el-button @click='closeele'>{{$t('view.close')}}</el-button>
+                            <el-button class="butsearch" @click='editfen?addEle():editEle2()'>{{$t('button.save')}}</el-button>
+                        </div>
+                    </el-card>
                 </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence2')}}</span>
-                    <el-input v-model='fenceName' maxlength="20"></el-input>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence4')}}</span>
-                    <el-input id='fenceradio' v-model='address' :placeholder='address2'></el-input>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence3')}}</span>
-                    <el-input v-model='fenceRadio' type="number"></el-input>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence7')}}</span>
-                     <el-checkbox-group v-model="inala">
-                        <el-checkbox :label="0" value='0'>{{$t('view.fence8')}}</el-checkbox>
-                        <el-checkbox :label="1" value='1'>{{$t('view.fence9')}}</el-checkbox>
-                    </el-checkbox-group>
-                </div>
-                <div class='addlist'>
-                    <el-button @click='closeele'>{{$t('view.close')}}</el-button>
-                    <el-button class="butsearch" @click='editfen?addEle():editEle2()'>{{$t('button.save')}}</el-button>
-                </div>
-            </el-card>
             </el-col> 
             <el-col :span='18'>
                 <el-card>
-                    <div id="map2" :style="{height:height-40+'px',overflow:'hidden' }"></div>
+                    <div id="map2" :style="{height:height- 10+'px',overflow:'hidden' }"></div>
                 </el-card>
-                <div class='right-tab' :hidden="showlist" :style="{height:height-40+'px'}">
-                    <el-row style='text-align: center;line-height: 50px;'>
-                        <el-col :span='23'>{{$t('table.addequ')}}</el-col>
-                        <el-col :span='1'>
-                        <i class='el-icon-close'  @click='showlist = true'></i>
-                        </el-col>
-                    </el-row>
-                    <el-row :span='20' style='margin-bottom: 20px;'>
-                        <el-col :span='5'>
-                            <el-input v-model="search" :placeholder="$t('table.searchimei')" clearable style='width:90%'></el-input>
-                        </el-col>
-                        <el-col :span='4'>
-                            <el-select v-model="selegroup" :placeholder="$t('view.inputgroup')" style='width:90%'>
-                                <el-option v-for="item in allgroup" :value="item.id" :key="item.name" :label="item.name"></el-option>
-                            </el-select>
-                        </el-col>
-                        <el-col :span='2'>
-                            <el-button @click='addlist(0)'>{{$t('button.search')}}</el-button>
-                        </el-col>
-                        <el-col :span='4'>
-                            <el-button @click='moreunlink()'>{{$t('table.canaleadd')}}</el-button>
-                        </el-col>
-                        <el-col :span='4'>
-                            <el-button @click='showitem()'>{{$t('route.Add')}}</el-button>
-                        </el-col>
-                    </el-row>
-                    <el-table :data="equlist" :height='height-200' :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}"  @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop='deviceName':label="$t('table.Device')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='imei' :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='groupName' :label="$t('table.groupname')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='deviceModel' :label="$t('table.model')" show-overflow-tooltip></el-table-column>
-                        <!-- <el-table-column prop='address' :label="$t('table.Detailed')" show-overflow-tooltip></el-table-column>  -->
-                        <el-table-column prop='createDt' :label="$t('table.addtime')" show-overflow-tooltip>
-                            <template slot-scope="scop">
-                                {{scop.row.createDt == null ? '--':scop.row.createDt | formatDate}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop='' :label="$t('table.operation')" show-overflow-tooltip>
-                            <template slot-scope="scope">
-                                <el-button @click="Unlinkequ(scope.row)" type="text" >{{$t('table.canaleadd')}}</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-pagination
-                        @current-change="changeindex2"
-                        :current-page.sync="page2.index"
-                        :page-size="page2.size"
-                        layout="total, prev, pager, next ,jumper"
-                        :total="page2.total"
-                        style="text-align:center;margin-top:10px">
-                    </el-pagination>
-                </div>
             </el-col>  
         </el-row>
-        
-        <el-dialog :title="$t('route.Add')" :visible.sync="showequlist" :center='true'>
-            <el-row :span='20'>
-                <!-- <el-col :span='5'>
-                   <el-input v-model="search" :placeholder="$t('table.searchimei')" clearable style='width:90%'></el-input>
+        <!-- 关联设备 -->
+        <!-- :visible="relevance_device_flag" -->
+        <el-dialog @close="evt_close" class="relevance_device" width="60%" title="关联设备" :visible="!showlist"  top="5vh">
+            <el-row :gutter="20">
+                <el-col :span="12">
+                    <div class="users">
+                        <el-input placeholder="请输入客户名称或账号" size="mini" v-model="input3">
+                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        </el-input>
+                        <div class="users_bottom">
+                            <el-tree :data="data" :render-content="renderContent"></el-tree>
+                        </div>
+                    </div>
                 </el-col>
-                <el-col :span='4'>
-                    <el-select v-model="selegroup" :placeholder="$t('view.inputgroup')" style='width:90%'>
-                        <el-option v-for="item in allgroup" :value="item.id" :key="item.name" :label="item.name"></el-option>
-                    </el-select>
-                </el-col> -->
-                <!-- <el-col :span='2'>
-                    <el-button @click='getList()'>{{$t('button.search')}}</el-button>
-                </el-col> -->
-                <el-col :span='2'>
-                    <el-button @click="morelink()">{{$t('table.butgl')}}</el-button>
+                <el-col :span="12">
+                    <div class="devices">
+                        <el-input placeholder="IMEI/设备名称" size="mini" v-model="input4">
+                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        </el-input>
+                        <div class="devices_bottom">
+                            <el-tree
+                                :data="data_tree"
+                                show-checkbox
+                                node-key="id"
+                                :default-expanded-keys="[2]"
+                                :default-checked-keys="[5]"
+                                :props="defaultProps">
+                            </el-tree>
+                        </div>
+                    </div>
                 </el-col>
             </el-row>
-            <el-table v-loading='addloading' :data="allequlist" :height='height-250' :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}" @selection-change="handleSelectionChange2">
-                <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop='deviceName' :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='imei' :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='groupName' :label="$t('table.groupname')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='deviceModel' :label="$t('table.model')" show-overflow-tooltip></el-table-column>
-                <!-- <el-table-column prop='address' :label="$t('table.Detailed')" show-overflow-tooltip></el-table-column>  -->
-                <el-table-column prop='createDt' :label="$t('table.addtime')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='' :label="$t('table.operation')" show-overflow-tooltip>
+            <el-row :gutter="20" class="search_device">
+                <el-col :span="8">
+                    <el-input size="small" placeholder="请输入设备名称/设备IMEI" prefix-icon="el-icon-search" v-model="search_device_key"></el-input>
+                </el-col>
+                <el-col :span="3">
+                    <el-button style="width:100%" size="small" type="primary">搜索</el-button>
+                </el-col>
+                <el-col :span="3">
+                    <el-button size="small" type="danger">取消关联</el-button>
+                </el-col>
+            </el-row>
+            <el-table class="relevance_table" size="mini" :data="allequlist" style="width: 100%" tooltip-effect="dark"  @selection-change="handleSelectionChange">
+                <el-table-column align="center" fixed type="selection" min-width="20"></el-table-column>
+                <el-table-column align="center" fixed :label="$t('table.Device')" prop="deviceName" min-width="120" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.imei')" prop='imei' min-width="140" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.groupname')" prop="groupName" min-width="120" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.model')" prop="deviceModel" min-width="80" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.Detailed')" prop="address" min-width="180" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.addtime')" prop="createDt" min-width="160" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" fixed="right" :label="$t('table.operation')" min-width="100">
                     <template slot-scope="scope">
-                        <el-button @click="linkequ(scope.row)" type="text" >{{$t('table.butgl')}}</el-button>
+                       <el-button size="mini" @click="linkequ(scope.row)" type="danger">取消关联</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination
-                @current-change="changeindex"
-                :current-page.sync="page.index"
-                :page-size="page.size"
-                layout="total, prev, pager, next ,jumper"
-                :total="page.total"
-                style="text-align:center;margin-top:10px">
-            </el-pagination>
+            <el-pagination hide-on-single-page="true" small background page-size="5" current-page="1" layout="total, prev, pager, next ,jumper" :total="100" style="text-align:center;margin-top:10px"></el-pagination>
+            <div class="relevance_device_bottom_btn">
+                <el-button type="info" size="small">取消</el-button>
+                <el-button type="primary" size="small">确定</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -202,7 +178,11 @@ export default {
             showloca2: true,
             mapMarker: [],
             height: 0,
-            list: [],
+            list: [{
+                name:'测试'
+            },{
+                name:'cehsih1'
+            }],
             addview: true,
             editfen: false,
             fenceName: '',
@@ -216,7 +196,42 @@ export default {
             circle: null,
             showlist: true,
             equlist: [],
-            allequlist: [],
+            allequlist: [{
+                deviceName:'测试设备名称1',
+                imei:'5645678978987656',
+                groupName:'西子国际233455',
+                deviceModel:'D709',
+                address:'上海市西子国际中心778999',
+                createDt:'2020-01-01 10:30:00'
+            },{
+                deviceName:'测试设备名称1',
+                imei:'5645678978987656',
+                groupName:'西子国际233455',
+                deviceModel:'D709',
+                address:'上海市西子国际中心778999',
+                createDt:'2020-01-01 10:30:00'
+            },{
+                deviceName:'测试设备名称1',
+                imei:'5645678978987656',
+                groupName:'西子国际233455',
+                deviceModel:'D709',
+                address:'上海市西子国际中心778999',
+                createDt:'2020-01-01 10:30:00'
+            },{
+                deviceName:'测试设备名称1',
+                imei:'5645678978987656',
+                groupName:'西子国际233455',
+                deviceModel:'D709',
+                address:'上海市西子国际中心778999',
+                createDt:'2020-01-01 10:30:00'
+            },{
+                deviceName:'测试设备名称1',
+                imei:'5645678978987656',
+                groupName:'西子国际233455',
+                deviceModel:'D709',
+                address:'上海市西子国际中心778999',
+                createDt:'2020-01-01 10:30:00'
+            }],
             showequlist: false,
             linkequstr: true,
             nowfenceid: '',
@@ -236,7 +251,88 @@ export default {
             addloading: true,
             fenceid: null,
             active:-1,
-            backFlag:false
+            backFlag:false,
+
+            select_type_name:'',//查询选择类型
+            relevance_device_flag: true,//关联设备
+            data: [{
+                label: '一级 1',
+                children: [{
+                    label: '二级 1-1',
+                    children: [{
+                    label: '三级 1-1-1'
+                    }]
+                }]
+                }, {
+                label: '一级 2',
+                children: [{
+                    label: '二级 2-1',
+                    children: [{
+                    label: '三级 2-1-1'
+                    }]
+                }, {
+                    label: '二级 2-2',
+                    children: [{
+                    label: '三级 2-2-1'
+                    }]
+                }]
+                }, {
+                label: '一级 3',
+                children: [{
+                    label: '二级 3-1',
+                    children: [{
+                    label: '三级 3-1-1'
+                    }]
+                }, {
+                    label: '二级 3-2',
+                    children: [{
+                    label: '三级 3-2-1'
+                    }]
+                }]
+            }],
+            renderContent:function (h,{node,data,store}) {
+                let addElement = arguments[0];
+                return addElement('span',[
+                    addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
+                    addElement('span',"    "),
+                    addElement('span',arguments[1].node.label)
+                ]);
+            },
+            input3:'',
+            input4:'',
+            data_tree: [{
+                id: 1,
+                label: '一级 1',
+                children: [{
+                    id: 4,
+                    label: '二级 1-1',
+                }]
+            }, {
+                id: 2,
+                label: '一级 2',
+                children: [{
+                    id: 5,
+                    label: '二级 2-1'
+                }, {
+                    id: 6,
+                    label: '二级 2-2'
+                }]
+            }, {
+                id: 3,
+                label: '一级 3',
+                children: [{
+                    id: 7,
+                    label: '二级 3-1'
+                }, {
+                    id: 8,
+                    label: '二级 3-2'
+                }]
+            }],
+            defaultProps: {
+                children: 'children',
+                label: 'label'
+            },
+            search_device_key:'',
         }
     },
     watch: {
@@ -268,19 +364,25 @@ export default {
         }
     },
     mounted(){
-        this.height = document.body.offsetHeight - 100
-        if(this.imei != null){
-            this.showedit = false
-            this.getoneele()
-        }else{
-            this.showedit = true
-            this.getele() 
-        }
-        this.setMap()
-        this.getgroup()
+        this.height = document.body.offsetHeight - 60
+        // if(this.imei != null){
+        //     this.showedit = false
+        //     this.getoneele()
+        // }else{
+        //     this.showedit = true
+        //     this.getele() 
+        // }
+        // this.setMap()
+        // this.getgroup()
         
+        this.map = new BMap.Map("map2");
+        this.map.enableScrollWheelZoom(true); 
+        this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
     },
     methods: {
+        evt_close:function(){
+            this.showlist = true;
+        },
         goBack(){
             this.$router.push({name:'route.List'})
         },
@@ -782,23 +884,62 @@ export default {
        }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 #map{
     width: 100%;
     height:600px;
 }
 .app{
     margin: 0;
-    padding: 20px;
-    background:#ccc;
+    /* padding: 20px; */
+    background:#FFFFFF;
+}
+.left{
+    display: flex;
+    flex-direction: column;
 }
 .search{
-    margin-bottom: 20px;
-    background: #fff;
-    padding: 20px;
+    .search_top{
+        width: 100%;
+        height: 36px;
+        background: #EEF3FE;
+        font-size: 14px;
+        font-family: Microsoft YaHei;
+        font-weight: bold;
+        color: #333333;
+        line-height: 36px;
+        padding-left: 10px;
+        box-sizing: border-box;
+    }
+    .select_type_name{
+        padding: 10px;
+        box-sizing: border-box;
+    }
 }
-.elebut{
-    margin-left: 20px;
+.search_content{
+    flex: 1;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    .search_content_title{
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        color: #666666;
+        >div:nth-of-type(2){
+            cursor: pointer;
+        }
+    }
+    .search_content_list{
+        flex: 1;
+        overflow: auto;
+    }
 }
 .title{
     width: 100%;
@@ -811,43 +952,47 @@ export default {
 .list{
     width: 100%;
     margin-top: 10px;
-}
-.el-scro{
-    overflow-x: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.on-hover{
-    background: rgb(158, 158, 158);
-}
-.elecard{
-    display: flex;
-    flex-wrap: wrap;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-}
-.elecard-item{
-    flex: 1;
-    line-height: 30px;
-    width: 0;
-    min-width: 100px;
-}
-.elecard-item div{
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.elecard-edit{
-    flex: 0.3;
-}
-.elecard-edit img{
-    width: 26px;
-    height:26px;
-    padding: 6px;
+    .elecard{
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+        .elecard_item_left{
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: 400;
+            color: #333333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .elecard_item_right{
+            width: 100%;
+            padding-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            >div:nth-of-type(1){
+                width: 70%;
+                font-size: 14px;
+                font-family: Microsoft YaHei;
+                font-weight: 400;
+                color: #333333;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+    }
+    .addclass{
+        background-color: #E6ECFA;
+        border: 1px solid #8EB0FF;
+        box-sizing: border-box;
+    }
 }
 .addele{
-    width: 24%;
+    width: 25%;
     position: absolute;
     top: 0px;
 }
@@ -868,9 +1013,94 @@ export default {
     padding: 20px;
     width: 60%;
 }
-.addclass{
-   background-color: #8dcef3;
+.relevance_device{
+    /deep/ .el-dialog__header{
+        padding: 10px 20px;
+        background-color: #648EF8;
+    }
+    /deep/ .el-dialog__title{
+        height: 14px;
+        font-size: 14px;
+        font-family: Source Han Sans CN;
+        font-weight: 400;
+        color: #EFEFEF;
+        line-height: 14px;
+    }
+    /deep/ .el-dialog__headerbtn .el-dialog__close{
+        color: #FFFFFF;
+    }
+    /deep/ .el-dialog__headerbtn{
+        top: 14px;
+    }
+    /deep/ .el-dialog__body{
+        padding: 20px;
+    }
 }
+.users{
+    width: 100%;
+    height: 24vh;
+    border: 1px solid #CCCCCC;
+    box-sizing: border-box;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    .users_bottom{
+        flex: 1;
+        width: 70%;
+        margin-top: 6px;
+        overflow-y: scroll;
+        /deep/ .row_item_bottom_left_userIcon{
+            color: #F19B04 !important;
+        }
+        /deep/  .el-tree-node.is-current > .el-tree-node__content {
+            background-color: #FFE6B0 !important;
+            border: 1px solid #F19B04;
+        }
+    }
+}
+.devices{
+    width: 100%;
+    height: 24vh;
+    border: 1px solid #CCCCCC;
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    .devices_bottom{
+        flex: 1;
+        margin-top: 6px;
+        overflow-y: scroll;
+    }
+}
+.search_device{
+    margin: 10px 0px;
+}
+.relevance_table{
+    // height: 30vh;
+    border: 1px solid #EBEEF5;
+    box-sizing: border-box;
+    /deep/ .el-table th {
+        background: #F2F2F2 !important;
+    }
+    
+}
+.relevance_device_bottom_btn{
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/deep/ .el-table th.is-leaf{
+        background: #f2f2f2 !important;
+}
+/deep/ .el-card{
+    border: 0px;
+}
+/deep/ .el-card__body{
+    padding: 5px;
+}
+
 </style>
 <style>
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
