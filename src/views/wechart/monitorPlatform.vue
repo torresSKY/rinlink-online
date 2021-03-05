@@ -8,10 +8,9 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
-                        <div>
-                            <el-input placeholder="请输入客户名称或账号" v-model='fencesearch' class="row_item_bottom_left_input"></el-input>
-                            <div class="row_item_bottom_left_search_icon"><i class="el-icon-search"></i></div>
-                        </div>
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="fencesearch">
+                            <el-button size="mini" slot="append" icon="el-icon-search"></el-button>
+                        </el-input>
                         <el-tree :data="data" :render-content="renderContent"></el-tree>
                     </div>
                 </div>
@@ -27,8 +26,9 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_middle_middle">
-                        <el-input placeholder="IMEI/设备名称" v-model='fencesearch' class="row_item_bottom_left_input"></el-input>
-                        <div class="row_item_bottom_left_search_icon"><i class="el-icon-search"></i></div>
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="fencesearch">
+                            <el-button size="mini" slot="append" icon="el-icon-search"></el-button>
+                        </el-input>
                     </div>
                     <div class="row_item_middle_bottom">
                         <div class="item_content">
@@ -49,7 +49,7 @@
                                     </div>
                                 </div>
                                 <div class="devices_item_bottom">
-                                    <el-menu mode="horizontal">
+                                    <el-menu  mode="horizontal">
                                         <el-menu-item index="1">跟踪</el-menu-item>
                                         <el-menu-item index="2">回放</el-menu-item>
                                         <el-submenu index="3">
@@ -1241,23 +1241,24 @@ export default {
     flex-direction: column;
 }
 .row_item_top_left{
-    height: 4vh;
+    height: 40px;
     background: #EEF3FE;
     border-bottom: 1px solid #DDDDDD;
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
     >div:nth-of-type(1){
-        font-size: 1vh;
+        font-size: 12px;
         font-family: Microsoft YaHei;
         font-weight: bold;
         color: #333333;
-        line-height: 4vh;
-        margin-left: 1vh;
+        line-height: 40px;
+        margin-left: 10px;
     }
     >div:nth-of-type(2){
-        width: 2vh;
-        height: 4vh;
+        width: 20px;
+        height: 38px;
         background: white;
         border-top-left-radius: 50%;
         border-bottom-left-radius: 50%;
@@ -1276,35 +1277,7 @@ export default {
     background: #FFFFFF;
     box-sizing: border-box;
     padding: 10px;
-    >div:nth-of-type(1){
-        margin-bottom: 2vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        .row_item_bottom_left_input{
-            /deep/  .el-input__inner{
-                height: 3vh;
-                line-height: 3vh;
-                font-size: 1vh;
-                border-radius: 0px;
-            }
-        }
-        .row_item_bottom_left_search_icon{
-             height: 3vh;
-             width: 3vh;
-             box-sizing: border-box;
-             border: 1px solid #DDDDDD;
-             border-left: 0px;
-             display: flex;
-             justify-content: center;
-             align-items: center;
-             i{
-                color: #BBBBBB;
-             }
-             cursor: pointer;
-        }
-    }
-     /deep/ .row_item_bottom_left_userIcon{
+    /deep/ .row_item_bottom_left_userIcon{
         color: #F19B04 !important;
     }
     /deep/  .el-tree-node.is-current > .el-tree-node__content {
@@ -1317,10 +1290,11 @@ export default {
     flex-direction: column;
 }
 .row_item_middle_top{
-    height: 4vh;
+    height: 40px;
     background: #EEF3FE;
     border-bottom: 1px solid #DDDDDD;
-    padding-left: 1vh;
+    padding-left: 10px;
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -1329,26 +1303,28 @@ export default {
         justify-content: flex-start;
         align-items: center;
         >div{
-            height: 3vh;
-            font-size: 1vh;
+            height: 34px;
+            font-size: 12px;
             font-family: Microsoft YaHei;
             font-weight: 400;
-            line-height: 3vh;
-            padding: 0px 0.5vh;
+            line-height: 34px;
+            padding: 0px 4px;
+            box-sizing: border-box;
             cursor: pointer;
         }
         .select_item{
             background: #FFFFFF;
             border: 1px solid #DDDDDD;
+            height: 35px;
             border-bottom: 0px;
-            position: relative;
-            left: 0px;
-            bottom: -1px;
+            // position: relative;
+            // left: 0px;
+            // bottom: 0px;
         }
     }
     >div:nth-of-type(2){
-        width: 2vh;
-        height: 4vh;
+        width: 20px;
+        height: 38px;
         background: white;
         border-top-left-radius: 50%;
         border-bottom-left-radius: 50%;
@@ -1369,28 +1345,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    .row_item_bottom_left_input{
-        /deep/  .el-input__inner{
-            height: 3vh;
-            line-height: 3vh;
-            font-size: 1vh;
-            border-radius: 0px;
-        }
-    }
-    .row_item_bottom_left_search_icon{
-        height: 3vh;
-        width: 3vh;
-        box-sizing: border-box;
-        border: 1px solid #DDDDDD;
-        border-left: 0px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        i{
-            color: #BBBBBB;
-        }
-        cursor: pointer;
-    }
     /deep/ .row_item_bottom_left_userIcon{
         color: #F19B04 !important;
     }
@@ -1427,7 +1381,6 @@ export default {
         overflow-y: scroll;
         .devices_item{
             width: 100%;
-            // height: 90px;
             box-sizing: border-box;
             padding: 10px 5px 0px 5px;
             background: #FFFFFF;
@@ -1439,11 +1392,11 @@ export default {
                 justify-content: flex-start;
                 align-items: center;
                 .devices_item_top_avatar{
-                    margin: 0px 1vh;
+                    margin: 0px 6px;
                 }
                 .devices_item_top_right{
                     flex:1;
-                    margin-bottom: 1vh;
+                    // margin-bottom: 10px;
                     .devices_item_top_right_top{
                         display: flex;
                         justify-content: space-between;
@@ -1453,6 +1406,9 @@ export default {
                             font-family: Microsoft YaHei;
                             font-weight: 400;
                             color: #333333;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
                         }
                         .devices_item_top_right_top_right{
                             font-size: 12px;
@@ -1469,12 +1425,12 @@ export default {
                         justify-content: flex-start;
                         align-items: center;
                         >div:nth-of-type(1){
-                            width: 3vh;
-                            height: 1.5vh;
+                            width: 26px;
+                            height: 12px;
                             border: 1px solid #A9A9A9;
-                            border-radius: 0.3vh;
+                            border-radius: 3px;
                             position: relative;
-                            margin-right: 1vh;
+                            margin-right: 10px;
                             padding: 1px 0px 1px 1px;
                             box-sizing: border-box;
                             >div{
@@ -1514,17 +1470,31 @@ export default {
                     height: auto;
                     line-height: 1;
                     border-bottom: 0px !important;
-                    padding-top: 10px;
-                    padding-bottom: 10px;
+                    padding-top: 6px;
+                    padding-bottom: 6px;
                     border-right: 1px solid #EEEEEE;
                 }
-                 /deep/ .el-menu--horizontal>.el-submenu .el-submenu__title{
+                /deep/ .el-menu--horizontal>.el-submenu .el-submenu__title{
                     height: auto;
                     line-height: 1;
                     border-bottom: 0px !important;
-                    padding-top: 10px;
-                    padding-bottom: 10px;
-                 }
+                    padding-top: 6px;
+                    padding-bottom: 6px;
+                }
+                /deep/ .el-menu-item{
+                    font-size: 12px;
+                }
+                /deep/ .el-submenu__title{
+                    font-size: 12px;
+                }
+                /deep/ .el-menu{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                /deep/ .el-menu .el-menu-item{
+                    flex-grow: 1;
+                }
             }
         }
         .devices_item_T{
