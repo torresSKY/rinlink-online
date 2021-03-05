@@ -6,41 +6,28 @@
                     <el-row>
                         <span>{{$t('view.customerList')}}</span>
                     </el-row>
-                    <el-row style="margin-top:10px">
-                        <el-input :placeholder="$t('view.searchUser')" v-model="input3" class="input-with-select">
+                    <el-row style="margin:10px 0">
+                        <el-input :placeholder="$t('view.searchUser')" v-model="searchType" clearable class="input-with-select">
                             <el-button slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                     </el-row>
                     <el-row :style="{height:70 + 'vh'}">
-                        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                        <el-tree :data="businessData" :props="defaultProps" ref="tree" 
+                        @node-click="handleNodeClick"></el-tree>
                     </el-row>
                 </el-card>
             </el-col>
             <el-col :span='20'>
                 <el-card>
                     <span>上海零零智能科技有限公司</span>&nbsp;
-                    账号：<span>admin</span>&nbsp;
-                    手机：<span>151125151212</span>
+                    {{$t('table.count')}}：<span>admin</span>&nbsp;
+                    {{$t('table.phone')}}：<span>151125151212</span>
                 </el-card>
                 <el-row :gutter="22" style="margin-top:10px">
                     <el-col :span='4'>
                         <el-input v-model="input3" :placeholder="$t('view.searchUser')"></el-input>
                     </el-col>
-                    <el-col :span='5' style="line-height:40px">
-                        <el-col :span='8'>
-                            <span>{{$t('view.customerType')}}：</span>
-                        </el-col>
-                        <el-col :span='15'>
-                            <el-select v-model="value" :placeholder="$t('view.customerType')">
-                              <el-option
-                                v-for="item in options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                              </el-option>
-                            </el-select>
-                        </el-col> 
-                    </el-col>
+
                     <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col>
@@ -52,21 +39,25 @@
                 <el-row style="margin-top:10px">
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
                 </el-row>
+                <el-pagination
+                    @current-change='changeindex'
+                    layout="prev, pager, next"
+                    :current-page.sync="page.index"
+                    :page-size="page.size"
+                    :total="page.total"
+                    background
+                    style="text-align:center">
+                </el-pagination>
             </el-col>
         </el-row>
         <!-- 添加/编辑客户 -->
         <el-dialog
             :title="isEdit? $t('button.editCustomer'): $t('button.addCustomer')"
             :visible.sync="dialogCustomer"
-            width="60%">
+            width="30%">
             <el-row :gutter="22">
-                <el-col :span='12'>
+                <el-col :span='24'>
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
-                        <el-form-item :label="$t('view.superiorUser')" prop="name">
-                           <el-input v-model="customerForm.name" class="input-with-select">
-                               <el-button slot="append" icon="el-icon-caret-right"></el-button>
-                           </el-input>
-                        </el-form-item>
                         <el-form-item :label="$t('view.username')" prop="name">
                            <el-input v-model="customerForm.name"></el-input>
                         </el-form-item>
@@ -78,16 +69,6 @@
                         </el-form-item>
                         <el-form-item :label="$t('view.confirmPaw')" prop="name">
                            <el-input v-model="customerForm.name"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('view.user')" prop="name">
-                           <el-select v-model="value" :placeholder="$t('view.user')">
-                              <el-option
-                                v-for="item in options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                              </el-option>
-                            </el-select>
                         </el-form-item>
                         <el-form-item :label="$t('table.contacts')" prop="name">
                            <el-input v-model="customerForm.name"></el-input>
@@ -103,16 +84,16 @@
                         </el-form-item>
                     </el-form>    
                 </el-col>
-                <el-col :span='12'>
+                <!-- <el-col :span='12'>
                   <el-row :gutter="22">
                     <el-input :placeholder="$t('view.searchUser')" v-model="input3" class="input-with-select">
                       <el-button slot="append" icon="el-icon-search"></el-button>
                     </el-input>
                   </el-row>
                   <el-row :gutter="22" style="margin-top:10px">
-                    <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                    <el-tree :data="businessData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
                   </el-row>
-                </el-col>
+                </el-col> -->
             </el-row>
             <span slot="footer" class="dialog-footer">
               <el-button @click="dialogCustomer = false">{{$t('button.cancel')}}</el-button>
@@ -156,45 +137,12 @@ export default {
   },
   data() {
     return {
+      searchType:'',
       input3:'',
-      data: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1',
-            children: [{
-              label: '三级 1-1-1'
-            }]
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1',
-            children: [{
-              label: '三级 2-1-1'
-            }]
-          }, {
-            label: '二级 2-2',
-            children: [{
-              label: '三级 2-2-1'
-            }]
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1',
-            children: [{
-              label: '三级 3-1-1'
-            }]
-          }, {
-            label: '二级 3-2',
-            children: [{
-              label: '三级 3-2-1'
-            }]
-          }]
-        }],
+      businessData: [],
         defaultProps: {
           children: 'children',
-          label: 'label'
+          label: 'username'
         },
         value:'',
         options:[],
@@ -203,11 +151,10 @@ export default {
         dataList: [],
         tableLabel: [
         {label: this.$t('table.index'), type: 'index'},
-        {label: this.$t('table.customerName'), prop: 'serial_number'},
-        {label: this.$t('table.count'), prop: 'category'},
-        {label: this.$t('table.phone'), prop: 'partner_contacts'},
-        {label: this.$t('view.customerType'), prop: 'partner_contacts'},
-        {label: this.$t('table.contacts'), prop: 'partner_contacts'},
+        {label: this.$t('table.customerName'), prop: 'nickname'},
+        {label: this.$t('table.count'), prop: 'username'},
+        {label: this.$t('table.phone'), prop: 'phoneNumber'},
+        {label: this.$t('table.contacts'), prop: 'presonToConcat'},
         {label: this.$t('table.equNo'),
           type: 'clickEvent',
           tableClick: (val) => {
@@ -229,7 +176,7 @@ export default {
       customerForm:{
           name:''
       },
-      rules:[],
+      rules:{},
       dialogPwd:false,
       pwdForm:{
         username:'',
@@ -244,9 +191,69 @@ export default {
     }
   },
   mounted() {
-
+    this.getlist()
+    this.getBusiness()
   },
   methods: {
+    getlist(){ // 获取客户列表
+        this.loading = true
+        api.getBusinessList().then(res => {
+          this.loading = false
+          this.dataList = res.data.content
+          this.page.total = res.data.pageTotal
+        }).catch(err => {
+          this.loading = false
+          this.dataList = []
+          this.$message.error(err.errMsg)
+        })
+    },
+    getBusiness(){ // 获取代理商
+      api.getBusiness().then(res => {
+          let data = res.data
+          this.businessData = this.setTreeData(data)
+          this.getBusinessUserinfo(res.data[0].userId)
+          // console.log(this.businessData)
+        }).catch(err => {
+          this.businessData = []
+          this.$message.error(err.errMsg)
+        })
+    },
+    getBusinessUserinfo(userId){ // 获取客户信息
+      api.getBusinessUserinfo({params: {
+          userId: userId,
+        }}).then(res => {
+          let data = res.data
+
+        }).catch(err => {
+
+          this.$message.error(err.errMsg)
+        })
+    },
+    setTreeData(arr){ // 遍历代理商
+        // 删除所有的children,以防止多次调用
+        arr.forEach(function(item) {
+            delete item.children;
+        });
+        
+        let map = {}; //构建map
+        arr.forEach(i => {
+            map[i.userId] = i; //构建以id为键 当前数据为值
+        });
+        let treeData = [];
+        arr.forEach(child => {
+            // debugger
+            const mapItem = map[child.parentId]; //判断当前数据的parentId是否存在map中
+            if (mapItem) {
+                //存在则表示当前数据不是最顶层的数据
+                //注意： 这里的map中的数据是引用了arr的它的指向还是arr,当mapItem改变时arr也会改变，踩坑点
+                (mapItem.children || (mapItem.children = [])).push(child); //这里判断mapItem中是否存在child
+            } else {
+                //不存在则是顶层数据
+                treeData.push(child);
+            }
+        });
+        return treeData;
+    },
     handleNodeClick(data) { // 选择用户节点
         console.log(data)
     },

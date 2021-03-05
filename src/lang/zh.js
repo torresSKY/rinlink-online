@@ -503,6 +503,7 @@ export default {
     other:'其他'
   },
   message: {
+    upload:'请上传文件',
     username:'请输入账号',
     nickname:'请输入管理员名称',
     selCommun:'请选择通信协议',

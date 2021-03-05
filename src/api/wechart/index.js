@@ -53,7 +53,7 @@ const getUsersList = (obj) => {
 const url = 'http://rap2api.taobao.org/app/mock/277955'
 
 const getManagerList = (data) => (   //分页查询系统管理员
-    axios.post(url+'/paging_query_system_manager_user', data)
+    axios.post(url+'/paging_query_system_manager_users', data)
 )
 const addManager = (data) => (   //添加系统管理员
     axios.post(url+'/create_system_manager_user', data)
@@ -90,6 +90,21 @@ const getShipmentList = (data) => (   //分页查询出货的设备
 )
 const shipment = (data) => (   //出货
     axios.post(url+'/shipment_device', data)
+)
+const batchShipment = (data) => (   //批量出货
+    axios.post(url+'/batch_shipment_device', data)
+)
+const uploadDeviceNumber = (data) => (   //上传文件-设备号
+    axios.post(url+'/upload_device_number', data)
+)
+const getBusinessList = (data) => (   //分页查询客户
+    axios.post(url+'/paging_query_business_users', data)
+)
+const getBusinessUserinfo = (data) => (   //获取客户信息
+    axios.post(url+'/get_business_user_info', data)
+)
+const searchBusiness = (data) => (   //获取客户信息
+    axios.post(url+'/search_business_users', data)
 )
 const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models', data)
@@ -148,7 +163,12 @@ export default {
     deleRoles,
     getShipmentList,
     shipment,
+    batchShipment,
     getBusiness,
+    uploadDeviceNumber,
+    getBusinessList,
+    getBusinessUserinfo,
+    searchBusiness,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

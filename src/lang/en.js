@@ -484,6 +484,7 @@ export default {
     params28:'Withdraw'
   },
   message: {
+    upload:'Please upload the file',
     username:'Please enter the account number',
     nickname:'Please enter the administrator name',
     selCommun:'Please select the communication protocol',

@@ -140,8 +140,10 @@ export default{
         getlist(){ // 获取设备型号列表
             this.loading = true
             api.getModelList({params: {
-              pageSize: this.page.size,
-              page: this.page.index - 1,
+              paging:{
+                pageSize: this.page.size,
+                page: this.page.index - 1,
+              },
               deviceModelName: this.deviceModelName,
             }}).then(res => {
               this.loading = false

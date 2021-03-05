@@ -127,8 +127,10 @@
               <el-form-item :label="$t('table.imei')" prop="deviceNumber" v-if="!isMore">
                   <el-input v-model="shipmentForm.deviceNumber" :placeholder="$t('table.imei')"></el-input>
               </el-form-item>
-              <el-form-item :label="$t('view.upfile')" prop="name" v-if="isMore">
-                  <el-input v-model="shipmentForm.name" :placeholder="$t('view.upfile')"></el-input>
+              <el-form-item :label="$t('view.upfile')"  v-if="isMore">
+                  <el-upload class="upload-demo" ref="upload" :limit="1" accept=".xls, .xlsx" action="string" :file-list="fileList" :show-file-list="true" :auto-upload="false"  :on-remove="handleRemove" :on-change="handleChange" >
+                    <el-button slot="trigger" size="medium" type="primary">{{$t('button.clickip')}}</el-button>
+                  </el-upload>
               </el-form-item>
               <el-form-item :label="$t('table.isCard')" prop="isWithCard">
                  <el-select v-model="shipmentForm.isWithCard" :placeholder="$t('table.isCard')">
@@ -151,7 +153,8 @@
                   </el-select>
               </el-form-item>
               <el-form-item :label="$t('table.activationType')" prop="activationType">
-                 <el-select v-model="shipmentForm.activationType" :placeholder="$t('table.activationType')">
+                 <el-select v-model="shipmentForm.activationType" :placeholder="$t('table.activationType')"
+                  @change="changeActivationType">
                     <el-option
                       v-for="item in activationoptions"
                       :key="item.value"
@@ -160,6 +163,14 @@
                     </el-option>
                   </el-select>
               </el-form-item>
+              <el-form-item :label="$t('table.activationTime')" prop="activationTime" v-if="shipmentForm.activationType==2">
+                 <el-date-picker
+                    v-model="shipmentForm.activationTime"
+                    type="date"
+                    value-format="timestamp"
+                    :placeholder="$t('table.activationTime')">
+                  </el-date-picker>
+              </el-form-item>
               <el-form-item :label="$t('table.batch')" >
                   <el-input v-model="shipmentForm.batchNumber" :placeholder="$t('table.batch')"></el-input>
               </el-form-item>
@@ -167,13 +178,14 @@
                   <el-date-picker
                     v-model="shipmentForm.productionDate"
                     type="date"
+                    value-format="timestamp"
                     :placeholder="$t('table.date')">
                   </el-date-picker>
               </el-form-item>
           </el-form>      
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogShipment = false">{{$t('button.cancel')}}</el-button>
-            <el-button type="primary" @click="dialogShipment = false">{{$t('button.determine')}}</el-button>
+            <el-button type="primary" @click="confrimShipment">{{$t('button.determine')}}</el-button>
           </span>
         </el-dialog>
     </div>
@@ -286,7 +298,12 @@ export default{
           activationType: [
             { required: true, message: this.$t('table.activationType'), trigger: 'change' }
           ],
-        }
+          activationTime:[
+            { type: 'date', required: true, message: this.$t('table.activationTime'), trigger: 'change' }
+          ]
+        },
+        fileList:[],
+        uploadDeviceNumber:''
       }
     },
     mounted(){
@@ -305,8 +322,10 @@ export default{
               end = this.timevalue[1]
             }
             api.getShipmentList({params: {
-              pageSize: this.page.size,
-              page: this.page.index - 1,
+              paging:{
+                pageSize: this.page.size,
+                page: this.page.index - 1,
+              },
               deviceNumber:this.deviceNumber,
               deviceModelId:this.deviceModelId,
               businessUserId:this.businessUserId,
@@ -348,12 +367,130 @@ export default{
         sell(data){  // 出货/批量出货
             if(data=='one'){
                 this.isMore = false
+                this.shipmentForm = {
+                    deviceModelId:'',
+                    businessUserId:'',
+                    deviceNumber:'',
+                    isWithCard:'',
+                    usageYears:'',
+                    activationType:'',
+                    activationTime:'',
+                    batchNumber:'',
+                    productionDate:''
+                }
             }else{
                 this.isMore = true
+                this.fileList = []
+            }
+            if(this.$refs['shipmentForm']){
+              this.$refs['shipmentForm'].resetFields()
             }
             this.dialogShipment = true
+        },
+        confrimShipment(){ // 确认出货
+          this.$refs['shipmentForm'].validate((valid) => {
+            if (valid) {
+              var data = null
+              if(!this.isMore){
+                data = {
+                  deviceModelId:this.shipmentForm.deviceModelId,
+                  businessUserId:this.shipmentForm.businessUserId,
+                  deviceNumber:this.shipmentForm.deviceNumber,
+                  isWithCard:this.shipmentForm.isWithCard,
+                  usageYears:this.shipmentForm.usageYears,
+                  activationType:this.shipmentForm.activationType,
+                  activationTime:this.shipmentForm.activationTime,
+                  batchNumber:this.shipmentForm.batchNumber,
+                  productionDate:this.shipmentForm.productionDate
+                }
+                api.shipment(data).then(res => {
+                  // debugger
+                  if(res.msg=='OK'){
+                    this.$message.success(this.$t('message.success'))
+                    this.$refs['shipmentForm'].resetFields()
+                    this.dialogShipment = false
+                    this.getlist()
+                  }else {
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.errMsg)
+                })
+              }else {
+                if(!this.uploadDeviceNumber){
+                  return this.$message.warning(this.$t('message.upload'))
+                }
+                data = {
+                  deviceModelId:this.shipmentForm.deviceModelId,
+                  businessUserId:this.shipmentForm.businessUserId,
+                  uploadDeviceNumber:this.uploadDeviceNumber,
+                  isWithCard:this.shipmentForm.isWithCard,
+                  usageYears:this.shipmentForm.usageYears,
+                  activationType:this.shipmentForm.activationType,
+                  activationTime:this.shipmentForm.activationTime,
+                  batchNumber:this.shipmentForm.batchNumber,
+                  productionDate:this.shipmentForm.productionDate
+                }
+                api.batchShipment(data).then(res => {
+                  // debugger
+                  if(res.msg=='OK'){
+                    this.$message.success(this.$t('message.success'))
+                    this.$refs['shipmentForm'].resetFields()
+                    this.dialogShipment = false
+                    this.getlist()
+                  }else {
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.errMsg)
+                })
+              }
+               
+            } else {
+              this.$message.warning(this.$t('message.checkmsg'))
+              return false
+            }
+          })
+        },
+        changeActivationType(data){ // 选择激活类型
+          console.log(data)
+          if(data!=2){
+            this.shipmentForm.activationTime = ''
+          }
+        },
+        handleRemove(){ // 移除上传的文件
+          this.fileList = []
+          this.uploadDeviceNumber = ''
+        },
+        handleChange (file, fileList) { // 上传文件
+          // const isLt2M = file.size / 1024 / 1024 < 2
+          // if (!isLt2M) {
+          //   this.$message.warning('mp3 不能大于 2 MB')
+          //   this.fileList = []
+          //   return
+          // }
+          const _file = file.raw
+          let formData = new FormData()
+          formData.append('file', _file)
+          let config = {
+            headers: { 'Content-Type': 'multipart/form-data' } // 这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
+          }
+          api
+          .uploadDeviceNumber(formData, config)
+          .then(res => {
+            if (res.msg=='OK') {
+              this.$message.success(this.$t('message.success'))
+              this.uploadDeviceNumber = res.data.id
+            } else {
+              this.uploadDeviceNumber = ''
+              this.$message.error(res.msg)
+            }
+          })
+          .catch(err => {
+            this.uploadDeviceNumber = ''
+            this.$message.error(err.errMsg)
+          })
         }
-    
    },
   // 过滤器格式化时间戳
   filters: {

@@ -6,6 +6,15 @@
         <el-row :gutter="22" style="margin-top:10px">
             <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
         </el-row>
+        <el-pagination
+                    @current-change='changeindex'
+                    layout="prev, pager, next"
+                    :current-page.sync="page.index"
+                    :page-size="page.size"
+                    :total="page.total"
+                    background
+                    style="text-align:center">
+                </el-pagination>
         <!-- 添加/编辑角色 -->
         <el-dialog
             :title="isEdit? $t('button.editrole'): $t('button.addrole')"
