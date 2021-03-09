@@ -91,12 +91,12 @@
             <el-col class="row_item" :span="16" :style="{height:height +'px'}">
                 <div class="row_item_right">
                     <!-- 首次展示头部 -->
-                    <div class="row_item_right_top" v-if="!playback_top_flag">
+                    <div class="row_item_right_top" v-if="playback_top_flag">
                         <div>D600N测试1：上海市闵行区辛庄镇辛庄中心1号楼</div>
                         <el-checkbox v-model="checkbox_n">显示设备名称</el-checkbox>
                     </div>
                     <!-- 回放头部 -->
-                    <div class="playback_top" v-if="playback_top_flag">
+                    <div class="playback_top" v-if="!playback_top_flag">
                         <el-row type="flex" align="middle" class="playback_top_top">
                             <el-col :span="4">
                                 <span class="playback_top_text">设备名称</span>
@@ -715,7 +715,9 @@ export default {
         this.map = new BMap.Map("map2");
         this.map.enableScrollWheelZoom(true); 
         this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
-        
+        this.map.addControl(new BMap.NavigationControl());    
+        this.map.addControl(new BMap.ScaleControl());    
+        this.map.addControl(new BMap.OverviewMapControl());       
     },
     methods: {
         evt_change_type:function(e){
@@ -1530,7 +1532,7 @@ export default {
 }
 .row_item_right_top{
     width: 100%;
-    height: 4vh;
+    height: 40px;
     border-bottom: 1px solid #DDDDDD;
     box-sizing: border-box;
     padding: 0px 20px;
@@ -1538,7 +1540,11 @@ export default {
     justify-content: space-between;
     align-items: center;
     >div:nth-of-type(1){
+        font-size: 12px;
+        font-family: Source Han Sans CN;
+        font-weight: 400;
         color: #666666;
+        line-height: 40px;
     }
 }
 #map2{
@@ -1829,6 +1835,13 @@ export default {
     /deep/ .el-table th {
         background: #F2F2F2 !important;
     }
+}
+/deep/ .anchorBL {
+    display: block; 
+}
+
+/deep/ .BMap_cpyCtrl {
+    display: block; 
 }
 
 .search{

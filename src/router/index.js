@@ -50,7 +50,7 @@ const list={
         component: _import('index'),
         icon: 'chuweilan',
         roles:[0,1,88,99],
-        children: [{path: 'control',name: 'button.control',component: () =>import('@/views/wechart/electric'),hidden: true,meta: { keep: 'equs'},radius:true,roles:[0,1,88,99],}]
+        children: [{path: 'control',name: 'button.control',component: () =>import('@/views/wechart/monitorPlatform'),hidden: true,meta: { keep: 'equs'},radius:true,roles:[0,1,88,99],}]
       },
       {
         path: '/Statistics',
