@@ -23,7 +23,9 @@
                     <div class="search_content">
                         <div class="search_content_title">
                             <div>{{$t('view.fence1')}}</div>
-                            <div @click='showAdd'>添加围栏</div>
+                            <!-- <div @click='showAdd'>添加围栏</div> -->
+                            <div @click='evt_add_pen'>添加围栏</div>
+                            <div v-if="add_pen_hint_flag" class="add_pen_hint">请在地图上单击鼠标左键框选区域</div>
                         </div>
                         <div class="search_content_list" v-infinite-scroll>
                             <template v-if='list.length > 0'>
@@ -44,41 +46,20 @@
                             <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>{{$t('table.temporarily')}}</span></div>
                         </div>
                     </div>
-                    
-                    <el-card :hidden='addview' class='addele' :style="{height:height+'px'}">
-                        <div class='title'>
-                            <span v-if='editfen'>{{$t('view.fence6')}}</span>
-                            <span v-else>{{$t('view.fence5')}}</span>
-                        </div>
-                        <div class='addlist'>
-                            <span>{{$t('view.fence2')}}</span>
-                            <el-input v-model='fenceName' maxlength="20"></el-input>
-                        </div>
-                        <div class='addlist'>
-                            <span>{{$t('view.fence4')}}</span>
-                            <el-input id='fenceradio' v-model='address' :placeholder='address2'></el-input>
-                        </div>
-                        <div class='addlist'>
-                            <span>{{$t('view.fence3')}}</span>
-                            <el-input v-model='fenceRadio' type="number"></el-input>
-                        </div>
-                        <div class='addlist'>
-                            <span>{{$t('view.fence7')}}</span>
-                            <el-checkbox-group v-model="inala">
-                                <el-checkbox :label="0" value='0'>{{$t('view.fence8')}}</el-checkbox>
-                                <el-checkbox :label="1" value='1'>{{$t('view.fence9')}}</el-checkbox>
-                            </el-checkbox-group>
-                        </div>
-                        <div class='addlist'>
-                            <el-button @click='closeele'>{{$t('view.close')}}</el-button>
-                            <el-button class="butsearch" @click='editfen?addEle():editEle2()'>{{$t('button.save')}}</el-button>
-                        </div>
-                    </el-card>
                 </div>
             </el-col> 
             <el-col :span='18'>
                 <el-card>
-                    <div id="map2" :style="{height:height- 10+'px',overflow:'hidden' }"></div>
+                    <div class="map_container">
+                        <!-- 地图容器 -->
+                        <div id="container" :style="{height:height- 10+'px',overflow:'hidden' }"></div>
+                        <!-- 围栏类型切换 -->
+                        <div class="pen_type">
+                            <el-button :disabled="pen_type_disabled" size="mini" :class="pen_type_value == '1' ? 'pen_type_item' : ''" @click="evt_change_pen_type(1)">圆形</el-button>
+                            <el-button :disabled="pen_type_disabled" size="mini" :class="pen_type_value == '2' ? 'pen_type_item' : ''" @click="evt_change_pen_type(2)">多边形</el-button>
+                            <el-button :disabled="pen_type_disabled" size="mini" :class="pen_type_value == '3' ? 'pen_type_item' : ''" @click="evt_change_pen_type(3)">行政区域</el-button>
+                        </div>
+                    </div>
                 </el-card>
             </el-col>  
         </el-row>
@@ -145,6 +126,48 @@
                 <el-button type="primary" size="small">确定</el-button>
             </div>
         </el-dialog>
+
+        <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" title="添加电子围栏" class="add_pen_round" :visible="add_pen_flag" width="40%" @close="evt_close_addPen">
+            <el-form ref="form" :model="pen_form" :rules="pen_round_rules" size="small" label-width="100px">
+                <el-form-item label="围栏名称:"  required>
+                    <el-input v-model="pen_form.fenceName" style="width:80%"></el-input>
+                </el-form-item>
+                <el-form-item v-if="pen_type_value == '1'" label="半径:"  required>
+                    <el-input  v-model="pen_form.fenceArea.radius" style="width:80%"></el-input><span style="margin-left:10px">米</span>
+                </el-form-item>
+                <el-form-item v-if="pen_type_value == '3'" label="行政区域" required>
+                    <el-select  placeholder="请选择省份" size="small" style="width:32%">
+                      <el-option ></el-option>
+                    </el-select>
+                    <el-select  placeholder="请选择市" size="small" style="width:32%">
+                      <el-option ></el-option>
+                    </el-select>
+                    <el-select  placeholder="请选择区/镇" size="small" style="width:32%">
+                      <el-option ></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="描述:" >
+                    <el-input type="textarea" v-model="pen_form.fenceRemark" style="width:80%"></el-input>
+                </el-form-item>
+                <el-form-item label="进围栏报警:" >
+                    <el-radio-group v-model="pen_form.inAlarm">
+                        <el-radio label="true">启用</el-radio>
+                        <el-radio label="false">禁用</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="出围栏报警:" >
+                    <el-radio-group v-model="pen_form.outAlarm">
+                        <el-radio label="true">启用</el-radio>
+                        <el-radio label="false">禁用</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item>
+                    <el-button @click="evt_close_addPen">取消</el-button>
+                    <el-button @click="evt_submit_addPen" type="primary">确定</el-button>
+                </el-form-item>
+                </el-form>
+        </el-dialog>
+
     </div>
 </template>
 <script>
@@ -192,7 +215,6 @@ export default {
             ac: null,
             userlocation: null,
             searchimei: null,
-            map: null,
             circle: null,
             showlist: true,
             equlist: [],
@@ -333,6 +355,36 @@ export default {
                 label: 'label'
             },
             search_device_key:'',
+
+            map: null,//地图实例
+            pen_type_value: '1',//围栏的样式类型 1圆形2多边形3行政区域
+            add_pen_hint_flag:false,//添加围栏的提示
+            click_point: '',//添加圆形围栏时点击地图时的经纬度
+            add_pen_flag:false,//添加围栏
+            pen_form:{
+                fenceArea:{}
+            },//提交围栏的数据
+            pen_round_rules: {
+                name: [
+                    { required: true, message: '请输入围栏名称', trigger: 'blur' }
+                ],
+                radius: [
+                    { required: true, message: '请输入围栏半径', trigger: 'blur' },
+                    { type: 'number', message: '半径必须为数字值'}
+                ]
+            },
+            point_arr:[],//添加多边形围栏的经纬度数组
+            opts:{
+                strokeColor:'#FF5D5D',
+                fillColor:'#FF5D5D',
+                strokeWeight: 1,
+                strokeOpacity: 1,
+                fillOpacity: 0.3,
+                strokeStyle: 'solid'
+            },//绘制多边形的样式
+            drawingManager:null,
+            current_polygon:'',//当前绘制的多边形
+            pen_type_disabled:false,//围栏类型是否可选
         }
     },
     watch: {
@@ -364,7 +416,8 @@ export default {
         }
     },
     mounted(){
-        this.height = document.body.offsetHeight - 60
+        var _this = this;
+        _this.height = document.body.offsetHeight - 60
         // if(this.imei != null){
         //     this.showedit = false
         //     this.getoneele()
@@ -375,14 +428,112 @@ export default {
         // this.setMap()
         // this.getgroup()
         
-        this.map = new BMap.Map("map2");
-        this.map.enableScrollWheelZoom(true); 
-        this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
+        _this.map = new BMap.Map("container");
+        _this.map.enableScrollWheelZoom(true); 
+        _this.map.disableDoubleClickZoom();
+        _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
+        _this.map.addControl(new BMap.NavigationControl()); 
+
+        _this.drawingManager = new BMapLib.DrawingManager(_this.map,{
+            polygonOptions:_this.opts
+        });  
+        _this.map.addEventListener('click',function(e){
+            if(_this.pen_type_value == '1' && _this.add_pen_hint_flag){
+                _this.click_point = e.point;
+                _this.add_pen_flag = true;
+            }
+        })
+        _this.map.addEventListener('mouseout',function(e){
+            
+        })
     },
     methods: {
+        // 关闭关联设备弹框
         evt_close:function(){
             this.showlist = true;
         },
+        // 切换要创建的围栏类型
+        evt_change_pen_type:function(value){
+            if(this.pen_type_value == value) return;
+            this.pen_type_value = value;
+            this.add_pen_hint_flag = false;
+        },
+        // 显示添加围栏的提示
+        evt_add_pen:function(){
+            var _this = this;
+            if(_this.pen_type_value == '3'){
+                _this.add_pen_flag = true;
+                return;
+            }
+            _this.add_pen_hint_flag = true;
+            // 添加多边形围栏
+            if(_this.pen_type_value == '2'){
+                _this.pen_type_disabled = true;
+                _this.drawingManager.open();
+                _this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON); 
+                _this.drawingManager.addEventListener('overlaycomplete',function(e){
+                    // console.log(e.overlay);
+                    _this.pen_type_disabled = false;
+                    _this.current_polygon = e.overlay;
+                    var point_arr = e.overlay.getPath();
+                    for(let i = 0, len = point_arr.length; i < len; i++){
+                        _this.point_arr.push(point_arr[i]);
+                    } 
+                    _this.add_pen_flag = true;
+                    _this.drawingManager.close();
+                    _this.drawingManager.removeEventListener('overlaycomplete');
+                })
+           }
+        },
+        // 关闭取消添加围栏弹框
+        evt_close_addPen:function(){
+            this.add_pen_hint_flag = false;
+            this.add_pen_flag = false;
+            if(this.pen_type_value == '2'){
+                this.map.removeOverlay(this.current_polygon);
+                this.current_polygon = '';
+            }
+        },
+        // 添加围栏
+        evt_submit_addPen:function(){
+            var _this = this;
+            // 圆形围栏
+            if(_this.pen_type_value == '1'){
+                _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
+                _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
+                api.createCircleFence(_this.pen_form).then((res) => {
+                    console.log(res);
+                    if(res.success && res.msg == "OK"){
+                        _this.pen_form = {fenceArea:{}};
+                        _this.add_pen_hint_flag = false;
+                        _this.add_pen_flag = false;
+                        _this.$message({message: '添加成功',type:'success',offset:'200',duration:'1000'});
+                    }else{
+                         _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                    }
+                }).catch((err) => {
+                    _this.$message({message: '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                })
+            }else if(_this.pen_type_value == '2'){
+                // 多边形围栏
+                _this.pen_form.fenceArea['points'] = _this.point_arr;
+                api.createPolygonFence(_this.pen_form).then((res) => {
+                    if(res.success && res.msg == "OK"){
+                        _this.pen_form = {fenceArea:{}};
+                        _this.add_pen_hint_flag = false;
+                        _this.add_pen_flag = false;
+                        _this.map.removeOverlay(this.current_polygon);
+                        _this.current_polygon = '';
+                        _this.$message({message: '添加成功',type:'success',offset:'200',duration:'1000'});
+                    }else{
+                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                    }
+                }).catch((err) => {
+                    _this.$message({message: '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                })
+            }
+        },
+        
         goBack(){
             this.$router.push({name:'route.List'})
         },
@@ -932,8 +1083,40 @@ export default {
         font-family: Microsoft YaHei;
         font-weight: 400;
         color: #666666;
+        position: relative;
         >div:nth-of-type(2){
             cursor: pointer;
+        }
+        .add_pen_hint{
+            width: 80px;
+            background: #FFFFFF;
+            border: 1px solid #CCCCCC;
+            box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-family: Microsoft YaHei;
+            font-weight: 400;
+            color: #666666;
+            line-height: 16px;
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            right: -88px;
+            transform: translateY(-50%);
+            z-index: 99;
+        }
+        .add_pen_hint::before{
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid #CCCCCC;
+            border-left: 2px solid #CCCCCC;
+            background: #ffffff;
+            position: absolute;
+            top: 50%;
+            left: -6px;
+            transform: translateY(-50%) rotate(-45deg);
         }
     }
     .search_content_list{
@@ -1091,6 +1274,55 @@ export default {
     justify-content: center;
     align-items: center;
 }
+.map_container{
+    position: relative;
+    .pen_type{
+        display: flex;
+        justify-items: center;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 99;
+        >div{
+            padding: 5px 10px;
+            background: #FFFFFF;
+            border: 1px solid #CCCCCC;
+            box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 12px;
+            font-family: Source Han Sans CN;
+            font-weight: 400;
+            color: #999999;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .pen_type_item{
+            background-color: #5E8BFF;
+            color: #FFFFFF;
+            border: 1px solid #5E8BFF;
+            box-shadow: 0px 0px 4px 0px rgba(94, 139, 255, 0.2);
+        }
+    }
+}
+.add_pen_round{
+
+    /deep/ .el-dialog__header{
+        padding: 12px;
+        background: rgba(100, 142, 248, 1);
+    }
+    /deep/ .el-dialog__title{
+        font-size: 14px;
+        color: #ffffff;
+    }
+    /deep/ .el-dialog__headerbtn .el-dialog__close{
+        color: #ffffff;
+    }
+    /deep/ .el-dialog__headerbtn{
+        top: 14px;
+    }
+}
+
 /deep/ .el-table th.is-leaf{
         background: #f2f2f2 !important;
 }
