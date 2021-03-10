@@ -100,6 +100,17 @@ const list={
           {path: 'modelManage',name: 'route.setting',component: () =>import('@/views/wechart/modelManage'),hidden: true,radius:true,roles:[0,1,88,99],},
         ]
       },
+      {
+        path: '/notice',
+        name: 'route.notice',
+        radius:false,
+        roles:[0,1,88,99],
+        component: _import('index'),
+        redirect: '/notice/alarm',
+        children: [
+          {path: 'alarm',name: 'route.notice',component: () =>import('@/views/wechart/notice'),hidden: true,radius:false,roles:[0,1,88,99],},
+        ]
+      },
       // {
       //   path: '/log',
       //   name: 'table.operLog',

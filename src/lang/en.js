@@ -21,9 +21,11 @@ export default {
     control:'Console',
     statistics:'Statistics list',
     sell:'shipping management',
-    setting:'System settings'
+    setting:'System settings',
+    notice:'notice',
   },
   button: {
+    allHandle:'Deal with it all',
     sale:'sale',
     moveLable:'Move to another label',
     SIM:'SIM card information',
@@ -67,6 +69,11 @@ export default {
     editCustomer:'Edit customer'
   },
   view: {
+    sysNotice:'System notification',
+    msgNotice:'Message notification',
+    pse:'Platform service expiration',
+    expNotice:'Expiration notice',
+    alaNotice:'Alarm notification',
     changeSalesdate:'Do not change sales date',
     sellTo:'Sell to',
     selEqu:'Selected devices',
@@ -136,6 +143,8 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    noticeTime:'Notice time',
+    noticeContent:'Notice content',
     timeType:'Time type',
     orderMsg:'order message',
     template:'Instruction template',
@@ -554,6 +563,9 @@ export default {
     area:'Please select region',
     checkmsg:'Please complete the information',
     weilanpath:'Fence radius should be greater than 0',
-    selGuanLian:'Please select the device to be associated'
+    selGuanLian:'Please select the device to be associated',
+    selOne:'Please select one to process data',
+    selUnprocessed:'Please select unprocessed data',
+    handleAll:'Are you sure to deal with all unprocessed alarm information uniformly?',
   }
 }

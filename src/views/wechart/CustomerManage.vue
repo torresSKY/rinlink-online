@@ -58,29 +58,29 @@
             <el-row :gutter="22">
                 <el-col :span='24'>
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
-                        <el-form-item :label="$t('view.username')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('view.username')" prop="nickname">
+                           <el-input v-model="customerForm.nickname"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('view.admin')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('view.admin')" prop="username" v-if="!isEdit">
+                           <el-input v-model="customerForm.username"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('view.paw')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('view.paw')" prop="password" v-if="!isEdit">
+                           <el-input v-model="customerForm.password"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('view.confirmPaw')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('view.confirmPaw')" prop="confirmPaw" v-if="!isEdit">
+                           <el-input v-model="customerForm.confirmPaw"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('table.contacts')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('table.contacts')" prop="personToContact">
+                           <el-input v-model="customerForm.personToContact"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('table.phone')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('table.phone')" prop="phoneNumber">
+                           <el-input v-model="customerForm.phoneNumber"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('view.email')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('view.email')" prop="email">
+                           <el-input v-model="customerForm.email"></el-input>
                         </el-form-item>
-                        <el-form-item :label="$t('table.note')" prop="name">
-                           <el-input v-model="customerForm.name"></el-input>
+                        <el-form-item :label="$t('table.note')" prop="remark">
+                           <el-input v-model="customerForm.remark"></el-input>
                         </el-form-item>
                     </el-form>    
                 </el-col>
@@ -97,7 +97,7 @@
             </el-row>
             <span slot="footer" class="dialog-footer">
               <el-button @click="dialogCustomer = false">{{$t('button.cancel')}}</el-button>
-              <el-button type="primary" @click="dialogCustomer = false">{{$t('button.determine')}}</el-button>
+              <el-button type="primary" @click="confrimCustomer">{{$t('button.determine')}}</el-button>
             </span>
         </el-dialog>
         <!-- 修改密码 -->
@@ -106,19 +106,16 @@
           :visible.sync="dialogPwd"
           width="30%">
           <el-form :model="pwdForm" ref="pwdForm" :rules="pwdRules" label-width="100px">
-                <el-form-item :label="$t('table.username')" prop="username" >
-                  <el-input name="username" v-model="pwdForm.username" :placeholder="$t('table.username')" ></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('view.paw')" prop="password" >
-                  <el-input  name="password"  v-model="pwdForm.password"></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('view.confirmPaw')" prop="confirmPaw" >
-                  <el-input  name="password"  v-model="pwdForm.confirmPaw"></el-input>
-                </el-form-item>
+            <el-form-item :label="$t('view.paw')" prop="password" >
+              <el-input  name="password"  v-model="pwdForm.password"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('view.confirmPaw')" prop="confirmPaw" >
+              <el-input  name="password"  v-model="pwdForm.confirmPaw"></el-input>
+            </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogPwd = false">{{$t('button.cancel')}}</el-button>
-            <el-button type="primary" @click="dialogPwd = false">{{$t('button.determine')}}</el-button>
+            <el-button type="primary" @click="confrimPwd">{{$t('button.determine')}}</el-button>
           </span>
         </el-dialog>
     </div>
@@ -154,7 +151,7 @@ export default {
         {label: this.$t('table.customerName'), prop: 'nickname'},
         {label: this.$t('table.count'), prop: 'username'},
         {label: this.$t('table.phone'), prop: 'phoneNumber'},
-        {label: this.$t('table.contacts'), prop: 'presonToConcat'},
+        {label: this.$t('table.contacts'), prop: 'personToContact'},
         {label: this.$t('table.equNo'),
           type: 'clickEvent',
           tableClick: (val) => {
@@ -174,17 +171,37 @@ export default {
       dialogCustomer: false,
       isEdit:false,
       customerForm:{
-          name:''
+          nickname:'',
+          username:'',
+          password:'',
+          confirmPaw:'',
+          personToContact:'',
+          phoneNumber:'',
+          email:'',
+          remark:'',
+          userId:''
       },
-      rules:{},
+      rules:{
+        nickname: [
+          { required: true, message: this.$t('view.username'), trigger: 'blur' },
+        ],
+        username: [
+          { required: true, message: this.$t('view.admin'), trigger: 'blur' },
+        ],
+        password: [
+          { required: true, message: this.$t('message.pawuser'), min:6, trigger: 'blur' },
+        ],
+        confirmPaw: [
+          { required: true, message: this.$t('message.pawuser'), min:6, trigger: 'blur' },
+        ],
+      },
       dialogPwd:false,
       pwdForm:{
-        username:'',
+        userId:'',
         password:'',
         confirmPaw:''
       },
       pwdRules: {
-        username: [{ required: true, min: 3,  message: this.$t('message.namelong') }],
         password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
         confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
       },
@@ -211,7 +228,7 @@ export default {
       api.getBusiness().then(res => {
           let data = res.data
           this.businessData = this.setTreeData(data)
-          this.getBusinessUserinfo(res.data[0].userId)
+          // this.getBusinessUserinfo(res.data[0].userId)
           // console.log(this.businessData)
         }).catch(err => {
           this.businessData = []
@@ -258,9 +275,166 @@ export default {
         console.log(data)
     },
     addCustomer(){ // 添加客户
+        if(this.$refs['customerForm']){
+          this.$refs['customerForm'].resetFields()
+        }
+        this.customerForm = {
+            userId:'',
+            nickname:'',
+            username:'',
+            password:'',
+            confirmPaw:'',
+            personToContact:'',
+            phoneNumber:'',
+            email:'',
+            remark:''
+        }
         this.dialogCustomer = true 
         this.isEdit = false
 
+    },
+    confrimCustomer(){ // 确认添加/修改客户
+      if (this.customerForm.password !== this.customerForm.confirmPaw) {
+        this.$message({
+          message: this.$t('message.newpawempty'),
+          type: "warning"
+        })
+        return
+      }
+      this.$refs['customerForm'].validate((valid) => {
+        if (valid) {
+          // debugger
+          var data = null
+          if(!this.isEdit){
+            data = {
+              nickname:this.customerForm.nickname,
+              username:this.customerForm.username,
+              password:this.customerForm.password,
+              personToContact:this.customerForm.personToContact,
+              phoneNumber:this.customerForm.phoneNumber,
+              email:this.customerForm.email,
+              remark:this.customerForm.remark
+            }
+            api.addBusiness(data).then(res => {
+              if(res.msg=='OK'){
+                this.$message.success(this.$t('message.addsuc'))
+                this.$refs['customerForm'].resetFields()
+                this.dialogCustomer = false
+                this.getlist()
+              }else {
+                this.$message.error(res.msg)
+              }
+            }).catch(err => {
+              this.$message.error(err.errMsg)
+            })
+          } else {
+            data = {
+              userId:this.customerForm.userId,
+              nickname:this.customerForm.nickname,
+              personToContact:this.customerForm.personToContact,
+              phoneNumber:this.customerForm.phoneNumber,
+              email:this.customerForm.email,
+              remark:this.customerForm.remark
+            }
+            api.editBusiness(data).then(res => {
+              if(res.msg=='OK'){
+                this.$message.success(this.$t('message.changesuc'))
+                this.$refs['customerForm'].resetFields()
+                this.dialogCustomer = false
+                this.getlist()
+              }else {
+                this.$message.error(res.errMsg)
+              }
+            }).catch(err => {
+              this.$message.error(err.errMsg)
+            })
+          }
+        } else {
+          this.$message.warning(this.$t('message.checkmsg'))
+          return false
+        }
+      })
+    },
+    showDialog(index, data){ // 操作
+      switch (index) {
+        case '1': // 修改客户
+          this.customerForm = {
+            userId:data.userId,
+            nickname:data.nickname,
+            personToContact:data.personToContact,
+            phoneNumber:data.phoneNumber,
+            email:data.email,
+            remark:data.remark
+          }
+          this.dialogCustomer = true 
+          this.isEdit = true
+          break
+        case '2' : //删除客户 
+          this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+            confirmButtonText: this.$t('button.determine'),
+            cancelButtonText: this.$t('button.cancel'),
+            type: 'warning'
+          }).then(() => {
+            let id = {
+              userId:data.userId
+            }
+            api.deleBusiness(id).then(res => {
+              if(res.msg=='OK'){
+                this.$message.success(this.$t('message.delesuc'))
+                this.getlist()
+              }else{
+                this.$message.error(res.errMsg)
+              }
+              
+            }).catch(err => {
+              this.$message.error(err.errMsg)
+            })
+          }).catch(err => {
+            console.log(err)
+          })
+          break
+        case '3' : // 修改密码  
+          this.pwdForm = {
+            userId:data.userId,
+            password:'',
+            confirmPaw:''
+          }
+          this.dialogPwd = true
+          break
+      }
+    },
+    confrimPwd(){ // 修改密码
+      if (this.pwdForm.password !== this.pwdForm.confirmPaw) {
+        this.$message({
+          message: this.$t('message.newpawempty'),
+          type: "warning"
+        })
+        return
+      }
+      this.$refs['pwdForm'].validate((valid) => {
+        if (valid) {
+          let data = {
+            userId:this.pwdForm.userId,
+            password:this.pwdForm.password
+          }
+          api.resetBusiness(data).then(res => {
+            // debugger
+            if(res.msg=='OK'){
+              this.$message.success(this.$t('message.changesuc'))
+              this.$refs['pwdForm'].resetFields()
+              this.dialogPwd = false
+              this.getlist()
+            }else {
+              this.$message.error(res.errMsg)
+            }
+          }).catch(err => {
+            this.$message.error(err.errMsg)
+          })
+        } else {
+          this.$message.warning(this.$t('message.checkmsg'))
+          return false
+        }
+      }) 
     }
   }
 }

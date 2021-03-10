@@ -27,9 +27,11 @@ export default {
     control:'控制台',
     statistics:'统计列表',
     sell:'出货管理',
-    setting:'系统设置'
+    setting:'系统设置',
+    notice:'通知',
   }, 
   button: {
+    allHandle:'全部处理',
     sale:'销售',
     moveLable:'移动到其他标签',
     SIM:'SIM卡信息',
@@ -74,6 +76,11 @@ export default {
     editCustomer:'编辑客户'
   },
   view: {
+    sysNotice:'系统通知',
+    msgNotice:'消息通知',
+    pse:'平台服务到期',
+    expNotice:'到期通知',
+    alaNotice:'报警通知',
     changeSalesdate:'不改变销售日期',
     sellTo:'销售给',
     selEqu:'已选设备',
@@ -144,6 +151,8 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    noticeTime:'通知时间',
+    noticeContent:'通知内容',
     timeType:'时间类型',
     orderMsg:'指令信息',
     template:'指令模板',
@@ -573,6 +582,9 @@ export default {
     checkmsg:'请补全信息',
     weilanpath:'围栏半径需大于0',
     selGuanLian:'请选择需要关联的设备',
-    grouperror:'设备分组不能为空'
+    grouperror:'设备分组不能为空',
+    selOne:'请选择一条处理数据',
+    selUnprocessed:'请选择未处理数据',
+    handleAll:'确定统一处理所有未处理的报警信息吗?',
   }
 }

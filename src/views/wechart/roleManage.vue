@@ -210,7 +210,7 @@
                         this.dialogRole = false
                         this.getlist()
                       }else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.errMsg)
                       }
                     }).catch(err => {
                       this.$message.error(err.errMsg)
@@ -229,7 +229,7 @@
                         this.dialogRole = false
                         this.getlist()
                       }else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.errMsg)
                       }
                     }).catch(err => {
                       this.$message.error(err.errMsg)

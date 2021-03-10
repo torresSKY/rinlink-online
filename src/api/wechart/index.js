@@ -100,11 +100,32 @@ const uploadDeviceNumber = (data) => (   //上传文件-设备号
 const getBusinessList = (data) => (   //分页查询客户
     axios.post(url+'/paging_query_business_users', data)
 )
+const addBusiness = (data) => (   //添加客户
+    axios.post(url+'/create_business_user', data)
+)
+const editBusiness = (data) => (   //修改客户
+    axios.post(url+'/update_business_user?__OPERATOR_TYPE=1', data)
+)
+const deleBusiness = (data) => (   //删除客户
+    axios.post(url+'/delete_business_user', data)
+)
+const resetBusiness = (data) => (   //重置客户密码
+    axios.post(url+'/reset_business_user_password', data)
+)
 const getBusinessUserinfo = (data) => (   //获取客户信息
     axios.post(url+'/get_business_user_info', data)
 )
-const searchBusiness = (data) => (   //获取客户信息
+const searchBusiness = (data) => (   //搜索客户信息
     axios.post(url+'/search_business_users', data)
+)
+const getAlarmsDetail = (data) => (   //分页查询报警详情
+    axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE=2', data)
+)
+const handleDeviceAlarm = (data) => (   //处理报警
+    axios.post(url+'/handle_device_alarm?__OPERATOR_TYPE=2', data)
+)
+const handleDeviceAlarms = (data) => (   //全部处理报警
+    axios.post(url+'/handle_device_alarms?__OPERATOR_TYPE=2', data)
 )
 const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models', data)
@@ -167,8 +188,15 @@ export default {
     getBusiness,
     uploadDeviceNumber,
     getBusinessList,
+    addBusiness,
+    editBusiness,
+    deleBusiness,
+    resetBusiness,
     getBusinessUserinfo,
     searchBusiness,
+    getAlarmsDetail,
+    handleDeviceAlarm,
+    handleDeviceAlarms,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

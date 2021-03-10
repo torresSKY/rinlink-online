@@ -234,7 +234,7 @@
                         this.dialogAdmin = false
                         this.getlist()
                       }else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.errMsg)
                       }
                     }).catch(err => {
                       this.$message.error(err.errMsg)
@@ -276,7 +276,7 @@
                         this.$message.success(this.$t('message.delesuc'))
                         this.getlist()
                       }else{
-                        this.$message.error(res.msg)
+                        this.$message.error(res.errMsg)
                       }
                       
                     }).catch(err => {
@@ -319,7 +319,7 @@
                       this.dialogPwd = false
                       this.getlist()
                     }else {
-                      this.$message.error(res.msg)
+                      this.$message.error(res.errMsg)
                     }
                   }).catch(err => {
                     this.$message.error(err.errMsg)

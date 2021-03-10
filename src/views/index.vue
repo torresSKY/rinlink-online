@@ -23,16 +23,19 @@
               </template>
             </el-menu> 
           </el-col>
-          <el-col :span='2'>
-            <div class="lang">
+          <el-col :span='2' style="line-height:40px">
+            <div class="lang" >
               <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()">
                 <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button>
-                <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button> -->
-              <!-- <el-radio-button class="lang_btn" :label="3">{{$t('button.jpn')}}</el-radio-button> -->
+                <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button>
+                <el-radio-button class="lang_btn" :label="3">{{$t('button.jpn')}}</el-radio-button> -->
               </el-radio-group>
             </div>
-           </el-col> 
-          <el-col :span='3'>
+          </el-col>
+          <el-col :span='2' >
+            <i class="el-icon-message-solid" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i> 
+          </el-col> 
+          <el-col :span='2'>
             <el-dropdown class="fr" @command="handleCommand">
               <el-button class="fr btn-loading" size="medium">
                 <i class="el-icon-user-solid" style="color:#ccc;font-size:30px;margin-right:5px;"></i>
@@ -46,7 +49,6 @@
             </el-dropdown>
           </el-col>
         </el-row>
-        
       </div>
       <el-dialog
           class="editpass"
@@ -165,7 +167,7 @@ export default {
       this.setViewTagList(this.viewTagList);
       if (this.viewTagList.length !== 0) {
         if (this.$route.path == path) {
-          this.$router.push(this.viewTagList[this.viewTagList.length - 1].path);
+          this.$router.push(this.viewTagList[this.viewTagList.length - 1].path)
         }
       } else {
         if(this.$route.path=='/index/index'){ 
