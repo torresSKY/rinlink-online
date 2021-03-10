@@ -59,6 +59,14 @@
                             <el-button :disabled="pen_type_disabled" size="mini" :class="pen_type_value == '2' ? 'pen_type_item' : ''" @click="evt_change_pen_type(2)">多边形</el-button>
                             <el-button :disabled="pen_type_disabled" size="mini" :class="pen_type_value == '3' ? 'pen_type_item' : ''" @click="evt_change_pen_type(3)">行政区域</el-button>
                         </div>
+                        <!-- 搜索地址 -->
+                        <div class="search_address">
+                            <div class="suggest_container">
+                                <input id="suggestId" placeholder="百度搜索地址" type="text" v-model="search_address_key" />
+                                <span @click="evt_search_address" class="el-icon-search"></span>
+                            </div>
+                            <div id="searchResultPanel"></div>
+                        </div>
                     </div>
                 </el-card>
             </el-col>  
@@ -385,6 +393,7 @@ export default {
             drawingManager:null,
             current_polygon:'',//当前绘制的多边形
             pen_type_disabled:false,//围栏类型是否可选
+            search_address_key:'',//搜索地址的key值
         }
     },
     watch: {
@@ -431,9 +440,10 @@ export default {
         _this.map = new BMap.Map("container");
         _this.map.enableScrollWheelZoom(true); 
         _this.map.disableDoubleClickZoom();
-        _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
-        _this.map.addControl(new BMap.NavigationControl()); 
-
+        _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),15);
+        _this.map.addControl(new BMap.NavigationControl({offset: new BMap.Size(20, 70)})); 
+        _this.map.addControl(new BMap.ScaleControl());    
+        _this.map.addControl(new BMap.OverviewMapControl());      
         _this.drawingManager = new BMapLib.DrawingManager(_this.map,{
             polygonOptions:_this.opts
         });  
@@ -446,6 +456,8 @@ export default {
         _this.map.addEventListener('mouseout',function(e){
             
         })
+
+        _this.search_hint();
     },
     methods: {
         // 关闭关联设备弹框
@@ -533,6 +545,65 @@ export default {
                 })
             }
         },
+        // 搜索提示
+        search_hint:function(){
+            var _this = this;
+            // 百度地图API功能
+            function G(id) {
+                return document.getElementById(id);
+            }
+            var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+                {"input" : "suggestId"
+                ,"location" : _this.map
+            });
+
+            ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+                var str = "";
+                var _value = e.fromitem.value;
+                var value = "";
+                if (e.fromitem.index > -1) {
+                    value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+                }    
+                str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+                
+                value = "";
+                if (e.toitem.index > -1) {
+                    _value = e.toitem.value;
+                    value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+                }    
+                str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+                G("searchResultPanel").innerHTML = str;
+            });
+
+            var myValue;
+            ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+                var _value = e.item.value;
+                myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+                G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+                _this.evt_setPlace(myValue);
+                _this.search_address_key = myValue;
+            });
+        },
+        evt_setPlace:function(value){
+            var _this = this;
+            _this.map.clearOverlays();    //清除地图上所有覆盖物
+            function myFun(){
+                var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+                _this.map.centerAndZoom(pp, 16);
+                _this.map.addOverlay(new BMap.Marker(pp));    //添加标注
+            }
+            var local = new BMap.LocalSearch(_this.map, { //智能搜索
+                onSearchComplete: myFun
+            });
+            local.search(value);
+        },
+        // 点击搜索按钮
+        evt_search_address:function(){
+            this.evt_setPlace(this.search_address_key);
+        },
+
+
+
         
         goBack(){
             this.$router.push({name:'route.List'})
@@ -1304,6 +1375,53 @@ export default {
             box-shadow: 0px 0px 4px 0px rgba(94, 139, 255, 0.2);
         }
     }
+    .search_address{
+        position: absolute;
+        top: 20px;
+        left: 30px;
+        z-index: 99;
+        #searchResultPanel{
+            width: 280px;
+            border:1px solid #C0C0C0;
+            background: #ffffff;
+            box-sizing: border-box;
+            height: 400px;
+            overflow-y: scroll;
+            display: none;
+        }
+        .suggest_container{
+            display: flex;
+            justify-items: center;
+            align-items: center;
+            >input{
+                width: 240px;
+                height: 24px;
+                background: #FFFFFF;
+                border: 1px solid #CCCCCC;
+                box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+                outline:0px;
+                font-size: 12px;
+                font-family: Source Han Sans CN;
+                font-weight: 400;
+                color: #999999;
+                padding-left: 10px;
+                line-height: 24px;
+            }
+            >span{
+                width: 30px;
+                height: 24px;
+                background: #EEEEEE;
+                border: 1px solid #CCCCCC;
+                border-radius: 0px 4px 4px 0px;
+                border-left: 0px;
+                color: #999999;
+                text-align: center;
+                line-height: 24px;
+            }
+        }
+    }
 }
 .add_pen_round{
 
@@ -1332,6 +1450,13 @@ export default {
 /deep/ .el-card__body{
     padding: 5px;
 }
+/deep/ .anchorBL {
+    display: block; 
+}
+/deep/ .BMap_cpyCtrl {
+    display: block; 
+}
+
 
 </style>
 <style>
