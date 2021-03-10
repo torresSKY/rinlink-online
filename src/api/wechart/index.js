@@ -169,6 +169,12 @@ const getInventory_device = (data) => ( //设备库存
 const getSold_device = (data) => ( //已销售设备
     axios.post(url + '/statistics_sold_device', data)
 )
+const createCircleFence = (data) => ( //添加圆形电子围栏
+    axios.post(url + '/create_circle_fence',data)
+)
+const createPolygonFence = (data) => ( //添加多边形围栏
+    axios.post(url + '/create_polygon_fence',data)
+)
 export default {
     login,
     getManagerList,
@@ -216,5 +222,7 @@ export default {
     getUnexpired_device,
     getExpired_device,
     getInventory_device,
-    getSold_device
+    getSold_device,
+    createCircleFence,
+    createPolygonFence
 }

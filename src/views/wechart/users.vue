@@ -473,6 +473,7 @@ export default {
     },
     // 刷新
     evt_refresh:function(e){
+      console.log(e.target.getAttribute('data-type'));
       if(e.target.getAttribute('data-type') == '1'){
         this.loading_one = true;
         this.getEchartsData_one();
@@ -512,7 +513,7 @@ export default {
 }
 .item_row_L {
   margin-bottom: 20px;
-  margin-left: 0px !important;
+  // margin-left: 0px !important;
 }
 .top_left {
   box-sizing: border-box;
