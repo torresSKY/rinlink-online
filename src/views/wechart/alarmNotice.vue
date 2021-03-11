@@ -1,7 +1,7 @@
 <template>
     <div >
         <el-row class="cust-title">
-            <span>{{$t('view.pse')}}</span>
+            <span>{{$t('route.Alarm')}}</span>
         </el-row>
         <el-card  :style="{height:height + 'px'}" >
             <el-row>
@@ -11,6 +11,9 @@
                 <el-col :span='3' style="line-height:40px">
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                 </el-col>    
+                <el-col :span='3'>
+                    <el-button type="text" @click="selAlarmType">{{$t('button.sel')}}</el-button>
+                </el-col>
             </el-row>
             <el-row :gutter="22" style="margin-top:10px" >
                 <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
@@ -51,6 +54,20 @@
             <el-button v-if="!flag" type="primary" @click="confrimHandle">{{$t('button.determine')}}</el-button>
           </span>
         </el-dialog>  
+        <!-- 筛选报警类型 -->
+        <el-dialog
+          :title="$t('button.sel')"
+          :visible.sync="dialogSel"
+          width="30%">
+          <el-row>
+              <el-checkbox-group v-model="alarmTypeCodeList" >
+                <el-checkbox v-for="item in alarmTypeList" :label="item[0]" :key="item[0]">{{item[1].name}}</el-checkbox>
+              </el-checkbox-group>
+          </el-row>
+          <span slot="footer" class="dialog-footer">
+            <el-button  type="primary" @click="confrimSel">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog>  
     </div>
 </template>
 <script>
@@ -59,7 +76,7 @@
     import axios from 'axios'
     import BaseTable from '@/components/table'
     export default{
-        name:'expNotice',
+        name:'alarmNotice',
         components:{ BaseTable },
         mixins:[mixin],
         data(){
@@ -69,8 +86,8 @@
                 dataList:[],
                 tableLabel: [
                   {label: this.$t('table.noticeContent'), prop: 'deviceNumber'},
-                  {label: this.$t('table.count'), prop: 'ownerName'},
-                  {label: this.$t('table.noticeTime'), prop: 'createTime'},
+                  {label: this.$t('table.count'), prop: 'handleName'},
+                  {label: this.$t('table.noticeTime'), prop: 'alarmTime'},
                   {label: this.$t('table.operation'),
                     type: 'clickSelect',
                     selectOperation: (index, row) => {
@@ -87,7 +104,10 @@
                 radio:'1',
                 remark:'',
                 messageId:'',
-                flag:false
+                flag:false,
+                alarmTypeCodeList:[],
+                dialogSel:false,
+                alarmTypeList:[]
             }
         },
         mounted(){
@@ -97,10 +117,11 @@
         methods:{
             getlist(){ // 获取设备型号列表
                 this.loading = true
-                api.platformExpire({params: {
+                api.getAlarmsDetail({params: {
                     pageSize: this.page.size,
                     page: this.page.index - 1,
-                  containsChildren: this.containsChildren,
+                    alarmTypeCodeList:this.alarmTypeCodeList,
+                    containsChildren: this.containsChildren,
                 }}).then(res => {
                   this.loading = false
                   if(res.msg=='OK'){
@@ -117,6 +138,31 @@
                   this.$message.error(err.errMsg)
                 })
             },
+            getAlarmType(){ // 查询报警类型
+                api.getAlarmType().then(res => {
+                  if(res.msg=='OK'){
+                    this.alarmTypeList = Object.entries(res.data)
+                    console.log(this.alarmTypeList)
+                  }else{
+                    this.alarmTypeList = []
+                    this.$message.error(res.errMsg)
+                  }
+                  
+                }).catch(err => {
+                  this.alarmTypeList = []
+                  this.$message.error(err.errMsg)
+                })
+            },
+            selAlarmType(){ // 筛选报警类型
+                if(this.alarmTypeList.length<=0){
+                   this.getAlarmType()
+                }
+                this.dialogSel = true
+            },
+            confrimSel(){ // 确认筛选报警类型
+                this.dialogSel = false
+                this.getlist()
+            },
             showDialog(index, data){ // 操作
                 switch (index) {
                     case '1': // 处理
@@ -129,15 +175,15 @@
                       this.remark = data.handleRemark
                       this.flag = true
                       this.dialogHandle = true
-                      break  
+                      break
                 }
             },
             confrimHandle(){ // 确认单个处理
                 let data = {
-                  messageId:this.messageId,
+                  deviceAlarmId:this.messageId,
                   remark:this.remark
                 }
-                api.handlePlatformExpire(data).then(res => {
+                api.handleDeviceAlarm(data).then(res => {
                   if(res.msg=='OK'){
                     this.$message.success(this.$t('message.alaedit'))
                     this.dialogHandle = false
@@ -158,7 +204,7 @@
                   let id = {
                     // userId:data.userId
                   }
-                  api.handlePlatformExpires().then(res => {
+                  api.handleDeviceAlarms().then(res => {
                     if(res.msg=='OK'){
                       this.$message.success(this.$t('message.alaedit'))
                       this.getlist()

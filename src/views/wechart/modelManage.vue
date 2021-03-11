@@ -191,7 +191,7 @@ export default{
                   this.dialogModel = false
                   this.getlist()
                 }else {
-                  this.$message.error(res.msg)
+                  this.$message.error(res.errMsg)
                 }
               }).catch(err => {
                 this.$message.error(err.errMsg)

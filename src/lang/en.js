@@ -25,6 +25,7 @@ export default {
     notice:'notice',
   },
   button: {
+    sel:'select',
     allHandle:'Deal with it all',
     sale:'sale',
     moveLable:'Move to another label',
@@ -69,6 +70,7 @@ export default {
     editCustomer:'Edit customer'
   },
   view: {
+    sysMessage:'System message',
     sysNotice:'System notification',
     msgNotice:'Message notification',
     pse:'Platform service expiration',
@@ -213,7 +215,7 @@ export default {
     Mounth: 'Mounth',
     Day: 'Day',
     ci: 'frequency',
-    chuli: 'deal with',
+    checkchuli: 'View processing',
     addsend: 'Add instruction',
     timetext: 'Data reporting interval:',
     warntime: 'Note: If you customize the time, please select the frequency as custom.',

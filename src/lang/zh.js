@@ -31,6 +31,7 @@ export default {
     notice:'通知',
   }, 
   button: {
+    sel:'筛选',
     allHandle:'全部处理',
     sale:'销售',
     moveLable:'移动到其他标签',
@@ -76,6 +77,7 @@ export default {
     editCustomer:'编辑客户'
   },
   view: {
+    sysMessage:'系统消息',
     sysNotice:'系统通知',
     msgNotice:'消息通知',
     pse:'平台服务到期',
@@ -222,7 +224,7 @@ export default {
     Mounth: '月',
     Day: '日',
     ci: '次',
-    chuli: '处理',
+    checkchuli: '查看处理',
     addsend: '下发指令',
     timetext: '数据上报间隔为：',
     warntime: '注意：如果自定义时间请将频率选择为自定义',

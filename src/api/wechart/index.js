@@ -127,6 +127,21 @@ const handleDeviceAlarm = (data) => (   //处理报警
 const handleDeviceAlarms = (data) => (   //全部处理报警
     axios.post(url+'/handle_device_alarms?__OPERATOR_TYPE=2', data)
 )
+const platformExpire = (data) => (   //分页查询平台服务到期
+    axios.post(url+'/paging_platform_device_expire_messages?__OPERATOR_TYPE=2', data)
+)
+const handlePlatformExpire = (data) => (   //单个处理平台服务到期
+    axios.post(url+'/handle_platform_device_expire_message?__OPERATOR_TYPE=2', data)
+)
+const handlePlatformExpires = (data) => (   //全部处理平台服务到期
+    axios.post(url+'/handle_platform_all_device_expire_messages?__OPERATOR_TYPE=2', data)
+)
+const systemMessages = (data) => (   //分页查询系统通知
+    axios.post(url+'/paging_system_messages?__OPERATOR_TYPE=2', data)
+)
+const getAlarmType = (data) => (   //查询报警类型
+    axios.post(url+'/query_alarm_type_info', data)
+)
 const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models', data)
 )
@@ -203,6 +218,11 @@ export default {
     getAlarmsDetail,
     handleDeviceAlarm,
     handleDeviceAlarms,
+    platformExpire,
+    handlePlatformExpire,
+    handlePlatformExpires,
+    systemMessages,
+    getAlarmType,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

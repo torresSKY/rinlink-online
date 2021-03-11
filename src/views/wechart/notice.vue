@@ -4,7 +4,8 @@
            <el-col :span='5'>
                <el-menu
                  style="height:90vh"
-                 default-active="1-1"
+                 default-active="alarm"
+                 :default-openeds="['1','alarm','2','platform','3','system']"
                  @select='selPath'
                  class="el-menu-vertical-demo">
                  <el-submenu index="1">
@@ -13,7 +14,7 @@
                      <span>{{$t('view.alaNotice')}}</span>
                    </template>
                    <el-menu-item-group>
-                     <el-menu-item index="1-1">{{$t('route.Alarm')}}</el-menu-item>
+                     <el-menu-item index="alarm">{{$t('route.Alarm')}}</el-menu-item>
                    </el-menu-item-group>
                  </el-submenu>
                  <el-submenu index="2">
@@ -31,13 +32,15 @@
                      <span>{{$t('view.msgNotice')}}</span>
                    </template>
                    <el-menu-item-group>
-                     <el-menu-item index="1-3">{{$t('view.sysNotice')}}</el-menu-item>
+                     <el-menu-item index="system">{{$t('view.sysNotice')}}</el-menu-item>
                    </el-menu-item-group>
                  </el-submenu>
                </el-menu>
            </el-col>
            <el-col :span='19'>
-               <exp-notice ref="expNotice" />
+               <exp-notice v-if="pathName=='platform'" ref="expNotice" />
+               <sys-notice v-else-if="pathName=='system'" ref="sysNotice" />
+               <alarm-notice v-else ref="sysNotice" />
            </el-col>
        </el-row>
     </div>
@@ -48,13 +51,15 @@
     import axios from 'axios'
     import BaseTable from '@/components/table'
     import expNotice from './expNotice.vue'
+    import sysNotice from './sysNotice.vue'
+    import alarmNotice from './alarmNotice.vue'
     export default{
         name:'notice',
-        components:{ BaseTable , expNotice },
+        components:{ BaseTable , expNotice,sysNotice,alarmNotice },
         mixins:[mixin],
         data(){
             return {
-                pathName:'',
+                pathName:'alarm',
             }
         },
         mounted(){
