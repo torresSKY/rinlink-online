@@ -158,37 +158,37 @@ const deleModel = (data) => (   //删除设备型号
     axios.post(url+'/delete_device_model', data)
 )
 const getOnlineDvice = (data) => ( //统计在线设备
-    axios.post(url + '/statistics_online_device',data)
+    axios.post(url + '/statistics_online_devices',data)
 )
 const getOfflineDevice = (data) => ( //统计离线设备
-    axios.post(url + '/statistics_offline_device',data)
+    axios.post(url + '/statistics_offline_devices',data)
 )
 const getActivated = (data) => ( //统计激活设备
-    axios.post(url + '/statistics_activated', data)
+    axios.post(url + '/statistics_activated_devices', data)
 )
 const getUnactivated_device =(data) => ( //统计未激活设备
-    axios.post(url + '/statistics_unactivated_device', data)
+    axios.post(url + '/statistics_unactivated_devices', data)
 )
 const getUsing_device = (data) => ( //正在使用中的设备
-    axios.post(url + '/statistics_using_device', data)
+    axios.post(url + '/statistics_using_devices', data)
 )
 const getUnexpired_device = (data) => ( //未过期设备
-    axios.post(url + '/statistics_unexpired_device', data)
+    axios.post(url + '/statistics_unexpired_devices', data)
 )
 const getExpired_device = (data) => ( //已过期设备
-    axios.post(url + '/statistics_expired_device', data)
+    axios.post(url + '/statistics_expired_devices', data)
 )
 const getInventory_device = (data) => ( //设备库存
-    axios.post(url + '/statistics_inventory_device', data)
+    axios.post(url + '/statistics_inventory_devices', data)
 )
 const getSold_device = (data) => ( //已销售设备
-    axios.post(url + '/statistics_sold_device', data)
+    axios.post(url + '/statistics_sold_devices', data)
 )
 const createCircleFence = (data) => ( //添加圆形电子围栏
-    axios.post(url + '/create_circle_fence',data)
+    axios.post(url + '/create_circle_fence?__OPERATOR_TYPE=2',data)
 )
 const createPolygonFence = (data) => ( //添加多边形围栏
-    axios.post(url + '/create_polygon_fence',data)
+    axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=2',data)
 )
 export default {
     login,
