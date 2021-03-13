@@ -24,12 +24,22 @@
                 </el-row>
                 <el-row class="list-search" :gutter="22">
                   <el-col :span='3'>
-                    <el-input v-model="search" :placeholder="$t('view.inputimei')"></el-input>
+                    <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('table.model')">
+                    <el-select v-model="deviceModelId" :placeholder="$t('table.model')" clearable>
                       <el-option
-                        v-for="item in options"
+                        v-for="item in deviceModeOptions"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                  <el-col :span='3'>
+                    <el-select v-model="networkStatus" :placeholder="$t('view.inputstate')" clearable>
+                      <el-option
+                        v-for="item in networkStatusOptions"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -37,29 +47,9 @@
                     </el-select>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputstate')">
+                    <el-select v-model="useStatus" :placeholder="$t('view.inputstate2')" clearable>
                       <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
-                  </el-col>
-                  <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputlabel')">
-                      <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
-                  </el-col>
-                  <el-col :span='3'>
-                    <el-select v-model="value" :placeholder="$t('view.inputstate2')">
-                      <el-option
-                        v-for="item in options"
+                        v-for="item in usestatusOptions"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -67,7 +57,7 @@
                     </el-select>
                   </el-col>
                   <el-col :span='2' style="line-height:40px">
-                    <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
+                    <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
                   <el-col :span='4'>
                     <el-button class="butresh" >{{$t('button.search')}}</el-button>
@@ -75,16 +65,37 @@
                   </el-col>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
+                  <el-col :span='3'>
+                    <el-select v-model="timeType" :placeholder="$t('table.timeType')">
+                      <el-option
+                        v-for="item in timeTypeOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                </el-row>
+                <el-row class="list-search" :gutter="22">
                     <el-col :span='8'>
                       <el-button size="mini" @click="sale">{{$t('button.sale')}}</el-button>
                       <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
                       <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
-                      <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button>
+                      <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
                 </el-row>
                 <el-row :gutter="22" class="list-search" >
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
                 </el-row>
+                <el-pagination
+                    @current-change='changeindex'
+                    layout="prev, pager, next"
+                    :current-page.sync="page.index"
+                    :page-size="page.size"
+                    :total="page.total"
+                    background
+                    style="text-align:center">
+                </el-pagination>
             </el-col>
         </el-card>
         <!-- 销售 -->
@@ -364,94 +375,61 @@ export default{
       }
      return {
          pickerOptions: {
-            disabledDate(time) {
-                return time.getTime() > Date.now();
-                }
-            },
+          disabledDate(time) {
+            return time.getTime() > Date.now();
+          }
+        },
         height:1000,
         activeName: 'first',
         search:null,
-        data: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1',
-            children: [{
-              label: '三级 1-1-1'
-            }]
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1',
-            children: [{
-              label: '三级 2-1-1'
-            }]
-          }, {
-            label: '二级 2-2',
-            children: [{
-              label: '三级 2-2-1'
-            }]
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1',
-            children: [{
-              label: '三级 3-1-1'
-            }]
-          }, {
-            label: '二级 3-2',
-            children: [{
-              label: '三级 3-2-1'
-            }]
-          }]
-        }],
+        data: [],
         defaultProps: {
           children: 'children',
           label: 'label'
         },
         value1:null,
         value:null,
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
+        options: [],
         checked:true,
+        deviceIdList:'',
+        deviceModelId:'',
+        deviceModeOptions:[],
+        networkStatus:'',
+        networkStatusOptions:[
+          { value: '1', label: this.$t('view.homeon2')},{ value: '2', label: this.$t('view.homeoff2')}
+        ],
+        useStatus:'',
+        usestatusOptions:[
+          { value: '1', label: '未使用'},{ value: '2', label: '已使用'},{ value: '3', label: '已到期'}
+        ],
+        containsChildren:true,
+        timeType:'',
+        timeTypeOptions:[
+          { value: '1', label: this.$t('table.activationTime')},{ value: '2', label: this.$t('table.salesTime')},
+          { value: '3', label: this.$t('table.expire')}
+        ],
         loading:false,
         dataList:[],
         tableLabel: [
           {label: this.$t('table.index'), type: 'index'},
-          {label: this.$t('table.Device'), prop: 'serial_number'},
-          {label: this.$t('table.imei'), prop: 'category'},
-          {label: this.$t('table.label'), prop: 'category'},
+          {label: this.$t('table.Device'), prop: 'deviceName'},
+          {label: this.$t('table.imei'), prop: 'deviceNumber'},
           {label: this.$t('table.model'), prop: 'category'},
-          {label: this.$t('table.status'), prop: 'category'},
+          {label: this.$t('table.status'), prop: 'networkStatus'},
           {label: this.$t('table.usestatus'), prop: 'category'},
-          {label: this.$t('table.iccid'), prop: 'partner_contacts'},
-          {label: this.$t('table.customers'), prop: 'partner_contacts'},
-          {label: this.$t('table.activeTime'), prop: 'partner_contacts'},
+          {label: this.$t('table.iccid'), prop: 'iccid'},
+          {label: this.$t('table.customers'), prop: 'ownerBusinessUsername'},
+          {label: this.$t('table.activeTime'), prop: 'activationTime'},
           {label: this.$t('table.expire'), prop: 'partner_contacts'},
-          {label: this.$t('table.salesTime'), prop: 'partner_contacts'},
-          {label: this.$t('table.mileage'), prop: 'partner_contacts'},
-          {label: this.$t('table.importtime'), prop: 'partner_contacts'},
+          {label: this.$t('table.salesTime'), prop: 'sellTime'},
+          {label: this.$t('table.mileage'), prop: 'odo'},
+          {label: this.$t('table.deliveryTime'), prop: 'shipmentTime'},
           {label: this.$t('table.operation'),
             type: 'clickSelect',
             selectOperation: (index, row) => {
               this.showDialog(index, row)
             },
-            selectText: [{command: '1', text: this.$t('button.equinfo'), index: 1},
+            selectText: [{command: '1', text: this.$t('table.equinfo'), index: 1},
             {command: '2', text: this.$t('button.playback'), index: 2},
             {command: '3', text: this.$t('button.shewei'), index: 3},
             {command: '4', text: this.$t('button.send'), index: 4},
@@ -508,9 +486,47 @@ export default{
     },
     mounted(){
         this.height=document.body.offsetHeight-62
-  
+        this.getlist()
+        this.getModelList()
     },
     methods:{
+        getlist(){ // 获取设备型号列表
+          this.loading = true
+          api.getDevicesList({params: {
+              pageSize: this.page.size,
+              page: this.page.index - 1,
+              deviceIdList:[this.deviceIdList],
+              deviceModelId:this.deviceModelId,
+              networkStatus:this.networkStatus,
+              useStatus:this.useStatus,
+              containsChildren:this.containsChildren,
+          }}).then(res => {
+            this.loading = false
+            if(res.msg=='OK'){
+              this.dataList = res.data.content
+              this.page.total = res.data.pageTotal
+            }else{
+              this.dataList = []
+              this.$message.error(res.errMsg)
+            }
+            
+          }).catch(err => {
+            this.loading = false
+            this.dataList = []
+            this.$message.error(err.errMsg)
+          })
+        },
+        getModelList(){ // 获取设备型号
+            api.getModelList({params: {
+              pageSize: 100,
+              page: this.page.index - 1,
+            }}).then(res => {
+              this.deviceModeOptions = res.data.content
+            }).catch(err => {
+              this.deviceModeOptions = []
+              this.$message.error(err.errMsg)
+            })
+        },
         handleClick(tab, event) { // 全部客户，到期客户
           console.log(tab, event);
         },

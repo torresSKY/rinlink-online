@@ -3,10 +3,10 @@
         <el-row :gutter="22">
             <el-col :span='24'>
                 <el-row :gutter="22" style="margin-top:10px">
-                     <el-col :span='2' style="line-height:40px">
-                        <el-select v-model="value" >
+                    <el-col :span='3' style="line-height:40px">
+                        <el-select v-model="dateValue" @change="changeDate">
                           <el-option
-                            v-for="item in options"
+                            v-for="item in dateOptions"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value">
@@ -16,15 +16,16 @@
                     <el-col :span='5' >
                         <el-date-picker
                           style="width:98%"
-                          v-model="value1"
+                          v-model="time"
                           type="datetimerange"
                           range-separator="-"
-                          start-placeholder="开始日期"
-                          end-placeholder="结束日期">
+                          value-format="timestamp"
+                          :start-placeholder="$t('table.startdata')"
+                          :end-placeholder="$t('table.enddata')">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="value" >
+                        <el-select v-model="value" :placeholder="$t('view.customerList')">
                           <el-option
                             v-for="item in options"
                             :key="item.value"
@@ -34,17 +35,7 @@
                         </el-select>
                     </el-col>
                     <el-col :span='3'>
-                        <el-input v-model="input3" :placeholder="$t('view.inputimei')"></el-input>
-                    </el-col>
-                    <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="value" >
-                          <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                          </el-option>
-                        </el-select>
+                        <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')"></el-input>
                     </el-col>
                     <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
@@ -59,8 +50,6 @@
                 </el-row>
             </el-col>
         </el-row>
-        
-
     </div>
 </template>
 <script>
@@ -77,74 +66,94 @@ export default {
   },
   data() {
     return {
-      input3:'',
-      data: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1',
-            children: [{
-              label: '三级 1-1-1'
-            }]
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1',
-            children: [{
-              label: '三级 2-1-1'
-            }]
-          }, {
-            label: '二级 2-2',
-            children: [{
-              label: '三级 2-2-1'
-            }]
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1',
-            children: [{
-              label: '三级 3-1-1'
-            }]
-          }, {
-            label: '二级 3-2',
-            children: [{
-              label: '三级 3-2-1'
-            }]
-          }]
-        }],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        },
-        value:'',
-        options:[],
-        checked:true,
-        loading:false,
-        dataList: [],
-        tableLabel: [
-        {label: this.$t('table.Device'), prop: 'serial_number'},
-        {label: this.$t('table.imei'), prop: 'category'},
-        {label: this.$t('table.groupname'), prop: 'partner_contacts'},
-        {label: this.$t('table.model'), prop: 'partner_contacts'},
+      dateValue:'1',
+      dateOptions:[
+        { value: '1', label: '今天'},{ value: '2', label: '昨天'},
+        { value: '3', label: '本周'},{ value: '4', label: '上周'},
+        { value: '5', label: '本月'},{ value: '6', label: '上月'},
+      ],
+      time:[new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()],
+      deviceIdList:'',
+      data: [],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      value:'',
+      options:[],
+      checked:true,
+      loading:false,
+       dataList: [],
+       tableLabel: [
+        {label: this.$t('table.Device'), prop: 'deviceName'},
+        {label: this.$t('table.imei'), prop: 'deviceNumber'},
+        {label: this.$t('table.model'), prop: 'deviceModelName'},
         {label: this.$t('table.jinjiala'), prop: 'partner_contacts'},
         {label: this.$t('table.chaosuala'), prop: 'partner_contacts'},
         {label: this.$t('table.power1ala'), prop: 'partner_contacts'},
         {label: this.$t('table.power2ala'), prop: 'partner_contacts'},
         {label: this.$t('table.weiyiala'), prop: 'partner_contacts'},
-        {label: this.$t('table.alarm7'), prop: 'partner_contacts'},
-        // {label: this.$t('table.contacts'), prop: 'partner_contacts'},
-        // {label: this.$t('table.contacts'), prop: 'partner_contacts'},
-        
+        {label: this.$t('table.alarm7'), prop: 'partner_contacts'}
       ],
-      value1:[]
-
     }
   },
   mounted() {
-
+    this.getlist()
   },
   methods: {
+    getlist(){ // 分页查询设备报警统计
+      this.loading = true
+      api.alarmStatistic({params: {
+        pageSize: this.page.size,
+        page: this.page.index - 1,
+        deviceIdList:this.deviceIdList
+      }}).then(res => {
+        this.loading = false
+        this.dataList = res.data.content
+        this.page.total = res.data.pageTotal
+      }).catch(err => {
+        this.loading = false
+        this.dataList = []
+        this.$message.error(err.errMsg)
+      })
+    },
+    changeDate(val){ //切换时间范围
+      this.time = []
+      var currentDate = new Date()
+      var dateZero = new Date(new Date().toLocaleDateString()).getTime()
+      const week = currentDate.getDay()
+      const millisecond = 1000 * 60 * 60 * 24
+      const minusDay = week != 0 ? week - 1 : 6
+      const thisweekStart = new Date(dateZero - minusDay * millisecond).getTime()
+      const nowMonth = currentDate.getMonth()
+      const nowYear = currentDate.getFullYear()
+      const monthStartDate = new Date(nowYear, nowMonth, 1)
+      if(val == 1){
+        this.time = [dateZero,currentDate.getTime()]
+      }else if(val == 2){
+        let yesterdayStart =  new Date(new Date().toLocaleDateString()).getTime()-1000 * 60 * 60 * 24
+        let yesterdayEnd = new Date(new Date().toLocaleDateString()).getTime()-1000
+        this.time = [yesterdayStart,yesterdayEnd]
+      }else if (val == 3){
+        this.time = [thisweekStart,currentDate.getTime()]
+      }else if (val == 4){
+        let priorWeekLastDay = new Date(thisweekStart - millisecond)
+        let priorWeekFirstDay = new Date(priorWeekLastDay.getTime() - (millisecond * 6))
+        this.time = [priorWeekFirstDay.getTime(),priorWeekLastDay.getTime()+millisecond-1000]
+      }else if (val == 5){
+        this.time = [monthStartDate.getTime(),currentDate.getTime()]
+      }else if (val == 6){
+        let lastMonth = nowMonth
+        let lastYear = nowYear
+        if (nowMonth == 0) {
+          lastMonth = 11 //月份为上年的最后月份
+          lastYear-- //年份减1
+        }else {
+          lastMonth--
+        }
+        this.time = [new Date(lastYear, lastMonth, 1).getTime(),monthStartDate.getTime()-1000] 
+      }
+    },
     handleNodeClick(data) { // 选择用户节点
         console.log(data)
     },

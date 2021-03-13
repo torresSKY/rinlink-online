@@ -19,8 +19,8 @@
                           v-model="time"
                           type="datetimerange"
                           range-separator="-"
-                          start-placeholder="开始日期"
-                          end-placeholder="结束日期">
+                          :start-placeholder="$t('table.startdata')"
+                          :end-placeholder="$t('table.enddata')">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">

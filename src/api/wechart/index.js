@@ -52,6 +52,9 @@ const getUsersList = (obj) => {
 }
 const url = 'http://rap2api.taobao.org/app/mock/277955'
 
+const getDevicesList = (data) => (   //分页查询设备列表
+    axios.post(url+'/paging_devices?__OPERATOR_TYPE=2', data)
+)
 const getManagerList = (data) => (   //分页查询系统管理员
     axios.post(url+'/paging_query_system_manager_users', data)
 )
@@ -142,6 +145,9 @@ const systemMessages = (data) => (   //分页查询系统通知
 const getAlarmType = (data) => (   //查询报警类型
     axios.post(url+'/query_alarm_type_info', data)
 )
+const alarmStatistic = (data) => (   //分页查询设备报警统计
+    axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE=2', data)
+)
 const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models', data)
 )
@@ -191,6 +197,7 @@ const createPolygonFence = (data) => ( //添加多边形围栏
     axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=2',data)
 )
 export default {
+    test,
     login,
     getManagerList,
     addManager,
@@ -223,6 +230,8 @@ export default {
     handlePlatformExpires,
     systemMessages,
     getAlarmType,
+    alarmStatistic,
+    getDevicesList,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,
