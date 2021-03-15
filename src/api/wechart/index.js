@@ -190,11 +190,39 @@ const getInventory_device = (data) => ( //设备库存
 const getSold_device = (data) => ( //已销售设备
     axios.post(url + '/statistics_sold_devices', data)
 )
-const createCircleFence = (data) => ( //添加圆形电子围栏
-    axios.post(url + '/create_circle_fence?__OPERATOR_TYPE=2',data)
+
+const queryPen = (data) => ( //查询电子围栏
+    axios.post(url + '/paging_fences',data)
 )
-const createPolygonFence = (data) => ( //添加多边形围栏
-    axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=2',data)
+// 添加、更新圆形电子围栏
+const createUpdateCircleFence = (type,data) => {
+    if (type == 'create'){
+       return axios.post(url + '/create_circle_fence?__OPERATOR_TYPE=2',data)
+    }
+    if (type == 'update'){
+       return axios.post(url + '/update_to_circle_fence?__OPERATOR_TYPE=2',data)
+    }
+}
+// 添加、更新多边形电子围栏
+const createUpdatePolygonFence = (type,data) => {
+    if (type == 'create'){
+        return axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=2',data)
+    }
+    if (type == 'update'){
+        return axios.post(url + '/update_to_polygon_fence?__OPERATOR_TYPE=2',data)
+    }
+}
+// 添加、更新行政区域电子围栏
+const createUpdateDistrictFence = (type,data) => {
+    if(type == 'create'){
+        return axios.post(url + '/create_district_fence?__OPERATOR_TYPE=2',data)
+    }
+    if(type == 'update'){
+        return axios.post(url + '/update_to_district_fence?__OPERATOR_TYPE=2',data)
+    }
+}
+const deleteFence = (data) => ( //删除电子围栏
+    axios.post(url + '/delete_fence?__OPERATOR_TYPE=2',data)
 )
 export default {
     login,
@@ -251,6 +279,9 @@ export default {
     getExpired_device,
     getInventory_device,
     getSold_device,
-    createCircleFence,
-    createPolygonFence
+    queryPen,
+    createUpdateCircleFence,
+    createUpdatePolygonFence,
+    createUpdateDistrictFence,
+    deleteFence
 }
