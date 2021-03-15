@@ -197,7 +197,6 @@ const createPolygonFence = (data) => ( //添加多边形围栏
     axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=2',data)
 )
 export default {
-    test,
     login,
     getManagerList,
     addManager,
