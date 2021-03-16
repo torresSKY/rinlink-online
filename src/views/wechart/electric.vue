@@ -27,17 +27,17 @@
                             <div @click='evt_add_pen'>添加围栏</div>
                             <div v-if="add_pen_hint_flag" class="add_pen_hint">请在地图上单击鼠标左键框选区域</div>
                         </div>
-                        <div class="search_content_list" v-infinite-scroll>
-                            <template v-if='list.length > 0'>
-                                <div class='list' v-for='(item,index) in list' :key='item.name'  @click='dowm(index)'>
+                        <div class="search_content_list" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="50">
+                            <template v-if='queryPen_dataList.length > 0'>
+                                <div class='list' v-for='(item,index) in queryPen_dataList' :key='item.fenceId'  @click='evt_dowm(index)'>
                                     <div class='elecard' :class = "active == index ? 'addclass' : '' ">
-                                        <div class='elecard_item_left' @click='changecrie(item)'>{{item.name}}</div>
-                                        <div class="elecard_item_right">
-                                            <div>{{$t('view.radius')}}：{{item.radius}}{{$t('view.mi')}}</div>
+                                        <div class='elecard_item_left'>{{item.fenceName}}</div>
+                                        <div class="elecard_item_right" :class="item.fenceType != '1' ? 'elecard_item_right_t':''">
+                                            <div v-if="item.fenceType == '1'">{{$t('view.radius')}}：{{item.circleFence.radius}}{{$t('view.mi')}}</div>
                                             <div>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click="evt_show_relevance"></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click='evt_edit(item)' :hidden='!showedit'></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/delet.png')" fit="contain"  @click='evt_delete(item)'></el-image>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)' :hidden='!showedit'></el-image>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
                                             </div>
                                         </div>
                                     </div>
@@ -95,7 +95,7 @@
                             <el-button slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="users_bottom">
-                            <el-tree :data="data" :render-content="renderContent"></el-tree>
+                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </div>
                     </div>
                 </el-col>
@@ -105,44 +105,52 @@
                             <el-button slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="devices_bottom">
-                            <el-tree
+                            <!-- <el-tree
                                 :data="data_tree"
                                 show-checkbox
                                 node-key="id"
                                 :default-expanded-keys="[2]"
                                 :default-checked-keys="[5]"
                                 :props="defaultProps">
-                            </el-tree>
+                            </el-tree> -->
+                            <!-- <el-checkbox-group @change="evt_select_devices" v-model="checked_devices" size="mini">
+                                <el-checkbox size="mini" style="display:block;"  v-for="item in devices_list" :checked="item.checked" :label="item.deviceName" :key="item.deviceName">{{item.deviceName}}</el-checkbox>
+                            </el-checkbox-group> -->
+                            <div v-for="item in devices_list" :key="item.deviceName" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.deviceName)">
+                                <img v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
+                                <img v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
+                                <span style="font-size:16px;margin-left:5px;line-height:20px;">{{item.deviceName}}</span>
+                            </div>
                         </div>
                     </div>
                 </el-col>
             </el-row>
             <el-row :gutter="20" class="search_device">
-                <el-col :span="8">
+                <!-- <el-col :span="8">
                     <el-input size="small" placeholder="请输入设备名称/设备IMEI" prefix-icon="el-icon-search" v-model="search_device_key"></el-input>
                 </el-col>
                 <el-col :span="3">
                     <el-button style="width:100%" size="small" type="primary">搜索</el-button>
-                </el-col>
+                </el-col> -->
                 <el-col :span="3">
                     <el-button size="small" type="danger">取消关联</el-button>
                 </el-col>
             </el-row>
-            <el-table class="relevance_table" size="mini" :data="allequlist" style="width: 100%" tooltip-effect="dark"  @selection-change="">
+            <el-table v-show="selected_devices.length > 0" class="relevance_table" size="mini" :data="selected_devices" style="width: 100%" tooltip-effect="dark">
                 <el-table-column align="center" fixed type="selection" min-width="20"></el-table-column>
                 <el-table-column align="center" fixed :label="$t('table.Device')" prop="deviceName" min-width="120" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.imei')" prop='imei' min-width="140" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.groupname')" prop="groupName" min-width="120" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.model')" prop="deviceModel" min-width="80" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.imei')" prop='deviceNumber' min-width="140" show-overflow-tooltip></el-table-column>
+                <!-- <el-table-column align="center" :label="$t('table.groupname')" prop="groupName" min-width="120" show-overflow-tooltip></el-table-column> -->
+                <el-table-column align="center" :label="$t('table.model')" prop="deviceModel.name" min-width="80" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" :label="$t('table.Detailed')" prop="address" min-width="180" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.addtime')" prop="createDt" min-width="160" show-overflow-tooltip></el-table-column>
+                <el-table-column align="center" :label="$t('table.addtime')" prop="activationTime" min-width="160" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" fixed="right" :label="$t('table.operation')" min-width="100">
                     <template slot-scope="scope">
                        <el-button size="mini" @click="linkequ(scope.row)" type="danger">取消关联</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination hide-on-single-page="true" small background page-size="5" current-page="1" layout="total, prev, pager, next ,jumper" :total="100" style="text-align:center;margin-top:10px"></el-pagination>
+            <el-pagination :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination>
             <div class="relevance_device_bottom_btn">
                 <el-button type="info" size="small" @click="evt_close">取消</el-button>
                 <el-button type="primary" size="small">确定</el-button>
@@ -155,17 +163,17 @@
                     <el-input v-model="pen_form.fenceName" style="width:80%"></el-input>
                 </el-form-item>
                 <el-form-item v-if="pen_type_value == '1'" label="半径:"  required>
-                    <el-input  v-model="pen_form.fenceArea.radius" style="width:80%"></el-input><span style="margin-left:10px">米</span>
+                    <el-input type="number"  v-model="pen_form.fenceArea.radius" style="width:80%"></el-input><span style="margin-left:10px">米</span>
                 </el-form-item>
                 <el-form-item v-if="pen_type_value == '3'" label="行政区域" required>
-                    <el-select  placeholder="请选择省份" size="small" style="width:32%">
-                      <el-option ></el-option>
+                    <el-select @change="evt_change_frist_region" v-model="selected_frist_region"  placeholder="请选择省份" size="small" style="width:32%">
+                      <el-option  v-for="item in select_first_region" :key="item.name" :label="item.name" :value="item.name"></el-option>
                     </el-select>
-                    <el-select  placeholder="请选择市" size="small" style="width:32%">
-                      <el-option ></el-option>
+                    <el-select @change="evt_change_second_region" v-model="selected_second_region"  placeholder="请选择市" size="small" style="width:32%">
+                      <el-option  v-for="item in select_second_region" :key="item.name" :label="item.name" :value="item.name"></el-option>
                     </el-select>
-                    <el-select  placeholder="请选择区/镇" size="small" style="width:32%">
-                      <el-option ></el-option>
+                    <el-select v-if="select_third_region.length > 0" @change="evt_change_third_region" v-model="selected_third_region" placeholder="请选择区/镇" size="small" style="width:32%">
+                      <el-option v-for="item in select_third_region" :key="item.name" :label="item.name" :value="item.name"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="描述:" >
@@ -197,6 +205,7 @@ import api from '@/api/wechart/index'
 import mixin from '@/mixins/index'
 import { formatDate } from '@/plugins/date.js'
 import {gcj02tobd09, bd09togcj02, gcj02towgs84, wgs84togcj02} from '@/utils/baidumap.js'
+import axios from 'axios'
 export default {
     name: 'electric',
     mixins:[mixin],
@@ -239,42 +248,6 @@ export default {
             searchimei: null,
             circle: null,
             equlist: [],
-            allequlist: [{
-                deviceName:'测试设备名称1',
-                imei:'5645678978987656',
-                groupName:'西子国际233455',
-                deviceModel:'D709',
-                address:'上海市西子国际中心778999',
-                createDt:'2020-01-01 10:30:00'
-            },{
-                deviceName:'测试设备名称1',
-                imei:'5645678978987656',
-                groupName:'西子国际233455',
-                deviceModel:'D709',
-                address:'上海市西子国际中心778999',
-                createDt:'2020-01-01 10:30:00'
-            },{
-                deviceName:'测试设备名称1',
-                imei:'5645678978987656',
-                groupName:'西子国际233455',
-                deviceModel:'D709',
-                address:'上海市西子国际中心778999',
-                createDt:'2020-01-01 10:30:00'
-            },{
-                deviceName:'测试设备名称1',
-                imei:'5645678978987656',
-                groupName:'西子国际233455',
-                deviceModel:'D709',
-                address:'上海市西子国际中心778999',
-                createDt:'2020-01-01 10:30:00'
-            },{
-                deviceName:'测试设备名称1',
-                imei:'5645678978987656',
-                groupName:'西子国际233455',
-                deviceModel:'D709',
-                address:'上海市西子国际中心778999',
-                createDt:'2020-01-01 10:30:00'
-            }],
             showequlist: false,
             linkequstr: true,
             nowfenceid: '',
@@ -293,83 +266,11 @@ export default {
             },
             addloading: true,
             fenceid: null,
-            active:-1,
             backFlag:false,
 
             select_type_name:'',//查询选择类型
-            data: [{
-                label: '一级 1',
-                children: [{
-                    label: '二级 1-1',
-                    children: [{
-                    label: '三级 1-1-1'
-                    }]
-                }]
-                }, {
-                label: '一级 2',
-                children: [{
-                    label: '二级 2-1',
-                    children: [{
-                    label: '三级 2-1-1'
-                    }]
-                }, {
-                    label: '二级 2-2',
-                    children: [{
-                    label: '三级 2-2-1'
-                    }]
-                }]
-                }, {
-                label: '一级 3',
-                children: [{
-                    label: '二级 3-1',
-                    children: [{
-                    label: '三级 3-1-1'
-                    }]
-                }, {
-                    label: '二级 3-2',
-                    children: [{
-                    label: '三级 3-2-1'
-                    }]
-                }]
-            }],
-            renderContent:function (h,{node,data,store}) {
-                let addElement = arguments[0];
-                return addElement('span',[
-                    addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
-                    addElement('span',"    "),
-                    addElement('span',arguments[1].node.label)
-                ]);
-            },
             input3:'',
             input4:'',
-            data_tree: [{
-                id: 1,
-                label: '一级 1',
-                children: [{
-                    id: 4,
-                    label: '二级 1-1',
-                }]
-            }, {
-                id: 2,
-                label: '一级 2',
-                children: [{
-                    id: 5,
-                    label: '二级 2-1'
-                }, {
-                    id: 6,
-                    label: '二级 2-2'
-                }]
-            }, {
-                id: 3,
-                label: '一级 3',
-                children: [{
-                    id: 7,
-                    label: '二级 3-1'
-                }, {
-                    id: 8,
-                    label: '二级 3-2'
-                }]
-            }],
             defaultProps: {
                 children: 'children',
                 label: 'label'
@@ -382,8 +283,23 @@ export default {
             click_point: '',//添加圆形围栏时点击地图时的经纬度
             add_pen_flag:false,//添加围栏
             pen_form:{
-                fenceArea:{}
+                fenceName:'',
+                fenceRemark:'',
+                inAlarm:'',
+                outAlarm:'',
+                fenceArea:{
+                    radius:'',
+                }
             },//提交围栏的数据
+            regress_pen_form:{
+                fenceName:'',
+                fenceRemark:'',
+                inAlarm:'',
+                outAlarm:'',
+                fenceArea:{
+                    radius:'',
+                }
+            },
             pen_round_rules: {
                 name: [
                     { required: true, message: '请输入围栏名称', trigger: 'blur' }
@@ -408,6 +324,34 @@ export default {
             search_address_key:'',//搜索地址的key值
             relevance_device_flag: false,//关联设备模块的展示
             current_circle:'',//当前绘制的圆形
+            queryPen_pageSize: 10,//查询电子围栏的每页条数
+            queryPen_page:1,//查询的页数 默认为1
+            queryPen_pageTotal:1,//总页数
+            queryPen_dataList:[],//查询获得的围栏数据
+            active:-1,//选中的围栏
+            Region_dataList:[],//行政区域
+            select_first_region:[],//一级
+            select_second_region:[],//二级
+            select_third_region:[],//三级
+            selected_frist_region:'',//选中的一级区域
+            selected_second_region:'',//选中的二级
+            selected_third_region:'',//选中的三级
+            selected_adcode:'',//最终选择的行政区域码
+            update_pen:false,//更新围栏辨识
+            user_list:[],//用户列表
+            renderContent:function (h,{node,data,store}) {
+                let addElement = arguments[0];
+                return addElement('span',[
+                    addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
+                    addElement('span',"    "),
+                    addElement('span',arguments[1].node.label)
+                ]);
+            },//el-tree 自定义图标
+            user_id:'',//用于查询设备的用户id
+            devices_list:[],//查询的用户设备列表
+            selected_devices:[],//选择要关联的设备
+            selected_devices_page:1,
+            selected_devices_pagesize:5,
         }
     },
     watch: {
@@ -470,6 +414,8 @@ export default {
         // 搜索提示
         _this.search_hint();
         _this.evt_eventListener();
+        _this.evt_queryPen();
+        _this.evt_getRegion();
     },
     methods: {
         // 监听绘制结束事件
@@ -505,8 +451,9 @@ export default {
             }else if(_this.pen_type_value == '2' && _this.add_pen_hint_flag){
                 // _this.drawingManager.open();
                 _this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON); 
-            }else{
+            }else if(_this.pen_type_value == '3' && _this.add_pen_hint_flag){
                 _this.drawingManager.close();
+                _this.add_pen_flag = true;
             }
         },
         // 显示添加围栏的提示
@@ -527,47 +474,99 @@ export default {
                 this.map.removeOverlay(this.current_circle);
                 this.current_circle = '';
             }
+            if(this.update_pen){
+                this.pen_form = this.regress_pen_form;
+                this.update_pen = false;
+            }
         },
         // 添加围栏
         evt_submit_addPen:function(){
             var _this = this;
             // 圆形围栏
             if(_this.pen_type_value == '1'){
-                _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
-                _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
-                api.createCircleFence(_this.pen_form).then((res) => {
-                    console.log(res);
-                    if(res.success && res.msg == "OK"){
-                        _this.map.removeOverlay(_this.current_circle);
-                        _this.current_circle = '';
-                        submit_result();
-                    }else{
-                         _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
-                    }
-                }).catch((err) => {
-                    _this.$message({message: '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
-                })
+               _this.evt_CircleFence();
             }else if(_this.pen_type_value == '2'){
                 // 多边形围栏
-                _this.pen_form.fenceArea['points'] = _this.point_arr;
-                api.createPolygonFence(_this.pen_form).then((res) => {
-                    if(res.success && res.msg == "OK"){
-                        _this.map.removeOverlay(_this.current_polygon);
-                        _this.current_polygon = '';
-                        submit_result();
+               _this.evt_PolygonFence();
+            }else if(_this.pen_type_value == '3'){
+                // 行政区域
+               _this.evt_DistrictFence();
+            }
+        },
+        submit_result:function() {
+            var _this = this;
+            _this.pen_form = _this.regress_pen_form;
+            _this.add_pen_hint_flag = false;
+            _this.add_pen_flag = false;
+            _this.$message({message: _this.update_pen? '更新成功':'添加成功',type:'success',offset:'200',duration:'1000'});
+            _this.update_pen = false;
+        },
+        // 添加、更新圆形围栏
+        evt_CircleFence:function(){
+            var _this = this;
+            var type = 'update';
+            if(!_this.update_pen){
+                type = 'create';
+                _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
+                _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
+            }
+            api.createUpdateCircleFence(type,_this.pen_form).then((res) => {
+                if(res.success && res.msg == "OK"){
+                        if(!_this.update_pen){
+                            _this.map.removeOverlay(_this.current_circle);
+                            _this.current_circle = '';
+                        }
+                        _this.submit_result();
                     }else{
                         _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
-                    }
-                }).catch((err) => {
-                    _this.$message({message: '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
-                })
+                }
+            }).catch((err) => {
+                _this.$message({message: _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // 添加、更新多边形围栏
+        evt_PolygonFence:function(){
+            var _this = this;
+            var type = 'update';
+            if(!_this.update_pen){
+                type = 'create';
+                _this.pen_form.fenceArea['points'] = _this.point_arr;
             }
-            function submit_result() {
-                _this.pen_form = {fenceArea:{}};
-                _this.add_pen_hint_flag = false;
-                _this.add_pen_flag = false;
-                _this.$message({message: '添加成功',type:'success',offset:'200',duration:'1000'});
+            delete _this.pen_form.fenceArea.radius;
+            api.createUpdatePolygonFence(type, _this.pen_form).then((res) => {
+                if(res.success && res.msg == "OK"){
+                        if(!_this.update_pen){
+                            _this.map.removeOverlay(_this.current_polygon);
+                            _this.current_polygon = '';
+                        }
+                        _this.submit_result();
+                }else{
+                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message: _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // 添加、更新行政区域围栏
+        evt_DistrictFence:function(){
+            var _this = this;
+            var type = 'update';
+            if(!_this.update_pen){
+                type = 'create';
+                _this.pen_form.fenceArea['areaCode'] = _this.selected_adcode;
             }
+            delete _this.pen_form.fenceArea.radius;
+            api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
+                console.log(res);
+                if(res.success && res.msg == "OK"){
+                        _this.submit_result();
+                }else{
+                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message: _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+            })
+           
         },
         // 搜索提示
         search_hint:function(){
@@ -635,36 +634,262 @@ export default {
             }
         },
         // 显示关联设备模块
-        evt_show_relevance:function(){
+        evt_show_relevance:function(item){
             this.relevance_device_flag = true;
+            this.evt_getBusiness();
         },
         // 关闭关联设备弹框
         evt_close:function(){
             this.relevance_device_flag = false;
+            this.user_list = [];
+            this.user_id = '';
+            this.devices_list = [];
+            this.selected_devices = [];
         },
-        // 更新围栏
-        evt_edit:function(){
+        //获取代理商
+        evt_getBusiness:function(){
+            var _this = this;
+            api.getBusiness().then((res) => {
+                console.log(res);
+                if(res.success && res.msg == 'OK'){
+                    for(let i = 0, len = res.data.length; i < len; i++){
+                        var user_data = {};
+                        user_data['label'] = res.data[i].username;
+                        user_data['info'] = res.data[i]
+                        user_data['user_id'] = res.data[i].userId;
+                        _this.user_list.push(user_data);
+                        _this.user_id = res.data[0].userId;
+                    }
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices();
 
+                    })
+                }else{
+                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // el-tree 懒加载数组
+        evt_loadTree:function(node, resolve){
+            // console.log(node)
+            var _this = this;
+            if(node.level === 0){
+                return resolve(_this.user_list);
+            }
+            if(node.level != 0){
+                var request_data = {};
+                request_data['parentId'] = node.data.info.userId;
+                api.getBusiness(request_data).then((res) => {
+                    if(res.success && res.msg == 'OK'){
+                        if(res.data.length == 0){
+                            resolve([]);
+                            return;
+                        }
+                        var children_data = [];
+                        for(let i = 0, len = res.data.length; i < len; i++){
+                            var user_data = {};
+                            user_data['label'] = res.data[i].username;
+                            user_data['info'] = res.data[i];
+                            user_data['user_id'] = res.data[i].userId;
+                            children_data.push(user_data);
+                        }
+                        node.data['children'] = children_data;
+                        resolve(children_data);
+                    }else{
+                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                        resolve([]);
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                })
+            }  
+        },
+        // 代理商的选择
+        evt_node_click:function(e){
+            // console.log(e.info);
+            if (this.user_id == e.info.userId){
+                return;
+            }
+            this.user_id = e.info.userId;
+            this.devices_list = [];
+            this.evt_queryDevices();
+        },
+        // 查询设备
+        evt_queryDevices:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['ownerId'] = _this.user_id;
+            api.queryDevices(request_data).then((res) => {
+                console.log(res);
+                if(res.success && res.msg == "OK" && res.data.length > 0){
+                    _this.devices_list = res.data;
+                    for(let i = 0, len = _this.devices_list.length; i < len; i++){
+                        _this.$set(_this.devices_list[i],'checked',false);
+                    }
+                }
+            })
+        },
+        // 选择关联的设备
+        evt_select_devices:function(name){
+            // console.log(name);
+            for(let i = 0,len = this.devices_list.length; i < len; i++){
+                if(name == this.devices_list[i].deviceName){
+                    if(this.devices_list[i].checked){
+                        this.$set(this.devices_list[i],'checked',false);
+                        for(let j = 0, le = this.selected_devices.length; j < le; j++){
+                            if(name == this.selected_devices[j].deviceName){
+                                this.selected_devices.splice(j,1);
+                            }
+                        }
+                    }else{
+                        this.$set(this.devices_list[i],'checked',true);
+                        this.selected_devices.push(this.devices_list[i]);
+                    }
+                    
+                }
+            }
+        },
+        // 选择更新围栏
+        evt_edit:function(item){
+            console.log(item);
+            this.update_pen = true;
+            this.pen_form['fenceId'] = item.fenceId;
+            this.pen_form['fenceName'] = item.fenceName;
+            this.pen_form['fenceRemark'] = item.fenceRemark;
+            this.add_pen_flag =  true;
+            if(item.fenceType == '1'){
+                this.pen_type_value = '1';
+                this.pen_form.fenceArea['lat'] = item.circleFence.coordinate.lat;
+                this.pen_form.fenceArea['lng'] = item.circleFence.coordinate.lng;
+                this.pen_form.fenceArea['radius'] = item.circleFence.radius;
+            }else if(item.fenceType == '2'){
+                this.pen_type_value = '2';
+                this.pen_form.fenceArea['points'] = item.polygonFence.points;
+            }else if(item.fenceType == '3'){
+                this.pen_type_value = '3';
+                this.pen_form.fenceArea['areaCode'] = item.districtFence.areaCode;
+            }
         },
         // 删除围栏
-        evt_delete:function(){
-            this.$confirm('此操作将删除该围栏, 是否继续?', '提示', {
+        evt_delete:function(item){
+            var _this = this;
+            var request_data = {};
+            request_data['fenceId'] = item.fenceId;
+            _this.$confirm('此操作将删除该围栏, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
                 center: true
             }).then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                });
+                api.deleteFence(request_data).then((res) => {
+                    console.log(res);
+                    if(res.success && res.msg == "OK"){
+                        _this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        // 重新查询围栏数据
+                        _this.queryPen_page = 1;
+                        _this.queryPen_dataList = [];
+                        _this.queryPen_pageTotal = 1;
+                        _this.evt_queryPen();
+                    }else{
+                        _this.$message({message: '删除失败',type:'error',offset:'200',duration:'1000'});
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                })
             }).catch(() => {
-                this.$message({
+                _this.$message({
                     type: 'info',
                     message: '已取消删除'
                 });
             });
         },
+        // 查询电子围栏
+        evt_queryPen:function(){
+            var _this = this;
+            var query_data = {};
+            query_data['pageSize'] = _this.queryPen_pageSize;
+            query_data['page'] = _this.queryPen_page;
+            api.queryPen(query_data).then((res) => {
+                // console.log(res);
+                if(res.success && res.msg == "OK" && res.data.content.length > 0){
+                    var new_data = res.data.content;
+                    _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
+                    _this.queryPen_pageTotal = res.data.pageTotal;
+                }
+            })
+        },
+        // 触底加载更多
+        evt_scroll_load:function(){
+            this.queryPen_page = this.queryPen_page + 1;
+            if(this.queryPen_page > this.queryPen_pageTotal){
+                return;
+            }
+            this.evt_queryPen();
+        },
+        // 切换围栏
+        evt_dowm:function(index){
+          //将点击的元素的索引赋值给变量
+            this.active = index;
+        },
+        // 获取行政区域
+        evt_getRegion:function(){
+            var _this = this;
+            var ajax = new XMLHttpRequest();
+            ajax.open('get','https://restapi.amap.com/v3/config/district?keywords=中国&subdistrict=3&key=7a81f34c17ac678bdd1c99905f92596a');
+            ajax.send();
+            ajax.onreadystatechange = function () {
+                if (ajax.readyState==4 && ajax.status==200) {
+                    // console.log(ajax.response);
+                    // console.log(JSON.parse(ajax.response).districts[0]);
+                    _this.Region_dataList = JSON.parse(ajax.response).districts[0];
+                    _this.select_first_region = _this.Region_dataList.districts;
+                }
+            }
+        },
+        // 改变一级行政区域
+        evt_change_frist_region:function(name){
+            // console.log(name);
+            this.selected_second_region = '';
+            this.selected_third_region = '';
+            for(let i = 0, len = this.select_first_region.length; i < len; i++){
+                if(name == this.select_first_region[i].name){
+                    this.select_second_region = this.select_first_region[i].districts;
+                    break;
+                }
+            }
+        },
+        // 改变二级行政区域
+        evt_change_second_region:function(name){
+            // console.log(name);
+            this.selected_third_region = '';
+            for(let i = 0, len = this.select_second_region.length; i < len; i++){
+                if(name == this.select_second_region[i].name){
+                    this.select_third_region = this.select_second_region[i].districts;
+                    if(this.select_second_region[i].districts.length == 0){
+                        this.selected_adcode = this.select_second_region[i].adcode;
+                    }
+                    break;
+                }
+            }
+        },
+        // 改变三级行政区域
+        evt_change_third_region:function(name){
+            // console.log(name);
+            for(let i = 0 ,len = this.select_third_region.length; i < len; i++){
+                if(name == this.select_third_region[i].name){
+                    this.selected_adcode = this.select_third_region[i].adcode;
+                    break;
+                }
+            }
+        },
+
         
         bd09togcj02(bd_lon, bd_lat) { 
     　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
@@ -704,10 +929,6 @@ export default {
             ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
             return ret
         },
-        dowm(index){
-          //将点击的元素的索引赋值给变量
-            this.active = index
-        }
     },
     filters:{
         formatDate(val) {
@@ -849,6 +1070,12 @@ export default {
                 white-space: nowrap;
             }
         }
+        .elecard_item_right_t{
+            justify-content: flex-end;
+            >div:nth-of-type(1){
+                width: auto !important;
+            }
+        }
 
     }
     .addclass{
@@ -941,6 +1168,8 @@ export default {
 }
 .search_device{
     margin: 10px 0px;
+    display: flex;
+    justify-content: flex-end;
 }
 .relevance_table{
     // height: 30vh;
