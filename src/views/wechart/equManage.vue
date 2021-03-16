@@ -14,7 +14,7 @@
                         <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select">
                             <el-button slot="append" icon="el-icon-search"></el-button>
                         </el-input>
-                        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" style="margin-top:10px"></el-tree>
                     </el-row>
                 </el-row>
             </el-col>
@@ -75,6 +75,16 @@
                       </el-option>
                     </el-select>
                   </el-col>
+                  <el-col :span='5' >
+                        <el-date-picker
+                          v-model="time"
+                          type="datetimerange"
+                          range-separator="-"
+                          value-format="timestamp"
+                          :start-placeholder="$t('table.startdata')"
+                          :end-placeholder="$t('table.enddata')">
+                        </el-date-picker>
+                    </el-col>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
                     <el-col :span='8'>
@@ -85,7 +95,7 @@
                     </el-col>  
                 </el-row>
                 <el-row :gutter="22" class="list-search" >
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
+                    <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -109,10 +119,12 @@
                 <span>{{$t('view.selEqu')}}：</span>
               </el-row>
               <el-row style="margin:10px 0">
-                <el-input v-model="search" :placeholder="$t('view.inputimei')"></el-input>
+                <el-input :placeholder="$t('view.inputimei')" v-model="search" class="input-with-select">
+                    <el-button slot="append" icon="el-icon-search"></el-button>
+                </el-input>
               </el-row>
               <el-row>
-                <BaseTable v-loading="loading" :dataList="saleList" :tableLabel="tableSale"   ></BaseTable>
+                <BaseTable  :dataList="saleList" :tableLabel="tableSale"   ></BaseTable>
               </el-row>
             </el-col>
             <el-col :span='10'>
@@ -123,7 +135,7 @@
                 <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select">
                     <el-button slot="append" icon="el-icon-search"></el-button>
                 </el-input>
-                <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                <el-tree :data="insiadeData" :props="defaultProps" @node-click="handleNodeClick" style="margin-top:10px"></el-tree>
               </el-row>
             </el-col>
           </el-row>
@@ -132,9 +144,9 @@
               <span>{{$t('table.expire2')}}：</span>
             </el-col>
             <el-col :span='4'>
-              <el-select v-model="value" :placeholder="$t('view.select2')">
+              <el-select v-model="expiredTimeType" :placeholder="$t('view.select2')" clearable :disabled="checked">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in timeOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
@@ -182,64 +194,62 @@
           <el-form :model="equinfoForm" ref="equinfoForm"  label-width="140px">
             <el-col :span='12'>
               <el-form-item :label="$t('table.Device')"  >
-                <el-input  v-model="equinfoForm.value" :placeholder="$t('table.Device')" ></el-input>
+                <el-input  v-model="equinfoForm.deviceName" :placeholder="$t('table.Device')" ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.imei')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.deviceNumber}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.model')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.deviceModel.name}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.status')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.networkStatus}}</span>
               </el-form-item>
             </el-col>
-            <el-form-item :label="$t('table.label')"  >
-              <span>{{equinfoForm.value}}</span>
-            </el-form-item>
             <el-col :span='12'>
               <el-form-item :label="$t('table.activationTime')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.activationTime}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.salesTime')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.sellTime}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.expire')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.serviceExpireTime}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.importtime')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.createTime}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.useLimit')"  >
-                <span>{{equinfoForm.value}}</span>
+                <span>{{equinfoForm.useRangeCode}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
               <el-form-item :label="$t('table.iccid')"  >
-                <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input>
+                <span>{{equinfoForm.iccid}}</span>
+                <!-- <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input> -->
               </el-form-item>
             </el-col>
             <el-form-item :label="$t('table.note')"  >
-              <el-input type='textarea' :rows="2" v-model="equinfoForm.value" :placeholder="$t('table.note')" ></el-input>
+              <el-input type='textarea' :rows="2" v-model="equinfoForm.remark" :placeholder="$t('table.note')" ></el-input>
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogEquinfo = false">{{$t('button.cancel')}}</el-button>
-            <el-button type="primary" @click="dialogEquinfo = false">{{$t('button.determine')}}</el-button>
+            <el-button type="primary" @click="confrimEquinfo">{{$t('button.determine')}}</el-button>
           </span>
         </el-dialog>
         <!-- 下发指令 -->
@@ -383,14 +393,15 @@ export default{
         activeName: 'first',
         search:null,
         data: [],
+        insiadeData:[],
         defaultProps: {
           children: 'children',
-          label: 'label'
+          label: 'username'
         },
         value1:null,
         value:null,
         options: [],
-        checked:true,
+        checked:false,
         deviceIdList:'',
         deviceModelId:'',
         deviceModeOptions:[],
@@ -408,22 +419,34 @@ export default{
           { value: '1', label: this.$t('table.activationTime')},{ value: '2', label: this.$t('table.salesTime')},
           { value: '3', label: this.$t('table.expire')}
         ],
+        time:[],
         loading:false,
         dataList:[],
         tableLabel: [
+          {label: '', type: 'selection'},
           {label: this.$t('table.index'), type: 'index'},
           {label: this.$t('table.Device'), prop: 'deviceName'},
           {label: this.$t('table.imei'), prop: 'deviceNumber'},
-          {label: this.$t('table.model'), prop: 'category'},
+          {label: this.$t('table.model'), prop: 'model',type: 'render',
+          formatter: (params) => {
+            // console.log(params)
+            params['model'] = params.deviceModel.name
+            return params
+          }},
           {label: this.$t('table.status'), prop: 'networkStatus'},
-          {label: this.$t('table.usestatus'), prop: 'category'},
+          {label: this.$t('table.usestatus'), prop: 'useStatus'},
           {label: this.$t('table.iccid'), prop: 'iccid'},
-          {label: this.$t('table.customers'), prop: 'ownerBusinessUsername'},
+          {label: this.$t('table.customers'), prop: 'username',type: 'render',
+          formatter: (params) => {
+            // console.log(params)
+            params['username'] = params.owner.username
+            return params
+          }},
           {label: this.$t('table.activeTime'), prop: 'activationTime'},
-          {label: this.$t('table.expire'), prop: 'partner_contacts'},
+          {label: this.$t('table.expire'), prop: 'serviceExpireTime'},
           {label: this.$t('table.salesTime'), prop: 'sellTime'},
-          {label: this.$t('table.mileage'), prop: 'odo'},
-          {label: this.$t('table.deliveryTime'), prop: 'shipmentTime'},
+          {label: this.$t('table.mileage'), prop: 'odb'},
+          {label: this.$t('table.deliveryTime'), prop: 'createTime'},
           {label: this.$t('table.operation'),
             type: 'clickSelect',
             selectOperation: (index, row) => {
@@ -442,8 +465,27 @@ export default{
         dialogSend:false,
         dialogHistorysend:false,
         equinfoForm:{
-          value:''
+          deviceId:'',
+          deviceName:'',
+          deviceNumber:'',
+          deviceModel:'',
+          networkStatus:'',
+          activationTime:'',
+          sellTime:'',
+          serviceExpireTime:'',
+          createTime:'',
+          useRangeCode:'',
+          iccid:'',
+          remark:''
         },
+        expiredTimeType:'',
+        timeOptions:[
+          { value: '-1', label: '无限制'},{ value: '1', label: '一个月'},
+          { value: '2', label: '二个月'},{ value: '3', label: '三个月'},
+          { value: '4', label: '半年'},{ value: '5', label: '一年'},
+          { value: '6', label: '二年'},{ value: '7', label: '三年'},
+        ],
+        multipleSelection:[],
         historysendList:[],
         tableHistorysend:[
           {label: this.$t('table.index'), type: 'index'},
@@ -470,16 +512,15 @@ export default{
         dialogSale:false,
         saleList:[],
         tableSale:[
-          {label: this.$t('table.imei'), type: 'serial_number'},
-          {label: this.$t('table.Device'), prop: 'serial_number'},
-          {label: this.$t('table.model'), prop: 'category'},
-          {label: this.$t('table.customers'), prop: 'category'},
-          {label: this.$t('table.operation'),
-            type: 'clickSelect',
-            selectOperation: (index, row) => {
-              this.showDialog(index, row)
-            },
-            selectText: [{command: '1', text: this.$t('button.dele'), index: 1}, ]
+          {label: this.$t('table.imei'), prop: 'deviceNumber'},
+          {label: this.$t('table.Device'), prop: 'deviceName'},
+          {label: this.$t('table.model'), prop: 'model'},
+          {label: this.$t('table.customers'), prop: 'username'},
+          {label: this.$t('button.dele'),
+            type:'clickEvent',
+            tableClick: (val) => {
+            this.showDialog('a', val)
+          }
          }
         ],
       }
@@ -488,10 +529,17 @@ export default{
         this.height=document.body.offsetHeight-62
         this.getlist()
         this.getModelList()
+        this.getBusiness()
     },
     methods:{
         getlist(){ // 获取设备型号列表
           this.loading = true
+          var startTime = null 
+          var endTime = null
+          if(this.time.length>0){
+            startTime = this.time[0]
+            endTime = this.time[1]
+          }
           api.getDevicesList({params: {
               pageSize: this.page.size,
               page: this.page.index - 1,
@@ -500,11 +548,15 @@ export default{
               networkStatus:this.networkStatus,
               useStatus:this.useStatus,
               containsChildren:this.containsChildren,
+              startTime:startTime,
+              endTime:endTime
           }}).then(res => {
             this.loading = false
+            // debugger
             if(res.msg=='OK'){
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
+              console.log(this.dataList)
             }else{
               this.dataList = []
               this.$message.error(res.errMsg)
@@ -527,13 +579,81 @@ export default{
               this.$message.error(err.errMsg)
             })
         },
+        getBusiness(){ // 获取代理商
+          api.getBusiness().then(res => {
+              let data = res.data
+              this.insiadeData = this.data = this.setTreeData(data)
+            }).catch(err => {
+              this.insiadeData = []
+              this.data = []
+              this.$message.error(err.errMsg)
+            })
+        },
+        setTreeData(arr){ // 遍历
+            // 删除所有的children,以防止多次调用
+            arr.forEach(function(item) {
+                delete item.children;
+            });
+            // debugger
+            let map = {}; //构建map
+            arr.forEach(i => {
+                map[i.userId] = i; //构建以id为键 当前数据为值
+            });
+            let treeData = [];
+            arr.forEach(child => {
+                const mapItem = map[child.parentId]; //判断当前数据的parentId是否存在map中
+                if (mapItem) {
+                    //存在则表示当前数据不是最顶层的数据
+                    //注意： 这里的map中的数据是引用了arr的它的指向还是arr,当mapItem改变时arr也会改变，踩坑点
+                    (mapItem.children || (mapItem.children = [])).push(child); //这里判断mapItem中是否存在child
+                } else {
+                    //不存在则是顶层数据
+                    treeData.push(child);
+                }
+            });
+            return treeData;
+        },
         handleClick(tab, event) { // 全部客户，到期客户
           console.log(tab, event);
         },
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
         }, 
+        showDialog(index, data){ // 操作
+          switch (index) {
+            case '1': // 设备详情
+              this.equinfoForm = Object.assign({},data)
+              this.dialogEquinfo = true
+          }
+        },
+        confrimEquinfo(){ //确认更新设备
+          let data = {
+            deviceId:this.equinfoForm.deviceId,
+            deviceName:this.equinfoForm.deviceName,
+            remark:this.equinfoForm.remark,
+            useRangeCode:this.equinfoForm.useRangeCode
+          }
+          api.editDevices(data).then(res => {
+            if(res.msg=='OK'){
+              this.$message.success(this.$t('message.changesuc'))
+              this.dialogEquinfo = false
+              this.getlist()
+            }else {
+              this.$message.error(res.errMsg)
+            }
+          }).catch(err => {
+            this.$message.error(err.errMsg)
+          })
+        },
+        childByValue(val){ //选择处理数据
+          // console.log(val)
+          this.multipleSelection = val
+        },
         sale(){ // 销售
+          // if(this.multipleSelection<=0){
+          //   return this.$message.warning(this.$t('message.selOne'))
+          // }
+          this.saleList = this.multipleSelection
           this.dialogSale = true
         },
         moveLable(){ // 移动到其他标签
