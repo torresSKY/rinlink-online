@@ -55,6 +55,9 @@ const url = 'http://rap2api.taobao.org/app/mock/277955'
 const getDevicesList = (data) => (   //分页查询设备列表
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=2', data)
 )
+const editDevices = (data) => (   //更新设备
+    axios.post(url+'/update_device?__OPERATOR_TYPE=2', data)
+)
 const getManagerList = (data) => (   //分页查询系统管理员
     axios.post(url+'/paging_query_system_manager_users', data)
 )
@@ -152,7 +155,7 @@ const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models', data)
 )
 const getBusiness = (data) => (   //查询代理商
-    axios.post(url+'/query_business_users', data)
+    axios.post(url+'/query_business_users?__OPERATOR_TYPE=2', data)
 )
 const getServices = (data) => (   //查询所有IOT服务
     axios.post(url+'/query_all_iot_services', data)
@@ -259,6 +262,7 @@ export default {
     getAlarmType,
     alarmStatistic,
     getDevicesList,
+    editDevices,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,
