@@ -55,8 +55,17 @@ const url = 'http://rap2api.taobao.org/app/mock/277955'
 const getDevicesList = (data) => (   //分页查询设备列表
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=2', data)
 )
+const searchDevices = (data) => (   //搜索设备列表
+    axios.post(url+'/search_devices?__OPERATOR_TYPE=2', data)
+)
+const queryDevices = (data) => (   //查询设备列表
+    axios.post(url+'/query_devices?__OPERATOR_TYPE=2', data)
+)
 const editDevices = (data) => (   //更新设备
     axios.post(url+'/update_device?__OPERATOR_TYPE=2', data)
+)
+const sellDevices = (data) => (   //销售设备
+    axios.post(url+'/sell_devices?__OPERATOR_TYPE=2', data)
 )
 const getManagerList = (data) => (   //分页查询系统管理员
     axios.post(url+'/paging_query_system_manager_users', data)
@@ -119,10 +128,10 @@ const resetBusiness = (data) => (   //重置客户密码
     axios.post(url+'/reset_business_user_password', data)
 )
 const getBusinessUserinfo = (data) => (   //获取客户信息
-    axios.post(url+'/get_business_user_info', data)
+    axios.post(url+'/get_business_user_info?__OPERATOR_TYPE=2', data)
 )
 const searchBusiness = (data) => (   //搜索客户信息
-    axios.post(url+'/search_business_users', data)
+    axios.post(url+'/search_business_users?__OPERATOR_TYPE=2', data)
 )
 const getAlarmsDetail = (data) => (   //分页查询报警详情
     axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE=2', data)
@@ -262,7 +271,10 @@ export default {
     getAlarmType,
     alarmStatistic,
     getDevicesList,
+    searchDevices,
+    queryDevices,
     editDevices,
+    sellDevices,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

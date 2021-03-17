@@ -27,7 +27,7 @@
         data(){
             return {
                 activeName: 'first',
-                height: 1000,
+                height: 900,
             }
         },
         mounted(){

@@ -43,7 +43,7 @@
                 <i class="el-icon-caret-bottom" style="color:#ccc;font-size:18px;margin-right:5px;"></i>
               </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="a"><b>{{$t('button.changepassword')}}</b></el-dropdown-item>
+                <el-dropdown-item command="a"><b>{{$t('button.personal')}}</b></el-dropdown-item>
                 <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -263,7 +263,7 @@ export default {
           this.$refs["passform"].clearValidate()
         })
       } else if (command == "b") {
-        this.signOut();
+        this.signOut()
       }
     },
     closetab(){

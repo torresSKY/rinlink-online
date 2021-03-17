@@ -67,7 +67,8 @@ export default {
     more: 'More',
     clickip: 'Click upload ',
     addCustomer:'Add customer',
-    editCustomer:'Edit customer'
+    editCustomer:'Edit customer',
+    personal:'Personal Center'
   },
   view: {
     sysMessage:'System message',
@@ -569,5 +570,6 @@ export default {
     selOne:'Please select one to process data',
     selUnprocessed:'Please select unprocessed data',
     handleAll:'Are you sure to deal with all unprocessed alarm information uniformly?',
+    selCust:'Please select a sales customer'
   }
 }

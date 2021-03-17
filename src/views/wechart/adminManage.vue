@@ -206,14 +206,13 @@
                       remark:this.adminForm.remark
                     }
                     api.addManager(data).then(res => {
-                      
                       if(res.msg=='OK'){
                         this.$message.success(this.$t('message.addsuc'))
                         this.$refs['adminForm'].resetFields()
                         this.dialogAdmin = false
                         this.getlist()
                       }else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.errMsg)
                       }
                     }).catch(err => {
                       this.$message.error(err.errMsg)

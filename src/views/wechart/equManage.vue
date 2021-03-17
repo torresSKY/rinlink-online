@@ -1,6 +1,6 @@
 <template>
     <div  >
-        <el-card  :style="{height:height + 'px'}" >
+        <el-row :style="{height:height + 'px'}" >
             <el-col :span='4'>
                 <el-row class="cust-title">
                     <span>{{$t('view.customerList')}}</span>
@@ -11,10 +11,10 @@
                         <el-tab-pane name="second"><span slot="label">&nbsp;{{$t('view.expire')}}</span></el-tab-pane>
                     </el-tabs>
                     <el-row style="padding:0 10px">
-                        <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select">
-                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select" clearable>
+                            <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
-                        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" style="margin-top:10px"></el-tree>
+                        <el-tree :data="data" :props="defaultProps" :highlight-current='true' @node-click="handleNodeClick" style="margin-top:10px"></el-tree>
                     </el-row>
                 </el-row>
             </el-col>
@@ -60,11 +60,11 @@
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
                   <el-col :span='4'>
-                    <el-button class="butresh" >{{$t('button.search')}}</el-button>
-                    <el-button class="butdele" >{{$t('button.more')}}</el-button>
+                    <el-button class="butresh" @click="getlist()">{{$t('button.search')}}</el-button>
+                    <el-button class="butdele" @click="moreSearch">{{$t('button.more')}}</el-button>
                   </el-col>
                 </el-row>
-                <el-row class="list-search" :gutter="22">
+                <el-row class="list-search"  v-show="moreFlag" :gutter="22">
                   <el-col :span='3'>
                     <el-select v-model="timeType" :placeholder="$t('table.timeType')">
                       <el-option
@@ -86,7 +86,7 @@
                         </el-date-picker>
                     </el-col>
                 </el-row>
-                <el-row class="list-search" :gutter="22">
+                <el-row class="list-search" >
                     <el-col :span='8'>
                       <el-button size="mini" @click="sale">{{$t('button.sale')}}</el-button>
                       <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
@@ -94,7 +94,7 @@
                       <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
                 </el-row>
-                <el-row :gutter="22" class="list-search" >
+                <el-row  class="list-search" >
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
                 </el-row>
                 <el-pagination
@@ -107,7 +107,7 @@
                     style="text-align:center">
                 </el-pagination>
             </el-col>
-        </el-card>
+        </el-row>
         <!-- 销售 -->
         <el-dialog
           :title="$t('button.sale')"
@@ -117,10 +117,11 @@
             <el-col :span='14'>
               <el-row>
                 <span>{{$t('view.selEqu')}}：</span>
+                <span>{{equNum}}</span>
               </el-row>
               <el-row style="margin:10px 0">
-                <el-input :placeholder="$t('view.inputimei')" v-model="search" class="input-with-select">
-                    <el-button slot="append" icon="el-icon-search"></el-button>
+                <el-input :placeholder="$t('view.inputimei')" v-model="searchImei" class="input-with-select" clearable>
+                    <el-button slot="append" icon="el-icon-search" @click="searchEqu"></el-button>
                 </el-input>
               </el-row>
               <el-row>
@@ -130,12 +131,14 @@
             <el-col :span='10'>
               <el-row>
                 <span>{{$t('view.sellTo')}}：</span>
+                <span>{{custinfo.username}}</span>
               </el-row>
               <el-row style="margin:10px 0">
-                <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select">
-                    <el-button slot="append" icon="el-icon-search"></el-button>
+                <el-input :placeholder="$t('view.searchUser')" v-model="searchName" class="input-with-select" clearable>
+                    <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
-                <el-tree :data="insiadeData" :props="defaultProps" @node-click="handleNodeClick" style="margin-top:10px"></el-tree>
+                <el-tree :data="insiadeData" :props="defaultProps" :highlight-current='true' 
+                @node-click="handleCust" style="margin-top:10px"></el-tree>
               </el-row>
             </el-col>
           </el-row>
@@ -144,7 +147,8 @@
               <span>{{$t('table.expire2')}}：</span>
             </el-col>
             <el-col :span='4'>
-              <el-select v-model="expiredTimeType" :placeholder="$t('view.select2')" clearable :disabled="checked">
+              <el-select v-model="expiredTimeType" :placeholder="$t('view.select2')" 
+              clearable :disabled="checked" @change='changeTimeType'>
                 <el-option
                   v-for="item in timeOptions"
                   :key="item.value"
@@ -154,7 +158,7 @@
               </el-select>
             </el-col>
             <el-col :span='3'>
-              <el-button class="butresh" >{{$t('button.refresh')}}</el-button>
+              <el-button class="butresh" @click="restInfo">{{$t('button.refresh')}}</el-button>
             </el-col>
             <el-col :span='4'>
               <el-checkbox v-model="checked">{{$t('view.changeSalesdate')}}</el-checkbox>
@@ -162,7 +166,7 @@
           </el-row>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogSale = false">{{$t('button.cancel')}}</el-button>
-            <el-button type="primary" @click="dialogSale = false">{{$t('button.determine')}}</el-button>
+            <el-button type="primary" @click="confrimgSale">{{$t('button.determine')}}</el-button>
           </span>
         </el-dialog> 
         <!-- 移动到其他标签 -->
@@ -389,11 +393,18 @@ export default{
             return time.getTime() > Date.now();
           }
         },
-        height:1000,
+        height:900,
         activeName: 'first',
         search:null,
+        moreFlag:false,
         data: [],
         insiadeData:[],
+        equNum:0,
+        custData:[],
+        custinfo:{
+          userId:'',
+          username:''
+        },
         defaultProps: {
           children: 'children',
           label: 'username'
@@ -402,6 +413,8 @@ export default{
         value:null,
         options: [],
         checked:false,
+        searchImei:'',
+        searchName:'',
         deviceIdList:'',
         deviceModelId:'',
         deviceModeOptions:[],
@@ -480,10 +493,10 @@ export default{
         },
         expiredTimeType:'',
         timeOptions:[
-          { value: '-1', label: '无限制'},{ value: '1', label: '一个月'},
-          { value: '2', label: '二个月'},{ value: '3', label: '三个月'},
-          { value: '4', label: '半年'},{ value: '5', label: '一年'},
-          { value: '6', label: '二年'},{ value: '7', label: '三年'},
+          { value: '-1', label: '无限制'},{ value: '31', label: '一个月'},
+          { value: '62', label: '二个月'},{ value: '93', label: '三个月'},
+          { value: '186', label: '半年'},{ value: '365', label: '一年'},
+          { value: '730', label: '二年'},{ value: '1095', label: '三年'},
         ],
         multipleSelection:[],
         historysendList:[],
@@ -526,7 +539,7 @@ export default{
       }
     },
     mounted(){
-        this.height=document.body.offsetHeight-62
+        this.height=document.body.offsetHeight-80
         this.getlist()
         this.getModelList()
         this.getBusiness()
@@ -568,6 +581,26 @@ export default{
             this.$message.error(err.errMsg)
           })
         },
+        moreSearch(){ // 更多搜索条件
+          this.moreFlag = !this.moreFlag
+        },
+        searchCustomer(){ // 搜索客户或账号
+          let data = {
+            searchType : this.search
+          }
+          api.searchBusiness(data).then(res => {
+            if(res.msg=='OK'){
+              this.data = this.setTreeData(res.data)
+            }else{
+              this.data = []
+              this.$message.error(res.errMsg)
+            }
+            
+          }).catch(err => {
+            this.data = []
+            this.$message.error(err.errMsg)
+          })
+        },
         getModelList(){ // 获取设备型号
             api.getModelList({params: {
               pageSize: 100,
@@ -583,7 +616,9 @@ export default{
           api.getBusiness().then(res => {
               let data = res.data
               this.insiadeData = this.data = this.setTreeData(data)
+              this.custData = this.setTreeData(data)
             }).catch(err => {
+              this.custData = []
               this.insiadeData = []
               this.data = []
               this.$message.error(err.errMsg)
@@ -618,12 +653,38 @@ export default{
         },
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
+            let item = {
+              ownerId : data.userId
+            }
+           api.queryDevices(item).then(res => {
+            if(res.msg=='OK'){
+              this.dataList = res.data
+              this.page.total = res.data.pageTotal  
+            }else {
+              this.dataList = []
+              this.page.total = 0
+              this.$message.error(res.errMsg)
+            }
+          }).catch(err => {
+            this.dataList = []
+            this.page.total = 0
+            this.$message.error(err.errMsg)
+          })
         }, 
         showDialog(index, data){ // 操作
           switch (index) {
             case '1': // 设备详情
               this.equinfoForm = Object.assign({},data)
               this.dialogEquinfo = true
+              break
+            case 'a': //销售-删除设备
+              // debugger
+              for(let i = 0;i<this.saleList.length;i++){
+                if(this.saleList[i].deviceId==data.deviceId){
+                  this.saleList.splice(i,1)
+                }
+              }
+              break
           }
         },
         confrimEquinfo(){ //确认更新设备
@@ -653,8 +714,136 @@ export default{
           // if(this.multipleSelection<=0){
           //   return this.$message.warning(this.$t('message.selOne'))
           // }
+          this.custinfo = {
+            userId:'',
+            username:''
+          }
+          this.searchImei = ''
+          this.searchName = ''
+          this.expiredTimeType = ''
+          this.checked = false
+          this.insiadeData = this.custData 
           this.saleList = this.multipleSelection
+          this.equNum = this.saleList.length
           this.dialogSale = true
+        },
+        restInfo(){ // 重置
+          this.custinfo = {
+            userId:'',
+            username:''
+          }
+          this.checked = false
+          this.expiredTimeType = ''
+          this.searchImei = ''
+          this.searchName = ''
+          this.insiadeData = this.custData 
+          this.saleList = this.multipleSelection
+          this.equNum = this.saleList.length
+        },
+        searchEqu(){ //销售-搜索设备
+          let data = {
+            searchType : this.searchImei
+          }
+          api.searchDevices(data).then(res => {
+            if(res.msg=='OK'){
+              let item = res.data[0]
+              if(item.deviceModel){
+                item['model'] = item.deviceModel.name
+              }else{
+                item['model'] = ''
+              }
+              if(item.ownerName){
+                item['username'] = item.ownerName
+              }else{
+                item['username'] = ''
+              }
+              var num = 0
+              for(let i = 0;i < this.saleList.length;i++){
+                if(this.saleList[i].deviceId == item.deviceId){
+                  num = 0
+                }else {
+                  num++
+                }
+              }
+              if(num == this.saleList.length){
+                this.saleList.push(item)
+              }
+              this.equNum = this.saleList.length
+              console.log(this.saleList)
+            }else{
+              this.insiadeData = []
+              this.$message.error(res.errMsg)
+            }
+            
+          }).catch(err => {
+            this.insiadeData = []
+            this.$message.error(err.errMsg)
+          })
+        },
+        searchCust(){ //销售-搜索客户或账号
+          let data = {
+            searchType : this.searchName
+          }
+          api.searchBusiness(data).then(res => {
+            if(res.msg=='OK'){
+              this.insiadeData = this.setTreeData(res.data)
+            }else{
+              this.insiadeData = []
+              this.$message.error(res.errMsg)
+            }
+            
+          }).catch(err => {
+            this.insiadeData = []
+            this.$message.error(err.errMsg)
+          })
+        },
+        changeTimeType(val){ // 销售-选择到期时间
+          console.log(val)
+          this.expiredTimeType = val
+        }, 
+        handleCust(data){ // 选择当前客户节点
+          console.log(data)
+          this.custinfo = Object.assign({},data)
+        },
+        confrimgSale(){ // 确认销售
+          var arr = []
+          if(this.saleList.length<=0){
+            return this.$message.warning(this.$t('view.sel'))
+          }
+          if(!this.custinfo.username){
+            return this.$message.warning(this.$t('message.selCust'))
+          }
+          var time = ''
+          if(Number(this.expiredTimeType)>0){
+            time = new Date().getTime() + Number(this.expiredTimeType)*24*60*60*1000
+          }else{
+            time = Number(this.expiredTimeType)
+          }
+          if(this.checked){
+            time = ''
+          }
+          this.saleList.forEach(function(item) {
+            arr.push(item.deviceId)
+          })
+          let data = {
+            deviceIdList : arr,
+            expiredTimeType : time ,
+            userId :this.custinfo.custinfo
+          }
+          api.sellDevices(data).then(res => {
+            if(res.msg=='OK'){
+              this.$message.success(this.$t('message.success'))
+              this.multipleSelection = []
+              this.dialogSale = false
+              this.getlist()
+            }else {
+              time = ''
+              this.$message.error(res.errMsg)
+            }
+          }).catch(err => {
+            time = ''
+            this.$message.error(err.errMsg)
+          })
         },
         moveLable(){ // 移动到其他标签
           this.dialogLable = true

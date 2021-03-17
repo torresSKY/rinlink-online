@@ -74,7 +74,8 @@ export default {
     clickip: '点击上传 ',
     control:'控制台',
     addCustomer:'添加客户',
-    editCustomer:'编辑客户'
+    editCustomer:'编辑客户',
+    personal:'个人中心'
   },
   view: {
     sysMessage:'系统消息',
@@ -588,5 +589,6 @@ export default {
     selOne:'请选择一条处理数据',
     selUnprocessed:'请选择未处理数据',
     handleAll:'确定统一处理所有未处理的报警信息吗?',
+    selCust:'请选择销售客户'
   }
 }
