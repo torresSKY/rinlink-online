@@ -8,15 +8,15 @@
                         <el-row class="select_type_name" :gutter="4" type="flex" align="center">
                             <el-col :span="10">
                                 <el-select v-model="select_type_name" placeholder="请选择查询类型" size="small">
-                                <el-option key="设备名称/IMEI"  label="设备名称/IMEI" value="设备名称/IMEI"></el-option>
-                                <el-option  key="围栏名称" label="围栏名称" value="围栏名称"></el-option>
+                                    <el-option key="设备名称/IMEI"  label="设备名称/IMEI" value="设备名称/IMEI"></el-option>
+                                    <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
                             </el-col>
                             <el-col :span="10">
-                                <el-input size="small" v-model='fencesearch'></el-input>
+                                <el-input size="small" v-model='fenceSearchContent'></el-input>
                             </el-col>
                             <el-col :span="4">
-                                <el-button @click='getele()' size="small" type="primary">{{$t('button.search')}}</el-button>
+                                <el-button @click='evt_fence_query' size="small" type="primary">{{$t('button.search')}}</el-button>
                             </el-col>
                         </el-row>   
                     </div>
@@ -36,7 +36,7 @@
                                             <div v-if="item.fenceType == '1'">{{$t('view.radius')}}：{{item.circleFence.radius}}{{$t('view.mi')}}</div>
                                             <div>
                                                 <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)' :hidden='!showedit'></el-image>
+                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
                                                 <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
                                             </div>
                                         </div>
@@ -91,8 +91,8 @@
             <el-row :gutter="20">
                 <el-col :span="12">
                     <div class="users">
-                        <el-input placeholder="请输入客户名称或账号" size="mini" v-model="input3">
-                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        <el-input placeholder="请输入客户名称" size="mini" v-model="searchBusiness_name">
+                            <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="users_bottom">
                             <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
@@ -101,8 +101,8 @@
                 </el-col>
                 <el-col :span="12">
                     <div class="devices">
-                        <el-input placeholder="IMEI/设备名称" size="mini" v-model="input4">
-                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        <el-input placeholder="设备名称" size="mini" v-model="searchDevice_name">
+                            <el-button @click="evt_searchDevice" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="devices_bottom">
                             <!-- <el-tree
@@ -116,11 +116,14 @@
                             <!-- <el-checkbox-group @change="evt_select_devices" v-model="checked_devices" size="mini">
                                 <el-checkbox size="mini" style="display:block;"  v-for="item in devices_list" :checked="item.checked" :label="item.deviceName" :key="item.deviceName">{{item.deviceName}}</el-checkbox>
                             </el-checkbox-group> -->
-                            <div v-for="item in devices_list" :key="item.deviceName" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.deviceName)">
-                                <img v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
-                                <img v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
-                                <span style="font-size:16px;margin-left:5px;line-height:20px;">{{item.deviceName}}</span>
-                            </div>
+                            <template v-if="devices_list.length > 0">
+                                <div v-for="item in devices_list" :key="item.deviceId" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.deviceId)">
+                                    <img v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
+                                    <img v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
+                                    <span style="font-size:16px;margin-left:5px;line-height:20px;">{{item.deviceName}}</span>
+                                </div>
+                            </template>
+                            <div v-if="devices_list.length == 0" style="font-size:16px;text-align:center">暂无用户设备数据</div>
                         </div>
                     </div>
                 </el-col>
@@ -133,10 +136,10 @@
                     <el-button style="width:100%" size="small" type="primary">搜索</el-button>
                 </el-col> -->
                 <el-col :span="3">
-                    <el-button size="small" type="danger">取消关联</el-button>
+                    <el-button size="small" type="danger" @click="evt_cancel_allSelect">取消关联</el-button>
                 </el-col>
             </el-row>
-            <el-table v-show="selected_devices.length > 0" class="relevance_table" size="mini" :data="selected_devices" style="width: 100%" tooltip-effect="dark">
+            <el-table @selection-change="evt_select_table" v-show="current_page_devices.length > 0" class="relevance_table" size="mini" :data="current_page_devices" style="width: 100%" tooltip-effect="dark">
                 <el-table-column align="center" fixed type="selection" min-width="20"></el-table-column>
                 <el-table-column align="center" fixed :label="$t('table.Device')" prop="deviceName" min-width="120" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" :label="$t('table.imei')" prop='deviceNumber' min-width="140" show-overflow-tooltip></el-table-column>
@@ -146,14 +149,14 @@
                 <el-table-column align="center" :label="$t('table.addtime')" prop="activationTime" min-width="160" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" fixed="right" :label="$t('table.operation')" min-width="100">
                     <template slot-scope="scope">
-                       <el-button size="mini" @click="linkequ(scope.row)" type="danger">取消关联</el-button>
+                       <el-button size="mini" @click="evt_cancel_item(scope.row)" type="danger">取消关联</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination>
+            <el-pagination @current-change="evt_current_change" :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination>
             <div class="relevance_device_bottom_btn">
                 <el-button type="info" size="small" @click="evt_close">取消</el-button>
-                <el-button type="primary" size="small">确定</el-button>
+                <el-button type="primary" size="small" @click="evt_submit_relevance">确定</el-button>
             </div>
         </el-dialog>
 
@@ -214,69 +217,15 @@ export default {
             imei: this.$route.query.imei,
             lon: this.$route.query.lon,
             lat: this.$route.query.lat,
-            showedit: true,
-            conlat: 0,
-            conlon: 0,
-            address: '',
-            address2: '',
-            radius: 0,
-            mPoint: null,
-            circleArr: [],
             x_PI: 3.14159265358979324 * 3000.0 / 180.0,
             PI: 3.1415926535897932384626,
             a: 6378245.0,
             ee: 0.00669342162296594323,
-            marker: null,
-            marker2: null,
-            display : false,
-            showloca2: true,
-            mapMarker: [],
-            height: 0,
-            list: [{
-                name:'测试'
-            },{
-                name:'cehsih1'
-            }],
-            addview: true,
-            editfen: false,
-            fenceName: '',
-            fenceRadio: 0,
-            fenceAddree: '',
-            inala: [0,1],
-            ac: null,
-            userlocation: null,
-            searchimei: null,
-            circle: null,
-            equlist: [],
-            showequlist: false,
-            linkequstr: true,
-            nowfenceid: '',
-            noeimei: '',
-            moreunequ: [],
-            moerequ: [],
-            moreequ:[],
-            allgroup: [],
-            search: '',
-            selegroup: '',
-            fencesearch: '',
-            page2:{
-                index:1,                                //当前页   
-                size:20,                                //一页的数量
-                total:0                                 //总数量
-            },
-            addloading: true,
-            fenceid: null,
-            backFlag:false,
-
-            select_type_name:'',//查询选择类型
-            input3:'',
-            input4:'',
-            defaultProps: {
-                children: 'children',
-                label: 'label'
-            },
-            search_device_key:'',
-
+            height: 0,//可视高度
+            fenceSearchContent: '',//搜索围栏的关键字
+            select_type_name:'',//电子围栏查询选择类型
+            fenceSearchId:'',//搜索围栏的id
+            fenceSearchDeviceId:'',//使用设备id搜索围栏
             map: null,//地图实例
             pen_type_value: '1',//围栏的样式类型 1圆形2多边形3行政区域
             add_pen_hint_flag:false,//添加围栏的提示
@@ -350,24 +299,16 @@ export default {
             user_id:'',//用于查询设备的用户id
             devices_list:[],//查询的用户设备列表
             selected_devices:[],//选择要关联的设备
+            current_page_devices:[],//分页当前页的关联设备数据
             selected_devices_page:1,
             selected_devices_pagesize:5,
+            selected_cancel:[],//选择取消关联的设备
+            relevance_fenceId: '',//选择关联的围栏id
+            searchBusiness_name:'',//搜索用户
+            searchDevice_name:'',//搜索设备
         }
     },
     watch: {
-        $route() {
-            this.setMap()
-        },
-        // searchimei(news){
-        //     clearTimeout(this.timer)
-        //     this.timer = setTimeout(()=>{
-        //         // if (news) {
-        //         //     this.search()
-        //         // }else{
-        //             this.getList()
-        //         // }
-        //     }, 500);
-        // },
         fenceRadio(news){
             let that = this
             let timer = null
@@ -418,6 +359,7 @@ export default {
         _this.evt_getRegion();
     },
     methods: {
+
         // 监听绘制结束事件
         evt_eventListener:function(){
             var _this = this;
@@ -568,192 +510,7 @@ export default {
             })
            
         },
-        // 搜索提示
-        search_hint:function(){
-            var _this = this;
-            // 百度地图API功能
-            function G(id) {
-                return document.getElementById(id);
-            }
-            var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
-                {"input" : "suggestId"
-                ,"location" : _this.map
-            });
-
-            ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
-                var str = "";
-                var _value = e.fromitem.value;
-                var value = "";
-                if (e.fromitem.index > -1) {
-                    value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-                }    
-                str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-                
-                value = "";
-                if (e.toitem.index > -1) {
-                    _value = e.toitem.value;
-                    value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-                }    
-                str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-                G("searchResultPanel").innerHTML = str;
-            });
-
-            var myValue;
-            ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
-                var _value = e.item.value;
-                myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-                G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
-                _this.evt_setPlace(myValue);
-                _this.search_address_key = myValue;
-            });
-        },
-        evt_setPlace:function(value){
-            var _this = this;
-            _this.map.clearOverlays();    //清除地图上所有覆盖物
-            function myFun(){
-                var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
-                _this.map.centerAndZoom(pp, 16);
-                _this.map.addOverlay(new BMap.Marker(pp));    //添加标注
-            }
-            var local = new BMap.LocalSearch(_this.map, { //智能搜索
-                onSearchComplete: myFun
-            });
-            local.search(value);
-        },
-        // 点击搜索按钮
-        evt_search_address:function(){
-            if(this.search_address_key == '') return;
-            this.evt_setPlace(this.search_address_key);
-        },
-        // 切换地图类型
-        evt_change_mapType:function(type){
-            if(type == 'moon'){
-                this.map.setMapType(BMAP_HYBRID_MAP);
-            }else{
-                this.map.setMapType(BMAP_NORMAL_MAP);
-            }
-        },
-        // 显示关联设备模块
-        evt_show_relevance:function(item){
-            this.relevance_device_flag = true;
-            this.evt_getBusiness();
-        },
-        // 关闭关联设备弹框
-        evt_close:function(){
-            this.relevance_device_flag = false;
-            this.user_list = [];
-            this.user_id = '';
-            this.devices_list = [];
-            this.selected_devices = [];
-        },
-        //获取代理商
-        evt_getBusiness:function(){
-            var _this = this;
-            api.getBusiness().then((res) => {
-                console.log(res);
-                if(res.success && res.msg == 'OK'){
-                    for(let i = 0, len = res.data.length; i < len; i++){
-                        var user_data = {};
-                        user_data['label'] = res.data[i].username;
-                        user_data['info'] = res.data[i]
-                        user_data['user_id'] = res.data[i].userId;
-                        _this.user_list.push(user_data);
-                        _this.user_id = res.data[0].userId;
-                    }
-                    _this.$nextTick(function(){
-                        _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices();
-
-                    })
-                }else{
-                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
-                }
-            }).catch((err) => {
-                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
-            })
-        },
-        // el-tree 懒加载数组
-        evt_loadTree:function(node, resolve){
-            // console.log(node)
-            var _this = this;
-            if(node.level === 0){
-                return resolve(_this.user_list);
-            }
-            if(node.level != 0){
-                var request_data = {};
-                request_data['parentId'] = node.data.info.userId;
-                api.getBusiness(request_data).then((res) => {
-                    if(res.success && res.msg == 'OK'){
-                        if(res.data.length == 0){
-                            resolve([]);
-                            return;
-                        }
-                        var children_data = [];
-                        for(let i = 0, len = res.data.length; i < len; i++){
-                            var user_data = {};
-                            user_data['label'] = res.data[i].username;
-                            user_data['info'] = res.data[i];
-                            user_data['user_id'] = res.data[i].userId;
-                            children_data.push(user_data);
-                        }
-                        node.data['children'] = children_data;
-                        resolve(children_data);
-                    }else{
-                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
-                        resolve([]);
-                    }
-                }).catch((err) => {
-                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
-                    resolve([]);
-                })
-            }  
-        },
-        // 代理商的选择
-        evt_node_click:function(e){
-            // console.log(e.info);
-            if (this.user_id == e.info.userId){
-                return;
-            }
-            this.user_id = e.info.userId;
-            this.devices_list = [];
-            this.evt_queryDevices();
-        },
-        // 查询设备
-        evt_queryDevices:function(){
-            var _this = this;
-            var request_data = {};
-            request_data['ownerId'] = _this.user_id;
-            api.queryDevices(request_data).then((res) => {
-                console.log(res);
-                if(res.success && res.msg == "OK" && res.data.length > 0){
-                    _this.devices_list = res.data;
-                    for(let i = 0, len = _this.devices_list.length; i < len; i++){
-                        _this.$set(_this.devices_list[i],'checked',false);
-                    }
-                }
-            })
-        },
-        // 选择关联的设备
-        evt_select_devices:function(name){
-            // console.log(name);
-            for(let i = 0,len = this.devices_list.length; i < len; i++){
-                if(name == this.devices_list[i].deviceName){
-                    if(this.devices_list[i].checked){
-                        this.$set(this.devices_list[i],'checked',false);
-                        for(let j = 0, le = this.selected_devices.length; j < le; j++){
-                            if(name == this.selected_devices[j].deviceName){
-                                this.selected_devices.splice(j,1);
-                            }
-                        }
-                    }else{
-                        this.$set(this.devices_list[i],'checked',true);
-                        this.selected_devices.push(this.devices_list[i]);
-                    }
-                    
-                }
-            }
-        },
-        // 选择更新围栏
+         // 选择更新围栏
         evt_edit:function(item){
             console.log(item);
             this.update_pen = true;
@@ -810,12 +567,38 @@ export default {
                 });
             });
         },
+        // 根据类型模糊搜索电子围栏
+        evt_fence_query:function(){
+            var _this = this;
+            if(_this.fenceSearchContent.trim() == '') return;
+            // _this.fenceSearchId = '';
+            // _this.fenceSearchDeviceId = '';
+            // // 分页参数初始化
+            // _this.queryPen_page = 1;
+            // _this.queryPen_dataList = [];
+            // _this.queryPen_pageTotal = 1;
+
+            var request_data = {};
+            request_data['searchType'] = _this.select_type_name;
+            request_data['searchContent'] = _this.fenceSearchContent;
+            api.searchFences(request_data).then((res) => {
+                console.log(res);
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
         // 查询电子围栏
         evt_queryPen:function(){
             var _this = this;
             var query_data = {};
             query_data['pageSize'] = _this.queryPen_pageSize;
             query_data['page'] = _this.queryPen_page;
+            if(_this.fenceSearchId != ''){
+                query_data['fenceId'] = _this.fenceSearchId;
+            }
+            if(_this.fenceSearchDeviceId != ''){
+                query_data['deviceId'] = _this.fenceSearchDeviceId;
+            }
             api.queryPen(query_data).then((res) => {
                 // console.log(res);
                 if(res.success && res.msg == "OK" && res.data.content.length > 0){
@@ -889,6 +672,346 @@ export default {
                 }
             }
         },
+        // 搜索提示
+        search_hint:function(){
+            var _this = this;
+            // 百度地图API功能
+            function G(id) {
+                return document.getElementById(id);
+            }
+            var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+                {"input" : "suggestId"
+                ,"location" : _this.map
+            });
+
+            ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+                var str = "";
+                var _value = e.fromitem.value;
+                var value = "";
+                if (e.fromitem.index > -1) {
+                    value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+                }    
+                str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+                
+                value = "";
+                if (e.toitem.index > -1) {
+                    _value = e.toitem.value;
+                    value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+                }    
+                str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+                G("searchResultPanel").innerHTML = str;
+            });
+
+            var myValue;
+            ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+                var _value = e.item.value;
+                myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+                G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+                _this.evt_setPlace(myValue);
+                _this.search_address_key = myValue;
+            });
+        },
+        evt_setPlace:function(value){
+            var _this = this;
+            _this.map.clearOverlays();    //清除地图上所有覆盖物
+            function myFun(){
+                var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+                _this.map.centerAndZoom(pp, 16);
+                _this.map.addOverlay(new BMap.Marker(pp));    //添加标注
+            }
+            var local = new BMap.LocalSearch(_this.map, { //智能搜索
+                onSearchComplete: myFun
+            });
+            local.search(value);
+        },
+        // 点击搜索按钮
+        evt_search_address:function(){
+            if(this.search_address_key == '') return;
+            this.evt_setPlace(this.search_address_key);
+        },
+        // 切换地图类型
+        evt_change_mapType:function(type){
+            if(type == 'moon'){
+                this.map.setMapType(BMAP_HYBRID_MAP);
+            }else{
+                this.map.setMapType(BMAP_NORMAL_MAP);
+            }
+        },
+        // 显示关联设备模块
+        evt_show_relevance:function(item){
+            this.relevance_fenceId = item.fenceId;
+            this.relevance_device_flag = true;
+            this.evt_getBusiness();
+        },
+        // 关闭关联设备弹框
+        evt_close:function(){
+            this.relevance_device_flag = false;
+            this.user_list = [];
+            this.user_id = '';
+            this.devices_list = [];
+            this.selected_devices = [];
+            this.current_page_devices = [];
+            this.selected_cancel = [];
+            this.relevance_fenceId = '';
+            this.searchBusiness_name = '';
+            this.searchDevice_name = '';
+        },
+        //获取代理商
+        evt_getBusiness:function(){
+            var _this = this;
+            api.getBusiness().then((res) => {
+                console.log(res);
+                if(res.success && res.msg == 'OK'){
+                    for(let i = 0, len = res.data.length; i < len; i++){
+                        var user_data = {};
+                        user_data['label'] = res.data[i].username;
+                        user_data['info'] = res.data[i]
+                        user_data['user_id'] = res.data[i].userId;
+                        _this.user_list.push(user_data);
+                        _this.user_id = res.data[0].userId;
+                    }
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices();
+
+                    })
+                }else{
+                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // el-tree 懒加载数组
+        evt_loadTree:function(node, resolve){
+            // console.log(node)
+            var _this = this;
+            if(node.level === 0){
+                return resolve(_this.user_list);
+            }
+            if(node.level != 0){
+                var request_data = {};
+                request_data['parentId'] = node.data.info.userId;
+                api.getBusiness(request_data).then((res) => {
+                    if(res.success && res.msg == 'OK'){
+                        if(res.data.length == 0){
+                            resolve([]);
+                            return;
+                        }
+                        var children_data = [];
+                        for(let i = 0, len = res.data.length; i < len; i++){
+                            var user_data = {};
+                            user_data['label'] = res.data[i].username;
+                            user_data['info'] = res.data[i];
+                            user_data['user_id'] = res.data[i].userId;
+                            children_data.push(user_data);
+                        }
+                        node.data['children'] = children_data;
+                        resolve(children_data);
+                    }else{
+                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                        resolve([]);
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                })
+            }  
+        },
+        // 代理商的选择
+        evt_node_click:function(e){
+            // console.log(e.info);
+            if (this.user_id == e.info.userId){
+                return;
+            }
+            this.user_id = e.info.userId;
+            // this.devices_list = [];
+            this.evt_queryDevices();
+        },
+        // 查询设备
+        evt_queryDevices:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['ownerId'] = _this.user_id;
+            api.queryDevices(request_data).then((res) => {
+                console.log(res);
+                if(res.success && res.msg == "OK" && res.data.length > 0){
+                    _this.devices_list = [];
+                    _this.devices_list = res.data;
+                    for(let i = 0, len = _this.devices_list.length; i < len; i++){
+                        // 遍历增加一个区分是否选中的标识
+                        _this.$set(_this.devices_list[i],'checked',false);
+                    }
+                }
+            }).catch((err) => {
+                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // 选择关联的设备
+        evt_select_devices:function(Id){
+            // console.log(Id);
+            // 遍历修改操作的设备的是否选中标识  选中的情况下添加到要关联的设备数据中
+            for(let i = 0,len = this.devices_list.length; i < len; i++){
+                if(Id == this.devices_list[i].deviceId){
+                    if(this.devices_list[i].checked){
+                        this.$set(this.devices_list[i],'checked',false);
+                        for(let j = 0, le = this.selected_devices.length; j < le; j++){
+                            if(Id == this.selected_devices[j].deviceId){
+                                this.selected_devices.splice(j,1);
+                            }
+                        }
+                    }else{
+                        this.$set(this.devices_list[i],'checked',true);
+                        this.selected_devices.push(this.devices_list[i]);
+                    }
+                    break;
+                }
+            }
+            this.evt_current_page_data();
+        },
+        // 处理关联设备的当前页数据
+        evt_current_page_data:function(){
+            // 整理当前页的数据
+            if(this.selected_devices.length < 5){ //不满足分页
+                this.current_page_devices = this.selected_devices;
+                if(this.selected_devices_page != 1){
+                    this.selected_devices_page = 1;
+                }
+            }else if(this.selected_devices.length >= 5){ //需要分页
+                var total_page = Math.ceil(this.selected_devices.length / this.selected_devices_pagesize);
+                if(total_page >= this.selected_devices_page){
+                    this.current_page_devices = this.selected_devices.splice((this.selected_devices_page - 1)*this.selected_devices_pagesize,this.selected_devices_pagesize);
+                }else{
+                    this.selected_devices_page = this.selected_devices_page - 1;
+                    this.current_page_devices = this.selected_devices.splice((this.selected_devices_page - 1)*this.selected_devices_pagesize,this.selected_devices_pagesize);
+                }
+            }
+        },
+        // 选择取消关联的设备
+        evt_select_table:function(e){
+            this.selected_cancel = e;
+        },
+        // 取消当前页所有已选择的关联设备
+        evt_cancel_allSelect:function(){
+            // 如果没有选中要取消关联的设备 直接return
+            if(this.selected_cancel.length == 0){
+                return;
+            }
+            for(let i = 0, len = this.selected_cancel.length; i < len; i++){
+                for(let j = 0, le = this.selected_devices.length; j < le; j++){
+                    if(this.selected_cancel[i].deviceId == this.selected_devices[j].deviceId){
+                        this.selected_devices.splice(j,1);
+                    }
+                }
+                for(let z = 0, l = this.devices_list.length; z < l; z++){
+                    if(this.selected_cancel[i].deviceId == this.devices_list[z].deviceId){
+                        this.$set(this.devices_list[z],'checked',false);
+                    }
+                }
+            }
+            this.selected_cancel = [];
+            this.evt_current_page_data();
+        },
+        // 表格里单个取消关联
+        evt_cancel_item:function(content){
+            // 如果没有选中要取消关联的设备 直接return
+            if(this.selected_cancel.length == 0){
+                return;
+            }
+            console.log(content);
+            for(let i = 0, len = this.selected_cancel.length; i < len; i++){
+                if(this.selected_cancel[i].deviceId == content.deviceId){
+                    this.selected_cancel.splice(i,1);
+                }
+            }
+            for(let z = 0, l = this.devices_list.length; z < l; z++){
+                if(content.deviceId == this.devices_list[z].deviceId){
+                    this.$set(this.devices_list[z],'checked',false);
+                }
+            }
+            for(let i = 0, len = this.selected_devices.length; i < len; i++){
+                if(this.selected_devices[i].deviceId == content.deviceId){
+                    this.selected_devices.splice(i,1);
+                }
+            }
+            this.evt_current_page_data();
+        },
+        // 分页栏切换页面
+        evt_current_change:function(num){
+            this.current_page_devices = this.selected_devices.splice((num - 1) * this.selected_devices_pagesize,this.selected_devices_page);
+        },
+        // 搜索用户searchBusiness
+        evt_searchBusiness:function(){
+            var _this = this;
+            if(_this.searchBusiness_name.trim() == '') return;
+            var request_data = {};
+            request_data['searchContent'] = _this.searchBusiness_name;
+            request_data['searchType'] = 'username';
+            api.searchBusiness(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == "OK" && res.success){
+                    _this.user_id = res.data[0].userId;
+                    _this.evt_queryDevices();
+                }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // 搜索当前用户下的设备
+        evt_searchDevice:function(){
+            var _this = this;
+            if(_this.searchDevice_name.trim() == '') return;
+            var request_data = {};
+            request_data['searchType'] = 'deviceName';
+            request_data['searchContent'] = _this.searchDevice_name;
+            request_data['ownerId'] = _this.user_id;
+            api.searchDevices(request_data).then((res) =>{
+                console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    _this.devices_list = res.data;
+                }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // 提交关联设备
+        evt_submit_relevance:function(){
+            var _this = this;
+            if(_this.selected_devices.length == 0){
+                _this.$message({message:'请选择关联的设备',type:'warning',offset:'200',duration:'1000'});
+                return;
+            }
+            var request_data = {};
+            var deviceIdList = [];
+            for(let i = 0, len = _this.selected_devices.length; i < len; i++){
+                deviceIdList.push(_this.selected_devices[i].deviceId);
+            }
+            request_data['deviceIdList'] = deviceIdList;
+            request_data['fenceId'] = _this.relevance_fenceId;
+            api.deviceBindFence(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == "OK" && res.success){
+                    _this.relevance_device_flag = false;
+                    _this.user_list = [];
+                    _this.user_id = '';
+                    _this.devices_list = [];
+                    _this.selected_devices = [];
+                    _this.current_page_devices = [];
+                    _this.selected_cancel = [];
+                    _this.relevance_fenceId = '';
+                    _this.searchBusiness_name = '';
+                    _this.searchDevice_name = '';
+                    _this.$message({message:'提交关联成功',type:'success',offset:'200',duration:'1000'})
+                }else{
+                    _this.$message({message: res.errMsg,type:'success',offset:'200',duration:'1000'})
+                }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'})
+            })
+        },
+
+
+       
 
         
         bd09togcj02(bd_lon, bd_lat) { 
