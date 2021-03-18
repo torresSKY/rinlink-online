@@ -1,6 +1,6 @@
 <template>
-    <div  >
-        <el-row :style="{height:height + 'px'}" >
+    <div :style="{height:height + 'px',overflow:'hidden'}">
+        <el-row  >
             <el-col :span='4'>
                 <el-row class="cust-title">
                     <span>{{$t('view.customerList')}}</span>
@@ -656,7 +656,7 @@ export default{
             let item = {
               ownerId : data.userId
             }
-           api.queryDevices(item).then(res => {
+          api.queryDevices(item).then(res => {
             if(res.msg=='OK'){
               this.dataList = res.data
               this.page.total = res.data.pageTotal  
@@ -769,7 +769,7 @@ export default{
                 this.saleList.push(item)
               }
               this.equNum = this.saleList.length
-              console.log(this.saleList)
+              // console.log(this.saleList)
             }else{
               this.insiadeData = []
               this.$message.error(res.errMsg)
@@ -813,14 +813,14 @@ export default{
           if(!this.custinfo.username){
             return this.$message.warning(this.$t('message.selCust'))
           }
-          var time = ''
+          var time = null
           if(Number(this.expiredTimeType)>0){
             time = new Date().getTime() + Number(this.expiredTimeType)*24*60*60*1000
           }else{
             time = Number(this.expiredTimeType)
           }
           if(this.checked){
-            time = ''
+            time = null
           }
           this.saleList.forEach(function(item) {
             arr.push(item.deviceId)
@@ -837,11 +837,11 @@ export default{
               this.dialogSale = false
               this.getlist()
             }else {
-              time = ''
+              time = null
               this.$message.error(res.errMsg)
             }
           }).catch(err => {
-            time = ''
+            time = null
             this.$message.error(err.errMsg)
           })
         },

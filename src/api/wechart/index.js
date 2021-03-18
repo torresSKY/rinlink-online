@@ -128,7 +128,13 @@ const resetBusiness = (data) => (   //重置客户密码
     axios.post(url+'/reset_business_user_password', data)
 )
 const getBusinessUserinfo = (data) => (   //获取客户信息
-    axios.post(url+'/get_business_user_info?__OPERATOR_TYPE=2', data)
+    axios.post(url+'/post/get_business_user_info?__OPERATOR_TYPE=2', data)
+)
+const editBusinessUserinfo = (data) => (   //更新客户信息
+    axios.post(url+'/post/update_current_business_user?__OPERATOR_TYPE=2', data)
+)
+const updateCurrentPwd = (data) => (   //更新当前用户密码
+    axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE=2', data)
 )
 const searchBusiness = (data) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE=2', data)
@@ -260,6 +266,8 @@ export default {
     deleBusiness,
     resetBusiness,
     getBusinessUserinfo,
+    editBusinessUserinfo,
+    updateCurrentPwd,
     searchBusiness,
     getAlarmsDetail,
     handleDeviceAlarm,

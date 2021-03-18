@@ -253,15 +253,16 @@ export default {
     },
     handleCommand(command) {
       if (command == "a") {
-        this.passform = {
-          old_password: "",
-          password: "",
-          confirm: ""
-        };
-        this.editpassstate = true;
-        this.$nextTick(() =>{
-          this.$refs["passform"].clearValidate()
-        })
+        this.$router.push('/personalCenter/setting')
+        // this.passform = {
+        //   old_password: "",
+        //   password: "",
+        //   confirm: ""
+        // };
+        // this.editpassstate = true;
+        // this.$nextTick(() =>{
+        //   this.$refs["passform"].clearValidate()
+        // })
       } else if (command == "b") {
         this.signOut()
       }

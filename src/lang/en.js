@@ -71,6 +71,9 @@ export default {
     personal:'Personal Center'
   },
   view: {
+    accountSecurity:'Account security',
+    basicInfo:'Basic information',
+    personalSettings:'Personal settings',
     sysMessage:'System message',
     sysNotice:'System notification',
     msgNotice:'Message notification',

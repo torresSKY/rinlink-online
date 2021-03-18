@@ -111,6 +111,17 @@ const list={
           {path: 'alarm',name: 'route.notice',component: () =>import('@/views/wechart/notice'),hidden: true,radius:false,roles:[0,1,88,99],},
         ]
       },
+      {
+        path: '/personalCenter',
+        name: 'button.personal',
+        radius:false,
+        roles:[0,1,88,99],
+        component: _import('index'),
+        redirect: '/personalCenter/setting',
+        children: [
+          {path: 'setting',name: 'button.personal',component: () =>import('@/views/wechart/personalCenter'),hidden: true,radius:false,roles:[0,1,88,99],},
+        ]
+      },
       // {
       //   path: '/log',
       //   name: 'table.operLog',

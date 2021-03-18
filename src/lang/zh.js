@@ -78,6 +78,9 @@ export default {
     personal:'个人中心'
   },
   view: {
+    accountSecurity:'账号安全',
+    basicInfo:'基本资料',
+    personalSettings:'个人设置',
     sysMessage:'系统消息',
     sysNotice:'系统通知',
     msgNotice:'消息通知',
