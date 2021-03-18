@@ -204,7 +204,7 @@ const getSold_device = (data) => ( //已销售设备
 )
 
 const queryPen = (data) => ( //查询电子围栏
-    axios.post(url + '/paging_fences',data)
+    axios.post(url + '/paging_fences?__OPERATOR_TYPE=2',data)
 )
 // 添加、更新圆形电子围栏
 const createUpdateCircleFence = (type,data) => {
@@ -236,14 +236,8 @@ const createUpdateDistrictFence = (type,data) => {
 const deleteFence = (data) => ( //删除电子围栏
     axios.post(url + '/delete_fence?__OPERATOR_TYPE=2',data)
 )
-const queryDevices = (data) =>(//电子围栏关联查询设备
-    axios.post(url + '/query_devices?__OPERATOR_TYPE=2',data)
-)
 const deviceBindFence = (data) => ( //设备绑定围栏
     axios.post(url + '/devices_bind_fence?__OPERATOR_TYPE=2',data)
-)
-const searchDevices = (data) => (// 电子围栏搜索关联设备
-    axios.post(url + '/search_devices?__OPERATOR_TYPE=2',data)
 )
 const searchFences = (data) => ( //搜索电子围栏
     axios.post(url + '/search_fences?__OPERATOR_TYPE=2',data)
@@ -312,8 +306,6 @@ export default {
     createUpdatePolygonFence,
     createUpdateDistrictFence,
     deleteFence,
-    queryDevices,
     deviceBindFence,
-    searchDevices,
     searchFences
 }
