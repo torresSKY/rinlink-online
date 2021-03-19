@@ -71,6 +71,7 @@ export default {
     personal:'Personal Center'
   },
   view: {
+    siteSettings:'Site settings',
     accountSecurity:'Account security',
     basicInfo:'Basic information',
     personalSettings:'Personal settings',

@@ -78,6 +78,7 @@ export default {
     personal:'个人中心'
   },
   view: {
+    siteSettings:'站点设置',
     accountSecurity:'账号安全',
     basicInfo:'基本资料',
     personalSettings:'个人设置',

@@ -97,7 +97,7 @@ const list={
         icon: 'tongzhi',
         redirect: '/setting/modelManage',
         children: [
-          {path: 'modelManage',name: 'route.setting',component: () =>import('@/views/wechart/modelManage'),hidden: true,radius:true,roles:[0,1,88,99],},
+          {path: 'modelManage',name: 'route.setting',component: () =>import('@/views/wechart/setting'),hidden: true,radius:true,roles:[0,1,88,99],},
         ]
       },
       {
