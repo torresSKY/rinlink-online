@@ -31,6 +31,7 @@ export default {
     notice:'通知',
   }, 
   button: {
+    clickCopy:'点击复制',
     sel:'筛选',
     allHandle:'全部处理',
     sale:'销售',
@@ -78,6 +79,11 @@ export default {
     personal:'个人中心'
   },
   view: {
+    domain:'网站域名',
+    siteicon:'网站icon',
+    siteLogo:'网站logo',
+    siteName:'网站名称',
+    companyName:'公司名称',
     siteSettings:'站点设置',
     accountSecurity:'账号安全',
     basicInfo:'基本资料',
@@ -158,6 +164,9 @@ export default {
     sel: '请选择设备'
   },
   table: {
+    logContent:'日志内容',
+    operType:'操作类型',
+    operTime:'操作时间',
     noticeTime:'通知时间',
     noticeContent:'通知内容',
     timeType:'时间类型',
@@ -490,7 +499,7 @@ export default {
     model2:'静止超过 10 分钟关闭 GPS，但不关闭 GPRS，设备保持在线',
     model3:'静止超过 10 分钟关闭 GPS，关闭 GPRS，设备将会离线',
     orderCode:'指令代码',
-    operLog:'系统操作日志',
+    operLog:'操作日志',
     pengTime:'碰撞时间（4ms）',
     pengSpeed:'碰撞加速度（0.1g）',
     carNo:'车牌号',

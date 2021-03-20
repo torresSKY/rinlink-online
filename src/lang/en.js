@@ -71,6 +71,12 @@ export default {
     personal:'Personal Center'
   },
   view: {
+    clickCopy:'Click Copy',
+    domain:'Website domain name',
+    siteicon:'Website icon',
+    siteLogo:'Website logo',
+    siteName:'Website name',
+    companyName:'Company name',
     siteSettings:'Site settings',
     accountSecurity:'Account security',
     basicInfo:'Basic information',
@@ -150,6 +156,9 @@ export default {
     sel: 'please choose device'
   },
   table: {
+    logContent:'Log content',
+    operType:'Operation type',
+    operTime:'Operation time',
     noticeTime:'Notice time',
     noticeContent:'Notice content',
     timeType:'Time type',
@@ -476,7 +485,7 @@ export default {
     model2:'When the device is still for more than 10 minutes, the GPS is turned off, but GPRS is not turned off, and the device remains online',
     model3:'If the GPS is turned off and GPRS is turned off for more than 10 minutes, the device will be offline',
     orderCode:'Instruction code',
-    operLog:'System operation log',
+    operLog:'Operation log',
     pengTime:'Collision time (4ms)',
     pengSpeed:'Impact acceleration (0.1g)',
     carNo:'Car number',
