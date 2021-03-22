@@ -8,12 +8,21 @@
                         <el-row class="select_type_name" :gutter="4" type="flex" align="center">
                             <el-col :span="10">
                                 <el-select v-model="select_type_name" placeholder="请选择查询类型" size="small">
-                                    <el-option key="设备名称/IMEI"  label="设备名称/IMEI" value="设备名称/IMEI"></el-option>
+                                    <el-option key="设备名称/IMEI"  label="设备名称/IMEI" value="deviceName"></el-option>
                                     <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
                             </el-col>
                             <el-col :span="10">
-                                <el-input size="small" v-model='fenceSearchContent'></el-input>
+                                <div class="fenceSearch_content">
+                                    <el-input size="small" v-model='fenceSearchContent' placeholder="请输入搜索内容"></el-input>
+                                    <!-- <input id="fence_search" type="text" v-model='fenceSearchContent' placeholder="请输入搜索内容"> -->
+                                    <div v-if="fenceSearch_content_flag" class="fenceSearch_content_tab">
+                                        <el-table @row-click="evt_row_click"  size="mini" :data="search_result" style="width:100%" :show-header="false">
+                                            <el-table-column v-if="select_type_name == 'fenceName'" prop="fenceName" label="围栏名称"></el-table-column>
+                                            <el-table-column v-if="select_type_name == 'deviceName'" prop="deviceName" label="设备名称"></el-table-column>
+                                        </el-table>
+                                    </div>
+                                </div>
                             </el-col>
                             <el-col :span="4">
                                 <el-button @click='evt_fence_query' size="small" type="primary">{{$t('button.search')}}</el-button>
@@ -226,6 +235,8 @@ export default {
             select_type_name:'',//电子围栏查询选择类型
             fenceSearchId:'',//搜索围栏的id
             fenceSearchDeviceId:'',//使用设备id搜索围栏
+            search_result:[],//模糊搜索的围栏数据
+            fenceSearch_content_flag:false,//模糊搜索的围栏数据展示标识
             map: null,//地图实例
             pen_type_value: '1',//围栏的样式类型 1圆形2多边形3行政区域
             add_pen_hint_flag:false,//添加围栏的提示
@@ -570,22 +581,52 @@ export default {
         // 根据类型模糊搜索电子围栏
         evt_fence_query:function(){
             var _this = this;
+            if(_this.select_type_name.trim() == '') {
+                _this.$message({message:'请先选择查询类型'})
+                return;
+            }
             if(_this.fenceSearchContent.trim() == '') return;
-            // _this.fenceSearchId = '';
-            // _this.fenceSearchDeviceId = '';
-            // // 分页参数初始化
-            // _this.queryPen_page = 1;
-            // _this.queryPen_dataList = [];
-            // _this.queryPen_pageTotal = 1;
 
             var request_data = {};
             request_data['searchType'] = _this.select_type_name;
             request_data['searchContent'] = _this.fenceSearchContent;
             api.searchFences(request_data).then((res) => {
                 console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    _this.search_result = res.data;
+                    _this.fenceSearch_content_flag = true;
+                }
             }).catch((err) => {
                 _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
+            // let fence_search =  document.getElementById("fence_search");
+            // fence_search.focus();
+            // fence_search.addEventListener('blur',function(){
+            //     _this.fenceSearch_content_flag = false;
+            //     fence_search.removeEventListener('blur',function(){});
+            // },false)
+            
+            let dom_element = document.getElementsByTagName('body')[0];
+            dom_element.addEventListener('click',function(){
+                _this.fenceSearch_content_flag = false;
+                dom_element.removeEventListener('click',function(){})
+            })
+        },
+        evt_row_click:function(row){
+            // console.log(row);
+             // 分页参数初始化
+            this.queryPen_page = 1;
+            this.queryPen_dataList = [];
+            this.queryPen_pageTotal = 1;
+            if(this.select_type_name == 'fenceName'){
+                this.fenceId = row.fenceId;
+                this.fenceSearchDeviceId = ''
+            }else{
+                this.fenceId = '';
+                this.fenceSearchDeviceId = row.deviceId;
+            }
+            this.fenceSearch_content_flag = false;
+            this.evt_queryPen();
         },
         // 查询电子围栏
         evt_queryPen:function(){
@@ -606,6 +647,8 @@ export default {
                     _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
                     _this.queryPen_pageTotal = res.data.pageTotal;
                 }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'warning',offset:"200",duration:"1000"});
             })
         },
         // 触底加载更多
@@ -1430,6 +1473,22 @@ export default {
         top: 14px;
     }
 }
+.fenceSearch_content{
+    position: relative;
+    .fenceSearch_content_tab{
+        width: 100%;
+        // height: 100px;
+        max-height: 300px;
+        overflow-y: scroll;
+        background: #FFFFFF;
+        border: 1px solid #DDDDDD;
+        position: absolute;
+        top: 34px;
+        left: 0px;
+        z-index: 999;
+        cursor: pointer;
+    }
+}
 
 /deep/ .el-table th.is-leaf{
         background: #f2f2f2 !important;
@@ -1445,6 +1504,18 @@ export default {
 }
 /deep/ .BMap_cpyCtrl {
     display: block; 
+}
+#fence_search{
+    height:32px;
+    width:97%;
+    box-sizing: border-box;
+    padding:0px 5px;
+    border:1px solid #DCDFE6;
+    border-radius: 4px;
+    outline: none;
+}
+#fence_search:focus{
+    border: 1px solid #409EFF;
 }
 
 
