@@ -101,9 +101,9 @@ export default{
      return {
          pickerOptions: {
             disabledDate(time) {
-                return time.getTime() > Date.now();
-                }
-            },
+                return time.getTime() > Date.now()
+            }
+        },
         height:1000,
         value:null,
         loading:false,
