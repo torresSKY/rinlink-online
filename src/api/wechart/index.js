@@ -101,7 +101,7 @@ const deleRoles = (data) => (   //删除角色
     axios.post(url+'/delete_system_manager_user_role', data)
 )
 const getShipmentList = (data) => (   //分页查询出货的设备
-    axios.post(url+'/paging_query_shipment_device', data)
+    axios.post(url+'/paging_devices?__OPERATOR_TYPE=1', data)
 )
 const shipment = (data) => (   //出货
     axios.post(url+'/shipment_device', data)
@@ -113,7 +113,7 @@ const uploadDeviceNumber = (data) => (   //上传文件-设备号
     axios.post(url+'/upload_device_number', data)
 )
 const getBusinessList = (data) => (   //分页查询客户
-    axios.post(url+'/paging_query_business_users', data)
+    axios.post(url+'/paging_query_business_users?__OPERATOR_TYPE=2', data)
 )
 const addBusiness = (data) => (   //添加客户
     axios.post(url+'/create_business_user', data)

@@ -8,7 +8,7 @@
                 <el-row class="cust-subtitle" :style="{height:(height-40) + 'px'}">
                     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
                         <el-tab-pane name="first"><span slot="label">&nbsp;{{$t('view.allCust')}}</span></el-tab-pane>
-                        <el-tab-pane name="second"><span slot="label">&nbsp;{{$t('view.expire')}}</span></el-tab-pane>
+                        <!-- <el-tab-pane name="second"><span slot="label">&nbsp;{{$t('view.expire')}}</span></el-tab-pane> -->
                     </el-tabs>
                     <el-row style="padding:0 10px">
                         <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select" clearable>
@@ -60,7 +60,7 @@
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
                   <el-col :span='4'>
-                    <el-button class="butresh" @click="getlist()">{{$t('button.search')}}</el-button>
+                    <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="moreSearch">{{$t('button.more')}}</el-button>
                   </el-col>
                 </el-row>
@@ -459,7 +459,7 @@ export default{
           {label: this.$t('table.expire'), prop: 'serviceExpireTime'},
           {label: this.$t('table.salesTime'), prop: 'sellTime'},
           {label: this.$t('table.mileage'), prop: 'odb'},
-          {label: this.$t('table.deliveryTime'), prop: 'createTime'},
+          {label: this.$t('table.deliveryTime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.operation'),
             type: 'clickSelect',
             selectOperation: (index, row) => {
@@ -545,7 +545,7 @@ export default{
         this.getBusiness()
     },
     methods:{
-        getlist(){ // 获取设备型号列表
+        getlist(type){ // 获取设备型号列表
           this.loading = true
           var startTime = null 
           var endTime = null
@@ -553,23 +553,27 @@ export default{
             startTime = this.time[0]
             endTime = this.time[1]
           }
-          api.getDevicesList({params: {
-              pageSize: this.page.size,
-              page: this.page.index - 1,
-              deviceIdList:[this.deviceIdList],
-              deviceModelId:this.deviceModelId,
-              networkStatus:this.networkStatus,
-              useStatus:this.useStatus,
-              containsChildren:this.containsChildren,
-              startTime:startTime,
-              endTime:endTime
-          }}).then(res => {
+          let data = {
+            pageSize: this.page.size,
+            page: this.page.index - 1,
+            deviceIdList:[this.deviceIdList],
+            deviceModelId:this.deviceModelId,
+            networkStatus:this.networkStatus,
+            useStatus:this.useStatus,
+            containsChildren:this.containsChildren,
+            startTime:startTime,
+            endTime:endTime
+          }
+          if(type==1){
+            data.page = 0
+          }
+          api.getDevicesList(data).then(res => {
             this.loading = false
             // debugger
             if(res.msg=='OK'){
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
-              console.log(this.dataList)
+              // console.log(this.dataList)
             }else{
               this.dataList = []
               this.$message.error(res.errMsg)
@@ -827,8 +831,8 @@ export default{
           })
           let data = {
             deviceIdList : arr,
-            expiredTimeType : time ,
-            userId :this.custinfo.custinfo
+            expiredTime : time ,
+            ownerId :this.custinfo.custinfo
           }
           api.sellDevices(data).then(res => {
             if(res.msg=='OK'){

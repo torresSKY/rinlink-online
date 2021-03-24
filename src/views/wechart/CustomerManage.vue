@@ -8,7 +8,7 @@
                     </el-row>
                     <el-row style="margin:10px 0">
                         <el-input :placeholder="$t('view.searchUser')" v-model="searchType" clearable class="input-with-select">
-                            <el-button slot="append" icon="el-icon-search"></el-button>
+                            <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
                     </el-row>
                     <el-row :style="{height:70 + 'vh'}">
@@ -19,20 +19,19 @@
             </el-col>
             <el-col :span='20'>
                 <el-card>
-                    <span>上海零零智能科技有限公司</span>&nbsp;
-                    {{$t('table.count')}}：<span>admin</span>&nbsp;
-                    {{$t('table.phone')}}：<span>151125151212</span>
+                    <span>{{company}}</span>&nbsp;
+                    {{$t('table.count')}}：<span>{{username}}</span>&nbsp;
+                    {{$t('table.phone')}}：<span>{{phone}}</span>
                 </el-card>
                 <el-row :gutter="22" style="margin-top:10px">
                     <el-col :span='4'>
-                        <el-input v-model="input3" :placeholder="$t('view.searchUser')"></el-input>
+                        <el-input v-model="input3" :placeholder="$t('view.searchUser')" clearable></el-input>
                     </el-col>
-
                     <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col>
                     <el-col :span='4'>
-                      <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                      <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                       <el-button class="butadd" @click="addCustomer">{{$t('button.addCustomer')}}</el-button>
                     </el-col>
                 </el-row>
@@ -137,26 +136,29 @@ export default {
       searchType:'',
       input3:'',
       businessData: [],
-        defaultProps: {
-          children: 'children',
-          label: 'username'
-        },
-        value:'',
-        options:[],
-        checked:true,
-        loading:false,
-        dataList: [],
-        tableLabel: [
+      defaultProps: {
+        children: 'children',
+        label: 'username'
+      },
+      value:'',
+      options:[],
+      company:'',
+      username:'',
+      phone:'',
+      checked:true,
+      loading:false,
+      dataList: [],
+      tableLabel: [
         {label: this.$t('table.index'), type: 'index'},
         {label: this.$t('table.customerName'), prop: 'nickname'},
         {label: this.$t('table.count'), prop: 'username'},
         {label: this.$t('table.phone'), prop: 'phoneNumber'},
         {label: this.$t('table.contacts'), prop: 'personToContact'},
-        {label: this.$t('table.equNo'),
-          type: 'clickEvent',
-          tableClick: (val) => {
-            this.showDialog('a', val)
-          }
+        {label: this.$t('table.equNo'),prop: 'devices',
+          // type: 'clickEvent',
+          // tableClick: (val) => {
+          //   this.showDialog('a', val)
+          // }
         },
         {label: this.$t('table.operation'),
           type: 'clickSelect',
@@ -212,9 +214,32 @@ export default {
     this.getBusiness()
   },
   methods: {
-    getlist(){ // 获取客户列表
+    getlist(type,parentId){ // 获取客户列表
         this.loading = true
-        api.getBusinessList().then(res => {
+        let data = null
+        if(type==1){
+          data = {
+            searchType :this.input3,
+            containsChildren :this.checked,
+            pageSize: 15,
+            page: 0,
+          }
+        }else if(type==2){
+          data = {
+            parentId :parentId,
+            containsChildren :this.checked,
+            pageSize: 15,
+            page: 0,
+          }
+        }else{
+          data = {
+            searchType :this.input3,
+            containsChildren :this.checked,
+            pageSize: this.page.size,
+            page: this.page.index - 1,
+          }
+        }
+        api.getBusinessList(data).then(res => {
           this.loading = false
           this.dataList = res.data.content
           this.page.total = res.data.pageTotal
@@ -228,19 +253,40 @@ export default {
       api.getBusiness().then(res => {
           let data = res.data
           this.businessData = this.setTreeData(data)
-          // this.getBusinessUserinfo(res.data[0].userId)
+          this.getBusinessUserinfo(res.data[0].userId)
           // console.log(this.businessData)
         }).catch(err => {
           this.businessData = []
           this.$message.error(err.errMsg)
         })
     },
+    searchCustomer(){ // 搜索客户或账号
+      let data = {
+        searchType : this.searchType
+      }
+     api.searchBusiness(data).then(res => {
+        if(res.msg=='OK'){
+          this.businessData = this.setTreeData(res.data)
+          this.getlist(2,res.data[0].parentId)
+          this.getBusinessUserinfo(res.data[0].userId)
+        }else{
+          this.businessData = []
+          this.$message.error(res.errMsg)
+        }
+        
+      }).catch(err => {
+        this.businessData = []
+        this.$message.error(err.errMsg)
+      })
+    },
     getBusinessUserinfo(userId){ // 获取客户信息
       api.getBusinessUserinfo({params: {
           userId: userId,
         }}).then(res => {
           let data = res.data
-
+          this.company = data.nickname
+          this.username = data.username
+          this.phone = data.phoneNumber
         }).catch(err => {
 
           this.$message.error(err.errMsg)
@@ -273,6 +319,8 @@ export default {
     },
     handleNodeClick(data) { // 选择用户节点
         console.log(data)
+        this.getlist(2,data.parentId)
+        this.getBusinessUserinfo(data.userId)
     },
     addCustomer(){ // 添加客户
         if(this.$refs['customerForm']){

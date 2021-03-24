@@ -92,18 +92,19 @@ export default {
   filters: {
     //  时间格式自定义 只需把字符串里面的改成自己所需的格式
     formatDate2 (time) {
+      // debugger
       if (!time) {
         return '--'
       }
       if (time != '--') {
-        let date = new Date(time)
+        let date = new Date(Number(time))
         return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
       } else {
         return time
       }
 
-      let date = new Date(time)
-      return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      // let date = new Date(time)
+      // return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
     }
   }
 }

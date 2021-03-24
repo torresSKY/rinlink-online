@@ -10,7 +10,7 @@
                     <el-input v-model="deviceNumber" :placeholder="$t('view.inputimei')"></el-input>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="deviceModelId" clearable :placeholder="$t('view.inputstate')">
+                    <el-select v-model="deviceModelId" clearable :placeholder="$t('table.model')">
                       <el-option
                         v-for="item in modelList"
                         :key="item.id"
@@ -73,7 +73,7 @@
                           end-placeholder="结束日期">
                         </el-date-picker>
                     </el-col>
-                    <el-col :span='3'>
+                    <!-- <el-col :span='3'>
                       <el-select v-model="useStatus" clearable :placeholder="$t('view.inputstate2')">
                         <el-option
                           v-for="item in useStatusoptions"
@@ -82,7 +82,7 @@
                           :value="item.value">
                         </el-option>
                       </el-select>
-                    </el-col>  
+                    </el-col>   -->
                 </el-row>
                 <el-row :gutter="22" class="list-search" >
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
@@ -243,7 +243,7 @@ export default{
         timevalue:'',
         usageYearsoptions:[
           {value: 1,label: '1年'},{value: 2,label: '2年'},{value: 3,label: '3年'},
-          {value: 5,label: '5年'},{value: 0,label: '无限制'}
+          {value: 5,label: '5年'},{value: -1,label: '无限制'}
         ],
         activationoptions:[
           {value: 0,label: '开机激活'},{value: 1,label: '注册激活'},{value: 2,label: '固定时间激活'}
@@ -253,18 +253,44 @@ export default{
         tableLabel: [
           {label: this.$t('table.index'), type: 'index'},
           {label: this.$t('table.Device'), prop: 'deviceName'},
-          {label: this.$t('table.model'), prop: 'deviceModelName'},
+          {label: this.$t('table.model'), prop: 'model',type: 'render',
+            formatter: (params) => {
+              // console.log(params)
+              params['model'] = params.deviceModel.name
+              return params
+            }
+          },
           {label: this.$t('table.imei'), prop: 'deviceNumber'},
-          {label: this.$t('table.agent'), prop: 'businessUserName'},
-          {label: this.$t('table.activationType'), prop: 'activationType'},
-          {label: this.$t('table.activationTime'), prop: 'activationTime'},
+          {label: this.$t('table.agent'), prop: 'username',
+            type: 'render',
+            formatter: (params) => {
+              console.log(params)
+              params['username'] = params.owner.username
+              return params
+            }
+          },
+          {label: this.$t('table.activationType'), prop: 'activationType',
+            type: 'render',
+            formatter: (params) => {
+              params.activationType = params.activationType == 0 ? '开机激活' : params.activationType == 1 ? '注册激活' : params.activationType == 3 ? '固定时间激活' : params.activationType
+              return params
+            }
+          },
+          {label: this.$t('table.activationTime'), prop: 'activationTime', type: 'Timestamp'},
           {label: this.$t('table.date'), prop: 'productionDate'},
-          {label: this.$t('table.isCard'), prop: 'isWithCard'},
+          {label: this.$t('table.isCard'), prop: 'withCard',
+            type: 'render',
+              formatter: (params) => {
+                params.withCard = params.withCard == true ? '是'  : params.withCard == false ? '否' : params.withCard
+                return params
+              }
+            },
           {label: this.$t('table.iccid'), prop: 'iccid'},
           {label: this.$t('table.batch'), prop: 'batchNumber'},
-          {label: this.$t('table.serviceLife'), prop: 'usageYears'},
-          {label: this.$t('table.deliveryTime'), prop: 'shipmentTime'},
-          {label: this.$t('table.usestatus'), prop: 'status'},
+          // {label: this.$t('table.serviceLife'), prop: 'usageYears'},
+          {label: this.$t('table.deliveryTime'), prop: 'createTime', type: 'Timestamp'},
+          {label: this.$t('table.expire2'), prop: 'serviceExpireTime', type: 'Timestamp'},
+          // {label: this.$t('table.usestatus'), prop: 'status'},
         ],
         dialogShipment:false,
         isMore:false,
@@ -328,8 +354,8 @@ export default{
               },
               deviceNumber:this.deviceNumber,
               deviceModelId:this.deviceModelId,
-              businessUserId:this.businessUserId,
-              isWithCard:this.isWithCard,
+              ownerId:this.businessUserId,
+              withCard:this.isWithCard,
               batchNumber:this.batchNumber,
               usageStatus:this.usageStatus,
               timeType:this.timeType,
@@ -391,13 +417,19 @@ export default{
           this.$refs['shipmentForm'].validate((valid) => {
             if (valid) {
               var data = null
+              let time = null
+              if(this.shipmentForm.usageYears==-1){
+                time = -1
+              }else{
+                time = new Date().getTime() + Number(this.shipmentForm.usageYears)*365*24*60*60*1000
+              }
               if(!this.isMore){
                 data = {
                   deviceModelId:this.shipmentForm.deviceModelId,
-                  businessUserId:this.shipmentForm.businessUserId,
+                  ownerId:this.shipmentForm.businessUserId,
                   deviceNumber:this.shipmentForm.deviceNumber,
-                  isWithCard:this.shipmentForm.isWithCard,
-                  usageYears:this.shipmentForm.usageYears,
+                  withCard:this.shipmentForm.isWithCard,
+                  expiredTime:time,
                   activationType:this.shipmentForm.activationType,
                   activationTime:this.shipmentForm.activationTime,
                   batchNumber:this.shipmentForm.batchNumber,
@@ -422,10 +454,10 @@ export default{
                 }
                 data = {
                   deviceModelId:this.shipmentForm.deviceModelId,
-                  businessUserId:this.shipmentForm.businessUserId,
+                  ownerId:this.shipmentForm.businessUserId,
                   uploadDeviceNumber:this.uploadDeviceNumber,
-                  isWithCard:this.shipmentForm.isWithCard,
-                  usageYears:this.shipmentForm.usageYears,
+                  withCard:this.shipmentForm.isWithCard,
+                  expiredTime:time,
                   activationType:this.shipmentForm.activationType,
                   activationTime:this.shipmentForm.activationTime,
                   batchNumber:this.shipmentForm.batchNumber,
