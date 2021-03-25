@@ -50,7 +50,7 @@ const getUsersList = (obj) => {
         }
     })
 }
-const url = 'http://rap2api.taobao.org/app/mock/277955'
+const url = 'http://rap2api.taobao.org/app/mock/277955/post'
 
 const getDevicesList = (data) => (   //分页查询设备列表
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=2', data)
@@ -128,10 +128,10 @@ const resetBusiness = (data) => (   //重置客户密码
     axios.post(url+'/reset_business_user_password', data)
 )
 const getBusinessUserinfo = (data) => (   //获取客户信息
-    axios.post(url+'/post/get_business_user_info?__OPERATOR_TYPE=2', data)
+    axios.post(url+'/get_business_user_info?__OPERATOR_TYPE=2', data)
 )
 const editBusinessUserinfo = (data) => (   //更新客户信息
-    axios.post(url+'/post/update_current_business_user?__OPERATOR_TYPE=2', data)
+    axios.post(url+'/update_current_business_user?__OPERATOR_TYPE=2', data)
 )
 const updateCurrentPwd = (data) => (   //更新当前用户密码
     axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE=2', data)
@@ -174,6 +174,9 @@ const getBusiness = (data) => (   //查询代理商
 )
 const getServices = (data) => (   //查询所有IOT服务
     axios.post(url+'/query_all_iot_services', data)
+)
+const getRangeinfo = (data) => (   //查询使用范围信息
+    axios.post(url+'/query_device_use_range_info', data)
 )
 const addModel = (data) => (   //创建设备型号
     axios.post(url+'/create_device_model', data)
@@ -289,6 +292,7 @@ export default {
     queryDevices,
     editDevices,
     sellDevices,
+    getRangeinfo,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

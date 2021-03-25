@@ -75,16 +75,27 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='5' >
-                        <el-date-picker
-                          v-model="time"
-                          type="datetimerange"
-                          range-separator="-"
-                          value-format="timestamp"
-                          :start-placeholder="$t('table.startdata')"
-                          :end-placeholder="$t('table.enddata')">
-                        </el-date-picker>
-                    </el-col>
+                  <el-col :span='6' >
+                    <el-date-picker
+                      v-model="time"
+                      style="width:99%"
+                      type="datetimerange"
+                      range-separator="-"
+                      value-format="timestamp"
+                      :start-placeholder="$t('table.startdata')"
+                      :end-placeholder="$t('table.enddata')">
+                    </el-date-picker>
+                  </el-col>
+                  <el-col :span='8' >
+                    <el-row style="line-height:40px">
+                      <el-col :span='4'>
+                        <span>{{$t('table.useLimit')}}：</span>
+                      </el-col>
+                      <el-col :span='12' v-for="item in range" :key="item[1].name">
+                        <img :src="item[1].iconUrl" alt="">
+                      </el-col>
+                    </el-row>
+                  </el-col>
                 </el-row>
                 <el-row class="list-search" >
                     <el-col :span='8'>
@@ -401,6 +412,7 @@ export default{
         insiadeData:[],
         equNum:0,
         custData:[],
+        range:[],
         custinfo:{
           userId:'',
           username:''
@@ -543,6 +555,7 @@ export default{
         this.getlist()
         this.getModelList()
         this.getBusiness()
+        this.getRange()
     },
     methods:{
         getlist(type){ // 获取设备型号列表
@@ -615,6 +628,16 @@ export default{
               this.deviceModeOptions = []
               this.$message.error(err.errMsg)
             })
+        },
+        getRange(){ // 获取使用范围
+          api.getRangeinfo().then(res => {
+            let data = res.data
+            this.range = Object.entries(data)
+            console.log(this.range)
+          }).catch(err => {
+            this.range = []
+            this.$message.error(err.errMsg)
+          })
         },
         getBusiness(){ // 获取代理商
           api.getBusiness().then(res => {

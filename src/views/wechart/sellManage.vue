@@ -7,7 +7,7 @@
             <el-col :span='24'>
                 <el-row class="list-search" :gutter="22">
                   <el-col :span='3'>
-                    <el-input v-model="deviceNumber" :placeholder="$t('view.inputimei')"></el-input>
+                    <el-input v-model="deviceNumber" :placeholder="$t('table.searchimeiiccid')"></el-input>
                   </el-col>
                   <el-col :span='3'>
                     <el-select v-model="deviceModelId" clearable :placeholder="$t('table.model')">
@@ -352,7 +352,8 @@ export default{
                 pageSize: this.page.size,
                 page: this.page.index - 1,
               },
-              deviceNumber:this.deviceNumber,
+              iccid:this.deviceNumber,
+              deviceNumberKeyword:this.deviceNumber,
               deviceModelId:this.deviceModelId,
               ownerId:this.businessUserId,
               withCard:this.isWithCard,

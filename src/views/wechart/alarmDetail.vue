@@ -18,18 +18,19 @@
                           style="width:98%"
                           v-model="time"
                           type="datetimerange"
+                          value-format="timestamp"
                           range-separator="-"
                           :start-placeholder="$t('table.startdata')"
                           :end-placeholder="$t('table.enddata')">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="value" >
+                        <el-select v-model="value" :placeholder="$t('view.customerList')" clearable>
                           <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
+                            v-for="item in businessoptions"
+                            :key="item.userId"
+                            :label="item.username"
+                            :value="item.userId">
                           </el-option>
                         </el-select>
                     </el-col>
@@ -39,10 +40,10 @@
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')">
                           <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
+                            v-for="item in alarmTypeList"
+                            :key="item[0]"
+                            :label="item[1].name"
+                            :value="item[0]">
                           </el-option>
                         </el-select>
                     </el-col>
@@ -60,7 +61,7 @@
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col> -->
                     <el-col :span='3'>
-                      <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                      <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                       <el-button class="butadd" >{{$t('button.download')}}</el-button>
                     </el-col>
                 </el-row>
@@ -128,7 +129,7 @@ export default {
     return {
       input3:'',
       value:'',
-      options:[],
+      businessoptions:[],
       checked:true,
       loading:false,
       dataList: [],
@@ -136,13 +137,19 @@ export default {
         {label: '', type: 'selection'},
         {label: this.$t('table.Device'), prop: 'deviceName'},
         {label: this.$t('table.imei'), prop: 'deviceNumber'},
-        {label: this.$t('table.model'), prop: 'partner_contacts'},
+        {label: this.$t('table.model'), prop: 'deviceModelName'},
         {label: this.$t('table.alatype'), prop: 'alarmTypeCode'},
-        {label: this.$t('table.alartime'), prop: 'alarmTime'},
+        {label: this.$t('table.alartime'), prop: 'alarmTime', type: 'Timestamp'},
         {label: this.$t('table.alarmAddress'), prop: 'alarmAddress'},
         {label: this.$t('table.handler'), prop: 'handleName'},
-        {label: this.$t('table.proStatus'), prop: 'handleStatus'},
-        {label: this.$t('table.proTime'), prop: 'handleTime'},
+        {label: this.$t('table.proStatus'), prop: 'handleStatus',
+         type: 'render',
+            formatter: (params) => {
+              params.handleStatus = params.handleStatus == 1 ? '未处理' : params.handleStatus == 2 ? '已处理' : params.handleStatus
+              return params
+            }
+        },
+        {label: this.$t('table.proTime'), prop: 'handleTime', type: 'Timestamp'},
         {label: this.$t('table.process'), prop: 'handleRemark'},     
       ],
       time:[],
@@ -155,19 +162,32 @@ export default {
       dialogHandle:false,
       multipleSelection:[],
       radio:'1',
-      remark:''
+      remark:'',
+      alarmTypeList:[]
     }
   },
   mounted() {
     this.getlist()
+    this.getBusiness()
+    this.getAlarmType()
   },
   methods: {
-    getlist(){ // 获取系统管理员列表
-      this.loading = true
-      api.getAlarmsDetail({params: {
+    getlist(type){ // 获取系统管理员列表
+      let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
-      }}).then(res => {
+        startTime:this.time[0] || '',
+        endTime:this.time[1] || '',
+        userId:this.value,
+        deviceIdList:this.input3,
+        alarmTypeCodeList:[this.alarmTypeId],
+        handleStatus:this.handleStatus
+      }
+      if(type==1){
+        data.page = 0
+      }
+      this.loading = true
+      api.getAlarmsDetail(data).then(res => {
         this.loading = false
         this.dataList = res.data.content
         this.page.total = res.data.pageTotal
@@ -176,6 +196,29 @@ export default {
         this.dataList = []
         this.$message.error(err.errMsg)
       })
+    },
+    getBusiness(){ // 获取代理商
+      api.getBusiness().then(res => {
+          this.businessoptions = res.data
+        }).catch(err => {
+          this.businessoptions = []
+          this.$message.error(err.errMsg)
+        })
+    },
+    getAlarmType(){ // 查询报警类型
+        api.getAlarmType().then(res => {
+          if(res.msg=='OK'){
+            this.alarmTypeList = Object.entries(res.data)
+            console.log(this.alarmTypeList)
+          }else{
+            this.alarmTypeList = []
+            this.$message.error(res.errMsg)
+          }
+          
+        }).catch(err => {
+          this.alarmTypeList = []
+          this.$message.error(err.errMsg)
+        })
     },
     childByValue(val){ //选择处理数据
       console.log(val)

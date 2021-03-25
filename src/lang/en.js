@@ -249,6 +249,7 @@ export default {
     loctype: 'Targeting',
     nouser: 'No users',
     searchimei: 'Please enter the device imei number',
+    searchimeiiccid: 'Please enter the device imei or ICCID number',
     devuser: 'Device administrator',
     userid: 'Administrator id',
     Device: 'Device name',

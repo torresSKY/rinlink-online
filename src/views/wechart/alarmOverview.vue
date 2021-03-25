@@ -25,23 +25,23 @@
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="value" :placeholder="$t('view.customerList')">
+                        <el-select v-model="value" :placeholder="$t('view.customerList')" clearable>
                           <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
+                            v-for="item in businessoptions"
+                            :key="item.userId"
+                            :label="item.username"
+                            :value="item.userId">
                           </el-option>
                         </el-select>
                     </el-col>
                     <el-col :span='3'>
-                        <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')"></el-input>
+                        <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
                     </el-col>
                     <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col>
                     <el-col :span='4'>
-                      <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                      <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                       <el-button class="butadd" >{{$t('button.download')}}</el-button>
                     </el-col>
                 </el-row>
@@ -80,42 +80,85 @@ export default {
         label: 'label'
       },
       value:'',
-      options:[],
+      businessoptions:[],
       checked:true,
       loading:false,
-       dataList: [],
-       tableLabel: [
+      dataList: [],
+      tableLabel: [
         {label: this.$t('table.Device'), prop: 'deviceName'},
         {label: this.$t('table.imei'), prop: 'deviceNumber'},
         {label: this.$t('table.model'), prop: 'deviceModelName'},
-        {label: this.$t('table.jinjiala'), prop: 'partner_contacts'},
-        {label: this.$t('table.chaosuala'), prop: 'partner_contacts'},
-        {label: this.$t('table.power1ala'), prop: 'partner_contacts'},
-        {label: this.$t('table.power2ala'), prop: 'partner_contacts'},
-        {label: this.$t('table.weiyiala'), prop: 'partner_contacts'},
-        {label: this.$t('table.alarm7'), prop: 'partner_contacts'}
+        // {label: this.$t('table.jinjiala'), prop: 'partner_contacts'},
+        // {label: this.$t('table.chaosuala'), prop: 'partner_contacts'},
+        // {label: this.$t('table.power1ala'), prop: 'partner_contacts'},
+        // {label: this.$t('table.power2ala'), prop: 'partner_contacts'},
+        // {label: this.$t('table.weiyiala'), prop: 'partner_contacts'},
+        // {label: this.$t('table.alarm7'), prop: 'partner_contacts'}
       ],
     }
   },
   mounted() {
+    this.getAlarmType()
     this.getlist()
+    this.getBusiness()
+    
   },
   methods: {
-    getlist(){ // 分页查询设备报警统计
-      this.loading = true
-      api.alarmStatistic({params: {
+    getlist(type){ // 分页查询设备报警统计
+      let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
-        deviceIdList:this.deviceIdList
-      }}).then(res => {
+        deviceIdList:this.deviceIdList,
+        childUserId:this.value
+      }
+      if(type==1){
+        data.page = 0
+      }
+      this.loading = true
+      api.alarmStatistic(data).then(res => {
         this.loading = false
         this.dataList = res.data.content
+        for(let i = 0;i<this.dataList.length;i++){
+          if(this.dataList[i].statistic.length>0){
+            for(let a = 0;a<this.dataList[i].statistic.length;a++){
+              // debugger
+              this.dataList[i][this.dataList[i].statistic[a].alarmTypeCode] = this.dataList[i].statistic[a].count
+            }
+          }
+        }
+        // console.log(this.dataList)
         this.page.total = res.data.pageTotal
       }).catch(err => {
         this.loading = false
         this.dataList = []
         this.$message.error(err.errMsg)
       })
+    },
+    getBusiness(){ // 获取代理商
+      api.getBusiness().then(res => {
+          this.businessoptions = res.data
+        }).catch(err => {
+          this.businessoptions = []
+          this.$message.error(err.errMsg)
+        })
+    },
+    getAlarmType(){ // 查询报警类型
+        api.getAlarmType().then(res => {
+          if(res.msg=='OK'){
+            let data = Object.entries(res.data)
+            // debugger
+            for(let i =0;i<data.length;i++){
+              this.tableLabel.push({label:data[i][0],prop:data[i][0]})
+            }
+          }else{
+
+            this.$message.error(res.errMsg)
+          }
+          
+        }).catch(err => {
+ 
+          this.$message.error(err.errMsg)
+        })
     },
     changeDate(val){ //切换时间范围
       this.time = []
