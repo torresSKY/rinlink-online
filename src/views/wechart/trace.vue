@@ -1,0 +1,301 @@
+<template>
+    <div class="page">
+        <div class="page_top">{{deviceName}}：{{device_address}}</div>
+        <div class="map_container">
+            <div id="container"></div>
+            <div class="map_type">
+                <div @click="evt_change_mapType('moon')">
+                    <el-image style="width: 20px; height: 20px" :src="require('../../assets/img/moon.png')" fit="contain"></el-image>
+                    <span>卫星</span>
+                </div>
+                <div @click="evt_change_mapType('map')">
+                    <el-image style="width: 18px; height: 18px" :src="require('../../assets/img/map_icon.png')" fit="contain"></el-image>
+                    <span>地图</span>
+                </div>
+            </div>
+        </div>
+        <div id="vista" v-show="Panorama_flag">
+            <i @click="evt_close" class="vista_close el-icon-circle-close"></i>
+        </div>
+    </div>
+</template>
+
+<script>
+var geocoder = new BMap.Geocoder();
+import api from '@/api/wechart/index'
+import { formatDate } from '@/plugins/date.js'
+export default {
+    name:'trace',
+    data(){
+        return{
+            map:null,
+            locationInfo:{},//设备最新位置信息
+            deviceName:'',//设备名称
+            locationArr:[],//设备位置集合
+            Panorama:null,
+            Panorama_flag:true,
+            device_address:'',
+        }
+    },
+    created(){
+        console.log(this.$route.query.deviceId);
+        this.deviceName = this.$route.query.deviceName;
+        this.evt_getDeviceLastCoordinate();
+    },
+    mounted(){
+        var _this = this;
+        _this.map = new BMap.Map("container");
+        _this.map.enableScrollWheelZoom(true); 
+        _this.map.disableDoubleClickZoom();
+        _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),15);
+        _this.map.addControl(new BMap.NavigationControl({offset: new BMap.Size(20, 70)})); 
+        _this.map.addControl(new BMap.ScaleControl());    
+        _this.map.addControl(new BMap.OverviewMapControl());      
+        // 路况信息控件
+        var trafficControl = new BMapLib.TrafficControl();
+        _this.map.addControl(trafficControl);
+        trafficControl.setAnchor(BMAP_ANCHOR_TOP_RIGHT);
+        trafficControl.setOffset(new BMap.Size(20,160));
+    },
+    methods:{
+        // 切换地图类型
+        evt_change_mapType:function(type){
+            if(type == 'moon'){
+                this.map.setMapType(BMAP_HYBRID_MAP);
+            }else{
+                this.map.setMapType(BMAP_NORMAL_MAP);
+            }
+        },
+        // 获取设备最新位置
+        evt_getDeviceLastCoordinate:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['deviceId'] = _this.$route.query.deviceId;
+            api.getDeviceLastCoordinate(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    _this.locationInfo = res.data;
+                    if(_this.Panorama_flag){
+                        _this.Panorama = new BMap.Panorama("vista");
+                        _this.Panorama.setPosition(new BMap.Point(_this.locationInfo.coordinate.lng,_this.locationInfo.coordinate.lat));
+                    }
+                    var point = new BMap.Point(_this.locationInfo.coordinate.lng,_this.locationInfo.coordinate.lat);
+                    _this.evt_addInfoWindow(point,_this.locationInfo);
+                    _this.evt_addMarker(point);
+
+                    geocoder.getLocation(point,function(result){
+                        if(result.address){
+                            _this.device_address = result.address
+                        }else{
+                            _this.device_address = '--'
+                        }
+                    })
+                }
+
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',duration:'1000',offset:'200'})
+            })
+        },
+        // 关闭全景
+        evt_close:function(){
+            this.Panorama.hide();
+            this.Panorama_flag = false;
+        },
+         // 添加展示信息窗口
+        evt_addInfoWindow:function(point,info){
+            var infoWindow_html = `<div class="info_window_content">
+                <div class="info_window_content_title">
+                    <span>${this.deviceName}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>网络状态：</span>
+                    <span>在线</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>定位方式：基站定位</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>设备号：516546546484688</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>更新时间：${this.evt_formatDate(info.time)}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>经度：${info.coordinate.lng}</span>
+                    <span class="info_window_content_item_right">纬度：${info.coordinate.lat}</span>
+                </div>
+            </div>`
+            var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
+            this.map.openInfoWindow(infoWindow,point);
+        },
+        // 添加标记
+        evt_addMarker:function(point){
+            var _this = this;
+            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
+                imageSize: new BMap.Size(25,25),
+            });
+            var marker = new BMap.Marker(point, {icon: marker_icon});
+            marker.addEventListener('click',function(e){
+               console.log(e);
+            })
+            marker.name = 'marker_device';
+            _this.map.addOverlay(marker);
+        },
+        evt_formatDate:function(time){
+            let date_time = new Date(time);
+            return isNaN(date_time) ? " " : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+        }
+        
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+    .page{
+        width: 100vw;
+        height: 100vh;
+        .page_top{
+            width: 100vw;
+            height: 50px;
+            background: #5D85FF;
+            opacity: 0.8;
+            font-size: 14px;
+            font-family: Source Han Sans CN;
+            font-weight: 400;
+            color: #FFFFFF;
+            line-height: 50px;
+            padding-left: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            z-index: 999;
+        }
+    }
+    .map_container{
+        position: relative;
+        #container{
+            width: 100vw;
+            height: 100vh;
+        }
+        .map_type{
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            z-index: 99;
+            >div{
+                width: 70px;
+                height: 32px;
+                background: #FFFFFF;
+                box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.35);
+                border-radius: 4px;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                >span{
+                    font-size: 12px;
+                    font-family: Microsoft YaHei;
+                    font-weight: 400;
+                    color: #666666;
+                    margin-left: 6px;
+                }
+            }
+        }
+    }
+    #vista{
+        width: 60vh;
+        height: 50vh;
+        background: #FFFFFF;
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        z-index: 999;
+        .vista_close{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            color: #FFFFFF;
+            font-size: 28px;
+            cursor: pointer;
+        }
+    }
+
+    /deep/ .anchorBL {
+    display: block; 
+    }
+    /deep/ .BMap_cpyCtrl {
+        display: block; 
+    }
+
+    /deep/ .info_window_content{
+        .info_window_content_title{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            >span:nth-of-type(1){
+                font-size: 14px;
+                font-family: Source Han Sans CN;
+                font-weight: 500;
+                color: #333333;
+            }
+            >span:nth-of-type(2){
+                flex-shrink: 0;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+        }
+        .info_window_content_item{
+            margin-top: 5px;
+            >span{
+                font-size: 12px;
+                font-family: Source Han Sans CN;
+                font-weight: 500;
+                color: #333333;
+            }
+            .info_window_content_item_right{
+                margin-left: 10px;
+            }
+        }
+        .info_window_content_btn{
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            >div{
+                cursor: pointer;
+                font-size: 14px;
+                font-family: Microsoft YaHei;
+                font-weight: 400;
+                color: #218FFF;
+            }
+        }
+
+    }
+    /deep/ .BMap_pop div:nth-child(1){
+        border-radius:7px 0 0 0;
+    }
+    /deep/ .BMap_pop div:nth-child(3){
+        border-radius:0 7px 0 0;
+    }
+    /deep/ .BMap_pop div:nth-child(3) div{
+        border-radius:7px;
+    }
+    /deep/ .BMap_pop div:nth-child(5){
+        border-radius:0 0 0 7px;
+    }
+    /deep/ .BMap_pop div:nth-child(5) div{
+        border-radius:7px;
+    }
+    /deep/ .BMap_pop div:nth-child(7){
+        border-radius:0 0 7px 0 ;
+    }
+    /deep/ .BMap_pop div:nth-child(7) div{
+        border-radius:7px ;
+    }
+    /deep/ .BMap_shadow{
+        display:none;
+    }
+</style>
