@@ -334,6 +334,10 @@ export default {
             }, 500);
         }
     },
+    created(){
+        this.evt_queryPen();
+        this.evt_getRegion();
+    },
     mounted(){
         var _this = this;
         _this.height = document.body.offsetHeight - 60;
@@ -366,8 +370,6 @@ export default {
         // 搜索提示
         _this.search_hint();
         _this.evt_eventListener();
-        _this.evt_queryPen();
-        _this.evt_getRegion();
     },
     methods: {
 
@@ -923,10 +925,10 @@ export default {
             }else if(this.selected_devices.length >= 5){ //需要分页
                 var total_page = Math.ceil(this.selected_devices.length / this.selected_devices_pagesize);
                 if(total_page >= this.selected_devices_page){
-                    this.current_page_devices = this.selected_devices.splice((this.selected_devices_page - 1)*this.selected_devices_pagesize,this.selected_devices_pagesize);
+                    this.current_page_devices = this.selected_devices.slice((this.selected_devices_page - 1) * this.selected_devices_pagesize,this.selected_devices_page * this.selected_devices_pagesize);
                 }else{
                     this.selected_devices_page = this.selected_devices_page - 1;
-                    this.current_page_devices = this.selected_devices.splice((this.selected_devices_page - 1)*this.selected_devices_pagesize,this.selected_devices_pagesize);
+                    this.current_page_devices = this.selected_devices.slice((this.selected_devices_page - 1) * this.selected_devices_pagesize,this.selected_devices_page * this.selected_devices_pagesize);
                 }
             }
         },
@@ -981,7 +983,7 @@ export default {
         },
         // 分页栏切换页面
         evt_current_change:function(num){
-            this.current_page_devices = this.selected_devices.splice((num - 1) * this.selected_devices_pagesize,this.selected_devices_page);
+            this.current_page_devices = this.selected_devices.slice((num - 1) * this.selected_devices_pagesize, num * this.selected_devices_pagesize);
         },
         // 搜索用户searchBusiness
         evt_searchBusiness:function(){
