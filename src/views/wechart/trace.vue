@@ -13,6 +13,7 @@
                     <span>地图</span>
                 </div>
             </div>
+            <div class="interval_content">{{interval_num}}秒后刷新</div>
         </div>
         <div id="vista" v-show="Panorama_flag">
             <i @click="evt_close" class="vista_close el-icon-circle-close"></i>
@@ -33,13 +34,19 @@ export default {
             deviceName:'',//设备名称
             locationArr:[],//设备位置集合
             Panorama:null,
-            Panorama_flag:true,
-            device_address:'',
+            Panorama_flag:false,//是否显示街景
+            device_address:'',//设备地址
+            deviceId:'',
+            interval:null,//刷新间隔
+            interval_num:0,
         }
     },
     created(){
         console.log(this.$route.query.deviceId);
+        console.log(this.$route.query.panorama);
         this.deviceName = this.$route.query.deviceName;
+        this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示辨识
+        this.deviceId = this.$route.query.deviceId;
         this.evt_getDeviceLastCoordinate();
     },
     mounted(){
@@ -56,6 +63,11 @@ export default {
         _this.map.addControl(trafficControl);
         trafficControl.setAnchor(BMAP_ANCHOR_TOP_RIGHT);
         trafficControl.setOffset(new BMap.Size(20,160));
+        // 定时刷新
+        this.evt_interval();
+    },
+    destroyed(){
+        clearInterval(this.interval);
     },
     methods:{
         // 切换地图类型
@@ -70,18 +82,21 @@ export default {
         evt_getDeviceLastCoordinate:function(){
             var _this = this;
             var request_data = {};
-            request_data['deviceId'] = _this.$route.query.deviceId;
+            request_data['deviceId'] = _this.deviceId;
             api.getDeviceLastCoordinate(request_data).then((res) => {
                 console.log(res);
                 if(res.msg == 'OK' && res.success){
                     _this.locationInfo = res.data;
+                    _this.locationArr = _this.locationArr.concat(res.data);
                     if(_this.Panorama_flag){
                         _this.Panorama = new BMap.Panorama("vista");
                         _this.Panorama.setPosition(new BMap.Point(_this.locationInfo.coordinate.lng,_this.locationInfo.coordinate.lat));
                     }
                     var point = new BMap.Point(_this.locationInfo.coordinate.lng,_this.locationInfo.coordinate.lat);
+                    _this.map.closeInfoWindow();
                     _this.evt_addInfoWindow(point,_this.locationInfo);
                     _this.evt_addMarker(point);
+                    _this.evt_addPolyline();
 
                     geocoder.getLocation(point,function(result){
                         if(result.address){
@@ -136,11 +151,49 @@ export default {
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
-               console.log(e);
+            //    console.log(e);
+                _this.map.closeInfoWindow();
+                var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
+                var info = _this.locationInfo;
+                _this.evt_addInfoWindow(point,info);
             })
-            marker.name = 'marker_device';
+            marker.name = _this.locationArr.length;
             _this.map.addOverlay(marker);
         },
+        // 添加轨迹线并清除之前的覆盖层
+        evt_addPolyline:function(){
+            var _this = this;
+            var Polyline_points = [];
+            for(let i = 0, len = _this.locationArr.length; i < len; i++){
+                Polyline_points.push(new BMap.Point(_this.locationArr[i].coordinate.lng,_this.locationArr[i].coordinate.lat));
+            }
+            var point = new BMap.Point(_this.locationArr[_this.locationArr.length - 1].coordinate.lng,_this.locationArr[_this.locationArr.length - 1].coordinate.lat);
+            _this.map.centerAndZoom(point,15);
+            var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
+            Polyline.name = _this.locationArr.length;
+            _this.map.addOverlay(Polyline);
+
+            var allOverlays = _this.map.getOverlays();
+            // console.log(allOverlays);
+            for(var key in allOverlays){
+                if( typeof(allOverlays[key].name) == 'number' && allOverlays[key].name  != _this.locationArr.length){
+                    _this.map.removeOverlay(allOverlays[key]); 
+                }
+            }
+        },
+        evt_interval:function(){
+            var _this = this;
+            clearInterval(_this.interval);
+            _this.interval_num = 30;
+            _this.interval = setInterval(() => {
+                _this.interval_num--;
+                if(_this.interval_num == 0){
+                    _this.interval_num = 30;
+                    _this.evt_getDeviceLastCoordinate();
+                }
+            }, 1000);
+        },
+        // 格式化时间格式
         evt_formatDate:function(time){
             let date_time = new Date(time);
             return isNaN(date_time) ? " " : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
@@ -221,6 +274,25 @@ export default {
             font-size: 28px;
             cursor: pointer;
         }
+    }
+    .interval_content{
+        // width: 100px;
+        height: 30px;
+        padding: 0px 10px;
+        background: #FFFFFF;
+        box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.35);
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 70px;
+        left: 80px;
+        z-index: 999;
+        font-size: 12px;
+        font-family: Microsoft YaHei;
+        font-weight: 500;
+        color: #FF4C4C;
+        line-height: 30px;
+        text-align: center;
     }
 
     /deep/ .anchorBL {
