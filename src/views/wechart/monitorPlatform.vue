@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="devices_item_bottom">
                                         <div>
-                                            <el-button @click="evt_trace(item.deviceId,item.deviceName)" :class="item.deviceId == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
+                                            <el-button @click="evt_trace(item.deviceId,item.deviceName,'trace')" :class="item.deviceId == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
                                         </div>
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.deviceId == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
@@ -181,7 +181,7 @@
                         </div>
                         <el-table :data="current_tracksDetail_list" border style="width: 100%" size="small">
                             <!-- <el-table-column fixed prop="date" label="序号" min-width="100"></el-table-column> -->
-                            <el-table-column prop="time" label="更新时间" min-width="150"></el-table-column>
+                            <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="150"></el-table-column>
                             <el-table-column prop="lng" label="经度" min-width="140"></el-table-column>
                             <el-table-column prop="lat" label="纬度" min-width="140"></el-table-column>
                             <!-- <el-table-column prop="zip" label="行驶里程" min-width="120"></el-table-column> -->
@@ -318,7 +318,7 @@
                         <el-table-column fixed prop="commandId" label="指令ID" min-width="60"></el-table-column>
                         <el-table-column prop="commandName" label="指令类型" min-width="120"></el-table-column>
                         <el-table-column prop="commandData" label="指令数据" min-width="120"></el-table-column>
-                        <el-table-column prop="createTime" label="创建时间" min-width="120"></el-table-column>
+                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="120"></el-table-column>
                         <el-table-column prop="commandStatus" label="指令结果" min-width="100"></el-table-column>
                     </el-table>
                     <el-pagination @current-change="evt_current_change" small background layout="total,prev, pager, next,jumper" :hide-on-single-page="true" :current-page="command_page" :page-size="command_pageSize" :total="command_total" style="text-align:center;margin-top:30px;"></el-pagination>
@@ -412,6 +412,13 @@ export default {
             tracksDetail_list:[],//轨迹明细信息
             current_tracksDetail_list:[],//当前页轨迹明细信息
             current_tracksDetail_page:1,
+            positionType:{
+                '-1': '无定位',
+                '1':'GPS',
+                '2':'WIFI',
+                '3': '基站'
+            },
+            playback_address:'',
         }
     },
     created(){
@@ -434,7 +441,10 @@ export default {
         //     console.log(e);
         // })
 
+        // 在字符串模板中绑定的事件
         window.evt_track = this.evt_track;
+        window.evt_trace = this.evt_trace;
+        window.evt_playback_address = this.evt_playback_address;
     },
     destroyed:function(){
         clearInterval(this.device_tracks_interval);
@@ -589,6 +599,15 @@ export default {
         // 选中、取消选择设备
         evt_select_devices:function(deviceId){
             // console.log(deviceId);
+            var allOverlays = this.map.getOverlays();
+            clearInterval(this.device_tracks_interval);
+            this.track_detail = false;
+            this.device_tracks_step = 0;
+            for(var key in allOverlays){
+                if( typeof(allOverlays[key].name) == 'number'){
+                    this.map.removeOverlay(allOverlays[key]); 
+                }
+            }
             for(let i = 0, len = this.devices_list.length; i < len; i++){
                 if(deviceId == this.devices_list[i].deviceId){
                     if(this.devices_list[i].checked){
@@ -744,7 +763,7 @@ export default {
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
-                // console.log(e);
+                console.log(e);
                 for(let i = 0, len = _this.devices_list.length; i < len; i++){
                     if(e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
                         _this.map.closeInfoWindow();
@@ -776,24 +795,24 @@ export default {
                 </div>
                 <div class="info_window_content_item">
                     <span>网络状态：</span>
-                    <span>在线</span>
+                    <span>${info.networkStatus == '1' ? '在线' : '离线'}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>定位方式：基站定位</span>
+                    <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：516546546484688</span>
+                    <span>设备号：${info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>更新时间：2020/11/08 10:40:00</span>
+                    <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>经度：${info.positionInfo.coordinate.lng}</span>
                     <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
                 </div>
                 <div class="info_window_content_btn">
-                    <div @click="evt_streetscape">街景</div>
-                    <div @click="evt_tail_after">跟踪</div>
+                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','panorama')">街景</div>
+                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','trace')">跟踪</div>
                     <div onClick="evt_track('${info.deviceId}','${info.deviceName}')">轨迹</div>
                 </div>
             </div>`
@@ -855,10 +874,10 @@ export default {
             })
         },
         // 追踪
-        evt_trace:function(deviceId,deviceName){
+        evt_trace:function(deviceId,deviceName,panorama){
             let routeUrl = this.$router.resolve({
                 path: "/trace",
-                query: {deviceId:deviceId,deviceName:deviceName}
+                query: {deviceId:deviceId,deviceName:deviceName,panorama:panorama == 'panorama' ? 'panorama':'trace'}
             });
             window.open(routeUrl.href, '_blank');
         },
@@ -868,6 +887,7 @@ export default {
             // this.evt_clearOverlays();
             this.need_handle_deviceId = deviceId;
             this.track_detail = true;
+            this.play_flag = false;
             this.current_device_name = deviceName;
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
@@ -893,8 +913,9 @@ export default {
             api.queryDeviceTracks(request_data).then((res) => {
                 console.log(res);
                 if(res.msg == 'OK' && res.success){
-                    _this.device_tracks = res.data;
+                    // _this.device_tracks = res.data;
 
+                    // var point_arr = res.data;
                     var point_arr = [
                         {lat: 31.128352571190476,lng: 121.37138743482554,positionType:'GPS定位',time:1234444,address:'address'},
                         {lat: 31.128650098565206,lng: 121.37240701157936,positionType:'GPS定位',time:1234444,address:'address'},
@@ -911,10 +932,7 @@ export default {
                         {lat: 31.146944289264447,lng: 121.36451090614665,positionType:'GPS定位',time:1234444,address:'address'},
                         {lat: 31.14678975981412,lng: 121.3647309909966,positionType:'GPS定位',time:1234444,address:'address'}
                     ]
-                    for(let i = 0, len = point_arr.length; i < len; i++){
-                        var time = formatDate(new Date(point_arr[i].time),'yyyy-MM-dd hh:mm:ss');
-                        _this.$set(point_arr[i],'time',time);
-                    }
+                    
                     // 获取轨迹明细时调用接口拿到数据后return
                     if(_this.tracksDetail_flag){
                         _this.current_tracksDetail_page = 1;
@@ -955,34 +973,15 @@ export default {
                     var point = new BMap.Point(raw_point.lng,raw_point.lat);
                     Polyline_points.push(point);
                     _this.map.centerAndZoom(point,17);
+                    // 添加线型覆盖物
                     var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
                     Polyline.name = _this.device_tracks_step;
                     _this.map.addOverlay(Polyline);
-
-                    var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
-                        imageSize: new BMap.Size(25,25),
-                    });
-                    var marker = new BMap.Marker(point, {icon: marker_icon});
-                    marker.addEventListener('click',function(e){
-                        console.log(e);
-                    })
-                    marker.name = _this.device_tracks_step;
-                    _this.map.addOverlay(marker);
-
-                    _this.map.closeInfoWindow();
-                    var infoWindow_html = `
-                        <div class="tracks_label_html">
-                            <div class="tracks_label_html_item">定位方式:GPS定位</div>
-                            <div class="tracks_label_html_item">定位时间:2021-02-14 10:10:00</div>
-                            <div class="tracks_label_html_item_flex">
-                                <div>定位位置:</div>
-                                <div class="tracks_label_html_item_click">点击查看地址</div>
-                            </div>
-                        </div>
-                    `
-                    var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
-                    _this.map.openInfoWindow(infoWindow,point);
-
+                    // marker
+                    _this.evt_playback_addMarker(point);
+                    // 信息窗口
+                    _this.evt_playback_infoWindow(point,raw_point);
+                    // 清除上次绘制的覆盖物
                     var allOverlays = _this.map.getOverlays();
                     for(var key in allOverlays){
                         if( typeof(allOverlays[key].name) == 'number' && allOverlays[key].name  != _this.device_tracks_step){
@@ -999,6 +998,55 @@ export default {
                 }
             }, speed);
 
+        },
+        // 轨迹回放的marker
+        evt_playback_addMarker:function(point){
+            var _this = this;
+            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
+                imageSize: new BMap.Size(25,25),
+            });
+            var marker = new BMap.Marker(point, {icon: marker_icon});
+            marker.addEventListener('click',function(e){
+                console.log(e);
+                var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
+                var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                _this.evt_playback_infoWindow(point,info);
+            })
+            marker.name = _this.device_tracks_step;
+            _this.map.addOverlay(marker);
+
+        },
+        // 轨迹回放的信息窗口
+        evt_playback_infoWindow:function(point,info){
+            var _this = this;
+            _this.map.closeInfoWindow();
+            var infoWindow_html = `
+                <div class="tracks_label_html">
+                    <div class="tracks_label_html_item">定位方式:GPS定位</div>
+                    <div class="tracks_label_html_item">定位时间:${this.evt_formatDate(info.time)}</div>
+                    <div class="tracks_label_html_item_flex">
+                        <div>定位位置:</div>
+                        <div onClick="evt_playback_address('${info.lng}','${info.lat}')" class="tracks_label_html_item_click">${this.playback_address == '' ? '点击查看地址' : this.playback_address}</div>
+                    </div>
+                </div>
+            `
+            var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
+            _this.map.openInfoWindow(infoWindow,point);
+            if(infoWindow.isOpen()){
+                _this.playback_address = '';
+            }
+        },
+        evt_playback_address:function(lng,lat){
+            var _this = this;
+            var geocoder = new BMap.Geocoder();
+            var point = new BMap.Point(lng,lat);
+            geocoder.getLocation(point,function(result){
+                if(result.address){
+                    _this.playback_address = result.address;
+                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                    _this.evt_playback_infoWindow(point,info);
+                }
+            })
         },
         // 切换今天、昨天等
         evt_select_date:function(e){
@@ -1108,6 +1156,19 @@ export default {
                     }
                 })
             }
+        },
+        // infoWindow格式化时间格式
+        evt_formatDate:function(time){
+            let date_time = new Date(time);
+            return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+        },
+        // table格式化时间格式
+        evt_table_formatDate:function(row,column){
+            // console.log(row.createTime);
+            let date = row.createTime ? row.createTime : row.time;
+            let date_time = new Date(date);
+            return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+
         },
 
 

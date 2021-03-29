@@ -84,7 +84,7 @@ export default {
             var request_data = {};
             request_data['deviceId'] = _this.deviceId;
             api.getDeviceLastCoordinate(request_data).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.msg == 'OK' && res.success){
                     _this.locationInfo = res.data;
                     _this.locationArr = _this.locationArr.concat(res.data);
@@ -99,6 +99,7 @@ export default {
                     _this.evt_addPolyline();
 
                     geocoder.getLocation(point,function(result){
+                        // console.log(result)
                         if(result.address){
                             _this.device_address = result.address
                         }else{
