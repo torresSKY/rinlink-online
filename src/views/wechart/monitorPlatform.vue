@@ -753,7 +753,7 @@ export default {
                 this.evt_addLabel(point,info);
             }
             this.evt_addInfoWindow(point,info);
-            this.map.centerAndZoom(point,15);
+            this.map.panTo(point);
         },
         // 添加标记
         evt_addMarker:function(point){
@@ -951,7 +951,7 @@ export default {
                     _this.device_tracks_step = 0;
                     _this.device_tracks_shift = [];
                     _this.play_flag = true;
-                    _this.map.centerAndZoom(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat),17);
+                    _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
                     _this.map.clearOverlays();
                     _this.evt_LuShu();
                 }
@@ -972,7 +972,7 @@ export default {
                     // console.log(raw_point);
                     var point = new BMap.Point(raw_point.lng,raw_point.lat);
                     Polyline_points.push(point);
-                    _this.map.centerAndZoom(point,17);
+                    _this.map.panTo(point);
                     // 添加线型覆盖物
                     var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
                     Polyline.name = _this.device_tracks_step;

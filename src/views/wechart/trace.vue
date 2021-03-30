@@ -169,7 +169,7 @@ export default {
                 Polyline_points.push(new BMap.Point(_this.locationArr[i].coordinate.lng,_this.locationArr[i].coordinate.lat));
             }
             var point = new BMap.Point(_this.locationArr[_this.locationArr.length - 1].coordinate.lng,_this.locationArr[_this.locationArr.length - 1].coordinate.lat);
-            _this.map.centerAndZoom(point,15);
+            _this.map.panTo(point);
             var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
             Polyline.name = _this.locationArr.length;
             _this.map.addOverlay(Polyline);
