@@ -36,17 +36,11 @@
             <img @click="evt_refresh" data-type="2" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
-            <el-col :span="17">
+            <el-col :span="24">
               <div
                 id="myChart2"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
-            </el-col>
-            <el-col :span="7">
-              <div class="myChart_text_content myChart2_text_content">
-                <div>在线：{{OnlineDviceCount}}</div>
-                <div>离线：{{OfflineDeviceCount}}</div>
-              </div>
             </el-col>
           </el-row>
         </el-card>
@@ -58,17 +52,11 @@
             <img @click="evt_refresh" data-type="3" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
-            <el-col :span="17">
+            <el-col :span="24">
               <div
                 id="myChart3"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
-            </el-col>
-            <el-col :span="7">
-              <div class="myChart_text_content myChart3_text_content">
-                <div>激活：{{ActivatedCount}}</div>
-                <div>未激活：{{Unactivated_deviceCount}}</div>
-              </div>
             </el-col>
           </el-row>
         </el-card>
@@ -123,18 +111,11 @@
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
-            <el-col :span="17">
+            <el-col :span="24">
               <div
                 id="myChart1"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
-            </el-col>
-            <el-col :span="7">
-              <div class="myChart_text_content myChart1_text_content">
-                <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
-                <div>库存：{{Inventory_deviceCount}}</div>
-                <div>已销售：{{Sold_deviceCount}}</div>
-              </div>
             </el-col>
           </el-row>
         </el-card>
@@ -146,18 +127,11 @@
             <img @click="evt_refresh" data-type="4" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
-            <el-col :span="17">
+            <el-col :span="24">
               <div
                 id="myChart4"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
-            </el-col>
-            <el-col :span="7">
-              <div class="myChart_text_content myChart4_text_content">
-                <div>正在使用：{{Using_deviceCount}}</div>
-                <div>已过期：{{Expired_deviceCount}}</div>
-                <div>未过期：{{Unexpired_deviceCount}}</div>
-              </div>
             </el-col>
           </el-row>
         </el-card>
@@ -170,18 +144,25 @@
           <el-row>
             <el-col :span="24">
               <div class="track_info">
-                <el-input placeholder="请输入设备IMEI"></el-input>
+                <div class="track_info_top">
+                  <el-input placeholder="请输入设备IMEI" v-model="search_word"></el-input>
+                  <div class="track_info_top_tab" v-if="search_result.length > 0">
+                      <el-table @row-click="evt_row_click"  size="mini" :data="search_result" style="width:100%" :show-header="false">
+                        <el-table-column prop="deviceNumber"></el-table-column>
+                      </el-table>
+                  </div>
+                </div>
                 <div class="track_info_btn">
                   <el-row>
                     <el-col :span="8" :offset="8">
-                      <el-button size="small" class="track_info_btn_bt"
+                      <el-button @click="evt_nav('track')" size="small" class="track_info_btn_bt"
                         >查看轨迹</el-button
                       >
                     </el-col>
                   </el-row>
                   <el-row>
                     <el-col :span="8" :offset="8">
-                      <el-button size="small" class="track_info_btn_bt"
+                      <el-button @click="evt_nav('trace')" size="small" class="track_info_btn_bt"
                         >追踪</el-button
                       >
                     </el-col>
@@ -210,7 +191,6 @@ export default {
     CountTo,
   },
   data() {
-    selected: 0;
     return {
       height: 1000,
       search: "",
@@ -239,84 +219,26 @@ export default {
           trigger: "item",
         },
         legend: {
-          show: false,
+            orient: 'vertical',
+            right:'5%',
+            top:'bottom',
         },
         series: [
           {
             type: "pie",
             radius: ["60%", "70%"],
-            data: [
-              { value: 0, name: "已销售" },
-              { value: 0, name: "库存" },
-            ],
-          },
-        ],
-        color: ["#F14864", "#C4C6D1"],
-      },
-      option_2: {
-        title: {},
-        tooltip: {
-          trigger: "item",
-        },
-        legend: {
-          show: false,
-        },
-        series: [
-          {
-            type: "pie",
-            radius: ["60%", "70%"],
-            data: [
-              { value: 0, name: "在线" },
-              { value: 0, name: "离线" },
-            ],
-          },
-        ],
-        color: ["#2FC25B", "#C4C6D1"],
-      },
-      option_3: {
-        title: {},
-        tooltip: {
-          trigger: "item",
-        },
-        legend: {
-          show: false,
-        },
-        series: [
-          {
-            type: "pie",
-            radius: ["60%", "70%"],
-            data: [
-              { value: 0, name: "激活" },
-              { value: 0, name: "未激活" },
-            ],
-          },
-        ],
-        color: ["#3E9AFF", "#C4C6D1"],
-      },
-      option_4: {
-        title: {},
-        tooltip: {
-          trigger: "item",
-        },
-        legend: {
-          show: false,
-        },
-        series: [
-          {
-            type: "pie",
-            radius: ["60%", "70%"],
-            data: [
-              { value: 0, name: "正在使用" },
-              { value: 0, name: "已过期" },
-              { value: 0, name: "未过期" },
-            ],
+            right:'20%',
+            label:{
+              formatter:'{b}: {c}'
+            },
             labelLine: {
-              show: true,
-              length2: 6,
+              show:true,
+              length: 15,
+              length2: 10,
+              maxSurfaceAngle: 80
             },
           },
         ],
-        color: ["#13C3C3", "#FACD13", "#C4C6D1"],
       },
       echarts_1: null,
       echarts_2: null,
@@ -335,6 +257,9 @@ export default {
       loading_two:false,
       loading_three:false,
       loading_four:false,
+      search_word:'',
+      search_result:[],
+      btn_type:'',
     };
   },
   watch: {},
@@ -358,7 +283,14 @@ export default {
       // 选择用户节点
       console.log(data);
     },
-
+    formatter: function (name) {
+      // console.log(name);
+      for (var i = 0; i < this.option.series[0].data.length; i++) {
+        if (this.option.series[0].data[i].name == name) {
+          return name +": "+ this.option.series[0].data[i].value;
+        }
+      }
+    },
     // 库存和已销售
     getEchartsData_one:function(){
       var _this = this;
@@ -371,9 +303,25 @@ export default {
               _this.$nextTick(function(){
                 var chartDom = document.getElementById("myChart1");
                 _this.echarts_1 = echarts.init(chartDom);
-                _this.option.series[0].data[0].value = _this.Sold_deviceCount;
-                _this.option.series[0].data[1].value = _this.Inventory_deviceCount;
-                _this.echarts_1.setOption(_this.option);
+                let option_str = JSON.stringify(_this.option);
+                let option = JSON.parse(option_str);
+                let data = [
+                  { value: 0, name: "已销售" },
+                  { value: 0, name: "库存" },
+                ]
+                data[0].value = _this.Sold_deviceCount;
+                data[1].value = _this.Inventory_deviceCount;
+                option.series[0]['data'] = data;
+                option.color = ["#F14864", "#C4C6D1"];
+                function formatter(name){
+                  for (var i = 0; i < option.series[0].data.length; i++) {
+                    if (option.series[0].data[i].name == name) {
+                      return name +": "+ option.series[0].data[i].value;
+                    }
+                  }
+                }
+                option.legend.formatter = formatter;
+                _this.echarts_1.setOption(option);
                 _this.loading_one = false;
               })
             }
@@ -397,9 +345,25 @@ export default {
               _this.$nextTick(function(){
                 var chartDom_2 = document.getElementById("myChart2");
                 _this.echarts_2 = echarts.init(chartDom_2);
-                _this.option_2.series[0].data[0].value = _this.OnlineDviceCount;
-                _this.option_2.series[0].data[1].value = _this.OfflineDeviceCount;
-                _this.echarts_2.setOption(_this.option_2);
+                let option_str = JSON.stringify(_this.option);
+                let option = JSON.parse(option_str);
+                let  data = [
+                  { value: 0, name: "在线" },
+                  { value: 0, name: "离线" },
+                ];
+                data[0].value = _this.OnlineDviceCount;
+                data[1].value = _this.OfflineDeviceCount;
+                option.series[0]['data'] = data;
+                option.color = ["#2FC25B", "#C4C6D1"];
+                function formatter(name){
+                  for (var i = 0; i < option.series[0].data.length; i++) {
+                    if (option.series[0].data[i].name == name) {
+                      return name +": "+ option.series[0].data[i].value;
+                    }
+                  }
+                }
+                option.legend.formatter = formatter;
+                _this.echarts_2.setOption(option);
                 _this.loading_two = false;
               })
             }
@@ -423,9 +387,25 @@ export default {
               _this.$nextTick(function(){
                 var chartDom_3 = document.getElementById("myChart3");
                 _this.echarts_3 = echarts.init(chartDom_3);
-                _this.option_3.series[0].data[0].value = _this.ActivatedCount;
-                _this.option_3.series[0].data[1].value = _this.Unactivated_deviceCount;
-                _this.echarts_3.setOption(_this.option_3);
+                let option_str = JSON.stringify(_this.option);
+                let option = JSON.parse(option_str);
+                let  data =  [
+                  { value: 0, name: "激活" },
+                  { value: 0, name: "未激活" },
+                ];
+                data[0].value = _this.ActivatedCount;
+                data[1].value = _this.Unactivated_deviceCount;
+                option.series[0]['data'] = data;
+                option.color = ["#3E9AFF", "#C4C6D1"];
+                function formatter(name){
+                  for (var i = 0; i < option.series[0].data.length; i++) {
+                    if (option.series[0].data[i].name == name) {
+                      return name +": "+ option.series[0].data[i].value;
+                    }
+                  }
+                }
+                option.legend.formatter = formatter;
+                _this.echarts_3.setOption(option);
                 _this.loading_three = false;
               })
             }
@@ -440,7 +420,8 @@ export default {
     // 设备期限
     getEchartsData_four:function(){
       var _this = this;
-      api.getUsing_device().then((res) => {
+      // getUsing_device()
+      api.getOnlineDvice().then((res) => {
         if(res.success){
           _this.Using_deviceCount = res.data.devices;
           api.getUnexpired_device().then((_res) => {
@@ -452,10 +433,27 @@ export default {
                   _this.$nextTick(function(){
                     var chartDom_4 = document.getElementById("myChart4");
                     _this.echarts_4 = echarts.init(chartDom_4);
-                    _this.option_4.series[0].data[0].value = _this.Using_deviceCount;
-                    _this.option_4.series[0].data[1].value = _this.Expired_deviceCount;
-                    _this.option_4.series[0].data[2].value = _this.Unexpired_deviceCount;
-                    _this.echarts_4.setOption(_this.option_4);
+                    let option_str = JSON.stringify(_this.option);
+                    let option = JSON.parse(option_str);
+                    let  data =   [
+                      { value: 0, name: "正在使用" },
+                      { value: 0, name: "已过期" },
+                      { value: 0, name: "未过期" },
+                    ];
+                    data[0].value = _this.Using_deviceCount;
+                    data[1].value = _this.Expired_deviceCount;
+                    data[2].value = _this.Unexpired_deviceCount;
+                    option.series[0]['data'] = data;
+                    option.color = ["#13C3C3", "#FACD13", "#C4C6D1"];
+                    function formatter(name){
+                      for (var i = 0; i < option.series[0].data.length; i++) {
+                        if (option.series[0].data[i].name == name) {
+                          return name +": "+ option.series[0].data[i].value;
+                        }
+                      }
+                    }
+                    option.legend.formatter = formatter;
+                    _this.echarts_4.setOption(option);
                     _this.loading_four = false;
                   })
                 }
@@ -487,10 +485,37 @@ export default {
         this.loading_four = true;
         this.getEchartsData_four();
       }
-    }
-
-
-
+    },
+    // 查询设备
+    evt_queryDevices:function(){
+      var _this = this;
+      api.queryDevices().then((res) => {
+        // console.log(res);
+        if(res.success && res.msg == "OK" && res.data.length > 0){
+          _this.search_result = [];
+          _this.search_result = res.data;
+        }
+      }).catch((err) => {
+        _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+      })
+    },
+    evt_nav:function(value){
+      this.btn_type = value;
+      if(this.search_word.trim() == '') return;
+      this.evt_queryDevices();
+    },
+    evt_row_click:function(row){
+      console.log(row);
+      if(this.btn_type == 'trace'){
+        let routeUrl = this.$router.resolve({
+            path: "/trace",
+            query: {deviceId:row.deviceId,panorama:'trace'}
+        });
+        window.open(routeUrl.href, '_blank');
+      }else if(this.btn_type == 'track'){
+        this.$router.push({path:'/control/control',query:{deviceId:row.deviceId}});
+      }
+    },
   },
   // 过滤器格式化时间戳
   filters: {
@@ -632,135 +657,25 @@ export default {
     cursor: pointer;
   }
 }
-.myChart_text_content {
-  height: 26vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  font-size: 12px;
-  font-family: Microsoft YaHei;
-  font-weight: 400;
-  color: #666666;
-  line-height: 24px;
-}
-.myChart1_text_content {
-  > div {
-    position: relative;
-  }
-  > div:nth-of-type(1) {
-    top: 0px;
-    left: -12px;
-  }
-  > div:nth-of-type(2)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #c4c6d1;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-  > div:nth-of-type(3)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #f14864;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-}
-.myChart2_text_content {
-  > div {
-    position: relative;
-  }
-  > div:nth-of-type(1)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #2fc25b;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-  > div:nth-of-type(2)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #c4c6d1;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-}
-.myChart3_text_content {
-  > div {
-    position: relative;
-  }
-  > div:nth-of-type(1)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #3e9aff;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-  > div:nth-of-type(2)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #c4c6d1;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-}
-.myChart4_text_content {
-  > div {
-    position: relative;
-  }
-  > div:nth-of-type(1)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #13c3c3;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-  > div:nth-of-type(2)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #facd13;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-  > div:nth-of-type(3)::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #c4c6d1;
-    position: absolute;
-    top: 7px;
-    left: -12px;
-  }
-}
 .track_info {
   height: 26vh;
   margin-top: 10px;
   margin-bottom: 10px;
+}
+.track_info_top{
+  position: relative;
+  .track_info_top_tab{
+    width: 100%;
+    max-height: 20vh;
+    overflow-y: scroll;
+    background: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    position: absolute;
+    top: 40px;
+    left: 0px;
+    z-index: 999;
+    cursor: pointer;
+  }
 }
 .track_info_btn {
   margin-top: 6vh;

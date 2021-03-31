@@ -606,7 +606,7 @@ export default {
                 return;
             }
             if(_this.fenceSearchContent.trim() == '') return;
-
+            _this.search_result = [];
             var request_data = {};
             request_data['searchType'] = _this.select_type_name;
             request_data['searchContent'] = _this.fenceSearchContent;

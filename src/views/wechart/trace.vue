@@ -44,7 +44,7 @@ export default {
     created(){
         console.log(this.$route.query.deviceId);
         console.log(this.$route.query.panorama);
-        this.deviceName = this.$route.query.deviceName;
+        this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
         this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示辨识
         this.deviceId = this.$route.query.deviceId;
         this.evt_getDeviceLastCoordinate();
