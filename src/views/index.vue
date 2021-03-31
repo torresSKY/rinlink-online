@@ -10,7 +10,7 @@
             </span>
           </el-col>
           <el-col :span='16'>
-            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#576CE5"  background-color="#576CE5" >
+            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#638FFF"  background-color="#638FFF" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
                   <el-col :span='3'>
@@ -358,7 +358,7 @@ export default {
 .topBar {
   line-height: 50px;
   height: 60px;
-  background: #576CE5;
+  background: #638FFF;
 }
 
 
@@ -422,7 +422,7 @@ export default {
 /deep/.el-radio-button .el-radio-button__inner {
   color: #2688ff;
   font-size: 14px;
-  background-color: #576CE5;
+  background-color: #638FFF;
   border: none;
   border-radius: 5px 5px 5px 5px;
 }

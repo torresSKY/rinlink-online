@@ -112,6 +112,7 @@ export default {
         childUserId:this.value
       }
       if(type==1){
+        this.page.index = 1
         data.page = 0
       }
       this.loading = true

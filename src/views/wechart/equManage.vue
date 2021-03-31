@@ -436,7 +436,7 @@ export default{
         ],
         useStatus:'',
         usestatusOptions:[
-          { value: '1', label: '未使用'},{ value: '2', label: '已使用'},{ value: '3', label: '已到期'}
+          { value: '1', label: '未激活'},{ value: '2', label: '已激活'},{ value: '3', label: '已过期'}
         ],
         containsChildren:true,
         timeType:'',
@@ -578,6 +578,7 @@ export default{
             endTime:endTime
           }
           if(type==1){
+            this.page.index = 1
             data.page = 0
           }
           api.getDevicesList(data).then(res => {

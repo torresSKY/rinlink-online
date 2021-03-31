@@ -218,17 +218,19 @@ export default {
         this.loading = true
         let data = null
         if(type==1){
+          this.page.index = 1
           data = {
             searchType :this.input3,
             containsChildren :this.checked,
-            pageSize: 15,
+            pageSize: this.page.size,
             page: 0,
           }
         }else if(type==2){
+          this.page.index = 1
           data = {
             parentId :parentId,
             containsChildren :this.checked,
-            pageSize: 15,
+            pageSize: this.page.size,
             page: 0,
           }
         }else{
@@ -318,7 +320,7 @@ export default {
         return treeData;
     },
     handleNodeClick(data) { // 选择用户节点
-        console.log(data)
+        // console.log(data)
         this.getlist(2,data.parentId)
         this.getBusinessUserinfo(data.userId)
     },
