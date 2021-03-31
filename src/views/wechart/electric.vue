@@ -38,7 +38,7 @@
                         </div>
                         <div class="search_content_list" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="50">
                             <template v-if='queryPen_dataList.length > 0'>
-                                <div class='list' v-for='(item,index) in queryPen_dataList' :key='item.fenceId'  @click='evt_dowm(index)'>
+                                <div class='list' v-for='(item,index) in queryPen_dataList' :key='item.fenceId'  @click='evt_dowm(index,item)'>
                                     <div class='elecard' :class = "active == index ? 'addclass' : '' ">
                                         <div class='elecard_item_left'>{{item.fenceName}}</div>
                                         <div class="elecard_item_right" :class="item.fenceType != '1' ? 'elecard_item_right_t':''">
@@ -334,6 +334,10 @@ export default {
             }, 500);
         }
     },
+    created(){
+        this.evt_queryPen();
+        this.evt_getRegion();
+    },
     mounted(){
         var _this = this;
         _this.height = document.body.offsetHeight - 60;
@@ -366,8 +370,6 @@ export default {
         // 搜索提示
         _this.search_hint();
         _this.evt_eventListener();
-        _this.evt_queryPen();
-        _this.evt_getRegion();
     },
     methods: {
 
@@ -427,10 +429,20 @@ export default {
                 this.map.removeOverlay(this.current_circle);
                 this.current_circle = '';
             }
-            if(this.update_pen){
-                this.pen_form = this.regress_pen_form;
-                this.update_pen = false;
-            }
+            // if(this.update_pen){
+            //     this.pen_form = this.regress_pen_form;
+            //     this.update_pen = false;
+            // }
+            this.pen_form = {
+                fenceName:'',
+                fenceRemark:'',
+                inAlarm:'',
+                outAlarm:'',
+                fenceArea:{
+                    radius:'',
+                }
+            };
+            this.update_pen = false;
         },
         // 添加围栏
         evt_submit_addPen:function(){
@@ -448,7 +460,15 @@ export default {
         },
         submit_result:function() {
             var _this = this;
-            _this.pen_form = _this.regress_pen_form;
+            _this.pen_form = {
+                fenceName:'',
+                fenceRemark:'',
+                inAlarm:'',
+                outAlarm:'',
+                fenceArea:{
+                    radius:'',
+                }
+            };
             _this.add_pen_hint_flag = false;
             _this.add_pen_flag = false;
             _this.$message({message: _this.update_pen? '更新成功':'添加成功',type:'success',offset:'200',duration:'1000'});
@@ -660,9 +680,52 @@ export default {
             this.evt_queryPen();
         },
         // 切换围栏
-        evt_dowm:function(index){
+        evt_dowm:function(index,item){
           //将点击的元素的索引赋值给变量
             this.active = index;
+            // console.log(index);
+            // console.log(item);
+            this.evt_draw(item);
+        },
+        evt_draw:function(item){
+            var _this = this;
+            _this.map.clearOverlays();
+            if(item.fenceType == 1){
+                var point = new BMap.Point(item.circleFence.coordinate.lng,item.circleFence.coordinate.lat);
+                var radius = item.circleFence.radius;
+                var circle = new BMap.Circle(point,radius,_this.opts);
+                _this.map.centerAndZoom(point,15);
+                _this.map.addOverlay(circle);
+            }else if(item.fenceType == 2){
+                var point_arr = item.polygonFence.points;
+                // var point_arr = [ {lat: 31.128352571190476,lng: 121.37138743482554},
+                // {lat: 31.13986271595277,lng: 121.37004895961567},
+                // {lat: 31.14678975981412,lng: 121.3647309909966}]
+                var points = [];
+                for(let i = 0, len = point_arr.length; i < len; i++){
+                    points.push(new BMap.Point(point_arr[i].lng,point_arr[i].lat))
+                }
+                var polygon = new BMap.Polygon(points,_this.opts);
+                _this.map.centerAndZoom(points[points.length - 1],15);
+                _this.map.addOverlay(polygon)
+            }else if(item.fenceType == 3){
+                var areaName = item.districtFence.areaName;
+                var boundary = new BMap.Boundary();
+                boundary.get(areaName,function(res){
+                    console.log(res);
+                    if(res){
+                        var point_arr = res.boundaries[0].split(';');
+                        var points = [];
+                        for(let i = 0,len = point_arr.length; i < len; i++){
+                            points.push(new BMap.Point(point_arr[i].split(',')[0],point_arr[i].split(',')[1]));
+                        }
+                        // console.log(point_arr);
+                        var polygon = new BMap.Polygon(points,_this.opts);
+                        _this.map.addOverlay(polygon);
+                        _this.map.setViewport(points);
+                    }
+                })
+            }
         },
         // 获取行政区域
         evt_getRegion:function(){
@@ -923,10 +986,10 @@ export default {
             }else if(this.selected_devices.length >= 5){ //需要分页
                 var total_page = Math.ceil(this.selected_devices.length / this.selected_devices_pagesize);
                 if(total_page >= this.selected_devices_page){
-                    this.current_page_devices = this.selected_devices.splice((this.selected_devices_page - 1)*this.selected_devices_pagesize,this.selected_devices_pagesize);
+                    this.current_page_devices = this.selected_devices.slice((this.selected_devices_page - 1) * this.selected_devices_pagesize,this.selected_devices_page * this.selected_devices_pagesize);
                 }else{
                     this.selected_devices_page = this.selected_devices_page - 1;
-                    this.current_page_devices = this.selected_devices.splice((this.selected_devices_page - 1)*this.selected_devices_pagesize,this.selected_devices_pagesize);
+                    this.current_page_devices = this.selected_devices.slice((this.selected_devices_page - 1) * this.selected_devices_pagesize,this.selected_devices_page * this.selected_devices_pagesize);
                 }
             }
         },
@@ -981,7 +1044,7 @@ export default {
         },
         // 分页栏切换页面
         evt_current_change:function(num){
-            this.current_page_devices = this.selected_devices.splice((num - 1) * this.selected_devices_pagesize,this.selected_devices_page);
+            this.current_page_devices = this.selected_devices.slice((num - 1) * this.selected_devices_pagesize, num * this.selected_devices_pagesize);
         },
         // 搜索用户searchBusiness
         evt_searchBusiness:function(){

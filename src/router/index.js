@@ -137,7 +137,8 @@ const list={
       // },
       
       {path:'/home',redirect:'/'},
-      {path:'*',redirect:'/404'}
+      {path:'*',redirect:'/404'},
+      {path: '/trace', component: _import('wechart/trace')},
 
     ]
   }

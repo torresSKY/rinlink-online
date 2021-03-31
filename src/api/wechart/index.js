@@ -251,6 +251,21 @@ const deviceBindFence = (data) => ( //设备绑定围栏
 const searchFences = (data) => ( //搜索电子围栏
     axios.post(url + '/search_fences?__OPERATOR_TYPE=2',data)
 )
+const getDeviceDetail = (data) => ( //获取设备详细信息
+    axios.post(url + '/get_device_detail?__OPERATOR_TYPE=2',data)
+)
+const getRangeIconList = (data) => ( //获取设备使用范围的icon
+    axios.post(url + '/query_device_use_range_info',data)
+)
+const queryDeviceCmds = (data) => ( //获取设备历史指令
+    axios.post(url + '/paging_query_device_cmds?__OPERATOR_TYPE=2',data)
+)
+const queryDeviceTracks = (data) => (//查询设备轨迹
+    axios.post(url + '/query_device_tracks?__OPERATOR_TYPE=2',data)
+)
+const getDeviceLastCoordinate = (data) => (
+    axios.post(url + '/get_device_last_coordinate?__OPERATOR_TYPE=2',data)
+)
 export default {
     login,
     getManagerList,
@@ -319,5 +334,10 @@ export default {
     createUpdateDistrictFence,
     deleteFence,
     deviceBindFence,
-    searchFences
+    searchFences,
+    getDeviceDetail,
+    getRangeIconList,
+    queryDeviceCmds,
+    queryDeviceTracks,
+    getDeviceLastCoordinate
 }

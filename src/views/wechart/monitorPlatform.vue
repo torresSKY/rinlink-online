@@ -8,10 +8,10 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="fencesearch">
-                            <el-button size="mini" slot="append" icon="el-icon-search"></el-button>
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name">
+                            <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
-                        <el-tree :data="data" :render-content="renderContent"></el-tree>
+                        <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                     </div>
                 </div>
             </el-col>
@@ -19,47 +19,59 @@
                 <div class="row_item_middle">
                      <div class="row_item_middle_top">
                         <div>
-                            <div @click="evt_change_type" data-type="all" :class="change_type == 'all' ? 'select_item' :''">全部(800)</div>
-                            <div @click="evt_change_type" data-type="on" :class="change_type == 'on' ? 'select_item' :''">在线(700)</div>
-                            <div @click="evt_change_type" data-type="off" :class="change_type == 'off' ? 'select_item' :''">离线(100)</div>
+                            <div @click="evt_change_type('all')" :class="change_type == 'all' ? 'select_item' :''">全部(800)</div>
+                            <div @click="evt_change_type('on')" :class="change_type == 'on' ? 'select_item' :''">在线(700)</div>
+                            <div @click="evt_change_type('off')" :class="change_type == 'off' ? 'select_item' :''">离线(100)</div>
                         </div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_middle_middle">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="fencesearch">
-                            <el-button size="mini" slot="append" icon="el-icon-search"></el-button>
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称" v-model="searchDevice_name">
+                            <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                     </div>
                     <div class="row_item_middle_bottom">
                         <div class="item_content">
-                            <div class="devices_item">
-                                <div class="devices_item_top">
-                                    <el-checkbox></el-checkbox>
-                                    <el-avatar class="devices_item_top_avatar" size="small"></el-avatar>
-                                    <div class="devices_item_top_right">
-                                    <div class="devices_item_top_right_top">
-                                        <div class="devices_item_top_right_top_left">D600N测试2</div>
-                                            <div class="devices_item_top_right_top_right">在线</div>
-                                        </div>
-                                        <div class="devices_item_top_right_bottom">
-                                            <!-- 电池辅助元素 -->
-                                            <div><div style="background:#02C602;"></div></div>
-                                            <div>80%</div>
+                            <template v-if="devices_list.length > 0">
+                                <div class="devices_item" :class="item.deviceId == current_select_deviceId ? 'devices_item_t':''" v-for="item in devices_list" :key="item.deviceId">
+                                    <div class="devices_item_top" @click="evt_select_devices(item.deviceId)">
+                                        <!-- <el-checkbox ></el-checkbox> -->
+                                        <img v-show="item.deviceId != current_select_deviceId" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
+                                        <img v-show="item.deviceId == current_select_deviceId" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
+                                        <el-avatar class="devices_item_top_avatar" size="small"></el-avatar>
+                                        <div class="devices_item_top_right">
+                                        <div class="devices_item_top_right_top">
+                                            <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
+                                                <div class="devices_item_top_right_top_right">{{item.networkStatus == '1' ? '在线' : '离线'}}</div>
+                                            </div>
+                                            <div class="devices_item_top_right_bottom">
+                                                <!-- 电池辅助元素 -->
+                                                <div><div style="background:#02C602;" :style="{width: item.battery + '%'}"></div></div>
+                                                <div>{{item.battery}}%</div>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="devices_item_bottom">
+                                        <div>
+                                            <el-button @click="evt_trace(item.deviceId,item.deviceName,'trace')" :class="item.deviceId == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
+                                        </div>
+                                        <div>
+                                            <el-button @click="evt_playback(item)" :class="item.deviceId == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
+                                        </div>
+                                        <div>
+                                            <el-dropdown @command="evt_more_command" size="mini">
+                                                <span class="el-dropdown-link">更多</span>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item :command="{type:'detail',deviceId:item.deviceId}">设备详情</el-dropdown-item>
+                                                    <el-dropdown-item :command="{type:'command',deviceId:item.deviceId}">设备指令</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                        </div>
+                                       
+                                    </div>
                                 </div>
-                                <div class="devices_item_bottom">
-                                    <el-menu  mode="horizontal">
-                                        <el-menu-item index="1">跟踪</el-menu-item>
-                                        <el-menu-item index="2">回放</el-menu-item>
-                                        <el-submenu index="3">
-                                            <template slot="title">更多</template>
-                                            <el-menu-item index="3-1">设备详情</el-menu-item>
-                                            <el-menu-item index="3-2">设备指令</el-menu-item>
-                                         </el-submenu>
-                                    </el-menu>
-                                </div>
-                            </div>
+                            </template>
+                            <div v-if="devices_list.length == 0" style="font-size:14px;text-align:center;">暂无设备数据</div>
                         </div>
                         <!-- <div class="row_item_middle_bottom_add_tag">添加标签</div>
                         <el-collapse accordion v-model="collapse_value">
@@ -91,42 +103,41 @@
             <el-col class="row_item" :span="16" :style="{height:height +'px'}">
                 <div class="row_item_right">
                     <!-- 首次展示头部 -->
-                    <div class="row_item_right_top" v-if="playback_top_flag">
-                        <div>D600N测试1：上海市闵行区辛庄镇辛庄中心1号楼</div>
-                        <el-checkbox v-model="checkbox_n">显示设备名称</el-checkbox>
+                    <div class="row_item_right_top" v-if="!track_detail">
+                        <div>{{current_device_name != '' ? current_device_name + '：' + current_device_address : ''}}</div>
+                        <el-checkbox @change="evt_show_deviceName" v-model="show_deviceName">显示设备名称</el-checkbox>
                     </div>
                     <!-- 回放头部 -->
-                    <div class="playback_top" v-if="!playback_top_flag">
+                    <div class="playback_top" v-if="track_detail">
                         <el-row type="flex" align="middle" class="playback_top_top">
                             <el-col :span="4">
                                 <span class="playback_top_text">设备名称</span>
-                                <span class="playback_top_text playback_top_text_t">D600N测试1</span>
+                                <span class="playback_top_text playback_top_text_t">{{current_device_name}}</span>
                             </el-col>
                             <el-col :span="2" class="playback_top_select_1">
-                                 <el-select v-model="el_select_value" size="small">
-                                    <el-option key="今天" label="今天" value="今天"></el-option>
-                                    <el-option key="昨天" label="昨天" value="昨天"></el-option>
-                                    <el-option key="最近一周" label="最近一周" value="最近一周"></el-option>
+                                 <el-select v-model="select_date" size="small" @change="evt_select_date">
+                                    <el-option value="今天"></el-option>
+                                    <el-option value="昨天"></el-option>
+                                    <el-option value="最近一周"></el-option>
                                 </el-select>
                             </el-col>
                             <el-col :span="8" class="playback_top_date_picker">
                                 <el-date-picker
-                                    v-model="value2"
+                                    v-model="select_date_time"
                                     type="datetimerange"
-                                    :picker-options="pickerOptions"
                                     range-separator="至"
                                     start-placeholder="开始日期"
                                     end-placeholder="结束日期"
-                                    align="right" size="small">
+                                    align="right" size="small" value-format="timestamp" @change="evt_select_date_time">
                                 </el-date-picker>
                             </el-col>
                             <el-col :span="8" class="playback_top_select_2">
                                 <div class="playback_top_select_2_div">
                                     <span>定位方式:</span>
-                                    <el-select v-model="value1" multiple size="small" placeholder="请选择">
-                                        <el-option key="GPS定位" label="GPS定位" value="GPS定位"></el-option>
-                                        <el-option key="基站定位" label="基站定位" value="基站定位"></el-option>
-                                        <el-option key="WiFi定位" label="WiFi定位" value="WiFi定位"></el-option>
+                                    <el-select v-model="position_type" multiple size="small" placeholder="请选择">
+                                        <el-option  value="GPS定位"></el-option>
+                                        <el-option  value="基站定位"></el-option>
+                                        <el-option  value="WiFi定位"></el-option>
                                     </el-select>
                                 </div>
                             </el-col>
@@ -135,57 +146,55 @@
                             <el-col :span="4">
                                 <el-row type="flex" align="middle"> 
                                     <el-col :span="5">
-                                        <i class="video_play_icon el-icon-video-play"></i>
-                                        <!-- <i class="video_play_icon el-icon-video-pause"></i> -->
+                                        <i @click="evt_play_pause" v-if="!play_flag" class="video_play_icon el-icon-video-play"></i>
+                                        <i @click="evt_play_pause" v-if="play_flag" class="video_play_icon el-icon-video-pause"></i>
                                     </el-col>
                                     <el-col :span="15" class="slider_style_1">
-                                        <el-slider v-model="value3" :show-tooltip="false"></el-slider>
+                                        <el-slider @change="evt_play_handle" :min="0" :step="1" :max="device_tracks_max" v-model="device_tracks_step" :show-tooltip="false"></el-slider>
                                     </el-col>
                                 </el-row>
                             </el-col>
                             <el-col :span="7">
                                 <div class="speed_content">
                                     <span class="speed_content_text">速度：慢</span>
-                                    <el-slider class="slider_style_2" v-model="value4" :show-tooltip="false"></el-slider>
+                                    <el-slider class="slider_style_2" :min="200" :step="100" :max="1000" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
-                                    <span class="speed_content_text speed_content_text_t">总里程:12.07km</span>
+                                    <!-- <span class="speed_content_text speed_content_text_t">总里程:12.07km</span> -->
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="5">
-                                <el-button type="primary" size="mini">确定</el-button>
-                                <el-button type="primary" size="mini">轨迹明细</el-button>
+                                <el-button @click="evt_query_tracks" type="primary" size="mini">确定</el-button>
+                                <el-button @click="evt_show_tracksDetail" type="primary" size="mini">轨迹明细</el-button>
                                 <el-button type="primary" size="mini">导出轨迹</el-button>
                             </el-col>
                         </el-row>
                     </div>
-                    <div id="map2"></div>
+                    <div id="container"></div>
                     <!-- 轨迹明细 -->
-                    <div class="track_detail">
+                    <div class="track_detail" v-if="tracksDetail_flag">
                         <div class="track_detail_top">
                             <span>轨迹明细</span>
-                            <el-button type="primary" size="mini">一键解析定位</el-button>
+                            <div>
+                                <el-button @click="evt_getAllAdress" type="primary" size="mini">一键解析定位</el-button>
+                                <i @click="evt_close_tracksDetail" class="el-icon-circle-close"></i>
+                            </div>
                         </div>
-                        <el-table :data="tableData" border style="width: 100%" size="small">
-                            <el-table-column fixed prop="date" label="序号" min-width="100"></el-table-column>
-                            <el-table-column prop="name" label="更新时间" min-width="150"></el-table-column>
-                            <el-table-column prop="province" label="经度" min-width="120"></el-table-column>
-                            <el-table-column prop="city" label="纬度" min-width="120"></el-table-column>
-                            <el-table-column prop="zip" label="行驶里程" min-width="120"></el-table-column>
-                            <el-table-column prop="zip" label="停留时长" min-width="120"></el-table-column>
-                            <el-table-column prop="zip" label="定位类型" min-width="120"></el-table-column>
-                            <el-table-column fixed="right"  label="位置" min-width="360">
+                        <el-table :data="current_tracksDetail_list" border style="width: 100%" size="small">
+                            <!-- <el-table-column fixed prop="date" label="序号" min-width="100"></el-table-column> -->
+                            <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="150"></el-table-column>
+                            <el-table-column prop="lng" label="经度" min-width="140"></el-table-column>
+                            <el-table-column prop="lat" label="纬度" min-width="140"></el-table-column>
+                            <!-- <el-table-column prop="zip" label="行驶里程" min-width="120"></el-table-column> -->
+                            <!-- <el-table-column prop="zip" label="停留时长" min-width="120"></el-table-column> -->
+                            <el-table-column prop="positionType" label="定位类型" min-width="120"></el-table-column>
+                            <el-table-column prop="address" fixed="right"  label="位置" min-width="360">
                                 <template slot-scope="scope">
-                                    <el-button type="text" size="small">点击获取定位</el-button>
+                                    <el-button v-if="scope.row.address == 'address'" @click="evt_getAdress(scope.row)" type="text" size="small">点击获取定位</el-button>
+                                    <el-button v-if="scope.row.address != 'address'" type="text" size="small">{{scope.row.address}}</el-button>
                                 </template>
                             </el-table-column>
-                            <!-- <el-table-column fixed="right" label="操作" width="100">
-                                <template slot-scope="scope">
-                                    <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-                                    <el-button type="text" size="small">编辑</el-button>
-                                </template>
-                            </el-table-column> -->
                         </el-table>
-                        <el-pagination small background layout="total,prev, pager, next,jumper" hide-on-single-page :page-size="5" :total="100" style="text-align:center;margin-top:10px;"></el-pagination>
+                        <el-pagination small background layout="total,prev, pager, next,jumper" @current-change="evt_change_current" :hide-on-single-page="true" :current-page="current_tracksDetail_page" :page-size="5" :total="tracksDetail_list.length" style="text-align:center;margin-top:10px;"></el-pagination>
                     </div>
                 </div>
             </el-col>
@@ -204,54 +213,55 @@
         </el-dialog>
 
         <!-- 设备信息 -->
-        <el-dialog class="device_info" lock-scroll title="设备信息" :visible="device_info_visible">
+        <el-dialog class="device_info" lock-scroll title="设备信息" :visible="device_info_visible" @close="evt_close_deviceInfo">
             <el-row :gutter="10">
                 <el-col :span="12" class="device_info_left">
-                    <el-form :model="form_data">
+                    <el-form>
                         <el-form-item label="设备名称:">
-                            <el-input class="device_info_left_input_1" size="small" value="D600N测试1"></el-input>
+                            <el-input class="device_info_left_input_1" size="small" v-model="device_name"></el-input>
                         </el-form-item>
                         <el-form-item label="设备型号:">
-                            <el-select class="device_info_left_select" size="small" v-model="device_info_model"  placeholder="请选择">
+                            <!-- <el-select class="device_info_left_select" size="small" v-model="device_info_model"  placeholder="请选择">
                                 <el-option key="选项1" label="选项1" value="选项1"></el-option>
                                 <el-option key="选项2" label="选项2" value="选项2"></el-option>
-                            </el-select>
+                            </el-select> -->
+                            <span v-if="device_detail_info.deviceModel">{{device_detail_info.deviceModel.name}}</span>
                         </el-form-item>
-                        <el-form-item label="标签:">
+                        <!-- <el-form-item label="标签:">
                             <el-tag type="info" closable size="small">标签三</el-tag>
                             <el-tag type="info" closable size="small">标签三</el-tag>
                             <el-tag type="info" closable size="small">标签三</el-tag>
                             <el-tag type="info" closable size="small">标签三</el-tag>
-                        </el-form-item>
+                        </el-form-item> -->
                         <el-form-item label="激活时间:">
-                            <span>2020-10-01</span>
+                            <span>{{device_detail_info.activationTime|formatDate}}</span>
                         </el-form-item>
                         <el-form-item label="服务到期时间:">
-                            <span>2020-10-01</span>
+                            <span>{{device_detail_info.serviceExpireTime|formatDate}}</span>
                         </el-form-item>
                          <el-form-item label="适用范围:">
-                            <el-tag size="mini" class="el-icon-s-custom"></el-tag>
-                            <el-tag size="mini" class="el-icon-s-custom"></el-tag>
-                            <el-tag size="mini" class="el-icon-s-custom"></el-tag>
+                            <!-- :src="require('../../assets/img/car_online.png')" -->
+                            <el-image @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="item.iconUrl" class="icon_img_class"   fit="contain"></el-image>
                         </el-form-item>
                     </el-form>
                 </el-col>
                 <el-col :span="12" class="device_info_right">
-                    <el-form :model="form_data">
+                    <el-form>
                         <el-form-item label="设备IMEI:">
-                            <span>855008846416846</span>
+                            <span>{{device_detail_info.deviceNumber}}</span>
                         </el-form-item>
                         <el-form-item label="网络状态:">
-                            <span>在线</span>
+                            <span>{{device_detail_info.networkStatus == '1' ? '在线' : '离线'}}</span>
                         </el-form-item>
                         <el-form-item label="销售时间:">
-                            <span>2020-10-01</span>
+                            <span>{{device_detail_info.sellTime|formatDate}}</span>
                         </el-form-item>
                         <el-form-item label="导入时间:">
                             <span>2020-10-01</span>
                         </el-form-item>
                         <el-form-item label="ICCID:">
-                            <el-input class="device_info_right_input_1" size="small" value="887887788789"></el-input>
+                            <!-- <el-input class="device_info_right_input_1" size="small" value="887887788789"></el-input> -->
+                            <span>{{device_detail_info.iccid}}</span>
                         </el-form-item>
                     </el-form>
                 </el-col>
@@ -259,23 +269,23 @@
             <el-row>
                 <el-col style="text-align: right;" :span="2">备注：</el-col>
                 <el-col :span="22">
-                    <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="textarea_data"></el-input>
+                    <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="remark_text"></el-input>
                 </el-col>
             </el-row>
             <div class="device_info_btn">
-                <el-button type="info" size="small">取消</el-button>
-                <el-button type="primary" size="small">确认</el-button>
+                <el-button type="info" size="small" @click="evt_close_deviceInfo">取消</el-button>
+                <el-button type="primary" size="small" @click="evt_update_deviceInfo">确认</el-button>
             </div>
         </el-dialog>
 
         <!-- 设备指令 -->
-        <el-drawer class="device_order" modal direction="rtl" :show-close="false" :visible="visible_drawer" size="50%">
+        <el-drawer class="device_order" modal direction="rtl" :show-close="false" :visible="device_command_visible" size="50%">
             <template slot="title">
-                <i class="device_order_top_icon el-icon-back"></i>
-                <span class="device_order_top_text">返回</span>
+                <i class="device_order_top_icon el-icon-back" @click="evt_close_command_content"></i>
+                <span class="device_order_top_text" @click="evt_close_command_content">返回</span>
             </template>
-            <el-tabs type="border-card">
-                <el-tab-pane label="指令参数">
+            <el-tabs type="border-card" v-model="tab_value" @tab-click="evt_tab_click">
+                <el-tab-pane label="指令参数" name="parameter">
                     <el-form :model="form_data_order">
                         <div class="order_form_item">
                             <el-form-item label="指令类型:">
@@ -303,176 +313,30 @@
                         
                     </el-form>
                 </el-tab-pane>
-                <el-tab-pane label="历史指令">
-                    <el-table class="" :data="tableData" border style="width: 100%" size="small">
-                        <el-table-column fixed prop="date" label="序号" min-width="60"></el-table-column>
-                        <el-table-column prop="name" label="指令类型" min-width="120"></el-table-column>
-                        <el-table-column prop="province" label="指令数据" min-width="120"></el-table-column>
-                        <el-table-column prop="city" label="创建时间" min-width="120"></el-table-column>
-                        <el-table-column prop="zip" label="指令结果" min-width="100"></el-table-column>
+                <el-tab-pane label="历史指令" name="history">
+                    <el-table class="" :data="command_data_list" border style="width: 100%" size="small">
+                        <el-table-column fixed prop="commandId" label="指令ID" min-width="60"></el-table-column>
+                        <el-table-column prop="commandName" label="指令类型" min-width="120"></el-table-column>
+                        <el-table-column prop="commandData" label="指令数据" min-width="120"></el-table-column>
+                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="120"></el-table-column>
+                        <el-table-column prop="commandStatus" label="指令结果" min-width="100"></el-table-column>
                     </el-table>
-                    <el-pagination small background layout="total,prev, pager, next,jumper" hide-on-single-page :page-size="5" :total="100" style="text-align:center;margin-top:30px;"></el-pagination>
+                    <el-pagination @current-change="evt_current_change" small background layout="total,prev, pager, next,jumper" :hide-on-single-page="true" :current-page="command_page" :page-size="command_pageSize" :total="command_total" style="text-align:center;margin-top:30px;"></el-pagination>
                 </el-tab-pane>
             </el-tabs>
         </el-drawer>
 
-        <!-- <el-row :gutter="20">
-            <el-col :span='6'>
-            <div class='search'>
-                <el-page-header v-show="!showedit" @back="goBack" style="margin-bottom:10px">
-                </el-page-header>
-            <el-row>
-                <el-col :span='12'><el-input class='eleinput' v-model='fencesearch' :placeholder="$t('view.fence2')" clearable></el-input></el-col>
-                <el-col :span='4' :offset="1"><el-button class=' butsearch' @click='getele()'>{{$t('button.search')}}</el-button></el-col>
-                <el-col :span='4' :offset="2"><el-button class=' butresh' @click='Resetgetele()'>{{$t('button.refresh')}}</el-button></el-col>
-            </el-row>
-            </div>
-            <el-card :style="{height:height - 100 +'px',overflow:'hidden' }">
-                <div class='title'>
-                    <span>{{$t('view.fence1')}}</span>
-                    <el-button class="butsearch" @click='showAdd'>{{$t('button.add')}}</el-button>
-                </div>
-                <el-scrollbar v-if='list.length > 0'  :style="{height:height - 180 +'px'}" ref="scroll" class='el-scro'>
-                    <div class='list' v-for='(item,index) in list' :key='item.name' :class = "active == index ? 'addclass' : '' " @click='dowm(index)'>
-                        <div class='elecard'>
-                        <div class='elecard-item' @click='changecrie(item)'>
-                            <div>{{item.name}}</div>
-                            <div>{{$t('view.radius')}}：{{item.radius}}{{$t('view.mi')}}</div>
-                        </div>
-                        <div class='elecard-edit' @click='addlist(item)' :hidden='!showedit'>
-                            <img  src='../../assets/img/list.png'>
-                        </div>  
-                        <div class='elecard-edit' @click='editele(item)' :hidden='!showedit'>
-                            <img src='../../assets/img/edit.png'>
-                        </div>
-                        <div class='elecard-edit' @click='deleold(item)'>
-                            <img src='../../assets/img/delet.png'>
-                        </div>  
-                        </div>
-                    </div>
-                </el-scrollbar>
-                <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>{{$t('table.temporarily')}}</span></div>
-            </el-card>
-            <el-card :hidden='addview' class='addele' :style="{height:height+'px'}">
-                <div class='title'>
-                    <span v-if='editfen'>{{$t('view.fence6')}}</span>
-                    <span v-else>{{$t('view.fence5')}}</span>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence2')}}</span>
-                    <el-input v-model='fenceName' maxlength="20"></el-input>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence4')}}</span>
-                    <el-input id='fenceradio' v-model='address' :placeholder='address2'></el-input>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence3')}}</span>
-                    <el-input v-model='fenceRadio' type="number"></el-input>
-                </div>
-                <div class='addlist'>
-                    <span>{{$t('view.fence7')}}</span>
-                     <el-checkbox-group v-model="inala">
-                        <el-checkbox :label="0" value='0'>{{$t('view.fence8')}}</el-checkbox>
-                        <el-checkbox :label="1" value='1'>{{$t('view.fence9')}}</el-checkbox>
-                    </el-checkbox-group>
-                </div>
-                <div class='addlist'>
-                    <el-button @click='closeele'>{{$t('view.close')}}</el-button>
-                    <el-button class="butsearch" @click='editfen?addEle():editEle2()'>{{$t('button.save')}}</el-button>
-                </div>
-            </el-card>
-            </el-col> 
-            <el-col :span='18'>
-                <el-card>
-                    <div id="map2" :style="{height:height-40+'px',overflow:'hidden' }"></div>
-                </el-card>
-                <div class='right-tab' :hidden="showlist" :style="{height:height-40+'px'}">
-                    <el-row style='text-align: center;line-height: 50px;'>
-                        <el-col :span='23'>{{$t('table.addequ')}}</el-col>
-                        <el-col :span='1'>
-                        <i class='el-icon-close'  @click='showlist = true'></i>
-                        </el-col>
-                    </el-row>
-                    <el-row :span='20' style='margin-bottom: 20px;'>
-                        <el-col :span='5'>
-                            <el-input v-model="search" :placeholder="$t('table.searchimei')" clearable style='width:90%'></el-input>
-                        </el-col>
-                        <el-col :span='4'>
-                            <el-select v-model="selegroup" :placeholder="$t('view.inputgroup')" style='width:90%'>
-                                <el-option v-for="item in allgroup" :value="item.id" :key="item.name" :label="item.name"></el-option>
-                            </el-select>
-                        </el-col>
-                        <el-col :span='2'>
-                            <el-button @click='addlist(0)'>{{$t('button.search')}}</el-button>
-                        </el-col>
-                        <el-col :span='4'>
-                            <el-button @click='moreunlink()'>{{$t('table.canaleadd')}}</el-button>
-                        </el-col>
-                        <el-col :span='4'>
-                            <el-button @click='showitem()'>{{$t('route.Add')}}</el-button>
-                        </el-col>
-                    </el-row>
-                    <el-table :data="equlist" :height='height-200' :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}"  @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop='deviceName' :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='imei' :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='groupName' :label="$t('table.groupname')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='deviceModel' :label="$t('table.model')" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop='createDt' :label="$t('table.addtime')" show-overflow-tooltip>
-                            <template slot-scope="scop">
-                                {{scop.row.createDt == null ? '--':scop.row.createDt | formatDate}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop='' :label="$t('table.operation')" show-overflow-tooltip>
-                            <template slot-scope="scope">
-                                <el-button @click="Unlinkequ(scope.row)" type="text" >{{$t('table.canaleadd')}}</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-pagination
-                        @current-change="changeindex2"
-                        :current-page.sync="page2.index"
-                        :page-size="page2.size"
-                        layout="total, prev, pager, next ,jumper"
-                        :total="page2.total"
-                        style="text-align:center;margin-top:10px">
-                    </el-pagination>
-                </div>
-            </el-col>  
-        </el-row>
-        
-        <el-dialog :title="$t('route.Add')" :visible.sync="showequlist" :center='true'>
-            <el-row :span='20'>
-                <el-col :span='2'>
-                    <el-button @click="morelink()">{{$t('table.butgl')}}</el-button>
-                </el-col>
-            </el-row>
-            <el-table v-loading='addloading' :data="allequlist" :height='height-250' :row-class-name="tableRowClassName" :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}" @selection-change="handleSelectionChange2">
-                <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop='deviceName' :label="$t('table.Device')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='imei' :label="$t('table.imei')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='groupName' :label="$t('table.groupname')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='deviceModel' :label="$t('table.model')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='createDt' :label="$t('table.addtime')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop='' :label="$t('table.operation')" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <el-button @click="linkequ(scope.row)" type="text" >{{$t('table.butgl')}}</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-pagination
-                @current-change="changeindex"
-                :current-page.sync="page.index"
-                :page-size="page.size"
-                layout="total, prev, pager, next ,jumper"
-                :total="page.total"
-                style="text-align:center;margin-top:10px">
-            </el-pagination>
-        </el-dialog> -->
     </div>
 </template>
 <script>
+// 定位类型
+// -1 - 无定位
+// 1 - GPS
+// 2 - WIFI
+// 3 - 基站
+// 网络状态
+// 1 - 在线
+// 2 - 离线
 import api from '@/api/wechart/index'
 import mixin from '@/mixins/index'
 import { formatDate } from '@/plugins/date.js'
@@ -485,94 +349,21 @@ export default {
             imei: this.$route.query.imei,
             lon: this.$route.query.lon,
             lat: this.$route.query.lat,
-            showedit: true,
-            conlat: 0,
-            conlon: 0,
-            address: '',
-            address2: '',
-            radius: 0,
-            mPoint: null,
-            circleArr: [],
             x_PI: 3.14159265358979324 * 3000.0 / 180.0,
             PI: 3.1415926535897932384626,
             a: 6378245.0,
             ee: 0.00669342162296594323,
-            marker: null,
-            marker2: null,
-            display : false,
-            showloca2: true,
-            mapMarker: [],
-            height: 0,
-            list: [],
-            addview: true,
-            editfen: false,
-            fenceName: '',
-            fenceRadio: 0,
-            fenceAddree: '',
-            inala: [0,1],
-            ac: null,
-            userlocation: null,
-            searchimei: null,
-            map: null,
-            circle: null,
-            showlist: true,
-            equlist: [],
-            allequlist: [],
-            showequlist: false,
-            linkequstr: true,
-            nowfenceid: '',
-            noeimei: '',
-            moreunequ: [],
-            moerequ: [],
-            moreequ:[],
-            allgroup: [],
-            search: '',
-            selegroup: '',
-            fencesearch: '',
-            page2:{
-                index:1,                                //当前页   
-                size:20,                                //一页的数量
-                total:0                                 //总数量
-            },
-            addloading: true,
-            fenceid: null,
-            active:-1,
-            backFlag:false,
-            data: [{
-                label: '一级 1',
-                children: [{
-                    label: '二级 1-1',
-                    children: [{
-                    label: '三级 1-1-1'
-                    }]
-                }]
-                }, {
-                label: '一级 2',
-                children: [{
-                    label: '二级 2-1',
-                    children: [{
-                    label: '三级 2-1-1'
-                    }]
-                }, {
-                    label: '二级 2-2',
-                    children: [{
-                    label: '三级 2-2-1'
-                    }]
-                }]
-                }, {
-                label: '一级 3',
-                children: [{
-                    label: '二级 3-1',
-                    children: [{
-                    label: '三级 3-1-1'
-                    }]
-                }, {
-                    label: '二级 3-2',
-                    children: [{
-                    label: '三级 3-2-1'
-                    }]
-                }]
-            }],
+            tag_visible:false,
+            input_1:'',
+            device_info_model:'',
+            form_data_order:{},
+            order_form_value:'',
+            order_form_parameter:'',
+
+
+            height: 0, //可视高度
+            map: null,//实例化地图
+            change_type:'all',//切换全部、在线、离线设备统计
             renderContent:function (h,{node,data,store}) {
                 let addElement = arguments[0];
                 return addElement('span',[
@@ -581,647 +372,853 @@ export default {
                     addElement('span',arguments[1].node.label)
                 ]);
             },
-            radio1:'',
-            collapse_value:'2',
-            checked:'',
-            checkbox_n:'',
-            tag_visible:false,
-            input_1:'',
-            playback_top_flag:true,
-            el_select_value:'今天',
-            pickerOptions: {
-            shortcuts: [{
-                    text: '最近一周',
-                    onClick(picker) {
-                    const end = new Date();
-                    const start = new Date();
-                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                    picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近一个月',
-                    onClick(picker) {
-                    const end = new Date();
-                    const start = new Date();
-                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                    picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近三个月',
-                    onClick(picker) {
-                    const end = new Date();
-                    const start = new Date();
-                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                    picker.$emit('pick', [start, end]);
-                    }
-                }]
+            user_list:[],//用户列表
+            user_id:'',//用户查询用户设备列表的用户id
+            devices_list:[],//当前用户的设备列表
+            searchBusiness_name:'',//搜索用户关键字
+            searchDevice_name:'',//搜索设备的关键字
+            selected_devices:[],//选中的设备
+            device_info_visible:false,//设备具体信息的展示框
+            device_command_visible:false,//设备指令弹框展示
+            need_handle_deviceId:'',//更多下拉框需要进行操作的设备的id
+            device_detail_info:{},//设备的详细信息
+            device_name:'',//设备名称
+            remark_text:'',//设备备注信息
+            icon_list:[],//适用范围图标
+            range_code:'',//设备使用范围的code
+            tab_value:'history',
+            command_page:1,//历史指令当前页
+            command_pageSize:10,//历史指令页面数据条数
+            command_total:0,//历史指令的总条数
+            command_data_list:[],//历史指令的当前页数据
+            current_select_deviceId:'',//当前选择的设备id
+            show_deviceName: true,//是否显示设备名称
+            track_detail:false,//展示轨迹
+            current_device_name:'',//当前选中设备的名称
+            current_device_address:'',//当前选中设备的位置
+            select_date:'今天',//选择日期
+            select_date_time:[],//选择的日期时间
+            startTime:0,//开始时间戳
+            endTime:0,//结束时间戳
+            position_type:["GPS定位","基站定位","WiFi定位"],//多选定位类型
+            device_tracks:[],//设备轨迹信息
+            device_tracks_shift:[],//回放过的轨迹信息
+            play_flag:true,//播放与暂停 默认播放
+            device_tracks_step:0,//轨迹播放步数
+            device_tracks_max:0,//轨迹回放最大数
+            device_tracks_interval:null,//轨迹回放定时器
+            speed:400,
+            tracksDetail_flag:false,//显示轨迹明细
+            tracksDetail_list:[],//轨迹明细信息
+            current_tracksDetail_list:[],//当前页轨迹明细信息
+            current_tracksDetail_page:1,
+            positionType:{
+                '-1': '无定位',
+                '1':'GPS',
+                '2':'WIFI',
+                '3': '基站'
             },
-            value2: '',
-            value1:[],
-            value3:4,
-            value4:6,
-            drawer:true,
-            tableData: [{
-                date: '1',
-                name: '2020-10-10 09:28:00',
-                province: '121.255155',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-                }, {
-                date: '1',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1517 弄',
-                zip: 200333
-                }, {
-                date: '19999',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1519 弄',
-                zip: 200333
-                }, {
-                date: '88888',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1516 弄',
-                zip: 200333
-                },
-                {
-                date: '88888',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1516 弄',
-                zip: 200333
-                }
-            ],
-            device_info_visible:false,
-            form_data:{},
-            device_info_model:'',
-            textarea_data:'',
-            visible_drawer:false,
-            form_data_order:{},
-            order_form_value:'',
-            order_form_parameter:'',
-
-            change_type:'all',//切换全部、在线、离线设备统计
+            playback_address:'',
         }
     },
-    watch: {
-        $route() {
-            this.setMap()
-        },
-        // searchimei(news){
-        //     clearTimeout(this.timer)
-        //     this.timer = setTimeout(()=>{
-        //         // if (news) {
-        //         //     this.search()
-        //         // }else{
-        //             this.getList()
-        //         // }
-        //     }, 500);
-        // },
-        fenceRadio(news){
-            let that = this
-            let timer = null
-            clearTimeout(timer)
-            timer = setTimeout(()=>{
-                if(this.conlon != 0 && this.conlat != 0){
-                    this.circle.setCenter( new BMap.Point(this.conlon, this.conlat))
-                    that.circle.setRadius(news)
-                }else{
-                    this.$message.warning(this.$t('message.xuanze'))
-                }
-            }, 500);
-        }
+    created(){
+        this.evt_getBusiness();
+        this.evt_getRangeIconList();
     },
     mounted(){
-        this.height = document.body.offsetHeight - 60
-        // if(this.imei != null){
-        //     this.showedit = false
-        //     this.getoneele()
-        // }else{
-        //     this.showedit = true
-        //     this.getele() 
-        // }
-        // this.setMap()
-        // this.getgroup()
+        this.height = document.body.offsetHeight - 60;
 
-        
-        this.map = new BMap.Map("map2");
+        this.map = new BMap.Map("container");
         this.map.enableScrollWheelZoom(true); 
-        this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
+        this.map.centerAndZoom(new BMap.Point(121.3515259,31.1285691),15);
         this.map.addControl(new BMap.NavigationControl());    
         this.map.addControl(new BMap.ScaleControl());    
-        this.map.addControl(new BMap.OverviewMapControl());       
+        this.map.addControl(new BMap.OverviewMapControl());  
+
+        // this.evt_addMarker();
+
+        // this.map.addEventListener('click',function(e){
+        //     console.log(e);
+        // })
+
+        // 在字符串模板中绑定的事件
+        window.evt_track = this.evt_track;
+        window.evt_trace = this.evt_trace;
+        window.evt_playback_address = this.evt_playback_address;
+    },
+    destroyed:function(){
+        clearInterval(this.device_tracks_interval);
     },
     methods: {
-        evt_change_type:function(e){
-            this.change_type = e.target.getAttribute('data-type');
-        },
+        //获取代理商
+        evt_getBusiness:function(){
+            var _this = this;
+            api.getBusiness().then((res) => {
+                // console.log(res);
+                if(res.success && res.msg == 'OK'){
+                    for(let i = 0, len = res.data.length; i < len; i++){
+                        var user_data = {};
+                        user_data['label'] = res.data[i].username + '(' + res.data[i].sellDevices +'/'+ res.data[i].devices +')';
+                        user_data['info'] = res.data[i]
+                        user_data['user_id'] = res.data[i].userId;
+                        _this.user_list.push(user_data);
+                        _this.user_id = res.data[0].userId;
+                    }
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices();
 
-        goBack(){
-            this.$router.push({name:'route.List'})
-        },
-        setMap() {
-            console.log('加载地图')
-            this.map = new BMap.Map("map2");
-            this.map.enableScrollWheelZoom(true);
-            //this.map.clearOverlays(); 
-            this.circle = new BMap.Circle();
-            //this.map.addOverlay(this.marker2);  
-            this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
-            this.circle.setRadius(0)
-            this.circle.setCenter(new BMap.Point(121.3715259,31.1285691))
-            //this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),18);
-            this.circle.setFillColor("blue")
-            this.circle.setStrokeWeight(1)
-            this.circle.setFillOpacity(0.3)
-            this.circle.setStrokeOpacity(0.3)
-            this.circle.enableEditing();
-            this.map.addOverlay(this.circle)
-            var that = this
-            // if (this.mPoint != null) {
-            //     this.circle.addEventListener("lineupdate", function (e) {
-            //     that.radius = this.circle.getRadius(); //返回圆形覆盖物的半径
-            //    });
-            // }
-
-            var local = new BMap.LocalSearch(that.map, {renderOptions: {map: that.map, autoViewport: false}});
-
-            that.ac = new BMap.Autocomplete(    //建立一个自动完成的对象
-              {
-                  "input": "fenceradio", 
-                  "location": that.map
-              })
-              // ac.hide()
-            var myValue = null
-             that.ac.addEventListener("onconfirm", function (e) {    //鼠标点击下拉列表后的事件
-              var _value = e.item.value;
-              myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
-              that.address = myValue
-            //   console.log('222')
-              // if(that.infoEqu.address != ''){
-                that.ac.hide()
-              // }
-              // that.ac.dispose()
-              // that.infoEqu.lat = data.location.lat
-              // that.infoEqu.lon = data.location.lng
-              setPlace();
-          })
-          function setPlace() {
-              that.map.clearOverlays();    //清除地图上所有覆盖物
-              function myFun() {
-                  that.userlocation = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
-                  that.map.centerAndZoom(that.userlocation, 18);
-                  that.map.addOverlay(new BMap.Marker(that.userlocation));    //添加标注
-                  // console.log(that.userlocation.lat,that.userlocation.lng)
-                  that.conlat = that.userlocation.lat
-                  that.conlon = that.userlocation.lng
-                  that.circle.setRadius(that.fenceRadio)
-                  that.circle.setCenter(that.userlocation)
-                //   var circle = new BMap.Circle(that.userlocation,that.fenceRadio); //创建圆
-                  that.map.addOverlay(that.circle)
-              }
-              var local = new BMap.LocalSearch(that.map, { //智能搜索
-                  onSearchComplete: myFun
-              });
-              if(that.map.getCenter() != that.userlocation){
-                 local.search(myValue);
-              }
-          }
-        },
-        onchangema(){
-            let that = this            
-            this.map.addEventListener("click",function(e){
-                that.conlat = e.point.lat
-                that.conlon = e.point.lng
-                that.marker2 = new BMap.Marker(new BMap.Point(that.lon, that.lat))
-                that.map.addOverlay(that.marker2);  
-                that.marker = new BMap.Marker(new BMap.Point(e.point.lng, e.point.lat))
-                if(that.addview == false){
-                    that.map.clearOverlays();
-                    that.map.addOverlay(that.marker);
-                    that.getaddress(e.point)
-                }
-                that.fenceRadio = 0
-                
-            //     this.circle.addEventListener("lineupdate", function (e) {
-            //     that.radius = this.circle.getRadius(); //返回圆形覆盖物的半径
-            //    });
-            });
-        },
-         getaddress (e) {
-             let that = this
-            var myGeo = new BMap.Geocoder();      
-            // 根据坐标得到地址描述  
-            myGeo.getLocation(new BMap.Point(e.lng, e.lat), function(result){
-            if (result){
-                if(result.address != '' ){
-                 that.address = result.address
-                }
-            }
-            })
-            },
-        Resetgetele(){
-            this.fencesearch = ''
-            if(this.imei != null){
-                this.showedit = false
-                this.getoneele()
-            }else{
-                this.getele()
-            }
-        },
-        getele() {
-            api.searchdian({params:{
-                pageNo:0,
-                pageSize:10000,
-                name: this.fencesearch,
-            }}).then(res => {
-                this.list = res.content
-                if(res.total > 0){
-                    this.circle.setRadius(this.list[0].radius)
-                    this.circle.setCenter( new BMap.Point(this.list[0].circleLon, this.list[0].circleLat))
-                    this.map.setCenter( new BMap.Point(this.list[0].circleLon, this.list[0].circleLat))
-                }
-            }).catch(err => {})
-        },
-        getoneele(){
-            api.searone(this.imei).then(res => {
-                this.list = res
-                if(res.length > 0){
-                    this.circle.setRadius(this.list[0].radius)
-                    this.circle.setCenter( new BMap.Point(this.list[0].circleLon, this.list[0].circleLat))
-                    this.map.setCenter( new BMap.Point(this.list[0].circleLon, this.list[0].circleLat))
-                }
-            }).catch(err => {})
-        },
-        deleold(val){
-            this.showlist = true
-            console.log(val)
-          this.$confirm(this.$t('message.outele'), this.$t('message.newtitle'), {
-            confirmButtonText: this.$t('button.determine'),
-            cancelButtonText: this.$t('button.cancel'),
-            type: "warning"
-          }).then(_ => {
-              if(this.imei != null){
-                  let oneele = {}
-                  oneele.imei = this.imei
-                  oneele.fenceId = val.fenceId
-                  this.Unlinkequ(oneele)
-              }else{
-              api.deledian(val.id).then(res => {
-                this.$message.success(this.$t('message.delesuc'))
-                    this.getele()
-                }).catch(err => {
-                    this.$message.error(err.message)
-                })
-              }
-            }).catch(_ =>{})
-        }, 
-        closeele(){
-            this.addview = true
-            this.onchangema()
-            this.fenceName = ''
-            this.address = ''
-            this.address2 = ''
-            this.fenceRadio = 0
-            this.inala = []
-        },
-        showAdd(){
-            this.fenceName = ''
-            this.address = ''
-            this.address2 = ''
-            this.fenceRadio = 0
-            this.inala = []
-            this.addview = false
-            this.onchangema()
-            this.editfen = true
-        },
-        addEle(){
-            this.addview = false
-            this.onchangema()
-            this.editfen = true
-            let inAndOut = null
-            if(this.address.length == 0 || this.fenceName.length == 0){
-                this.$message.error(this.$t('message.canshu'))
-                return
-            }
-            if(this.fenceRadio<=0){
-                this.$message.error(this.$t('message.weilanpath'))
-                return
-            }
-            if(this.inala.length == 0){
-                inAndOut = -1
-            }else if(this.inala.length == 1){
-                inAndOut = this.inala[0]
-            }else if(this.inala.length == 2){
-                inAndOut = 2
-            }
-            if(this.address == ''){
-                this.address = this.address2
-            }
-            let data = {
-                address: this.address,
-                circleLat: this.conlat,
-                circleLon: this.conlon,
-                inAndOut: inAndOut,
-                name: this.fenceName,
-                radius: this.fenceRadio * 1,
-            }
-            if(this.imei != null){
-                data = {
-                address: this.address,
-                circleLat: this.conlat,
-                circleLon: this.conlon,
-                inAndOut: inAndOut,
-                name: this.fenceName,
-                radius: this.fenceRadio * 1,
-                imei: this.imei,
-                }
-            }else{
-                data = {
-                address: this.address,
-                circleLat: this.conlat,
-                circleLon: this.conlon,
-                inAndOut: inAndOut,
-                name: this.fenceName,
-                radius: this.fenceRadio * 1,
-              }
-            }
-            api.sendele(data).then(res => {
-                this.$message.success(this.$t('message.addsuc'))
-                this.addview = true
-                 if(this.imei != null){
-                    this.showedit = false
-                    this.getoneele()
-                 }else{this.getele()}
-                
-            }).catch(err => {
-                this.$message.error(err.message)
-            })
-        },
-         editEle2(){
-            // if(this.address.length == 0 || this.fenceName.length == 0){
-            //     this.$message.error(this.$t('message.canshu'))
-            //     return
-            // }
-            if(this.fenceRadio<=0){
-                this.$message.error(this.$t('message.weilanpath'))
-                return
-            }
-             let inAndOut = null
-            if(this.inala.length == 0){
-                inAndOut = -1
-            }else if(this.inala.length == 1){
-                inAndOut = this.inala[0]
-            }else if(this.inala.length == 2){
-                inAndOut = 2
-            }
-            if(this.address == ''){
-                this.address = this.address2
-            }
-            let data = {
-                address: this.address,
-                circleLat: this.conlat,
-                circleLon: this.conlon,
-                inAndOut: inAndOut,
-                id: this.fenceid,
-                name: this.fenceName,
-                radius: this.fenceRadio * 1,
-            }
-            api.editele(data).then(res => {
-                this.$message.success(this.$t('message.changesuc'))
-                this.addview = true
-                this.getele()
-            }).catch(err => {
-                this.$message.error(err.message)
-            })
-        },
-        showitem(){
-            this.showequlist = true
-            this.getList()
-        },
-        moreunlink(){
-            if(this.moreunequ.length<=0){
-                this.$message.warning(this.$t('message.selectGuanLian'))
-                return
-            }
-            let val = {}
-            val.imei = ''
-            this.moreunequ.forEach(item => {
-                val.imei = item.imei + ',' + val.imei
-            })
-            this.Unlinkequ(val)
-        },
-        Unlinkequ(val){
-            this.$confirm(this.$t('message.cancelGuanLian'), this.$t('message.newtitle'), {
-            confirmButtonText: this.$t('button.determine'),
-            cancelButtonText: this.$t('button.cancel'),
-            type: 'warning'
-        }).then(() => {
-            let delfenceid = null
-            if(this.imei != null){
-                delfenceid = val.fenceId
-              }else{
-                  delfenceid = this.nowfenceid
-              }
-            api.unlikeequ({params:{
-                fenceId: delfenceid,
-                imeiStr: val.imei,
-            }}).then(res => {
-                if(this.imei != null){
-                    this.getoneele()
+                    })
                 }else{
-                    this.addlist(this.nowfenceid)
+                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
                 }
-            }).catch(err => {
-                this.$message.error(err.message)
+            }).catch((err) => {
+                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
-            })
-            
         },
-        handleSelectionChange(val){
-            this.moreunequ = val
-        },
-        handleSelectionChange2(val){
-            this.moreequ = val
-        },
-        editele(val){
-            // debugger
-            this.addview = false
-            this.editfen = false
-            this.showlist = true
-            this.fenceName = val.name
-            this.address2 = val.address
-            this.conlat = val.circleLat
-            this.conlon = val.circleLon
-            this.fenceRadio = val.radius
-            this.fenceid = val.id
-            if(val.inAndOut == 0){
-                this.inala = [0]
-            }else if(val.inAndOut == 1){
-                this.inala = [1]
-            }else if(val.inAndOut == 2){
-                this.inala = [0,1]
-            }else{
-                this.inala = []
+         // el-tree 懒加载数组
+        evt_loadTree:function(node, resolve){
+            // console.log(node)
+            var _this = this;
+            if(node.level === 0){
+                return resolve(_this.user_list);
             }
-            this.circle.setRadius(this.fenceRadio)
-            this.circle.setCenter( new BMap.Point(this.conlon, this.conlat))
-            this.map.setCenter( new BMap.Point(this.conlon, this.conlat))
-            
+            if(node.level != 0){
+                var request_data = {};
+                request_data['parentId'] = node.data.info.userId;
+                api.getBusiness(request_data).then((res) => {
+                    if(res.success && res.msg == 'OK'){
+                        if(res.data.length == 0){
+                            resolve([]);
+                            return;
+                        }
+                        var children_data = [];
+                        for(let i = 0, len = res.data.length; i < len; i++){
+                            var user_data = {};
+                            user_data['label'] = res.data[i].username + '(' + res.data[i].sellDevices +'/'+ res.data[i].devices +')';
+                            user_data['info'] = res.data[i];
+                            user_data['user_id'] = res.data[i].userId;
+                            children_data.push(user_data);
+                        }
+                        node.data['children'] = children_data;
+                        resolve(children_data);
+                    }else{
+                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                        resolve([]);
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                })
+            }  
         },
-        changecrie(val){
-            this.map.clearOverlays();
-            this.circle.setRadius(val.radius)
-            this.circle.setCenter( new BMap.Point(val.circleLon, val.circleLat))
-            this.map.setCenter( new BMap.Point(val.circleLon, val.circleLat))
-            this.map.addOverlay(this.circle);
-        },
-        addlist(val){
-            this.showlist = false
-            if(val.id){
-                this.nowfenceid = val.id
-                this.selegroup = ''
-                this.search = ''
+        // 代理商的选择
+        evt_node_click:function(e){
+            console.log(e.info);
+            if (this.user_id == e.info.userId){
+                return;
             }
-            api.oldequlist({params:{
-                fenceId: this.nowfenceid,
-                groupId: this.selegroup,
-                imei: this.search,
-                pageNo: this.page2.index -1,
-                pageSize: this.page2.size
-            }}).then(res => {
-                this.equlist = res.content
-                this.page2.total = res.total
-            }).catch(err => {
-                this.$message.error(err.message)
+            this.user_id = e.info.userId;
+            // this.devices_list = [];
+            this.evt_queryDevices();
+        },
+        // 搜索查询用户
+        evt_searchBusiness:function(){
+            var _this = this;
+            if(_this.searchBusiness_name.trim() == '') return;
+            var request_data = {};
+            request_data['searchContent'] = _this.searchBusiness_name;
+            request_data['searchType'] = 'username';
+            api.searchBusiness(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == "OK" && res.success){
+                    _this.user_id = res.data[0].userId;
+                    _this.change_type = 'all';
+                    _this.evt_queryDevices();
+                }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
         },
-        changeindex2(val){                                //改变当前页
-            this.page2.index=val
-            try{
-                this.addlist(0)
-            }catch(res){
-                
+        // 查询设备
+        evt_queryDevices:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['ownerId'] = _this.user_id;
+            if(_this.change_type != 'all' && _this.change_type == 'on'){
+                request_data['networkStatus'] = '1';
+            }else if(_this.change_type != 'all' && _this.change_type == 'off'){
+                request_data['networkStatus'] = '2';
             }
-        },
-        morelink(){
-            if(this.moreequ.length<=0){
-                this.$message.warning(this.$t('message.selGuanLian'))
-                return
-            }
-            let val = {}
-            val.imei = ''
-            this.moreequ.forEach(item => {
-                val.imei = item.imei + ',' + val.imei
-            })
-            this.linkequ(val)
-        },
-        linkequ(val){
-            api.likeequ({params:{
-                fenceId: this.nowfenceid,
-                imeiStr: val.imei,
-            }}).then(res => {
-                this.addlist(this.nowfenceid)
-                this.$message.success(this.$t('message.addsuc'))
-                this.getList()
-            }).catch(err => {
-                this.$message.error(err.message)
-            })
-        },
-        getList(){  // 获取所有设备
-        this.addloading = true
-            this.listxian=[]
-            let data = {}
-            data = {params:{
-                    pageSize:this.page.size,
-                    pageNo:this.page.index-1,
-                    fenceId:this.nowfenceid,
-                    // imei: this.search,
-                    // deviceGroupId: this.selegroup
+            api.queryDevices(request_data).then((res) => {
+                // console.log(res);
+                if(res.success && res.msg == "OK" && res.data.length > 0){
+                    _this.devices_list = [];
+                    _this.devices_list = res.data;
+                    for(let i = 0, len = _this.devices_list.length; i < len; i++){
+                        // 遍历增加一个区分是否选中的标识
+                        _this.$set(_this.devices_list[i],'checked',false);
                     }
                 }
-            api.newequlist(data).then(res=>{
-                this.addloading = false
-                if(res.content.length > 0){
-                    this.linkequstr = false
-                    this.allequlist = res.content
-                }
-                this.page.total = res.total
-            }).catch(_=>{
-                this.$message.error(_.message);
-                this.listLoading=false
+            }).catch((err) => {
+                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
         },
-        getgroup() {
-            api.getGroupListPagination({params:{
-            userId:this.$store.getters.usercode,
-            pageSize: 100000,
-            pageNo: 0 ,}}).then(_=>{ 
-            if(_.content.length > 0){
-                this.allgroup=_.content
-            }else{
-                this.$message.error(this.$t('table.faillist'));
+        // 切换在线、离线
+        evt_change_type:function(value){
+            if(this.change_type == value) return;
+            this.change_type = value;
+            // this.devices_list = [];
+            if(value == 'on' || value == 'off'){
+                this.evt_clearOverlays();
+                this.current_select_deviceId = '';
             }
-            }).catch(_=>{
-                this.$message.error(_.message);
+            this.evt_queryDevices();
+        },
+        // 搜索设备
+        evt_searchDevice:function(){
+            var _this = this;
+            if(_this.searchDevice_name.trim() == '') return;
+            _this.change_type = 'all';
+            var request_data = {};
+            request_data['searchType'] = 'deviceName';
+            request_data['searchContent'] = _this.searchDevice_name;
+            request_data['ownerId'] = _this.user_id;
+            api.searchDevices(request_data).then((res) =>{
+                console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    _this.devices_list = res.data;
+                    for(let i = 0, len = _this.devices_list.length; i < len; i++){
+                        _this.$set(_this.devices_list[i],'checked',false);
+                    }
+                }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
         },
+        // 选中、取消选择设备
+        evt_select_devices:function(deviceId){
+            // console.log(deviceId);
+            var allOverlays = this.map.getOverlays();
+            clearInterval(this.device_tracks_interval);
+            this.track_detail = false;
+            this.device_tracks_step = 0;
+            for(var key in allOverlays){
+                if( typeof(allOverlays[key].name) == 'number'){
+                    this.map.removeOverlay(allOverlays[key]); 
+                }
+            }
+            for(let i = 0, len = this.devices_list.length; i < len; i++){
+                if(deviceId == this.devices_list[i].deviceId){
+                    if(this.devices_list[i].checked){
+                        this.$set(this.devices_list[i],'checked',false);
+                        this.current_select_deviceId = '';
+                        this.evt_deleteOverlay(this.devices_list[i].positionInfo.coordinate.lng,this.devices_list[i].positionInfo.coordinate.lat);
+                    }else{
+                        this.$set(this.devices_list[i],'checked',true);
+                        this.need_handle_deviceId = this.devices_list[i].deviceId;
+                        this.current_select_deviceId = this.devices_list[i].deviceId;
+                        this.evt_addOverlay(this.devices_list[i]);
+                        var point = new BMap.Point(this.devices_list[i].positionInfo.coordinate.lng,this.devices_list[i].positionInfo.coordinate.lat);
+                        this.evt_getLocation(point);
+                        this.current_device_name = this.devices_list[i].deviceName;
+                    }
+                    break;
+                }
+            }
+        },
+        // 更多下拉框的操作
+        evt_more_command:function(item){
+            // console.log(item);
+            this.need_handle_deviceId = item.deviceId;
+            if(item.type == 'detail'){
+                this.evt_getDeviceInfo();
+                this.device_info_visible = true;
+            }else if(item.type == 'command'){
+                this.evt_queryDeviceCmds();
+                this.device_command_visible = true;
+            }
+        },
+        // 关闭设备详情
+        evt_close_deviceInfo:function(){
+            this.device_info_visible = false;
+        },
+        // 获取设备详情信息
+        evt_getDeviceInfo:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            api.getDeviceDetail(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    _this.device_detail_info = res.data;
+                    _this.device_name = res.data.deviceName;
+                    _this.remark_text = res.data.remark;
+                    _this.range_code = res.data.useRangeCode;
+                }
+            }).catch((err) => {
+                // _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+        // 获取适用范围的icon信息
+        evt_getRangeIconList:function(){
+            var _this = this;
+            api.getRangeIconList().then((res) => {
+                // console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    // console.log(res.data.xxx);
+                    var icon_list = [];
+                    for(var key in res.data){
+                        var item = {};
+                        item['code'] = key;
+                        for(var key_item in res.data[key]){
+                            item[key_item] = res.data[key][key_item];
+                        }
+                        icon_list.push(item);
+                    }
+                    _this.icon_list = icon_list;
+                    // console.log(_this.icon_list);
+                }
+
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'})
+            })
+        },
+        evt_change_icon:function(code){
+            console.log(code);
+            this.range_code = code;
+        },
+        // 更新设备信息
+        evt_update_deviceInfo:function(){
+            var _this = this;
+            if(_this.device_name.trim() == '') return;
+            var request_data = {};
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            request_data['deviceName'] = _this.device_name;
+            request_data['remark'] = _this.remark_text;
+            request_data['useRangeCode'] = _this.range_code;
+            api.editDevices(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    _this.device_info_visible = false;
+                    _this.$message({message:'更新成功',type:'success',offset:"200",duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message:err.errMsg,type:"error",offset:'200',duration:'1000'})
+            })
+        },
+        // 关闭指令弹框
+        evt_close_command_content:function(){
+            this.device_command_visible = false;
+            this.command_page = 1;
+            this.command_total = 0;
+            this.command_data_list = [];
+        },
+        // 设备指令的tab切换
+        evt_tab_click:function(){
+            // console.log(this.tab_value);
+            this.command_page = 1;
+            this.command_total = 0;
+            this.command_data_list = [];
+            if(this.tab_value == 'history'){
+                this.evt_queryDeviceCmds();
+            }
+        },
+        // 获取设备历史指令
+        evt_queryDeviceCmds:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['page'] = _this.command_page;
+            request_data['pageSize'] = _this.command_pageSize;
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            api.queryDeviceCmds(request_data).then((res) => {
+                console.log(res);
+                if(res.msg && res.success){
+                    _this.command_data_list = res.data.content;
+                    _this.command_total = res.data.pageTotal * _this.command_pageSize;
+                }
+            })
+        },
+        // 分页页数改变
+        evt_current_change:function(num){
+            this.command_page = num;
+            this.evt_queryDeviceCmds();
+        },
+
+         // 添加覆盖物
+        evt_addOverlay:function(info){
+            var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
+            this.evt_addMarker(point);
+            if(this.show_deviceName){
+                this.evt_addLabel(point,info);
+            }
+            this.evt_addInfoWindow(point,info);
+            this.map.panTo(point);
+        },
+        // 添加标记
+        evt_addMarker:function(point){
+            var _this = this;
+            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
+                imageSize: new BMap.Size(25,25),
+            });
+            var marker = new BMap.Marker(point, {icon: marker_icon});
+            marker.addEventListener('click',function(e){
+                console.log(e);
+                for(let i = 0, len = _this.devices_list.length; i < len; i++){
+                    if(e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
+                        _this.map.closeInfoWindow();
+                        var current_point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
+                        _this.evt_addInfoWindow(current_point,_this.devices_list[i]);
+                    }
+                }
+            })
+            marker.name = 'marker_device';
+            this.map.addOverlay(marker);
+        },
+        // 添加label
+        evt_addLabel:function(point,info){
+            var html_content = `<div class="map_label"><span>${info.deviceName}</span></div>`
+            var label = new BMap.Label(html_content,{position:point,offset:new BMap.Size(-65,-52)});
+            label.setStyle({
+                border:'0px',
+                padding:'0px',
+                borderRadius: '4px'
+            });
+            label.name = 'show_deviceName';
+            this.map.addOverlay(label);
+        },
+        // 添加展示信息窗口
+        evt_addInfoWindow:function(point,info){
+            var infoWindow_html = `<div class="info_window_content">
+                <div class="info_window_content_title">
+                    <span>${info.deviceName}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>网络状态：</span>
+                    <span>${info.networkStatus == '1' ? '在线' : '离线'}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>设备号：${info.deviceNumber}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>经度：${info.positionInfo.coordinate.lng}</span>
+                    <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
+                </div>
+                <div class="info_window_content_btn">
+                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','panorama')">街景</div>
+                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','trace')">跟踪</div>
+                    <div onClick="evt_track('${info.deviceId}','${info.deviceName}')">轨迹</div>
+                </div>
+            </div>`
+            var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
+            this.map.openInfoWindow(infoWindow,point);
+        },
+        // 删除指定的覆盖物
+        evt_deleteOverlay:function(lng,lat){
+            var allOverlays = this.map.getOverlays();
+            console.log(allOverlays);
+            for(var key in allOverlays){
+                // console.log(allOverlays[key].point);
+                // console.log(allOverlays[key].name);
+                if(allOverlays[key].point && allOverlays[key].point.lng == lng && allOverlays[key].point.lat == lat){
+                    this.map.removeOverlay(allOverlays[key])
+                }
+            }
+            this.map.closeInfoWindow();
+        },
+        // 删除所有覆盖物 切换用户时调用
+        evt_clearOverlays:function(){
+            this.map.clearOverlays();
+            this.map.closeInfoWindow();
+        },
+        // 是否显示设备名称
+        evt_show_deviceName:function(){
+            // console.log(this.show_deviceName);
+            var allOverlays = this.map.getOverlays();
+            if(!this.show_deviceName){
+                for(var key in allOverlays){
+                    if(allOverlays[key].name == 'show_deviceName'){
+                        this.map.removeOverlay(allOverlays[key]);
+                    }
+                }
+            }else{
+                for(var key in allOverlays){
+                    if(allOverlays[key].name == 'marker_device'){
+                        var lng = allOverlays[key].point.lng,
+                            lat = allOverlays[key].point.lat;
+                        for(var item in this.devices_list){
+                            if(this.devices_list[item].positionInfo.coordinate.lng == lng && this.devices_list[item].positionInfo.coordinate.lat == lat){
+                                var current_point = new BMap.Point(lng,lat);
+                                this.evt_addLabel(current_point,this.devices_list[item]);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        // 获取位置信息
+        evt_getLocation:function(point){
+            var _this = this;
+            var geocoder = new BMap.Geocoder();
+            geocoder.getLocation(point,function(result){
+                // console.log(result);
+                if(result.address){
+                    _this.current_device_address = result.address;
+                }
+            })
+        },
+        // 追踪
+        evt_trace:function(deviceId,deviceName,panorama){
+            let routeUrl = this.$router.resolve({
+                path: "/trace",
+                query: {deviceId:deviceId,deviceName:deviceName,panorama:panorama == 'panorama' ? 'panorama':'trace'}
+            });
+            window.open(routeUrl.href, '_blank');
+        },
+        // 信息窗口上的轨迹
+        evt_track:function(deviceId,deviceName){
+            // console.log(deviceId,deviceName);
+            // this.evt_clearOverlays();
+            this.need_handle_deviceId = deviceId;
+            this.track_detail = true;
+            this.play_flag = false;
+            this.current_device_name = deviceName;
+            this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+        },
+        // 轨迹回放
+        evt_playback:function(item){
+            this.evt_clearOverlays();
+            this.need_handle_deviceId = item.deviceId;
+            this.track_detail = true;
+            this.current_device_name = item.deviceName;
+            this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+        },
+        // 获取设备轨迹
+        evt_queryDeviceTracks:function(startTime,endTime,deviceId){
+            var _this = this;
+            var request_data = {};
+            request_data['startTime'] = startTime;
+            request_data['endTime'] = endTime;
+            request_data['deviceId'] = deviceId;
+            request_data['coordinateSystem'] = 'BD09'
+            request_data['positionType'] = _this.position_type;
+            api.queryDeviceTracks(request_data).then((res) => {
+                console.log(res);
+                if(res.msg == 'OK' && res.success){
+                    // _this.device_tracks = res.data;
+
+                    // var point_arr = res.data;
+                    var point_arr = [
+                        {lat: 31.128352571190476,lng: 121.37138743482554,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.128650098565206,lng: 121.37240701157936,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.129422892538635,lng: 121.37333675778218,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.130620710633398,lng: 121.37463930077166,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.13159054570692,lng: 121.37480997881855,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.13313221511309,lng: 121.37374997831678,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.13557796954707,lng: 121.37237107935896,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.13890842055603,lng: 121.37054302764615,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.13986271595277,lng: 121.37004895961567,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.142675319651374,lng: 121.36861616232726,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.146870887807264,lng: 121.3663344663319,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.147315158907368,lng: 121.36558887275862,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.146944289264447,lng: 121.36451090614665,positionType:'GPS定位',time:1234444,address:'address'},
+                        {lat: 31.14678975981412,lng: 121.3647309909966,positionType:'GPS定位',time:1234444,address:'address'}
+                    ]
+                    
+                    // 获取轨迹明细时调用接口拿到数据后return
+                    if(_this.tracksDetail_flag){
+                        _this.current_tracksDetail_page = 1;
+                        _this.tracksDetail_list = point_arr;
+                        if(_this.tracksDetail_list.length > 4){
+                            _this.current_tracksDetail_list = _this.tracksDetail_list.slice(0,5);
+                            
+                        }else if(_this.tracksDetail_list.length <= 4){
+                            _this.current_tracksDetail_list = _this.tracksDetail_list;
+                        }
+                        return;
+                    }
+                    clearInterval(_this.device_tracks_interval);
+                    _this.device_tracks = point_arr;
+                    _this.device_tracks_max = _this.device_tracks.length;
+                    _this.device_tracks_step = 0;
+                    _this.device_tracks_shift = [];
+                    _this.play_flag = true;
+                    _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    _this.map.clearOverlays();
+                    _this.evt_LuShu();
+                }
+            }).catch((err) => {
+                // _this.$message({message:err.msg,type:"error",offset:"200",duration:"1000"});
+            })
+        },
+        // 轨迹回放
+        evt_LuShu:function(arr_point){
+            // console.log(arr_point)
+            var _this = this;
+            var Polyline_points = arr_point || [];
+            var speed =  1200 - _this.speed;
+            _this.device_tracks_interval = setInterval(() => {
+                if(_this.device_tracks.length > 0){
+                    var raw_point = _this.device_tracks.shift();
+                    _this.device_tracks_shift.push(raw_point);
+                    // console.log(raw_point);
+                    var point = new BMap.Point(raw_point.lng,raw_point.lat);
+                    Polyline_points.push(point);
+                    _this.map.panTo(point);
+                    // 添加线型覆盖物
+                    var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
+                    Polyline.name = _this.device_tracks_step;
+                    _this.map.addOverlay(Polyline);
+                    // marker
+                    _this.evt_playback_addMarker(point);
+                    // 信息窗口
+                    _this.evt_playback_infoWindow(point,raw_point);
+                    // 清除上次绘制的覆盖物
+                    var allOverlays = _this.map.getOverlays();
+                    for(var key in allOverlays){
+                        if( typeof(allOverlays[key].name) == 'number' && allOverlays[key].name  != _this.device_tracks_step){
+                            _this.map.removeOverlay(allOverlays[key]); 
+                        }
+                    }
+                    _this.device_tracks_step += 1;
+                    if(!_this.play_flag){
+                        clearInterval(_this.device_tracks_interval);
+                    }
+                }else{
+                    clearInterval(_this.device_tracks_interval);
+                    _this.play_flag = false;
+                }
+            }, speed);
+
+        },
+        // 轨迹回放的marker
+        evt_playback_addMarker:function(point){
+            var _this = this;
+            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
+                imageSize: new BMap.Size(25,25),
+            });
+            var marker = new BMap.Marker(point, {icon: marker_icon});
+            marker.addEventListener('click',function(e){
+                console.log(e);
+                var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
+                var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                _this.evt_playback_infoWindow(point,info);
+            })
+            marker.name = _this.device_tracks_step;
+            _this.map.addOverlay(marker);
+
+        },
+        // 轨迹回放的信息窗口
+        evt_playback_infoWindow:function(point,info){
+            var _this = this;
+            _this.map.closeInfoWindow();
+            var infoWindow_html = `
+                <div class="tracks_label_html">
+                    <div class="tracks_label_html_item">定位方式:GPS定位</div>
+                    <div class="tracks_label_html_item">定位时间:${this.evt_formatDate(info.time)}</div>
+                    <div class="tracks_label_html_item_flex">
+                        <div>定位位置:</div>
+                        <div onClick="evt_playback_address('${info.lng}','${info.lat}')" class="tracks_label_html_item_click">${this.playback_address == '' ? '点击查看地址' : this.playback_address}</div>
+                    </div>
+                </div>
+            `
+            var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
+            _this.map.openInfoWindow(infoWindow,point);
+            if(infoWindow.isOpen()){
+                _this.playback_address = '';
+            }
+        },
+        evt_playback_address:function(lng,lat){
+            var _this = this;
+            var geocoder = new BMap.Geocoder();
+            var point = new BMap.Point(lng,lat);
+            geocoder.getLocation(point,function(result){
+                if(result.address){
+                    _this.playback_address = result.address;
+                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                    _this.evt_playback_infoWindow(point,info);
+                }
+            })
+        },
+        // 切换今天、昨天等
+        evt_select_date:function(e){
+            if(e == '今天'){
+                this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            }else if(e == '昨天'){
+                this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime() - 3600 * 24 * 1000,new Date(new Date().toLocaleDateString()).getTime() - 1000];
+            }else if(e == '最近一周'){
+                this.select_date_time = [new Date().getTime() - 3600 * 24 * 1000 * 7,new Date().getTime()];
+            }
+        },
+        // 选择时间
+        evt_select_date_time:function(e){
+            console.log(e);
+        },
+        // 播放与暂停
+        evt_play_pause:function(){
+            this.play_flag = !this.play_flag;
+            if(!this.play_flag){
+                clearInterval(this.device_tracks_interval);
+            }else{
+                if(this.device_tracks_step != this.device_tracks_max){
+                    var arr_point = [];
+                    for(var i = 0, len = this.device_tracks_shift.length; i < len; i++){
+                        arr_point.push(new BMap.Point(this.device_tracks_shift[i].lng,this.device_tracks_shift[i].lat))
+                    }
+                    this.evt_LuShu(arr_point);
+                }else{
+                    this.device_tracks = this.device_tracks_shift;
+                    this.device_tracks_shift = [];
+                    clearInterval(this.device_tracks_interval);
+                    this.device_tracks_max = this.device_tracks.length;
+                    this.device_tracks_step = 0;
+                    this.map.clearOverlays();
+                    this.evt_LuShu();
+                }
+            }
+        },
+        // 播放滑动
+        evt_play_handle:function(){
+            console.log(this.device_tracks_step);
+            if(this.device_tracks_step == this.device_tracks_shift.length) return;
+            clearInterval(this.device_tracks_interval);
+            if(this.device_tracks_shift.length >= 0 && this.device_tracks_step > this.device_tracks_shift.length){
+                if(this.device_tracks_step == this.device_tracks_max){
+                    this.device_tracks_step = this.device_tracks_max - 1;
+                }
+                var interval = this.device_tracks_step - this.device_tracks_shift.length;
+                this.device_tracks_shift = this.device_tracks_shift.concat(this.device_tracks.splice(0,interval));
+               
+            }else if(this.device_tracks_step < this.device_tracks_shift.length){
+                var interval =  this.device_tracks_shift.length - this.device_tracks_step;
+                var delete_index = this.device_tracks_shift.length - interval;
+                this.device_tracks = this.device_tracks_shift.splice(delete_index,interval).concat(this.device_tracks);
+            }
+            var arr_point = [];
+            for(let i = 0, len = this.device_tracks_shift.length; i < len; i++){
+                arr_point.push(new BMap.Point(this.device_tracks_shift[i].lng,this.device_tracks_shift[i].lat))
+            }
+            this.evt_LuShu(arr_point);
+        },
+        // 选择不同时间确定查询轨迹
+        evt_query_tracks:function(){
+            this.evt_clearOverlays();
+            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+        },
+        // 轨迹明细
+        evt_show_tracksDetail:function(){
+            this.tracksDetail_flag = true;
+            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+        },
+        evt_close_tracksDetail:function(){
+            this.tracksDetail_flag = false;
+        },
+        // 轨迹明细改变当前页
+        evt_change_current:function(num){
+            console.log(num);
+            this.current_tracksDetail_page = num;
+            this.current_tracksDetail_list = this.tracksDetail_list.slice((this.current_tracksDetail_page - 1) * 5,this.current_tracksDetail_page * 5);
+        },
+        // 点个获取位置信息
+        evt_getAdress:function(row){
+            console.log(row);
+            var _this = this;
+            var geocoder = new BMap.Geocoder();
+            var point = new BMap.Point(row.lng,row.lat);
+            for(let i = 0, len = _this.current_tracksDetail_list.length; i < len; i++){
+                if(_this.current_tracksDetail_list[i].lng === row.lng && _this.current_tracksDetail_list[i].lat === row.lat){
+                    geocoder.getLocation(point,function(result){
+                        // console.log(result);
+                        if(result.address){
+                            _this.$set(_this.current_tracksDetail_list[i],'address',result.address)
+                        }
+                    })
+                }
+            }
+        },
+        evt_getAllAdress:function(){
+            var _this = this;
+            var geocoder = new BMap.Geocoder();
+            for(let i = 0, len = _this.current_tracksDetail_list.length; i < len; i++){
+                var point = new BMap.Point(_this.current_tracksDetail_list[i].lng,_this.current_tracksDetail_list[i].lat);
+                geocoder.getLocation(point,function(result){
+                    // console.log(result);
+                    if(result.address){
+                        _this.$set(_this.current_tracksDetail_list[i],'address',result.address)
+                    }
+                })
+            }
+        },
+        // infoWindow格式化时间格式
+        evt_formatDate:function(time){
+            let date_time = new Date(time);
+            return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+        },
+        // table格式化时间格式
+        evt_table_formatDate:function(row,column){
+            // console.log(row.createTime);
+            let date = row.createTime ? row.createTime : row.time;
+            let date_time = new Date(date);
+            return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+
+        },
+
+
+      
         bd09togcj02(bd_lon, bd_lat) { 
-　      　let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
-　      　let x = bd_lon - 0.0065;
-　      　let y = bd_lat - 0.006;
-　      　let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
-　      　let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
-　      　let gg_lng = z * Math.cos(theta);
-　      　let gg_lat = z * Math.sin(theta);
-　      　return [gg_lng, gg_lat]
+    　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+    　      let x = bd_lon - 0.0065;
+    　      let y = bd_lat - 0.006;
+    　      let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+    　      let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+    　      let gg_lng = z * Math.cos(theta);
+    　      let gg_lat = z * Math.sin(theta);
+    　      return [gg_lng, gg_lat]
 　      },
         gcj02towgs84(lng, lat) { 
-               var dlat = this.transformlat(lng - 105.0, lat - 35.0);
-               var dlng = this.transformlng(lng - 105.0, lat - 35.0);
-               var radlat = lat / 180.0 * this.PI;
-               var magic = Math.sin(radlat);
-               magic = 1 - this.ee * magic * magic;
-               var sqrtmagic = Math.sqrt(magic);
-               dlat = (dlat * 180.0) / ((this.a * (1 - this.ee)) / (magic * sqrtmagic) * this.PI);
-               dlng = (dlng * 180.0) / (this.a / sqrtmagic * Math.cos(radlat) * this.PI);
-               var mglat = lat + dlat;
-               var mglng = lng + dlng;
-               return [lng * 2 - mglng, lat * 2 - mglat]
-               },
+            var dlat = this.transformlat(lng - 105.0, lat - 35.0);
+            var dlng = this.transformlng(lng - 105.0, lat - 35.0);
+            var radlat = lat / 180.0 * this.PI;
+            var magic = Math.sin(radlat);
+            magic = 1 - this.ee * magic * magic;
+            var sqrtmagic = Math.sqrt(magic);
+            dlat = (dlat * 180.0) / ((this.a * (1 - this.ee)) / (magic * sqrtmagic) * this.PI);
+            dlng = (dlng * 180.0) / (this.a / sqrtmagic * Math.cos(radlat) * this.PI);
+            var mglat = lat + dlat;
+            var mglng = lng + dlng;
+            return [lng * 2 - mglng, lat * 2 - mglat]
+        },
         transformlat(lng, lat) { 
-               var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
-               ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-               ret += (20.0 * Math.sin(lat * this.PI) + 40.0 * Math.sin(lat / 3.0 * this.PI)) * 2.0 / 3.0;
-               ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
-               return ret
-            },
+            var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(lat * this.PI) + 40.0 * Math.sin(lat / 3.0 * this.PI)) * 2.0 / 3.0;
+            ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
+            return ret
+        },
 
         transformlng(lng, lat) { 
-               var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
-               ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-               ret += (20.0 * Math.sin(lng * this.PI) + 40.0 * Math.sin(lng / 3.0 * this.PI)) * 2.0 / 3.0;
-               ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
-               return ret
+            var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(lng * this.PI) + 40.0 * Math.sin(lng / 3.0 * this.PI)) * 2.0 / 3.0;
+            ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
+            return ret
         },
-        dowm(index){
-          //将点击的元素的索引赋值给变量
-            this.active = index
-        }
-       },
+    },
     filters:{
         formatDate(val) {
             let date = new Date(val)
             // 判断这个时间格式是否为NaN-aN-aN aN:aN:aN，
             return isNaN(date) ? " " : formatDate(date, 'yyyy-MM-dd hh:mm:ss')
-        }
+        },
+
     }
 }
 </script>
@@ -1381,12 +1378,23 @@ export default {
         padding: 5px;
         max-height: 70vh;
         overflow-y: scroll;
+        .devices_item_t{
+            background: #FFE6B0 !important;
+            border: 1px solid #FFB951; 
+        }
+        .bgcolor{
+            background: #FFE6B0;
+            /deep/ .el-menu{
+                background: #FFE6B0;
+            }
+        }
         .devices_item{
             width: 100%;
             box-sizing: border-box;
             padding: 10px 5px 0px 5px;
             background: #FFFFFF;
             border-radius: 4px;
+            cursor: pointer;
             .devices_item_top{
                 border-bottom: 1px solid #EEEEEE;
                 padding-bottom: 10px;
@@ -1413,6 +1421,7 @@ export default {
                             white-space: nowrap;
                         }
                         .devices_item_top_right_top_right{
+                            flex-shrink: 0;
                             font-size: 12px;
                             font-family: Microsoft YaHei;
                             font-weight: 400;
@@ -1461,41 +1470,34 @@ export default {
 
             }
             .devices_item_bottom{
-
-                /deep/ .el-menu.el-menu--horizontal{
-                    border-bottom: 0px !important;
-                }
-                /deep/ .el-submenu__icon-arrow{
-                    display: none !important;
-                }
-                /deep/ .el-menu--horizontal>.el-menu-item{
-                    height: auto;
-                    line-height: 1;
-                    border-bottom: 0px !important;
-                    padding-top: 6px;
-                    padding-bottom: 6px;
+                display: flex;
+                justify-items: center;
+                >div{
+                    width: 33%;
+                    height: 28px;
                     border-right: 1px solid #EEEEEE;
                 }
-                /deep/ .el-menu--horizontal>.el-submenu .el-submenu__title{
-                    height: auto;
-                    line-height: 1;
-                    border-bottom: 0px !important;
-                    padding-top: 6px;
-                    padding-bottom: 6px;
+                >div:nth-of-type(3){
+                    border-right: 0px;
                 }
-                /deep/ .el-menu-item{
+                /deep/ .el-button--mini{
+                    // padding: 7px 15px;
+                    width: 100%;
+                    border: 0px;
+                }
+                /deep/ .el-dropdown {
                     font-size: 12px;
+                    width: 100%;
+                    text-align: center;
                 }
-                /deep/ .el-submenu__title{
-                    font-size: 12px;
+                .devices_item_bottom_btn{
+                    background: #FFE6B0 !important;
                 }
-                /deep/ .el-menu{
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
+                .el-dropdown-link{
+                    font-weight: 500;
                 }
-                /deep/ .el-menu .el-menu-item{
-                    flex-grow: 1;
+                .el-dropdown-link:hover{
+                    color: #4D97FE;
                 }
             }
         }
@@ -1547,7 +1549,7 @@ export default {
         line-height: 40px;
     }
 }
-#map2{
+#container{
     flex: 1;
     width: 100%;
 }
@@ -1641,6 +1643,7 @@ export default {
     }
     .video_play_icon{
         font-size: 24px;
+        cursor: pointer;
     }
     .slider_style_1{
         /deep/ .el-slider__runway{
@@ -1684,6 +1687,11 @@ export default {
     .playback_top_top{
         margin-bottom: 10px;
     }
+    /deep/ .el-slider__button-wrapper{
+        width: 22px;
+        height: 22px;
+        top: -10px;
+    }
 }
 .track_detail{
     width: 100%;
@@ -1701,6 +1709,13 @@ export default {
             font-family: Source Han Sans CN;
             font-weight: bold;
             color: #666666;
+        }
+        >div{
+            >i{
+                cursor: pointer;
+                margin-right: 20px;
+                margin-left: 10px;
+            }
         }
     }
 
@@ -1763,6 +1778,10 @@ export default {
     }
     .device_info_left_select{
         width: 60%;
+    }
+    .icon_img_class{
+        margin-right: 5px !important;
+        // height: 14px !important;
     }
 }
 .device_info_right{
@@ -1843,86 +1862,148 @@ export default {
 /deep/ .BMap_cpyCtrl {
     display: block; 
 }
-
-.search{
-    margin-bottom: 20px;
-    background: #fff;
-    padding: 20px;
+/deep/ .map_label{
+    width: 120px;
+    height: 26px;
+    background: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    padding: 0px 5px;
+    position: relative;
 }
-.elebut{
-    margin-left: 20px;
-}
-.title{
+/deep/ .map_label span{
+    display: block;
     width: 100%;
-    display: flex;
-}
-.title span{
-    flex: 1;
-    font-size: 20px;
-}
-.list{
-    width: 100%;
-    margin-top: 10px;
-}
-.el-scro{
-    overflow-x: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.on-hover{
-    background: rgb(158, 158, 158);
-}
-.elecard{
-    display: flex;
-    flex-wrap: wrap;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-}
-.elecard-item{
-    flex: 1;
-    line-height: 30px;
-    width: 0;
-    min-width: 100px;
-}
-.elecard-item div{
+    height: 100%;
+    font-size: 12px;
+    font-family: Source Han Sans CN;
+    font-weight: 400;
+    color: #333333;
+    text-align: center;
+    line-height: 26px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.elecard-edit{
-    flex: 0.3;
-}
-.elecard-edit img{
-    width: 26px;
-    height:26px;
-    padding: 6px;
-}
-.addele{
-    width: 24%;
+/deep/ .map_label::before{
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-top: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    background: #ffffff;
     position: absolute;
-    top: 0px;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-135deg);
 }
-.addlist{
-    display: flex;
-    padding-top: 10px;
+
+/deep/ .info_window_content{
+    // position: relative;
+    // // top: 100px;
+    // // left: 500px;
+    // width: 260px;
+    // // height: 200px;
+    // border: 1px solid #999999;
+    // box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.35);
+    // background: #ffffff;
+    // border-radius: 4px;
+    // padding: 20px;
+    .info_window_content_title{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        >span:nth-of-type(1){
+            font-size: 14px;
+            font-family: Source Han Sans CN;
+            font-weight: 500;
+            color: #333333;
+        }
+        >span:nth-of-type(2){
+            flex-shrink: 0;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    }
+    .info_window_content_item{
+        margin-top: 5px;
+        >span{
+            font-size: 12px;
+            font-family: Source Han Sans CN;
+            font-weight: 500;
+            color: #333333;
+        }
+        .info_window_content_item_right{
+            margin-left: 10px;
+        }
+    }
+    .info_window_content_btn{
+        margin-top: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        >div{
+            cursor: pointer;
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: 400;
+            color: #218FFF;
+        }
+    }
+
 }
-.addlist span{
-    flex: 0.5;
+
+/deep/ .BMap_pop div:nth-child(1){
+    border-radius:7px 0 0 0;
 }
-.addlist .el-input{
-    flex: 1;
+/deep/ .BMap_pop div:nth-child(3){
+    border-radius:0 7px 0 0;
 }
-.right-tab{
-    position: absolute;
-    top: 0px;
-    background: #fff;
-    padding: 20px;
-    width: 60%;
+/deep/ .BMap_pop div:nth-child(3) div{
+    border-radius:7px;
 }
-.addclass{
-   background-color: #8dcef3;
+/deep/ .BMap_pop div:nth-child(5){
+    border-radius:0 0 0 7px;
 }
+/deep/ .BMap_pop div:nth-child(5) div{
+    border-radius:7px;
+}
+/deep/ .BMap_pop div:nth-child(7){
+    border-radius:0 0 7px 0 ;
+}
+/deep/ .BMap_pop div:nth-child(7) div{
+    border-radius:7px ;
+}
+/deep/ .BMap_shadow{
+    display:none;
+}
+
+/deep/ .tracks_label_html{
+    cursor: pointer;
+    .tracks_label_html_item{
+        font-size: 12px;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        color: #666666;
+        margin-bottom: 6px;
+    }
+    .tracks_label_html_item_flex{
+        display: flex;
+        font-size: 12px;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        color: #666666;
+        >div:nth-of-type(1){
+            flex-shrink: 0;
+        }
+        .tracks_label_html_item_click{
+            color: #4391FE;
+        }
+    }
+
+}
+
 </style>
 <style>
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
