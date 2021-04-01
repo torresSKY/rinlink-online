@@ -180,6 +180,16 @@
                     <div class="map_container">
                         <div id="container"></div>
                         <div class="refresh_text" v-if="!track_detail">{{interval_num}}秒后刷新</div>
+                        <div class="map_type">
+                            <div @click="evt_change_mapType('moon')">
+                                <el-image style="width: 20px; height: 20px" :src="require('../../assets/img/moon.png')" fit="contain"></el-image>
+                                <span>卫星</span>
+                            </div>
+                            <div @click="evt_change_mapType('map')">
+                                <el-image style="width: 18px; height: 18px" :src="require('../../assets/img/map_icon.png')" fit="contain"></el-image>
+                                <span>地图</span>
+                            </div>
+                        </div>
                     </div>
                     <!-- 轨迹明细 -->
                     <div class="track_detail" v-if="tracksDetail_flag">
@@ -436,6 +446,14 @@ export default {
         }
     },
     created(){
+        // 判断是否从首页搜索查看轨迹进入
+        if(this.$route.query.deviceId){
+            this.track_detail = true;
+            this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            this.play_flag = false;
+            this.current_select_deviceId = this.$route.query.deviceId;
+            this.need_handle_deviceId = this.$route.query.deviceId;
+        }
         this.evt_getBusiness();
         this.evt_getRangeIconList();
     },
@@ -448,20 +466,36 @@ export default {
         this.map.addControl(new BMap.NavigationControl());    
         this.map.addControl(new BMap.ScaleControl());    
         this.map.addControl(new BMap.OverviewMapControl());  
-
+        // 路况信息控件
+        var trafficControl = new BMapLib.TrafficControl();
+        this.map.addControl(trafficControl);
+        trafficControl.setAnchor(BMAP_ANCHOR_TOP_RIGHT);
+        trafficControl.setOffset(new BMap.Size(20,110));
         // this.evt_addMarker();
 
         // 在字符串模板中绑定的事件
         window.evt_track = this.evt_track;
         window.evt_trace = this.evt_trace;
         window.evt_playback_address = this.evt_playback_address;
-        this.evt_refresh_interval();
+        window.evt_nav_fence = this.evt_nav_fence;
+        
+        if(!this.$route.query.deviceId){
+            this.evt_refresh_interval();
+        }
     },
     destroyed:function(){
         clearInterval(this.device_tracks_interval);
         clearInterval(this.refresh_time_interval);
     },
     methods: {
+        // 切换地图类型
+        evt_change_mapType:function(type){
+            if(type == 'moon'){
+                this.map.setMapType(BMAP_HYBRID_MAP);
+            }else{
+                this.map.setMapType(BMAP_NORMAL_MAP);
+            }
+        },
         //获取代理商
         evt_getBusiness:function(){
             var _this = this;
@@ -571,11 +605,27 @@ export default {
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         // 遍历增加一个区分是否选中的标识
                         _this.$set(_this.devices_list[i],'checked',false);
+                        if(this.$route.query.deviceId && this.$route.query.deviceId == _this.devices_list[i].deviceId){
+                            _this.$set(_this.devices_list[i],'checked',true);
+                            _this.evt_route(_this.devices_list[i]);
+                        }
                     }
                 }
             }).catch((err) => {
                 _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
+        },
+        // 跳转到当前页查看轨迹的情况
+        evt_route:function(info){
+            var _this = this;
+            var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
+
+            _this.evt_addMarker(point);
+            if(_this.show_deviceName){
+                _this.evt_addLabel(point,info);
+            }
+            _this.evt_addInfoWindow(point,info);
+            _this.map.panTo(point);
         },
         // 切换在线、离线
         evt_change_type:function(value){
@@ -893,6 +943,7 @@ export default {
                     <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','panorama')">街景</div>
                     <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','trace')">跟踪</div>
                     <div onClick="evt_track('${info.deviceId}','${info.deviceName}')">轨迹</div>
+                    <div onClick="evt_nav_fence('${info.deviceName}')">电子围栏</div>
                 </div>
             </div>`
             var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
@@ -960,6 +1011,10 @@ export default {
             });
             window.open(routeUrl.href, '_blank');
         },
+        // 跳转电子围栏
+        evt_nav_fence:function(deviceName){
+            this.$router.push({path:'/electric/electric',query:{deviceName:deviceName}});
+        },
         // 信息窗口上的轨迹
         evt_track:function(deviceId,deviceName){
             // console.log(deviceId,deviceName);
@@ -992,7 +1047,7 @@ export default {
             request_data['coordinateSystem'] = 'BD09'
             request_data['positionType'] = _this.position_type;
             api.queryDeviceTracks(request_data).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.msg == 'OK' && res.success){
                     // _this.device_tracks = res.data;
 
@@ -1656,6 +1711,31 @@ export default {
         color: #FF4C4C;
         line-height: 30px;
         text-align: center;
+    }
+    .map_type{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 99;
+        >div{
+            width: 70px;
+            height: 32px;
+            background: #FFFFFF;
+            box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.35);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            >span{
+                font-size: 12px;
+                font-family: Microsoft YaHei;
+                font-weight: 400;
+                color: #666666;
+                margin-left: 6px;
+            }
+        }
     }
 }
 #container{
