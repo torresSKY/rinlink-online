@@ -105,7 +105,15 @@
                     <!-- 首次展示头部 -->
                     <div class="row_item_right_top" v-if="!track_detail">
                         <div>{{current_device_name != '' ? current_device_name + '：' + current_device_address : ''}}</div>
-                        <el-checkbox @change="evt_show_deviceName" v-model="show_deviceName">显示设备名称</el-checkbox>
+                        <div class="row_item_right_top_right">
+                            <el-checkbox @change="evt_show_deviceName" v-model="show_deviceName">显示设备名称</el-checkbox>
+                            <el-select @change="evt_change_refreshInterval" style="width:70px;margin-left:10px;" v-model="refresh_interval" size="mini">
+                                <el-option label="10s" value="10"></el-option>
+                                <el-option label="20s" value="20"></el-option>
+                                <el-option label="30s" value="30"></el-option>
+                            </el-select>
+                            <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
+                        </div>
                     </div>
                     <!-- 回放头部 -->
                     <div class="playback_top" v-if="track_detail">
@@ -169,7 +177,10 @@
                             </el-col>
                         </el-row>
                     </div>
-                    <div id="container"></div>
+                    <div class="map_container">
+                        <div id="container"></div>
+                        <div class="refresh_text" v-if="!track_detail">{{interval_num}}秒后刷新</div>
+                    </div>
                     <!-- 轨迹明细 -->
                     <div class="track_detail" v-if="tracksDetail_flag">
                         <div class="track_detail_top">
@@ -419,6 +430,9 @@ export default {
                 '3': '基站'
             },
             playback_address:'',
+            refresh_interval:'20s',
+            interval_num:20,//倒计时
+            refresh_time_interval:null,
         }
     },
     created(){
@@ -437,17 +451,15 @@ export default {
 
         // this.evt_addMarker();
 
-        // this.map.addEventListener('click',function(e){
-        //     console.log(e);
-        // })
-
         // 在字符串模板中绑定的事件
         window.evt_track = this.evt_track;
         window.evt_trace = this.evt_trace;
         window.evt_playback_address = this.evt_playback_address;
+        this.evt_refresh_interval();
     },
     destroyed:function(){
         clearInterval(this.device_tracks_interval);
+        clearInterval(this.refresh_time_interval);
     },
     methods: {
         //获取代理商
@@ -520,6 +532,7 @@ export default {
             }
             this.user_id = e.info.userId;
             // this.devices_list = [];
+            this.evt_clearOverlays();
             this.evt_queryDevices();
         },
         // 搜索查询用户
@@ -596,6 +609,70 @@ export default {
                 _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
         },
+        // 切换刷新时间
+        evt_change_refreshInterval:function(value){
+            // console.log(value);
+            clearInterval(this.refresh_time_interval);
+            this.interval_num = value;
+            this.evt_refresh_interval();
+        },
+        // 刷新倒计时
+        evt_refresh_interval:function(){
+            var _this = this;
+            let intervalTime = _this.interval_num;
+            clearInterval(_this.refresh_time_interval);
+            _this.refresh_time_interval = setInterval(() => {
+                _this.interval_num--;
+                if(_this.interval_num == 0){
+                    _this.evt_refresh();
+                    _this.interval_num = intervalTime;
+                }
+            }, 1000);
+        },
+        // 定时刷新
+        evt_refresh:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['ownerId'] = _this.user_id;
+            if(_this.change_type != 'all' && _this.change_type == 'on'){
+                request_data['networkStatus'] = '1';
+            }else if(_this.change_type != 'all' && _this.change_type == 'off'){
+                request_data['networkStatus'] = '2';
+            }
+            api.queryDevices(request_data).then((res) => {
+                if(res.success && res.msg == "OK" && res.data.length > 0){
+                    _this.evt_clearOverlays();
+                    var refresh_devices_list = res.data;
+                    var infoWindow_info = {};
+                    for(let i in refresh_devices_list){
+                        if(refresh_devices_list[i].deviceId == _this.current_select_deviceId){
+                            infoWindow_info = refresh_devices_list[i];
+                        }
+                        for(let j in _this.devices_list){
+                            if(refresh_devices_list[i].deviceId == _this.devices_list[j].deviceId && _this.devices_list[j].checked){
+                                _this.$set(refresh_devices_list[i],'checked',true)
+                                var point = new BMap.Point(refresh_devices_list[i].positionInfo.coordinate.lng,refresh_devices_list[i].positionInfo.coordinate.lat);
+                                _this.evt_addMarker(point);
+                                if(_this.show_deviceName){
+                                    _this.evt_addLabel(point,refresh_devices_list[i]);
+                                }
+                            }else if(refresh_devices_list[i].deviceId == _this.devices_list[j].deviceId && !_this.devices_list[j].checked){
+                                _this.$set(refresh_devices_list[i],'checked',false)
+                            }
+                        }
+                    }
+                    if(_this.current_select_deviceId.trim() != '' && infoWindow_info.deviceId){
+                        var point_t = new BMap.Point(infoWindow_info.positionInfo.coordinate.lng,infoWindow_info.positionInfo.coordinate.lat);
+                        this.evt_addInfoWindow(point_t,infoWindow_info);
+                        this.map.panTo(point_t);
+                    }
+                    _this.devices_list = refresh_devices_list;
+                }
+            }).catch((err) => {
+                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+            })
+        },
+
         // 选中、取消选择设备
         evt_select_devices:function(deviceId){
             // console.log(deviceId);
@@ -626,6 +703,8 @@ export default {
                     break;
                 }
             }
+            this.interval_num = parseInt(this.refresh_interval);
+            this.evt_refresh_interval();
         },
         // 更多下拉框的操作
         evt_more_command:function(item){
@@ -891,6 +970,7 @@ export default {
             this.current_device_name = deviceName;
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+            clearInterval(this.refresh_time_interval);
         },
         // 轨迹回放
         evt_playback:function(item){
@@ -900,6 +980,7 @@ export default {
             this.current_device_name = item.deviceName;
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+            clearInterval(this.refresh_time_interval);
         },
         // 获取设备轨迹
         evt_queryDeviceTracks:function(startTime,endTime,deviceId){
@@ -1087,7 +1168,7 @@ export default {
         },
         // 播放滑动
         evt_play_handle:function(){
-            console.log(this.device_tracks_step);
+            // console.log(this.device_tracks_step);
             if(this.device_tracks_step == this.device_tracks_shift.length) return;
             clearInterval(this.device_tracks_interval);
             if(this.device_tracks_shift.length >= 0 && this.device_tracks_step > this.device_tracks_shift.length){
@@ -1548,10 +1629,39 @@ export default {
         color: #666666;
         line-height: 40px;
     }
+    .row_item_right_top_right{
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
 }
-#container{
+.map_container{
     flex: 1;
     width: 100%;
+    position: relative;
+    .refresh_text{
+        height: 30px;
+        padding: 0px 10px;
+        background: #FFFFFF;
+        box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.35);
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 20px;
+        left: 80px;
+        z-index: 999;
+        font-size: 12px;
+        font-family: Microsoft YaHei;
+        font-weight: 500;
+        color: #FF4C4C;
+        line-height: 30px;
+        text-align: center;
+    }
+}
+#container{
+    // flex: 1;
+    width: 100%;
+    height: 100%;
 }
 .add_tag_dialog{
     display: flex;
