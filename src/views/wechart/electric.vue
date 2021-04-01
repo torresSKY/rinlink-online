@@ -335,8 +335,13 @@ export default {
         }
     },
     created(){
+        if(this.$route.query.deviceName){
+            this.select_type_name = 'deviceName';
+            this.fenceSearchContent = this.$route.query.deviceName;
+            this.evt_fence_query();
+            return;
+        }
         this.evt_queryPen();
-        this.evt_getRegion();
     },
     mounted(){
         var _this = this;
@@ -370,6 +375,7 @@ export default {
         // 搜索提示
         _this.search_hint();
         _this.evt_eventListener();
+        _this.evt_getRegion();
     },
     methods: {
 
@@ -613,6 +619,14 @@ export default {
             api.searchFences(request_data).then((res) => {
                 console.log(res);
                 if(res.msg == 'OK' && res.success){
+                    // 判断是否页面跳转查看电子围栏
+                    if(_this.$route.query.deviceName){
+                        _this.fenceId = '';
+                        _this.fenceSearchDeviceId = res.data[0].deviceId;
+                        _this.evt_queryPen();
+                        return;
+                    }
+
                     _this.search_result = res.data;
                     _this.fenceSearch_content_flag = true;
                 }
@@ -712,7 +726,7 @@ export default {
                 var areaName = item.districtFence.areaName;
                 var boundary = new BMap.Boundary();
                 boundary.get(areaName,function(res){
-                    console.log(res);
+                    // console.log(res);
                     if(res){
                         var point_arr = res.boundaries[0].split(';');
                         var points = [];
