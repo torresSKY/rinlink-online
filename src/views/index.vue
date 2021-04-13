@@ -9,7 +9,7 @@
               {{$t('navbar.title')}}
             </span>
           </el-col>
-          <el-col :span='16'>
+          <el-col :span='16' style="text-align:center;padding-top:2px">
             <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#638FFF"  background-color="#638FFF" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
@@ -26,7 +26,7 @@
           <el-col :span='2' style="line-height:40px">
             <div class="lang" >
               <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()">
-                <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button>
+                <!-- <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button> -->
                 <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button>
                 <el-radio-button class="lang_btn" :label="3">{{$t('button.jpn')}}</el-radio-button> -->
               </el-radio-group>
@@ -179,20 +179,21 @@ export default {
       }
     },
     signOut() {
+      console.log(this.$store.getters)
       this.$confirm(this.$t('message.outlog'), this.$t('message.newtitle'), {
         confirmButtonText: this.$t('button.determine'),
         cancelButtonText: this.$t('button.cancel'),
         type: "warning"
       }).then(_ => {
-          api.outuser({
-             token: this.$store.getters.token,
-             userId: this.$store.getters.usercode
-          }).then(res => {
-            sessionStorage.clear();
-           window.location.reload();
+          api.outuser(
+             this.$store.getters.token
+ 
+          ).then(res => {
+            sessionStorage.clear()
+           window.location.reload()
           }).catch(err =>{
               this.$message({
-              message: err.message,
+              message: err.msg,
               type: "warning"
             })
             })
@@ -222,7 +223,7 @@ export default {
           })
           if(res&&res.token){
             this.setToken(res.token)
-            axios.defaults.headers.common['Authorization'] = sessionStorage['token']
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + sessionStorage['token']
             api.userEdit({ 
                newPassword: this.passform.password,
                oldPassword: this.passform.old_password,
@@ -442,5 +443,8 @@ export default {
     background-color: #fff !important;
     border-bottom: 0!important;
 }
-
+.el-menu.el-menu--horizontal{
+    border-bottom: 0!important;
+ 
+}
 </style>

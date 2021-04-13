@@ -91,7 +91,7 @@ export default{
                 return time.getTime() > Date.now();
                 }
             },
-        height:1000,
+        height:800,
         deviceModelName:null,
         value:null,
         loading:false,
@@ -140,10 +140,8 @@ export default{
         getlist(){ // 获取设备型号列表
             this.loading = true
             api.getModelList({params: {
-              paging:{
-                pageSize: this.page.size,
-                page: this.page.index - 1,
-              },
+              pageSize: this.page.size,
+              page: this.page.index - 1,
               deviceModelName: this.deviceModelName,
             }}).then(res => {
               this.loading = false

@@ -23,10 +23,10 @@
                     <span>{{$t('route.List')}}</span>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
-                  <el-col :span='3'>
+                  <el-col :span='4'>
                     <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
                   </el-col>
-                  <el-col :span='3'>
+                  <el-col :span='4'>
                     <el-select v-model="deviceModelId" :placeholder="$t('table.model')" clearable>
                       <el-option
                         v-for="item in deviceModeOptions"
@@ -36,7 +36,7 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='3'>
+                  <el-col :span='4'>
                     <el-select v-model="networkStatus" :placeholder="$t('view.inputstate')" clearable>
                       <el-option
                         v-for="item in networkStatusOptions"
@@ -46,7 +46,7 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='3'>
+                  <el-col :span='4'>
                     <el-select v-model="useStatus" :placeholder="$t('view.inputstate2')" clearable>
                       <el-option
                         v-for="item in usestatusOptions"
@@ -880,7 +880,7 @@ export default{
           this.dialogSIM = true
         },
         send(){ // 下发指令
-          this.dialogSend = true
+          // this.dialogSend = true
         },
         confrimSend(data){ // 关闭下发指令框
           this.dialogSend = data

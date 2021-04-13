@@ -16,7 +16,7 @@ module.exports = {
 
     proxyTable: {//配置请求代理
       '/api':{
-        target:'http://rinlink-tracker.beijing-cn-k8s-test.rinlink.com',
+        target:'http://rinlink-iot-asset-api-test.rinlink.com',
         changeOrigin: true,
         pathRewrith:{
            '^/api': ''
@@ -32,7 +32,8 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '192.168.1.37', // can be overwritten by process.env.HOST
+    // host: 'localhost', // can be overwritten by process.env.HOST
     port: 8085, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

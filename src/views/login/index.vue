@@ -112,18 +112,22 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          api.login({username:this.loginForm.username,password:this.loginForm.password,}).then(res=>{
+          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password}).then(res=>{
             //if(res.id){
-              if(1){
+              // if(1){
               // this.setRoles(res.detail.role)
+              this.setToken('Bearer '+ res.data.token)
               this.setRouterList(routerlist.routes)
-              this.setToken(res.token)
-              this.setUser(res.holder)
+              
+              // this.setUser(res.holder)
               this.setUserName(this.loginForm.username)
               this.setIsLogin(1)
-              this.setUsercode(res.holder)
-              this.$router.push('index')
-            }
+              // this.setUsercode(res.holder)
+              this.$nextTick(() => {
+                
+                this.$router.push('index')
+              })
+            // }
           }).catch(err=>{
             Message.error(this.$t('message.usererror'))
           })

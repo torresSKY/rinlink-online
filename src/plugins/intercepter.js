@@ -31,9 +31,19 @@ export default (Vue) => {
   //   store.dispatch('setLoading', false)
   //   return Promise.reject(error)
   // })
-
+  axios.interceptors.request.use(
+    config => {
+      if (sessionStorage['token']) {
+        config.headers.Authorization = sessionStorage['token']
+      }
+  
+      return config;
+    },
+    err => Promise.reject(err)
+  )
 //response 拦截器
   axios.interceptors.response.use(function (response) {
+    console.log(response,12312313123)
     // _.remove(requests, r => {
     //   return r === response.config
     // })

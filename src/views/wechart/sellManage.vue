@@ -221,7 +221,7 @@ export default{
                 return time.getTime() > Date.now();
                 }
             },
-        height:1000,
+        height:800,
         deviceNumber:null,
         deviceModelId:'',
         modelList:[],

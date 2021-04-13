@@ -346,7 +346,7 @@ export default {
     confrimCustomer(){ // 确认添加/修改客户
       if (this.customerForm.password !== this.customerForm.confirmPaw) {
         this.$message({
-          message: this.$t('message.newpawempty'),
+          message: '两次输入的密码不一致',
           type: "warning"
         })
         return
@@ -456,7 +456,7 @@ export default {
     confrimPwd(){ // 修改密码
       if (this.pwdForm.password !== this.pwdForm.confirmPaw) {
         this.$message({
-          message: this.$t('message.newpawempty'),
+          message: '两次输入的密码不一致',
           type: "warning"
         })
         return

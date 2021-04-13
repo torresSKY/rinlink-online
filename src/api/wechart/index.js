@@ -50,7 +50,8 @@ const getUsersList = (obj) => {
         }
     })
 }
-const url = 'http://rap2api.taobao.org/app/mock/277955/post'
+// const url = 'http://rap2api.taobao.org/app/mock/277955/post'
+const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
 
 const getDevicesList = (data) => (   //分页查询设备列表
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=2', data)
@@ -167,7 +168,7 @@ const alarmStatistic = (data) => (   //分页查询设备报警统计
     axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE=2', data)
 )
 const getModelList = (data) => (   //分页查询设备型号
-    axios.post(url+'/paging_query_device_models', data)
+    axios.post(url+'/paging_query_device_models?__OPERATOR_TYPE=1', data)
 )
 const getBusiness = (data) => (   //查询代理商
     axios.post(url+'/query_business_users?__OPERATOR_TYPE=2', data)
