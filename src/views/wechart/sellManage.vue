@@ -347,11 +347,9 @@ export default{
               start = this.timevalue[0]
               end = this.timevalue[1]
             }
-            api.getShipmentList({params: {
-              paging:{
-                pageSize: this.page.size,
-                page: this.page.index - 1,
-              },
+            let data = {
+              pageSize: this.page.size,
+              page: this.page.index - 1,
               iccid:this.deviceNumber,
               deviceNumberKeyword:this.deviceNumber,
               deviceModelId:this.deviceModelId,
@@ -362,14 +360,15 @@ export default{
               timeType:this.timeType,
               startTime:start,
               endTime:end
-            }}).then(res => {
+            }
+            api.getShipmentList(data).then(res => {
               this.loading = false
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
             }).catch(err => {
               this.loading = false
               this.dataList = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         getModel(){ // 获取设备型号
@@ -380,15 +379,18 @@ export default{
               this.modelList = res.data.content
             }).catch(err => {
               this.modelList = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         getBusiness(){ // 获取代理商
-          api.getBusiness().then(res => {
+          let data = {
+            parentId:null
+          }
+          api.getBusiness(data).then(res => {
               this.businessoptions = res.data
             }).catch(err => {
               this.businessoptions = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         sell(data){  // 出货/批量出货
@@ -438,7 +440,7 @@ export default{
                 }
                 api.shipment(data).then(res => {
                   // debugger
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.$message.success(this.$t('message.success'))
                     this.$refs['shipmentForm'].resetFields()
                     this.dialogShipment = false
@@ -447,7 +449,7 @@ export default{
                     this.$message.error(res.msg)
                   }
                 }).catch(err => {
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
               }else {
                 if(!this.uploadDeviceNumber){
@@ -466,7 +468,7 @@ export default{
                 }
                 api.batchShipment(data).then(res => {
                   // debugger
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.$message.success(this.$t('message.success'))
                     this.$refs['shipmentForm'].resetFields()
                     this.dialogShipment = false
@@ -475,7 +477,7 @@ export default{
                     this.$message.error(res.msg)
                   }
                 }).catch(err => {
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
               }
                
@@ -511,7 +513,7 @@ export default{
           api
           .uploadDeviceNumber(formData, config)
           .then(res => {
-            if (res.msg=='OK') {
+            if (res.success) {
               this.$message.success(this.$t('message.success'))
               this.uploadDeviceNumber = res.data.id
             } else {
@@ -521,7 +523,7 @@ export default{
           })
           .catch(err => {
             this.uploadDeviceNumber = ''
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         }
    },

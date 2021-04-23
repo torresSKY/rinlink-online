@@ -1,12 +1,15 @@
 <template>
   <div class="login-container" :style="backgroundDiv">
-    <h3 class="title" style="letter-spacing:3px">{{$t('navbar.title')}}</h3>
+    <!-- <h3 class="title" style="letter-spacing:3px">{{$t('navbar.title')}}</h3> -->
+    <div class="dlbg" :style="dlbg">
+      <img src='@/assets/img/LOGO1.png' class="logo">
+    </div>
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <!-- <div class="login-img">
         <img src='../../assets/img/login-logo.png'>
       </div>  -->
-      <h4 class="sub-title">{{$t('view.userLogin')}}</h4>
-
+      <!-- <h4 class="sub-title">{{$t('view.userLogin')}}</h4> -->
+      
       <el-form-item prop="username" :rules="[{required: true, min: 3,  message: $t('message.loginuser')}]">
        <span class="pl10 c iconfont icon-denglu"></span>
         <el-input name="username" type="text" ref="username" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
@@ -19,17 +22,19 @@
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-
-      <el-button type="primary" style="width:100%;margin-bottom:30px;background: linear-gradient(-90deg, #006DF3 0%, #00E5FC 100%);
+      <div style="text-align:center">
+      <el-button type="primary" style="width:200px;margin-bottom:30px;background: #289DFF;
 border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
 font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
-
+      </div>
       <!--div class="tips">账号:admin 密码随便填</div>
       <div class="tips">账号:editor  密码随便填</div>
 
       <el-button class="thirdparty-button" type="primary" @click="showDialog=true">打开第三方登录</el-button-->
     </el-form>
-
+    <div class="copyright">
+      <span>Copyright© 2017 rinlink.com 版权所有 ICP证：沪ICP备17021082号</span>
+    </div>
     <el-dialog title="第三方验证" :visible.sync="showDialog">
       本地不能模拟，请结合自己业务进行模拟！！！<br/><br/><br/>
       邮箱登录成功,请选择第三方验证<br/>
@@ -71,10 +76,15 @@ export default {
     }
     return {
       backgroundDiv: {
-        backgroundImage:'url(' + require('@/assets/img/beijing2.png') + ')',
+        backgroundImage:'url(' + require('@/assets/img/bg.png') + ')',
         backgroundRepeat:'no-repeat',
         backgroundSize:'100% 100%'
       },
+      dlbg:{
+        backgroundImage:'url(' + require('@/assets/img/dlbg.png') + ')',
+        backgroundRepeat:'no-repeat',
+        backgroundSize:'100% 100%'
+      },
       loginForm: {
         username: localStorage.getItem('username') || '',
         password: ''
@@ -112,7 +122,7 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password}).then(res=>{
+          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password,effectiveSecond:86400}).then(res=>{
             //if(res.id){
               // if(1){
               // this.setRoles(res.detail.role)
@@ -227,14 +237,42 @@ export default {
       border-radius: 5px;
       background: #FFFFFF;
       position: absolute;
-      left: 0;
-      right: 0;
-      width: 380px;
+      top: 59%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 415px;
       padding: 50px 35px 15px 35px;
-      margin: 40px 0 0 55.6%;
+      // margin: 40px 0 0 55.6%;
+    }
+    .dlbg{
+      width: 520px;
+      height: 220px;
+      position: absolute;
+      top: 36%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .logo{
+      width: 226px;
+      height: 66px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .copyright{
+      font-size: 14px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      color: #237AC0;
+      text-align: center;
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
     .el-form-item {
-      border: 1px solid #0097F6;
+      border-bottom: 1px solid #0097F6;
       background: #FFFFFF;
       border-radius: 5px;
       color: #333333;
@@ -244,10 +282,10 @@ export default {
     // }
     .sub-title{
       width: 103px;
-font-size: 24px;
-font-family: Microsoft YaHei;
-font-weight: 400;
-color: #333333;
+      font-size: 24px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      color: #333333;
       margin-bottom: 30px;
     }
     .show-pwd {

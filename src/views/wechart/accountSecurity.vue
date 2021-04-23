@@ -61,7 +61,7 @@
                     nickname:'',
                     username:'',
                 },
-                userId:'111',
+                userId:'',
                 dialogPwd:false,
                 pwdForm:{
                   userId:'',
@@ -86,21 +86,22 @@
                 }
                 api.getBusinessUserinfo(data).then(res => {
                   this.loading = false
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.info = res.data
                   }else{
-                    this.$message.error(res.errMsg)
+                    this.$message.error(res.msg)
                   }
                   
                 }).catch(err => {
                   this.loading = false
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
             },
             editPwd(){ // 修改密码dialog
                 this.pwdForm = {
                     password:'',
-                    confirmPaw:''
+                    confirmPaw:'',
+                    userId:this.info.userId
                 }
                 this.dialogPwd = true
                 if(this.$refs['pwdForm']){
@@ -123,16 +124,16 @@
                   }
                   api.updateCurrentPwd(data).then(res => {
                     // debugger
-                    if(res.msg=='OK'){
+                    if(res.success){
                       this.$message.success(this.$t('message.changesuc'))
                       this.$refs['pwdForm'].resetFields()
                       this.dialogPwd = false
                       this.getlist()
                     }else {
-                      this.$message.error(res.errMsg)
+                      this.$message.error(res.msg)
                     }
                   }).catch(err => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.msg)
                   })
                 } else {
                   this.$message.warning(this.$t('message.checkmsg'))

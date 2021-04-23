@@ -145,17 +145,18 @@
         methods:{
             getlist(){ // 获取系统管理员列表
               this.loading = true
-              api.getManagerList({params: {
+              let data = {
                 pageSize: this.page.size,
-                page: this.page.index - 1,
-              }}).then(res => {
+                page: this.page.index - 1
+              }
+              api.getManagerList(data).then(res => {
                 this.loading = false
                 this.dataList = res.data.content
                 this.page.total = res.data.pageTotal
               }).catch(err => {
                 this.loading = false
                 this.dataList = []
-                this.$message.error(err.errMsg)
+                this.$message.error(err.msg)
               })
             },
             getroles(){ // 获取角色列表
@@ -163,7 +164,7 @@
                 this.options = res.data.content
               }).catch(err => {
                 this.options = []
-                this.$message.error(err.errMsg)
+                this.$message.error(err.msg)
               })
             },
             addadmin(){ // 添加管理员
@@ -206,16 +207,16 @@
                       remark:this.adminForm.remark
                     }
                     api.addManager(data).then(res => {
-                      if(res.msg=='OK'){
+                      if(res.success){
                         this.$message.success(this.$t('message.addsuc'))
                         this.$refs['adminForm'].resetFields()
                         this.dialogAdmin = false
                         this.getlist()
                       }else {
-                        this.$message.error(res.errMsg)
+                        this.$message.error(res.msg)
                       }
                     }).catch(err => {
-                      this.$message.error(err.errMsg)
+                      this.$message.error(err.msg)
                     })
                   } else {
                     data = {
@@ -227,16 +228,16 @@
                     }
                     api.editManager(data).then(res => {
                       
-                      if(res.msg=='OK'){
+                      if(res.success){
                         this.$message.success(this.$t('message.changesuc'))
                         this.$refs['adminForm'].resetFields()
                         this.dialogAdmin = false
                         this.getlist()
                       }else {
-                        this.$message.error(res.errMsg)
+                        this.$message.error(res.msg)
                       }
                     }).catch(err => {
-                      this.$message.error(err.errMsg)
+                      this.$message.error(err.msg)
                     })
                   }
                   
@@ -271,15 +272,15 @@
                       userId:data.userId
                     }
                     api.deleManager(id).then(res => {
-                      if(res.msg=='OK'){
+                      if(res.success){
                         this.$message.success(this.$t('message.delesuc'))
                         this.getlist()
                       }else{
-                        this.$message.error(res.errMsg)
+                        this.$message.error(res.msg)
                       }
                       
                     }).catch(err => {
-                      this.$message.error(err.errMsg)
+                      this.$message.error(err.msg)
                     })
                   }).catch(err => {
                     console.log(err)
@@ -312,16 +313,16 @@
                   }
                   api.upsetPwd(data).then(res => {
                     // debugger
-                    if(res.msg=='OK'){
+                    if(res.success){
                       this.$message.success(this.$t('message.changesuc'))
                       this.$refs['pwdForm'].resetFields()
                       this.dialogPwd = false
                       this.getlist()
                     }else {
-                      this.$message.error(res.errMsg)
+                      this.$message.error(res.msg)
                     }
                   }).catch(err => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.msg)
                   })
                 } else {
                   this.$message.warning(this.$t('message.checkmsg'))

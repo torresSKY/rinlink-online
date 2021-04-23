@@ -22,7 +22,7 @@
            </el-col>
            <el-col :span='19'>
                <basic-info v-if="pathName=='basicInfo'" ref="basicInfo" />
-               <account-security v-else ref="sysNotice" />
+               <account-security v-else ref="accountSecurity" />
            </el-col>
        </el-row>
     </div>

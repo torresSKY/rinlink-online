@@ -133,8 +133,8 @@ export default {
   },
   data() {
     return {
-      searchType:'',
-      input3:'',
+      searchType:null,
+      input3:null,
       businessData: [],
       defaultProps: {
         children: 'children',
@@ -220,7 +220,8 @@ export default {
         if(type==1){
           this.page.index = 1
           data = {
-            searchType :this.input3,
+            searchType :'username',
+            searchContent:this.input3,
             containsChildren :this.checked,
             pageSize: this.page.size,
             page: 0,
@@ -235,7 +236,8 @@ export default {
           }
         }else{
           data = {
-            searchType :this.input3,
+            searchType :'username',
+            searchContent:this.input3,
             containsChildren :this.checked,
             pageSize: this.page.size,
             page: this.page.index - 1,
@@ -248,7 +250,7 @@ export default {
         }).catch(err => {
           this.loading = false
           this.dataList = []
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     getBusiness(){ // 获取代理商
@@ -259,7 +261,7 @@ export default {
           // console.log(this.businessData)
         }).catch(err => {
           this.businessData = []
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     searchCustomer(){ // 搜索客户或账号
@@ -267,18 +269,18 @@ export default {
         searchType : this.searchType
       }
      api.searchBusiness(data).then(res => {
-        if(res.msg=='OK'){
+        if(res.success){
           this.businessData = this.setTreeData(res.data)
           this.getlist(2,res.data[0].parentId)
           this.getBusinessUserinfo(res.data[0].userId)
         }else{
           this.businessData = []
-          this.$message.error(res.errMsg)
+          this.$message.error(res.msg)
         }
         
       }).catch(err => {
         this.businessData = []
-        this.$message.error(err.errMsg)
+        this.$message.error(err.msg)
       })
     },
     getBusinessUserinfo(userId){ // 获取客户信息
@@ -291,7 +293,7 @@ export default {
           this.phone = data.phoneNumber
         }).catch(err => {
 
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     setTreeData(arr){ // 遍历代理商
@@ -366,7 +368,7 @@ export default {
               remark:this.customerForm.remark
             }
             api.addBusiness(data).then(res => {
-              if(res.msg=='OK'){
+              if(res.success){
                 this.$message.success(this.$t('message.addsuc'))
                 this.$refs['customerForm'].resetFields()
                 this.dialogCustomer = false
@@ -375,7 +377,7 @@ export default {
                 this.$message.error(res.msg)
               }
             }).catch(err => {
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
           } else {
             data = {
@@ -387,16 +389,16 @@ export default {
               remark:this.customerForm.remark
             }
             api.editBusiness(data).then(res => {
-              if(res.msg=='OK'){
+              if(res.success){
                 this.$message.success(this.$t('message.changesuc'))
                 this.$refs['customerForm'].resetFields()
                 this.dialogCustomer = false
                 this.getlist()
               }else {
-                this.$message.error(res.errMsg)
+                this.$message.error(res.msg)
               }
             }).catch(err => {
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
           }
         } else {
@@ -429,15 +431,15 @@ export default {
               userId:data.userId
             }
             api.deleBusiness(id).then(res => {
-              if(res.msg=='OK'){
+              if(res.success){
                 this.$message.success(this.$t('message.delesuc'))
                 this.getlist()
               }else{
-                this.$message.error(res.errMsg)
+                this.$message.error(res.msg)
               }
               
             }).catch(err => {
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
           }).catch(err => {
             console.log(err)
@@ -469,16 +471,16 @@ export default {
           }
           api.resetBusiness(data).then(res => {
             // debugger
-            if(res.msg=='OK'){
+            if(res.success){
               this.$message.success(this.$t('message.changesuc'))
               this.$refs['pwdForm'].resetFields()
               this.dialogPwd = false
               this.getlist()
             }else {
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
           }).catch(err => {
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         } else {
           this.$message.warning(this.$t('message.checkmsg'))

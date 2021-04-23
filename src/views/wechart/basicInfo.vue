@@ -61,9 +61,10 @@
                     nickname:'',
                     username:'',
                     phoneNumber:'',
-                    personToContact:''
+                    personToContact:'',
+                    userId:''
                 },
-                userId:'111'
+                userId:''
             }
         },
         mounted(){
@@ -78,33 +79,33 @@
                 }
                 api.getBusinessUserinfo(data).then(res => {
                   this.loading = false
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.info = res.data
                   }else{
-                    this.$message.error(res.errMsg)
+                    this.$message.error(res.msg)
                   }
                   
                 }).catch(err => {
                   this.loading = false
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
             },
             confrimInfo(){ // 确认更新客户信息
                 let data = {
-                    userId: this.userId,
+                    userId: this.info.userId,
                     nickname: this.info.nickname,
                     personToContact: this.info.personToContact,
                     phoneNumber: this.info.phoneNumber
                 }
                 api.editBusinessUserinfo(data).then(res => {
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.$message.success(this.$t('message.savesuc'))
                     this.getlist()
                   }else {
-                    this.$message.error(res.errMsg)
+                    this.$message.error(res.msg)
                   }
                 }).catch(err => {
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
             }
         }

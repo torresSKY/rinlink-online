@@ -115,14 +115,15 @@
            this.getlist()
         },
         methods:{
-            getlist(){ // 获取设备型号列表
+            getlist(){ // 获取列表
                 this.loading = true
-                api.getAlarmsDetail({params: {
-                    pageSize: this.page.size,
-                    page: this.page.index - 1,
-                    alarmTypeCodeList:this.alarmTypeCodeList,
-                    containsChildren: this.containsChildren,
-                }}).then(res => {
+                let data = {
+                  pageSize: this.page.size,
+                  page: this.page.index - 1,
+                  alarmTypeCodeList:this.alarmTypeCodeList,
+                  containsChildren: this.containsChildren,
+                }
+                api.getAlarmsDetail(data).then(res => {
                   this.loading = false
                   if(res.msg=='OK'){
                     this.dataList = res.data.content

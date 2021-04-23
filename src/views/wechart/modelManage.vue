@@ -103,7 +103,7 @@ export default{
           tableClick: (val) => {
             this.showDialog('a', val)
           }},
-          {label: this.$t('table.addtime'), prop: 'createTime'},
+          {label: this.$t('table.addtime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.operation'),
             type: 'clickSelect',
             selectOperation: (index, row) => {
@@ -125,9 +125,9 @@ export default{
           name: [
             { required: true, message: this.$t('message.enterModel'), trigger: 'blur' },
           ],
-          iotServiceId: [
-            { required: true, message: this.$t('message.selCommun'), trigger: 'blur' },
-          ],
+          // iotServiceId: [
+          //   { required: true, message: this.$t('message.selCommun'), trigger: 'blur' },
+          // ],
         },
         options:[]
       }
@@ -139,18 +139,19 @@ export default{
     methods:{
         getlist(){ // 获取设备型号列表
             this.loading = true
-            api.getModelList({params: {
+            let data = {
               pageSize: this.page.size,
-              page: this.page.index - 1,
+              pageNumber: this.page.index - 1,
               deviceModelName: this.deviceModelName,
-            }}).then(res => {
+            }
+            api.getModelList(data).then(res => {
               this.loading = false
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
             }).catch(err => {
               this.loading = false
               this.dataList = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         getServices(){ // 获取通信协议
@@ -158,7 +159,7 @@ export default{
               this.options = res.data
             }).catch(err => {
               this.options = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         addModel(){ // 添加设备型号
@@ -178,21 +179,22 @@ export default{
             if (valid) {
               let data = {
                 name:this.modelForm.name,
-                iotServiceId:this.modelForm.iotServiceId,
+                // iotServiceId:this.modelForm.iotServiceId,
+                iotServiceId:'tcp',
                 description:this.modelForm.description
               }
               api.addModel(data).then(res => {
                 // debugger
-                if(res.msg=='OK'){
+                if(res.success){
                   this.$message.success(this.$t('message.addsuc'))
                   this.$refs['modelForm'].resetFields()
                   this.dialogModel = false
                   this.getlist()
                 }else {
-                  this.$message.error(res.errMsg)
+                  this.$message.error(res.msg)
                 }
               }).catch(err => {
-                this.$message.error(err.errMsg)
+                this.$message.error(err.msg)
               })
             } else {
               this.$message.warning(this.$t('message.checkmsg'))
@@ -213,7 +215,7 @@ export default{
                   deviceModelId:data.id
                 }
                 api.deleModel(id).then(res => {
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.$message.success(this.$t('message.delesuc'))
                     this.getlist()
                   }else{
@@ -221,7 +223,7 @@ export default{
                   }
                   
                 }).catch(err => {
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
               }).catch(err => {
                 console.log(err)

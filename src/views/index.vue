@@ -185,12 +185,12 @@ export default {
         cancelButtonText: this.$t('button.cancel'),
         type: "warning"
       }).then(_ => {
-          api.outuser(
-             this.$store.getters.token
- 
-          ).then(res => {
+          let data = {
+            bearerToken:this.$store.getters.token
+          }
+          api.outuser().then(res => {
             sessionStorage.clear()
-           window.location.reload()
+            window.location.reload()
           }).catch(err =>{
               this.$message({
               message: err.msg,

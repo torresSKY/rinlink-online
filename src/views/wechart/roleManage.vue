@@ -93,7 +93,11 @@
         methods:{
             getlist(){ // 获取角色列表
                 this.loading = true
-                api.getRolesList().then(res => {
+                let data = {
+                  page:this.page.index - 1,
+                  pageSize: this.page.size,
+                }
+                api.getRolesList(data).then(res => {
                   this.loading = false
                   this.dataList = res.data.content
                   this.page.total = res.data.pageTotal

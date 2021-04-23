@@ -584,19 +584,19 @@ export default{
           api.getDevicesList(data).then(res => {
             this.loading = false
             // debugger
-            if(res.msg=='OK'){
+            if(res.success){
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
               // console.log(this.dataList)
             }else{
               this.dataList = []
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
             
           }).catch(err => {
             this.loading = false
             this.dataList = []
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         moreSearch(){ // 更多搜索条件
@@ -607,16 +607,16 @@ export default{
             searchType : this.search
           }
           api.searchBusiness(data).then(res => {
-            if(res.msg=='OK'){
+            if(res.success){
               this.data = this.setTreeData(res.data)
             }else{
               this.data = []
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
             
           }).catch(err => {
             this.data = []
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         getModelList(){ // 获取设备型号
@@ -627,7 +627,7 @@ export default{
               this.deviceModeOptions = res.data.content
             }).catch(err => {
               this.deviceModeOptions = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         getRange(){ // 获取使用范围
@@ -637,11 +637,14 @@ export default{
             console.log(this.range)
           }).catch(err => {
             this.range = []
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         getBusiness(){ // 获取代理商
-          api.getBusiness().then(res => {
+          let data = {
+            parentId:null
+          }
+          api.getBusiness(data).then(res => {
               let data = res.data
               this.insiadeData = this.data = this.setTreeData(data)
               this.custData = this.setTreeData(data)
@@ -649,7 +652,7 @@ export default{
               this.custData = []
               this.insiadeData = []
               this.data = []
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         setTreeData(arr){ // 遍历
@@ -685,18 +688,18 @@ export default{
               ownerId : data.userId
             }
           api.queryDevices(item).then(res => {
-            if(res.msg=='OK'){
+            if(res.success){
               this.dataList = res.data
               this.page.total = res.data.pageTotal  
             }else {
               this.dataList = []
               this.page.total = 0
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
           }).catch(err => {
             this.dataList = []
             this.page.total = 0
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         }, 
         showDialog(index, data){ // 操作
@@ -723,15 +726,15 @@ export default{
             useRangeCode:this.equinfoForm.useRangeCode
           }
           api.editDevices(data).then(res => {
-            if(res.msg=='OK'){
+            if(res.success){
               this.$message.success(this.$t('message.changesuc'))
               this.dialogEquinfo = false
               this.getlist()
             }else {
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
           }).catch(err => {
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         childByValue(val){ //选择处理数据
@@ -773,7 +776,7 @@ export default{
             searchType : this.searchImei
           }
           api.searchDevices(data).then(res => {
-            if(res.msg=='OK'){
+            if(res.success){
               let item = res.data[0]
               if(item.deviceModel){
                 item['model'] = item.deviceModel.name
@@ -800,12 +803,12 @@ export default{
               // console.log(this.saleList)
             }else{
               this.insiadeData = []
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
             
           }).catch(err => {
             this.insiadeData = []
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         searchCust(){ //销售-搜索客户或账号
@@ -813,16 +816,16 @@ export default{
             searchType : this.searchName
           }
           api.searchBusiness(data).then(res => {
-            if(res.msg=='OK'){
+            if(res.success){
               this.insiadeData = this.setTreeData(res.data)
             }else{
               this.insiadeData = []
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
             
           }).catch(err => {
             this.insiadeData = []
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         changeTimeType(val){ // 销售-选择到期时间
@@ -859,18 +862,18 @@ export default{
             ownerId :this.custinfo.custinfo
           }
           api.sellDevices(data).then(res => {
-            if(res.msg=='OK'){
+            if(res.success){
               this.$message.success(this.$t('message.success'))
               this.multipleSelection = []
               this.dialogSale = false
               this.getlist()
             }else {
               time = null
-              this.$message.error(res.errMsg)
+              this.$message.error(res.msg)
             }
           }).catch(err => {
             time = null
-            this.$message.error(err.errMsg)
+            this.$message.error(err.msg)
           })
         },
         moveLable(){ // 移动到其他标签
