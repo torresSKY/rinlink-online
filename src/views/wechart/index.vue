@@ -489,14 +489,18 @@ export default {
     // 查询设备
     evt_queryDevices:function(){
       var _this = this;
-      api.queryDevices().then((res) => {
+      var request_data = {};
+      request_data['deviceNumberKeyword'] = _this.search_word;
+      request_data['page'] = 0;
+      request_data['pageSize'] = 20;
+      api.getDevicesList(request_data).then((res) => {
         // console.log(res);
-        if(res.success && res.msg == "OK" && res.data.length > 0){
+        if(res.success && res.data.length > 0){
           _this.search_result = [];
           _this.search_result = res.data;
         }
       }).catch((err) => {
-        _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+        _this.$message({message: err.msg || '请求错误，请稍后重试' ,type:'error',offset:'200',duration:'1000'});
       })
     },
     evt_nav:function(value){
