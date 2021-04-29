@@ -294,10 +294,10 @@ export default {
     // 库存和已销售
     getEchartsData_one:function(){
       var _this = this;
-      api.getInventory_device().then((res) => {
+      api.getInventory_device({}).then((res) => {
         if(res.success){
           _this.Inventory_deviceCount = res.data.devices;
-          api.getSold_device().then((_res) => {
+          api.getSold_device({}).then((_res) => {
             if(_res.success){
               _this.Sold_deviceCount = _res.data.devices;
               _this.$nextTick(function(){
@@ -336,10 +336,10 @@ export default {
     // 设备状态
     getEchartsData_two:function(){
       var _this = this;
-      api.getOnlineDvice().then((res) => {
+      api.getOnlineDvice({}).then((res) => {
         if(res.success){
           _this.OnlineDviceCount = res.data.devices;
-          api.getOfflineDevice().then((_res) => {
+          api.getOfflineDevice({}).then((_res) => {
             if(_res.success){
               _this.OfflineDeviceCount = _res.data.devices;
               _this.$nextTick(function(){
@@ -378,10 +378,10 @@ export default {
     // 激活统计
     getEchartsData_three:function(){
       var _this = this;
-      api.getActivated().then((res) => {
+      api.getActivated({}).then((res) => {
         if(res.success){
           _this.ActivatedCount = res.data.devices;
-          api.getUnactivated_device().then((_res) => {
+          api.getUnactivated_device({}).then((_res) => {
             if(_res.success){
               _this.Unactivated_deviceCount = _res.data.devices;
               _this.$nextTick(function(){
@@ -421,13 +421,13 @@ export default {
     getEchartsData_four:function(){
       var _this = this;
       // getUsing_device()
-      api.getOnlineDvice().then((res) => {
+      api.getOnlineDvice({}).then((res) => {
         if(res.success){
           _this.Using_deviceCount = res.data.devices;
-          api.getUnexpired_device().then((_res) => {
+          api.getUnexpired_device({}).then((_res) => {
             if(_res.success){
               _this.Unexpired_deviceCount = _res.data.devices;
-              api.getExpired_device().then((res_) => {
+              api.getExpired_device({}).then((res_) => {
                 if(res_.success){
                   _this.Expired_deviceCount = res_.data.devices;
                   _this.$nextTick(function(){
@@ -495,12 +495,14 @@ export default {
       request_data['pageSize'] = 20;
       api.getDevicesList(request_data).then((res) => {
         // console.log(res);
-        if(res.success && res.data.length > 0){
-          _this.search_result = [];
+        _this.search_result = [];
+        if(res.success && res.data.content.length > 0){
           _this.search_result = res.data;
+        }else if(res.success && res.data.content.length == 0){
+          _this.$message({message:'暂未搜索到设备信息',type:'warning',offset:'200',duration:'2000'});
         }
       }).catch((err) => {
-        _this.$message({message: err.msg || '请求错误，请稍后重试' ,type:'error',offset:'200',duration:'1000'});
+        _this.$message({message: err.msg || '请求错误，请稍后重试' ,type:'error',offset:'200',duration:'2000'});
       })
     },
     evt_nav:function(value){
