@@ -165,7 +165,7 @@
             <div class="select_collect">
                 <div class="select_collect_top">
                     <span>已选列表({{selected_devices.length}})</span>
-                    <span>清空</span>
+                    <span @click="evt_cancel_all_selected">清空</span>
                 </div>
                 <div v-if="selected_devices.length > 0" class="select_collect_content">
                     <div v-for="(item,index) in selected_devices" :key="index" class="select_collect_content_item" @click="evt_cancel_selected(item)">
@@ -933,7 +933,7 @@ export default {
                 var request_data = {};
                 request_data['parentId'] = node.data.info.userId;
                 api.getBusiness(request_data).then((res) => {
-                    if(res.success && res.msg == 'OK'){
+                    if(res.success){
                         if(res.data.length == 0){
                             resolve([]);
                             return;
@@ -949,11 +949,11 @@ export default {
                         node.data['children'] = children_data;
                         resolve(children_data);
                     }else{
-                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                        _this.$message({message: res.msg,type:'warning',offset:'200',duration:'1000'});
                         resolve([]);
                     }
                 }).catch((err) => {
-                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                    _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
                     resolve([]);
                 })
             }  
@@ -976,8 +976,8 @@ export default {
             api.queryDevices(request_data).then((res) => {
                 console.log(res);
                 if(res.success){
-                    if(res.data && res.data.length == 0) return;
                     _this.devices_list = [];
+                    if(res.data && res.data.length == 0) return;
                     _this.devices_list = res.data;
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         // 遍历增加一个区分是否选中的标识
@@ -992,7 +992,7 @@ export default {
                         }
                     }
                 }else{
-                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                    _this.$message({message: res.msg,type:'warning',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
                 _this.$message({message: err.msg || '请求错误',type:'error',offset:'200',duration:'1000'});
@@ -1000,7 +1000,7 @@ export default {
         },
         // 选择关联的设备
         evt_select_devices:function(Id){
-            console.log(Id);
+            // console.log(Id);
             // 遍历修改操作的设备的是否选中标识  选中的情况下添加到要关联的设备数据中
             for(let i = 0,len = this.devices_list.length; i < len; i++){
                 if(Id == this.devices_list[i].id){
@@ -1038,6 +1038,7 @@ export default {
         },
         // 清空所有选择
         evt_cancel_all_selected:function(){
+            if(this.selected_devices.length == 0) return;
             this.selected_devices = [];
             for(let i = 0, len = this.devices_list.length; i < len; i++){
                 if(this.devices_list[i].checked){
