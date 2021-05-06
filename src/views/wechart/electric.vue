@@ -31,18 +31,17 @@
                     </div>
                     <div class="search_content">
                         <div class="search_content_title">
-                            <div>{{$t('view.fence1')}}</div>
-                            <!-- <div @click='showAdd'>添加围栏</div> -->
+                            <div>围栏列表</div>
                             <div @click='evt_add_pen'>添加围栏</div>
                             <div v-if="add_pen_hint_flag" class="add_pen_hint">请在地图上单击鼠标左键框选区域</div>
                         </div>
-                        <div class="search_content_list" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="50">
+                        <div class="search_content_list" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="50" :style="{height:height - 125 +'px'}">
                             <template v-if='queryPen_dataList.length > 0'>
-                                <div class='list' v-for='(item,index) in queryPen_dataList' :key='item.fenceId'  @click='evt_dowm(index,item)'>
+                                <div class='list' v-for='(item,index) in queryPen_dataList' :key='index'  @click='evt_dowm(index,item)'>
                                     <div class='elecard' :class = "active == index ? 'addclass' : '' ">
                                         <div class='elecard_item_left'>{{item.fenceName}}</div>
-                                        <div class="elecard_item_right" :class="item.fenceType != '1' ? 'elecard_item_right_t':''">
-                                            <div v-if="item.fenceType == '1'">{{$t('view.radius')}}：{{item.circleFence.radius}}{{$t('view.mi')}}</div>
+                                        <div class="elecard_item_right" :class="item.fenceType != '0' ? 'elecard_item_right_t':''">
+                                            <div v-if="item.fenceType == '0'">半径：{{item.circleFence.radius}}米</div>
                                             <div>
                                                 <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
                                                 <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
@@ -51,8 +50,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div v-if="queryPen_page > queryPen_pageTotal" style="font-size: 14px; color: #999999; text-align: center">没有更多了~</div>
                             </template>
-                            <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>{{$t('table.temporarily')}}</span></div>
+                            <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>暂无数据</span></div>
                         </div>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                                 <el-checkbox size="mini" style="display:block;"  v-for="item in devices_list" :checked="item.checked" :label="item.deviceName" :key="item.deviceName">{{item.deviceName}}</el-checkbox>
                             </el-checkbox-group> -->
                             <template v-if="devices_list.length > 0">
-                                <div v-for="item in devices_list" :key="item.deviceId" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.deviceId)">
+                                <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id)">
                                     <img v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
                                     <img v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
                                     <span style="font-size:16px;margin-left:5px;line-height:20px;">{{item.deviceName}}</span>
@@ -137,22 +137,21 @@
                     </div>
                 </el-col>
             </el-row>
-            <el-row :gutter="20" class="search_device">
-                <!-- <el-col :span="8">
+            <!-- <el-row :gutter="20" class="search_device">
+                <el-col :span="8">
                     <el-input size="small" placeholder="请输入设备名称/设备IMEI" prefix-icon="el-icon-search" v-model="search_device_key"></el-input>
                 </el-col>
                 <el-col :span="3">
                     <el-button style="width:100%" size="small" type="primary">搜索</el-button>
-                </el-col> -->
+                </el-col>
                 <el-col :span="3">
                     <el-button size="small" type="danger" @click="evt_cancel_allSelect">取消关联</el-button>
                 </el-col>
-            </el-row>
-            <el-table @selection-change="evt_select_table" v-show="current_page_devices.length > 0" class="relevance_table" size="mini" :data="current_page_devices" style="width: 100%" tooltip-effect="dark">
+            </el-row> -->
+            <!-- <el-table @selection-change="evt_select_table" v-show="current_page_devices.length > 0" class="relevance_table" size="mini" :data="current_page_devices" style="width: 100%" tooltip-effect="dark">
                 <el-table-column align="center" fixed type="selection" min-width="20"></el-table-column>
                 <el-table-column align="center" fixed :label="$t('table.Device')" prop="deviceName" min-width="120" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" :label="$t('table.imei')" prop='deviceNumber' min-width="140" show-overflow-tooltip></el-table-column>
-                <!-- <el-table-column align="center" :label="$t('table.groupname')" prop="groupName" min-width="120" show-overflow-tooltip></el-table-column> -->
                 <el-table-column align="center" :label="$t('table.model')" prop="deviceModel.name" min-width="80" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" :label="$t('table.Detailed')" prop="address" min-width="180" show-overflow-tooltip></el-table-column>
                 <el-table-column align="center" :label="$t('table.addtime')" prop="activationTime" min-width="160" show-overflow-tooltip></el-table-column>
@@ -162,7 +161,19 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination @current-change="evt_current_change" :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination>
+            <el-pagination @current-change="evt_current_change" :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination> -->
+            <div class="select_collect">
+                <div class="select_collect_top">
+                    <span>已选列表({{selected_devices.length}})</span>
+                    <span>清空</span>
+                </div>
+                <div v-if="selected_devices.length > 0" class="select_collect_content">
+                    <div v-for="(item,index) in selected_devices" :key="index" class="select_collect_content_item" @click="evt_cancel_selected(item)">
+                        <span>{{item.deviceName}} ({{item.deviceNumber}})</span>
+                        <img :src="require('../../assets/img/x.png')">
+                    </div>
+                </div>
+            </div>
             <div class="relevance_device_bottom_btn">
                 <el-button type="info" size="small" @click="evt_close">取消</el-button>
                 <el-button type="primary" size="small" @click="evt_submit_relevance">确定</el-button>
@@ -193,14 +204,14 @@
                 </el-form-item>
                 <el-form-item label="进围栏报警:" >
                     <el-radio-group v-model="pen_form.inAlarm">
-                        <el-radio label="true">启用</el-radio>
-                        <el-radio label="false">禁用</el-radio>
+                        <el-radio :label="label_true">启用</el-radio>
+                        <el-radio :label="label_false">禁用</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="出围栏报警:" >
                     <el-radio-group v-model="pen_form.outAlarm">
-                        <el-radio label="true">启用</el-radio>
-                        <el-radio label="false">禁用</el-radio>
+                        <el-radio :label="label_true">启用</el-radio>
+                        <el-radio :label="label_false">禁用</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item>
@@ -285,7 +296,7 @@ export default {
             relevance_device_flag: false,//关联设备模块的展示
             current_circle:'',//当前绘制的圆形
             queryPen_pageSize: 10,//查询电子围栏的每页条数
-            queryPen_page:1,//查询的页数 默认为1
+            queryPen_page:0,//查询的页数 默认为0
             queryPen_pageTotal:1,//总页数
             queryPen_dataList:[],//查询获得的围栏数据
             active:-1,//选中的围栏
@@ -297,6 +308,7 @@ export default {
             selected_second_region:'',//选中的二级
             selected_third_region:'',//选中的三级
             selected_adcode:'',//最终选择的行政区域码
+            selected_areaName: '',
             update_pen:false,//更新围栏辨识
             user_list:[],//用户列表
             renderContent:function (h,{node,data,store}) {
@@ -317,6 +329,8 @@ export default {
             relevance_fenceId: '',//选择关联的围栏id
             searchBusiness_name:'',//搜索用户
             searchDevice_name:'',//搜索设备
+            label_true: true,
+            label_false: false,
         }
     },
     watch: {
@@ -350,7 +364,7 @@ export default {
         _this.map = new BMap.Map("container");
         _this.map.enableScrollWheelZoom(true); 
         _this.map.disableDoubleClickZoom();
-        _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),15);
+        _this.map.centerAndZoom(new BMap.Point(116.2529,39.5420),6);
         _this.map.addControl(new BMap.NavigationControl({offset: new BMap.Size(20, 70)})); 
         _this.map.addControl(new BMap.ScaleControl());    
         _this.map.addControl(new BMap.OverviewMapControl());      
@@ -490,17 +504,17 @@ export default {
                 _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
             }
             api.createUpdateCircleFence(type,_this.pen_form).then((res) => {
-                if(res.success && res.msg == "OK"){
-                        if(!_this.update_pen){
-                            _this.map.removeOverlay(_this.current_circle);
-                            _this.current_circle = '';
-                        }
-                        _this.submit_result();
-                    }else{
-                        _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                if(res.success){
+                    if(!_this.update_pen){
+                        _this.map.removeOverlay(_this.current_circle);
+                        _this.current_circle = '';
+                    }
+                    _this.submit_result();
+                }else{
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
             })
         },
         // 添加、更新多边形围栏
@@ -513,17 +527,17 @@ export default {
             }
             delete _this.pen_form.fenceArea.radius;
             api.createUpdatePolygonFence(type, _this.pen_form).then((res) => {
-                if(res.success && res.msg == "OK"){
-                        if(!_this.update_pen){
-                            _this.map.removeOverlay(_this.current_polygon);
-                            _this.current_polygon = '';
-                        }
-                        _this.submit_result();
+                if(res.success){
+                    if(!_this.update_pen){
+                        _this.map.removeOverlay(_this.current_polygon);
+                        _this.current_polygon = '';
+                    }
+                    _this.submit_result();
                 }else{
-                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
             })
         },
         // 添加、更新行政区域围栏
@@ -537,13 +551,13 @@ export default {
             delete _this.pen_form.fenceArea.radius;
             api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
                 console.log(res);
-                if(res.success && res.msg == "OK"){
+                if(res.success){
                         _this.submit_result();
                 }else{
-                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
             })
            
         },
@@ -555,15 +569,15 @@ export default {
             this.pen_form['fenceName'] = item.fenceName;
             this.pen_form['fenceRemark'] = item.fenceRemark;
             this.add_pen_flag =  true;
-            if(item.fenceType == '1'){
+            if(item.fenceType == '0'){
                 this.pen_type_value = '1';
                 this.pen_form.fenceArea['lat'] = item.circleFence.coordinate.lat;
                 this.pen_form.fenceArea['lng'] = item.circleFence.coordinate.lng;
                 this.pen_form.fenceArea['radius'] = item.circleFence.radius;
-            }else if(item.fenceType == '2'){
+            }else if(item.fenceType == '1'){
                 this.pen_type_value = '2';
                 this.pen_form.fenceArea['points'] = item.polygonFence.points;
-            }else if(item.fenceType == '3'){
+            }else if(item.fenceType == '2'){
                 this.pen_type_value = '3';
                 this.pen_form.fenceArea['areaCode'] = item.districtFence.areaCode;
             }
@@ -587,7 +601,7 @@ export default {
                             message: '删除成功!'
                         });
                         // 重新查询围栏数据
-                        _this.queryPen_page = 1;
+                        _this.queryPen_page = 0;
                         _this.queryPen_dataList = [];
                         _this.queryPen_pageTotal = 1;
                         _this.evt_queryPen();
@@ -595,7 +609,7 @@ export default {
                         _this.$message({message: '删除失败',type:'error',offset:'200',duration:'1000'});
                     }
                 }).catch((err) => {
-                    _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                    _this.$message({message: err.msg || '删除失败',type:'error',offset:'200',duration:'1000'});
                 })
             }).catch(() => {
                 _this.$message({
@@ -608,10 +622,13 @@ export default {
         evt_fence_query:function(){
             var _this = this;
             if(_this.select_type_name.trim() == '') {
-                _this.$message({message:'请先选择查询类型'})
+                _this.$message({message:'请先选择查询类型',type:'warning',offset:'200'})
                 return;
             }
-            if(_this.fenceSearchContent.trim() == '') return;
+            if(_this.fenceSearchContent.trim() == '') {
+                _this.$message({message:'请输入搜索内容',type:'warning',offset:'200'})
+                return;
+            }
             _this.search_result = [];
             var request_data = {};
             request_data['searchType'] = _this.select_type_name;
@@ -621,7 +638,7 @@ export default {
                 if(res.msg == 'OK' && res.success){
                     // 判断是否页面跳转查看电子围栏
                     if(_this.$route.query.deviceName){
-                        _this.fenceId = '';
+                        _this.fenceSearchId = '';
                         _this.fenceSearchDeviceId = res.data[0].deviceId;
                         _this.evt_queryPen();
                         return;
@@ -631,7 +648,7 @@ export default {
                     _this.fenceSearch_content_flag = true;
                 }
             }).catch((err) => {
-                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
+                _this.$message({message:err.errMsg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
             })
             // let fence_search =  document.getElementById("fence_search");
             // fence_search.focus();
@@ -649,14 +666,14 @@ export default {
         evt_row_click:function(row){
             // console.log(row);
              // 分页参数初始化
-            this.queryPen_page = 1;
+            this.queryPen_page = 0;
             this.queryPen_dataList = [];
             this.queryPen_pageTotal = 1;
             if(this.select_type_name == 'fenceName'){
-                this.fenceId = row.fenceId;
+                this.fenceSearchId = row.fenceId;
                 this.fenceSearchDeviceId = ''
             }else{
-                this.fenceId = '';
+                this.fenceSearchId = '';
                 this.fenceSearchDeviceId = row.deviceId;
             }
             this.fenceSearch_content_flag = false;
@@ -676,13 +693,13 @@ export default {
             }
             api.queryPen(query_data).then((res) => {
                 // console.log(res);
-                if(res.success && res.msg == "OK" && res.data.content.length > 0){
+                if(res.success  && res.data.content.length > 0){
                     var new_data = res.data.content;
                     _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
                     _this.queryPen_pageTotal = res.data.pageTotal;
                 }
             }).catch((err) => {
-                _this.$message({message:err.errMsg,type:'warning',offset:"200",duration:"1000"});
+                _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:"200",duration:"1000"});
             })
         },
         // 触底加载更多
@@ -704,25 +721,22 @@ export default {
         evt_draw:function(item){
             var _this = this;
             _this.map.clearOverlays();
-            if(item.fenceType == 1){
+            if(item.fenceType == 0){
                 var point = new BMap.Point(item.circleFence.coordinate.lng,item.circleFence.coordinate.lat);
                 var radius = item.circleFence.radius;
                 var circle = new BMap.Circle(point,radius,_this.opts);
-                _this.map.centerAndZoom(point,15);
+                _this.map.centerAndZoom(point,13);
                 _this.map.addOverlay(circle);
-            }else if(item.fenceType == 2){
+            }else if(item.fenceType == 1){
                 var point_arr = item.polygonFence.points;
-                // var point_arr = [ {lat: 31.128352571190476,lng: 121.37138743482554},
-                // {lat: 31.13986271595277,lng: 121.37004895961567},
-                // {lat: 31.14678975981412,lng: 121.3647309909966}]
                 var points = [];
                 for(let i = 0, len = point_arr.length; i < len; i++){
                     points.push(new BMap.Point(point_arr[i].lng,point_arr[i].lat))
                 }
                 var polygon = new BMap.Polygon(points,_this.opts);
-                _this.map.centerAndZoom(points[points.length - 1],15);
+                _this.map.centerAndZoom(points[points.length - 1],13);
                 _this.map.addOverlay(polygon)
-            }else if(item.fenceType == 3){
+            }else if(item.fenceType == 2){
                 var areaName = item.districtFence.areaName;
                 var boundary = new BMap.Boundary();
                 boundary.get(areaName,function(res){
@@ -777,6 +791,7 @@ export default {
                     this.select_third_region = this.select_second_region[i].districts;
                     if(this.select_second_region[i].districts.length == 0){
                         this.selected_adcode = this.select_second_region[i].adcode;
+                        this.selected_areaName = this.select_second_region[i].name;
                     }
                     break;
                 }
@@ -788,6 +803,7 @@ export default {
             for(let i = 0 ,len = this.select_third_region.length; i < len; i++){
                 if(name == this.select_third_region[i].name){
                     this.selected_adcode = this.select_third_region[i].adcode;
+                    this.selected_areaName = this.select_third_region[i].name;
                     break;
                 }
             }
@@ -879,9 +895,13 @@ export default {
         //获取代理商
         evt_getBusiness:function(){
             var _this = this;
-            api.getBusiness().then((res) => {
+            api.getBusiness({}).then((res) => {
                 console.log(res);
-                if(res.success && res.msg == 'OK'){
+                if(res.success){
+                    if(res.data && res.data.length == 0){
+                        _this.$message({message: '暂无用户列表数据',type:'info',offset:'200',duration:'1000'});
+                        // return;
+                    } 
                     for(let i = 0, len = res.data.length; i < len; i++){
                         var user_data = {};
                         user_data['label'] = res.data[i].username;
@@ -896,10 +916,10 @@ export default {
 
                     })
                 }else{
-                    _this.$message({message: res.errMsg,type:'error',offset:'200',duration:'1000'});
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                _this.$message({message: err.msg || '请求失败',type:'error',offset:'200',duration:'1000'});
             })
         },
         // el-tree 懒加载数组
@@ -955,29 +975,41 @@ export default {
             request_data['ownerId'] = _this.user_id;
             api.queryDevices(request_data).then((res) => {
                 console.log(res);
-                if(res.success && res.msg == "OK" && res.data.length > 0){
+                if(res.success){
+                    if(res.data && res.data.length == 0) return;
                     _this.devices_list = [];
                     _this.devices_list = res.data;
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         // 遍历增加一个区分是否选中的标识
                         _this.$set(_this.devices_list[i],'checked',false);
+                        // 已选择的要关联的数据列表是否存在 如果存在对比设备列表中是否有选择中的设备
+                        if(_this.selected_devices.length > 0){
+                            for(let j = 0, len_j = _this.selected_devices.length; j < len_j; j++){
+                                if(_this.devices_list[i].id == _this.selected_devices[j].id){
+                                    _this.$set(_this.devices_list[i],'checked',true);
+                                }
+                            }
+                        }
                     }
+                }else{
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: err.errMsg,type:'error',offset:'200',duration:'1000'});
+                _this.$message({message: err.msg || '请求错误',type:'error',offset:'200',duration:'1000'});
             })
         },
         // 选择关联的设备
         evt_select_devices:function(Id){
-            // console.log(Id);
+            console.log(Id);
             // 遍历修改操作的设备的是否选中标识  选中的情况下添加到要关联的设备数据中
             for(let i = 0,len = this.devices_list.length; i < len; i++){
-                if(Id == this.devices_list[i].deviceId){
+                if(Id == this.devices_list[i].id){
                     if(this.devices_list[i].checked){
                         this.$set(this.devices_list[i],'checked',false);
                         for(let j = 0, le = this.selected_devices.length; j < le; j++){
-                            if(Id == this.selected_devices[j].deviceId){
+                            if(Id == this.selected_devices[j].id){
                                 this.selected_devices.splice(j,1);
+                                break;
                             }
                         }
                     }else{
@@ -987,8 +1019,35 @@ export default {
                     break;
                 }
             }
-            this.evt_current_page_data();
+            // this.evt_current_page_data();
         },
+        // 取消要关联的设备
+        evt_cancel_selected:function(item){
+            for(let i = 0, len = this.selected_devices.length; i < len; i++){
+                if(item.id == this.selected_devices[i].id){
+                    this.selected_devices.splice(i,1);
+                    break;
+                }
+            }
+            for(let j = 0, len_j = this.devices_list.length; j < len_j; j++){
+                if(item.id == this.devices_list[j].id){
+                    this.$set(this.devices_list[j],'checked',false);
+                    break;
+                }
+            }
+        },
+        // 清空所有选择
+        evt_cancel_all_selected:function(){
+            this.selected_devices = [];
+            for(let i = 0, len = this.devices_list.length; i < len; i++){
+                if(this.devices_list[i].checked){
+                    this.$set(this.devices_list[i],'checked',false);
+                }
+            }
+        },
+
+
+        
         // 处理关联设备的当前页数据
         evt_current_page_data:function(){
             // 整理当前页的数据
@@ -1019,12 +1078,12 @@ export default {
             }
             for(let i = 0, len = this.selected_cancel.length; i < len; i++){
                 for(let j = 0, le = this.selected_devices.length; j < le; j++){
-                    if(this.selected_cancel[i].deviceId == this.selected_devices[j].deviceId){
+                    if(this.selected_cancel[i].id == this.selected_devices[j].id){
                         this.selected_devices.splice(j,1);
                     }
                 }
                 for(let z = 0, l = this.devices_list.length; z < l; z++){
-                    if(this.selected_cancel[i].deviceId == this.devices_list[z].deviceId){
+                    if(this.selected_cancel[i].deviceId == this.devices_list[z].id){
                         this.$set(this.devices_list[z],'checked',false);
                     }
                 }
@@ -1040,18 +1099,19 @@ export default {
             }
             console.log(content);
             for(let i = 0, len = this.selected_cancel.length; i < len; i++){
-                if(this.selected_cancel[i].deviceId == content.deviceId){
+                if(this.selected_cancel[i].id == content.id){
                     this.selected_cancel.splice(i,1);
                 }
             }
             for(let z = 0, l = this.devices_list.length; z < l; z++){
-                if(content.deviceId == this.devices_list[z].deviceId){
+                if(content.id == this.devices_list[z].id){
                     this.$set(this.devices_list[z],'checked',false);
                 }
             }
             for(let i = 0, len = this.selected_devices.length; i < len; i++){
-                if(this.selected_devices[i].deviceId == content.deviceId){
+                if(this.selected_devices[i].id == content.id){
                     this.selected_devices.splice(i,1);
+                    break;
                 }
             }
             this.evt_current_page_data();
@@ -1060,6 +1120,8 @@ export default {
         evt_current_change:function(num){
             this.current_page_devices = this.selected_devices.slice((num - 1) * this.selected_devices_pagesize, num * this.selected_devices_pagesize);
         },
+
+
         // 搜索用户searchBusiness
         evt_searchBusiness:function(){
             var _this = this;
@@ -1104,13 +1166,13 @@ export default {
             var request_data = {};
             var deviceIdList = [];
             for(let i = 0, len = _this.selected_devices.length; i < len; i++){
-                deviceIdList.push(_this.selected_devices[i].deviceId);
+                deviceIdList.push(_this.selected_devices[i].id);
             }
             request_data['deviceIdList'] = deviceIdList;
             request_data['fenceId'] = _this.relevance_fenceId;
             api.deviceBindFence(request_data).then((res) => {
                 console.log(res);
-                if(res.msg == "OK" && res.success){
+                if(res.success){
                     _this.relevance_device_flag = false;
                     _this.user_list = [];
                     _this.user_id = '';
@@ -1123,10 +1185,10 @@ export default {
                     _this.searchDevice_name = '';
                     _this.$message({message:'提交关联成功',type:'success',offset:'200',duration:'1000'})
                 }else{
-                    _this.$message({message: res.errMsg,type:'success',offset:'200',duration:'1000'})
+                    _this.$message({message: res.msg,type:'info',offset:'200',duration:'1000'})
                 }
             }).catch((err) => {
-                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'})
+                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'})
             })
         },
 
@@ -1229,6 +1291,7 @@ export default {
         font-size: 12px;
         font-family: Microsoft YaHei;
         font-weight: 400;
+        padding-bottom: 10px;
         color: #666666;
         position: relative;
         >div:nth-of-type(2){
@@ -1267,7 +1330,10 @@ export default {
         }
     }
     .search_content_list{
-        flex: 1;
+        // flex: 1;
+        // height: 600px;
+        padding: 10px 0px;
+        box-sizing: border-box;
         overflow: auto;
     }
 }
@@ -1281,7 +1347,7 @@ export default {
 }
 .list{
     width: 100%;
-    margin-top: 10px;
+    margin-bottom: 10px;
     .elecard{
         border: 1px solid #ccc;
         border-radius: 5px;
@@ -1594,7 +1660,51 @@ export default {
 #fence_search:focus{
     border: 1px solid #409EFF;
 }
-
+.select_collect{
+    width: 100%;
+    max-height: 300px;
+    padding: 10px 0px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    .select_collect_top{
+        font-size: 14px;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        >span:nth-of-type(1){
+            color: #666666;
+        }
+        >span:nth-of-type(2){
+            color: #4391FE;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    }
+    .select_collect_content{
+        display: flex;
+        flex-wrap: wrap;
+        .select_collect_content_item{
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 4px;
+            box-sizing: border-box;
+            border: 1px solid #DDDDDD;
+            display: flex;
+            align-items: center;
+            >span{
+                font-size: 12px;
+                font-family: Microsoft YaHei;
+                font-weight: 400;
+                color: #666666;
+            }
+            >img{
+                margin-left: 5px;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+        }
+    }
+}
 
 </style>
 <style>
