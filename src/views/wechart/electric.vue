@@ -705,7 +705,7 @@ export default {
         // 触底加载更多
         evt_scroll_load:function(){
             this.queryPen_page = this.queryPen_page + 1;
-            if(this.queryPen_page > this.queryPen_pageTotal){
+            if(this.queryPen_page >= this.queryPen_pageTotal){
                 return;
             }
             this.evt_queryPen();
@@ -896,7 +896,7 @@ export default {
         evt_getBusiness:function(){
             var _this = this;
             api.getBusiness({}).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success){
                     if(res.data && res.data.length == 0){
                         _this.$message({message: '暂无用户列表数据',type:'info',offset:'200',duration:'1000'});
@@ -974,7 +974,7 @@ export default {
             var request_data = {};
             request_data['ownerId'] = _this.user_id;
             api.queryDevices(request_data).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success){
                     _this.devices_list = [];
                     if(res.data && res.data.length == 0) return;
@@ -1131,7 +1131,7 @@ export default {
             request_data['searchContent'] = _this.searchBusiness_name;
             request_data['searchType'] = 'username';
             api.searchBusiness(request_data).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.msg == "OK" && res.success){
                     _this.user_id = res.data[0].userId;
                     _this.evt_queryDevices();
@@ -1145,16 +1145,29 @@ export default {
             var _this = this;
             if(_this.searchDevice_name.trim() == '') return;
             var request_data = {};
-            request_data['searchType'] = 'deviceName';
-            request_data['searchContent'] = _this.searchDevice_name;
-            request_data['ownerId'] = _this.user_id;
-            api.searchDevices(request_data).then((res) =>{
-                console.log(res);
-                if(res.msg == 'OK' && res.success){
-                    _this.devices_list = res.data;
+            // request_data['searchType'] = 'deviceName';
+            // request_data['searchContent'] = _this.searchDevice_name;
+            // request_data['ownerId'] = _this.user_id;
+            // api.searchDevices(request_data).then((res) =>{
+            //     console.log(res);
+            //     if(res.msg == 'OK' && res.success){
+            //         _this.devices_list = res.data;
+            //     }
+            // }).catch((err) => {
+            //     _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
+            // })
+            request_data['page'] = 0;
+            request_data['pageSize'] = 20;
+            request_data['deviceNameKeyword'] = _this.searchDevice_name;
+            api.getDevicesList(request_data).then((res) => {
+                // console.log(res);
+                if(res.success && res.data && res.data.content && res.data.content.length > 0){
+                    _this.devices_list = res.data.content;
+                }else{
+                    _this.$message({message:'未查询到搜索设备',type:"info",offset:"200",duration:'1500'});
                 }
             }).catch((err) => {
-                _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
+                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1500'});
             })
         },
         // 提交关联设备
