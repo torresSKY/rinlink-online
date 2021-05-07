@@ -38,11 +38,11 @@
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
-                                        <el-avatar class="devices_item_top_avatar" size="small"></el-avatar>
+                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrl : ''"></el-avatar>
                                         <div class="devices_item_top_right">
-                                        <div class="devices_item_top_right_top">
-                                            <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
-                                                <div class="devices_item_top_right_top_right">{{item.networkStatus == '1' ? '在线' : '离线'}}</div>
+                                            <div class="devices_item_top_right_top">
+                                                <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
+                                                <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.networkStatus == '1' ? '在线' : '离线'}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom">
                                                 <!-- 电池辅助元素 -->
@@ -283,7 +283,7 @@
                             <span>{{device_detail_info.sellTime|formatDate}}</span>
                         </el-form-item>
                         <el-form-item label="导入时间:">
-                            <span>2020-10-01</span>
+                            <span>2020</span>
                         </el-form-item>
                         <el-form-item label="ICCID:">
                             <!-- <el-input class="device_info_right_input_1" size="small" value="887887788789"></el-input> -->
@@ -411,6 +411,7 @@ export default {
             device_name:'',//设备名称
             remark_text:'',//设备备注信息
             icon_list:[],//适用范围图标
+            icon_list_t:{},
             range_code:'',//设备使用范围的code
             tab_value:'history',
             command_page:1,//历史指令当前页
@@ -580,10 +581,14 @@ export default {
         },
         // 代理商的选择
         evt_node_click:function(e){
-            console.log(e.info);
+            // console.log(e.info);
             if (this.user_id == e.info.userId){
                 return;
             }
+            this.need_handle_deviceId = '';
+            this.current_select_deviceId = '';
+            this.current_device_name = '';
+            this.current_device_address = '';
             this.user_id = e.info.userId;
             // this.devices_list = [];
             this.evt_clearOverlays();
@@ -597,7 +602,7 @@ export default {
             request_data['searchContent'] = _this.searchBusiness_name;
             request_data['searchType'] = 'username';
             api.searchBusiness(request_data).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
                     _this.user_id = res.data[0].userId;
                     _this.change_type = 'all';
@@ -606,7 +611,7 @@ export default {
                     _this.$message({message:'暂未搜索到指定用户',type:'warning',offset:'200'})
                 }
             }).catch((err) => {
-                _this.$message({message:err.errMsg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
             })
         },
         // 查询设备
@@ -620,7 +625,7 @@ export default {
                 request_data['networkStatus'] = '2';
             }
             api.queryDevices(request_data).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data){
                     _this.devices_list = [];
                     _this.devices_list = res.data;
@@ -666,19 +671,36 @@ export default {
             if(_this.searchDevice_name.trim() == '') return;
             _this.change_type = 'all';
             var request_data = {};
-            request_data['searchType'] = 'deviceName';
-            request_data['searchContent'] = _this.searchDevice_name;
-            request_data['ownerId'] = _this.user_id;
-            api.searchDevices(request_data).then((res) =>{
+            // request_data['searchType'] = 'deviceName';
+            // request_data['searchContent'] = _this.searchDevice_name;
+            // request_data['ownerId'] = _this.user_id;
+            // api.searchDevices(request_data).then((res) =>{
+            //     // console.log(res);
+            //     if(res.success && res.data && res.data.length > 0){
+            //         _this.devices_list = res.data;
+            //         for(let i = 0, len = _this.devices_list.length; i < len; i++){
+            //             _this.$set(_this.devices_list[i],'checked',false);
+            //         }
+            //     }
+            // }).catch((err) => {
+            //     _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
+            // })
+
+            request_data['page'] = 0;
+            request_data['pageSize'] = 20;
+            request_data['deviceNameKeyword'] = _this.searchDevice_name;
+            api.getDevicesList(request_data).then((res) => {
                 console.log(res);
-                if(res.msg == 'OK' && res.success){
-                    _this.devices_list = res.data;
+                if(res.success && res.data && res.data.content && res.data.content.length > 0){
+                    _this.devices_list = res.data.content;
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         _this.$set(_this.devices_list[i],'checked',false);
                     }
+                }else{
+                    _this.$message({message:'未查询到搜索设备',type:"info",offset:"200",duration:'1500'});
                 }
             }).catch((err) => {
-                _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1500'});
             })
         },
         // 切换刷新时间
@@ -722,18 +744,20 @@ export default {
                         }
                         for(let j in _this.devices_list){
                             if(refresh_devices_list[i].id == _this.devices_list[j].id && _this.devices_list[j].checked){
-                                _this.$set(refresh_devices_list[i],'checked',true)
-                                var point = new BMap.Point(refresh_devices_list[i].positionInfo.coordinate.lng,refresh_devices_list[i].positionInfo.coordinate.lat);
-                                _this.evt_addMarker(point);
-                                if(_this.show_deviceName){
-                                    _this.evt_addLabel(point,refresh_devices_list[i]);
+                                _this.$set(refresh_devices_list[i],'checked',true);
+                                if(refresh_devices_list[i].positionInfo && refresh_devices_list[i].positionInfo.coordinate && refresh_devices_list[i].positionInfo.coordinate.lng){
+                                    var point = new BMap.Point(refresh_devices_list[i].positionInfo.coordinate.lng,refresh_devices_list[i].positionInfo.coordinate.lat);
+                                    _this.evt_addMarker(point);
+                                    if(_this.show_deviceName){
+                                        _this.evt_addLabel(point,refresh_devices_list[i]);
+                                    }
                                 }
                             }else if(refresh_devices_list[i].id == _this.devices_list[j].id && !_this.devices_list[j].checked){
                                 _this.$set(refresh_devices_list[i],'checked',false)
                             }
                         }
                     }
-                    if(_this.current_select_deviceId.trim() != '' && infoWindow_info.id){
+                    if(_this.current_select_deviceId.trim() != '' && infoWindow_info.id && infoWindow_info.positionInfo && infoWindow_info.positionInfo.coordinate && infoWindow_info.positionInfo.coordinate.lng){
                         var point_t = new BMap.Point(infoWindow_info.positionInfo.coordinate.lng,infoWindow_info.positionInfo.coordinate.lat);
                         this.evt_addInfoWindow(point_t,infoWindow_info);
                         this.map.panTo(point_t);
@@ -819,9 +843,7 @@ export default {
         evt_getRangeIconList:function(){
             var _this = this;
             api.getRangeIconList({}).then((res) => {
-                // console.log(res);
                 if(res.success && Object.keys(res.data).length > 0){
-                    // console.log(res.data.xxx);
                     var icon_list = [];
                     for(var key in res.data){
                         var item = {};
@@ -832,15 +854,14 @@ export default {
                         icon_list.push(item);
                     }
                     _this.icon_list = icon_list;
-                    // console.log(_this.icon_list);
+                    _this.icon_list_t = res.data;
                 }
-
             }).catch((err) => {
                 _this.$message({message:err.msg || '设备适用icon数据请求错误',type:'error',offset:'260',duration:'1500'})
             })
         },
         evt_change_icon:function(code){
-            console.log(code);
+            // console.log(code);
             this.range_code = code;
         },
         // 更新设备信息
@@ -888,10 +909,14 @@ export default {
             request_data['deviceId'] = _this.need_handle_deviceId;
             api.queryDeviceCmds(request_data).then((res) => {
                 console.log(res);
-                if(res.msg && res.success){
+                if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.command_data_list = res.data.content;
                     _this.command_total = res.data.pageTotal * _this.command_pageSize;
+                }else if(!res.success){
+                    _this.$message({message: res.msg, type:"info", offset: "200", duration:"1500"});
                 }
+            }).catch((err) => {
+                _this.$message({message: err.msg, type:"error", offset: "200", duration:"1500"});
             })
         },
         // 分页页数改变
@@ -1074,7 +1099,7 @@ export default {
             request_data['positionType'] = _this.position_type;
             api.queryDeviceTracks(request_data).then((res) => {
                 // console.log(res);
-                if(res.msg == 'OK' && res.success){
+                if(res.success){
                     // _this.device_tracks = res.data;
 
                     // var point_arr = res.data;
@@ -1116,9 +1141,11 @@ export default {
                     _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
                     _this.map.clearOverlays();
                     _this.evt_LuShu();
+                }else{
+                    _this.$message({message:res.msg,type:"info",offset:"200",duration:"1500"});
                 }
             }).catch((err) => {
-                // _this.$message({message:err.msg,type:"error",offset:"200",duration:"1000"});
+                _this.$message({message:err.msg,type:"error",offset:"200",duration:"1500"});
             })
         },
         // 轨迹回放
