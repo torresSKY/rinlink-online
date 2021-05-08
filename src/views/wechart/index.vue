@@ -496,9 +496,9 @@ export default {
       api.getDevicesList(request_data).then((res) => {
         // console.log(res);
         _this.search_result = [];
-        if(res.success && res.data.content.length > 0){
-          _this.search_result = res.data;
-        }else if(res.success && res.data.content.length == 0){
+        if(res.success && res.data && res.data.content && res.data.content.length > 0){
+          _this.search_result = res.data.content;
+        }else if(res.success && res.data && res.data.content && res.data.content.length == 0){
           _this.$message({message:'暂未搜索到设备信息',type:'warning',offset:'200',duration:'2000'});
         }
       }).catch((err) => {
@@ -515,11 +515,11 @@ export default {
       if(this.btn_type == 'trace'){
         let routeUrl = this.$router.resolve({
             path: "/trace",
-            query: {deviceId:row.deviceId,panorama:'trace'}
+            query: {deviceId:row.id,panorama:'trace'}
         });
         window.open(routeUrl.href, '_blank');
       }else if(this.btn_type == 'track'){
-        this.$router.push({path:'/control/control',query:{deviceId:row.deviceId}});
+        this.$router.push({path:'/control/control',query:{deviceId:row.id}});
       }
     },
   },

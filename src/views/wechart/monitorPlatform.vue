@@ -900,6 +900,10 @@ export default {
                 this.evt_queryDeviceCmds();
             }
         },
+        // 获取指令模板
+        evt_getDeviceCommandTemplate:function(){
+            
+        },
         // 获取设备历史指令
         evt_queryDeviceCmds:function(){
             var _this = this;

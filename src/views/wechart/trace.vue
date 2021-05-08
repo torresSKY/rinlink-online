@@ -45,7 +45,7 @@ export default {
         console.log(this.$route.query.deviceId);
         console.log(this.$route.query.panorama);
         this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
-        this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示辨识
+        this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示标识
         this.deviceId = this.$route.query.deviceId;
         this.evt_getDeviceLastCoordinate();
     },
@@ -85,7 +85,7 @@ export default {
             request_data['deviceId'] = _this.deviceId;
             api.getDeviceLastCoordinate(request_data).then((res) => {
                 // console.log(res);
-                if(res.msg == 'OK' && res.success){
+                if(res.success && res.data){
                     _this.locationInfo = res.data;
                     _this.locationArr = _this.locationArr.concat(res.data);
                     if(_this.Panorama_flag){
@@ -107,9 +107,8 @@ export default {
                         }
                     })
                 }
-
             }).catch((err) => {
-                _this.$message({message:err.errMsg,type:'error',duration:'1000',offset:'200'})
+                _this.$message({message:err.msg,type:'error',duration:'1000',offset:'200'})
             })
         },
         // 关闭全景
