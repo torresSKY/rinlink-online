@@ -63,7 +63,7 @@
                                                 <span class="el-dropdown-link">更多</span>
                                                 <el-dropdown-menu slot="dropdown">
                                                     <el-dropdown-item :command="{type:'detail',deviceId:item.id}">设备详情</el-dropdown-item>
-                                                    <el-dropdown-item :command="{type:'command',deviceId:item.id}">设备指令</el-dropdown-item>
+                                                    <el-dropdown-item :command="{type:'command',deviceId:item.id,deviceModelId:item.deviceModel.id}">设备指令</el-dropdown-item>
                                                 </el-dropdown-menu>
                                             </el-dropdown>
                                         </div>
@@ -312,13 +312,11 @@
             </template>
             <el-tabs type="border-card" v-model="tab_value" @tab-click="evt_tab_click">
                 <el-tab-pane label="指令参数" name="parameter">
-                    <el-form :model="form_data_order">
+                    <el-form>
                         <div class="order_form_item">
                             <el-form-item label="指令类型:">
-                                <el-select v-model="order_form_value" placeholder="请选择指令类型">
-                                    <el-option key="选项1" label="选项1" value="选项1"> </el-option>
-                                    <el-option key="选项2" label="选项2" value="选项2"> </el-option>
-                                    <el-option key="选项3" label="选项3" value="选项3"> </el-option>
+                                <el-select v-model="command_template_id" placeholder="请选择指令类型">
+                                    <el-option v-for="(item,index) in command_templates_list" :key="index" :label="item.templateName" :value="item.deviceCmdTemplateId"> </el-option>
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="指令参数:">
@@ -382,7 +380,6 @@ export default {
             tag_visible:false,
             input_1:'',
             device_info_model:'',
-            form_data_order:{},
             order_form_value:'',
             order_form_parameter:'',
 
@@ -418,6 +415,9 @@ export default {
             command_pageSize:10,//历史指令页面数据条数
             command_total:0,//历史指令的总条数
             command_data_list:[],//历史指令的当前页数据
+            need_deviceModelId: '',//需要获取指令模板列表的设备型号
+            command_templates_list: [],//设备指令模板列表信息
+            command_template_id:'',//选择下发的模板指令id
             current_select_deviceId:'',//当前选择的设备id
             show_deviceName: true,//是否显示设备名称
             track_detail:false,//展示轨迹
@@ -814,6 +814,7 @@ export default {
                 this.evt_getDeviceInfo();
                 this.device_info_visible = true;
             }else if(item.type == 'command'){
+                this.need_deviceModelId = item.deviceModelId;
                 this.evt_queryDeviceCmds();
                 this.device_command_visible = true;
             }
@@ -889,6 +890,7 @@ export default {
             this.command_page = 1;
             this.command_total = 0;
             this.command_data_list = [];
+            this.command_templates_list = [];
         },
         // 设备指令的tab切换
         evt_tab_click:function(){
@@ -896,13 +898,28 @@ export default {
             this.command_page = 1;
             this.command_total = 0;
             this.command_data_list = [];
+            this.command_templates_list = [];
             if(this.tab_value == 'history'){
                 this.evt_queryDeviceCmds();
+            }else{
+                this.evt_queryCommandTemplate();
             }
         },
-        // 获取指令模板
-        evt_getDeviceCommandTemplate:function(){
-            
+        // 获取查询设备指令模板
+        evt_queryCommandTemplate:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['deviceModelId'] = _this.need_deviceModelId;
+            api.queryCommandTemplate(request_data).then((res) => {
+                // console.log(res);
+                if(res.success && res.data && res.data.length > 0){
+                    _this.command_templates_list = res.data;
+                }else{
+                    _this.$message({message:res.msg, type:"info", offset:"200",duration:"1500"});
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg,type:"error",offset:"200",duration:"1500"});
+            })
         },
         // 获取设备历史指令
         evt_queryDeviceCmds:function(){
@@ -1473,8 +1490,8 @@ export default {
         color: #F19B04 !important;
     }
     /deep/  .el-tree-node.is-current > .el-tree-node__content {
-        background-color: #FFE6B0 !important;
-        border: 1px solid #F19B04;
+        background-color: #D8E3FF !important;
+        border: 1px solid #4391FE;
     }
 }
 .row_item_middle{
@@ -1572,13 +1589,13 @@ export default {
         max-height: 70vh;
         overflow-y: scroll;
         .devices_item_t{
-            background: #FFE6B0 !important;
-            border: 1px solid #FFB951; 
+            background: #D8E3FF !important;
+            border: 1px solid #4391FE; 
         }
         .bgcolor{
-            background: #FFE6B0;
+            background: #D8E3FF;
             /deep/ .el-menu{
-                background: #FFE6B0;
+                background: #D8E3FF;
             }
         }
         .devices_item{
@@ -1685,7 +1702,7 @@ export default {
                     text-align: center;
                 }
                 .devices_item_bottom_btn{
-                    background: #FFE6B0 !important;
+                    background: #D8E3FF !important;
                 }
                 .el-dropdown-link{
                     font-weight: 500;

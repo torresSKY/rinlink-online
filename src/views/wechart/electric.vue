@@ -595,7 +595,7 @@ export default {
             }).then(() => {
                 api.deleteFence(request_data).then((res) => {
                     console.log(res);
-                    if(res.success && res.msg == "OK"){
+                    if(res.success){
                         _this.$message({
                             type: 'success',
                             message: '删除成功!'
