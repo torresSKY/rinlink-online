@@ -635,7 +635,7 @@ export default {
             request_data['searchContent'] = _this.fenceSearchContent;
             api.searchFences(request_data).then((res) => {
                 console.log(res);
-                if(res.msg == 'OK' && res.success){
+                if(res.success){
                     // 判断是否页面跳转查看电子围栏
                     if(_this.$route.query.deviceName){
                         _this.fenceSearchId = '';
@@ -648,7 +648,7 @@ export default {
                     _this.fenceSearch_content_flag = true;
                 }
             }).catch((err) => {
-                _this.$message({message:err.errMsg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
             })
             // let fence_search =  document.getElementById("fence_search");
             // fence_search.focus();

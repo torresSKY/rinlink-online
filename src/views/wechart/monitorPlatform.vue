@@ -594,6 +594,14 @@ export default {
             // this.devices_list = [];
             this.evt_clearOverlays();
             this.evt_queryDevices();
+            // 
+            clearInterval(this.device_tracks_interval);
+            this.track_detail = false;
+            this.device_tracks_step = 0;
+            this.map.closeInfoWindow();
+            this.tracksDetail_flag = false;
+            this.interval_num = parseInt(this.refresh_interval);
+            this.evt_refresh_interval();
         },
         // 搜索查询用户
         evt_searchBusiness:function(){
@@ -663,6 +671,14 @@ export default {
             if(value == 'on' || value == 'off'){
                 this.evt_clearOverlays();
                 this.current_select_deviceId = '';
+                // 
+                clearInterval(this.device_tracks_interval);
+                this.track_detail = false;
+                this.device_tracks_step = 0;
+                this.map.closeInfoWindow();
+                this.tracksDetail_flag = false;
+                this.interval_num = parseInt(this.refresh_interval);
+                this.evt_refresh_interval();
             }
             this.evt_queryDevices();
         },
