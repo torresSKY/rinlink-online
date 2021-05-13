@@ -1154,9 +1154,15 @@ export default {
                     //     }
                     // ]
                     
+                    clearInterval(_this.device_tracks_interval);
+                    _this.device_tracks_step = 0;
+                    _this.device_tracks = [];
+                    _this.device_tracks_shift = [];
+                    _this.map.clearOverlays();
                     // 若无轨迹信息 提示 return
                     if(res.data && res.data.length == 0) {
                         _this.$message({message:'无轨迹信息',type:'warning',offset:'200',duration:'1500'});
+                        _this.play_flag = false;
                         return;
                     }
                     // var arr = [
@@ -1203,14 +1209,10 @@ export default {
                         // }
                         // return;
                     }
-                    clearInterval(_this.device_tracks_interval);
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
-                    _this.device_tracks_step = 0;
-                    _this.device_tracks_shift = [];
                     _this.play_flag = true;
                     _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
-                    _this.map.clearOverlays();
                     _this.evt_LuShu();
                 }else{
                     _this.$message({message:res.msg,type:"info",offset:"200",duration:"1500"});
