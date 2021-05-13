@@ -2305,7 +2305,7 @@ export default {
             color: #333333;
         }
         .info_window_content_item_right{
-            margin-left: 10px;
+            // margin-left: 10px;
         }
     }
     .info_window_content_btn{
