@@ -143,9 +143,10 @@
                                 <div class="playback_top_select_2_div">
                                     <span>定位方式:</span>
                                     <el-select v-model="position_type" multiple size="small" placeholder="请选择">
-                                        <el-option  value="GPS定位"></el-option>
-                                        <el-option  value="基站定位"></el-option>
-                                        <el-option  value="WIFI定位"></el-option>
+                                        <el-option label="GPS定位"  value="1"></el-option>
+                                        <el-option label="WIFI定位"  value="2"></el-option>
+                                        <el-option label="基站定位" value="3"></el-option>
+                                        
                                     </el-select>
                                 </div>
                             </el-col>
@@ -427,7 +428,7 @@ export default {
             select_date_time:[],//选择的日期时间
             startTime:0,//开始时间戳
             endTime:0,//结束时间戳
-            position_type:["GPS定位","基站定位","WIFI定位"],//多选定位类型
+            position_type:['1','2','3'],//多选定位类型
             device_tracks:[],//设备轨迹信息
             device_tracks_shift:[],//回放过的轨迹信息
             play_flag:true,//播放与暂停 默认播放
@@ -1136,7 +1137,7 @@ export default {
             request_data['endTime'] = endTime;
             request_data['deviceId'] = deviceId;
             request_data['coordinateSystem'] = 'BD09'
-            request_data['positionType'] = _this.position_type;
+            request_data['positionTypes'] = _this.position_type;
             api.queryDeviceTracks(request_data).then((res) => {
                 // console.log(res);
                 if(res.success){
