@@ -316,24 +316,24 @@
                     <el-form>
                         <div class="order_form_item">
                             <el-form-item label="指令类型:">
-                                <el-select v-model="command_template_id" placeholder="请选择指令类型">
+                                <el-select @change="evt_change_command" v-model="command_template_id" placeholder="请选择指令类型">
                                     <el-option v-for="(item,index) in command_templates_list" :key="index" :label="item.templateName" :value="item.deviceCmdTemplateId"> </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="指令参数:">
+                            <el-form-item v-if="is_template_content" label="指令参数:">
                                 <el-input v-model="order_form_parameter"></el-input>
                             </el-form-item>
                         </div>
-                        <el-form-item label="缓存时长:">
+                        <el-form-item v-if="is_template_content" label="缓存时长:">
                             <el-select v-model="order_form_value" placeholder="请选择指令缓存时长">
                                 <el-option key="选项1" label="选项1" value="选项1"> </el-option>
                                 <el-option key="选项2" label="选项2" value="选项2"> </el-option>
                                 <el-option key="选项3" label="选项3" value="选项3"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <div class="order_time_text">提示：设备下发指令时超过设定时间，则不进行下发指令，默认为30分钟。</div>
+                        <div class="order_time_text" v-if="template_content.templateRemark">提示：{{template_content.templateRemark}}</div>
                         <div class="order_form_btn">
-                            <el-button type="primary">下发指令</el-button>
+                            <el-button type="primary" @click="evt_sendCommand">下发指令</el-button>
                         </div>
                         
                     </el-form>
@@ -419,6 +419,8 @@ export default {
             need_deviceModelId: '',//需要获取指令模板列表的设备型号
             command_templates_list: [],//设备指令模板列表信息
             command_template_id:'',//选择下发的模板指令id
+            template_content: {},//选择要下发指令的模板内容信息
+            is_template_content: true,//模板内容信息是否为空 默认不为空
             current_select_deviceId:'',//当前选择的设备id
             show_deviceName: true,//是否显示设备名称
             track_detail:false,//展示轨迹
@@ -911,6 +913,9 @@ export default {
             this.command_total = 0;
             this.command_data_list = [];
             this.command_templates_list = [];
+            this.command_template_id = '';
+            this.is_template_content = true;
+            this.command_templates_list = {};
         },
         // 设备指令的tab切换
         evt_tab_click:function(){
@@ -919,6 +924,9 @@ export default {
             this.command_total = 0;
             this.command_data_list = [];
             this.command_templates_list = [];
+            this.command_template_id = '';
+            this.is_template_content = true;
+            this.command_templates_list = {};
             if(this.tab_value == 'history'){
                 this.evt_queryDeviceCmds();
             }else{
@@ -936,6 +944,49 @@ export default {
                     _this.command_templates_list = res.data;
                 }else{
                     _this.$message({message:res.msg, type:"info", offset:"200",duration:"1500"});
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg,type:"error",offset:"200",duration:"1500"});
+            })
+        },
+        // 获取设备指令模板内容
+        evt_getDeviceCommand:function(deviceCmdTemplateId){
+            var _this = this;
+            var request_data = {};
+            request_data['deviceCmdTemplateId'] = deviceCmdTemplateId;
+            api.getDeviceCommand(request_data).then((res) => {
+                console.log(res);
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    _this.template_content = res.data;
+                    if(Object.keys(JSON.parse(res.data.templateContent)).length == 0){
+                        _this.is_template_content = false;
+                    }else{
+                        _this.is_template_content = true;
+                    }
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg,type:"error",offset:"200",duration:"1500"});
+            })
+        },
+        // 选择改变模板指令
+        evt_change_command:function(e){
+            this.evt_getDeviceCommand(e);
+        },
+        // 下发指令
+        evt_sendCommand:function(){
+            var _this = this;
+            if(_this.command_template_id.trim() == '' || _this.need_handle_deviceId.trim() == '') return;
+            var request_data = {};
+            request_data['cmdTemplateId'] = _this.command_template_id;
+            request_data['deviceIdList'] = [_this.need_handle_deviceId];
+            if(Object.keys(JSON.parse(_this.template_content.templateContent)).length > 0){
+                request_data['cmdData'] = 'cmdData';
+            }
+            api.sendCommand(request_data).then((res) => {
+                console.log(res);
+                if(res.success){
+                    _this.$message({message:"下发成功",type:"success",offset:"200",duration:"1500"});
+                    _this.evt_close_command_content();
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg,type:"error",offset:"200",duration:"1500"});
