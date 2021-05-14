@@ -308,7 +308,8 @@ export default {
             selected_second_region:'',//选中的二级
             selected_third_region:'',//选中的三级
             selected_adcode:'',//最终选择的行政区域码
-            selected_areaName: '',
+            selected_areaName: '',//最终选择的行政区名称
+            selected_level:'',//最终选择的行政区级别
             update_pen:false,//更新围栏辨识
             user_list:[],//用户列表
             renderContent:function (h,{node,data,store}) {
@@ -544,21 +545,59 @@ export default {
         evt_DistrictFence:function(){
             var _this = this;
             var type = 'update';
+            delete _this.pen_form.fenceArea.radius;
             if(!_this.update_pen){
                 type = 'create';
                 _this.pen_form.fenceArea['areaCode'] = _this.selected_adcode;
+                _this.pen_form.fenceArea['areaName'] = _this.selected_areaName;
+                _this.pen_form.fenceArea['areaLevel'] = _this.selected_level;
+                var boundary = new BMap.Boundary();
+                boundary.get(_this.selected_areaName,function(res){
+                    console.log(res);
+                    if(res){
+                        var points = [];
+                        for(var i = 0, len = res.boundaries.length; i < len; i++){
+                            var point_arr = res.boundaries[i].split(';')
+                            var arr = [];
+                            for(var j = 0, le = point_arr.length; j < le; j++){
+                                var arr_item = [];
+                                var point = point_arr[j].split(',');
+                                var lng = point[0].slice(0,point[0].indexOf('.')+7);
+                                arr_item.push(lng);
+                                var lat = point[1].slice(0,point[1].indexOf('.')+7);
+                                arr_item.push(lat);
+                                arr.push(arr_item.join(','));
+                            }
+                            points = points.concat(arr);
+                        }
+                        var points_str = points.join(";");
+                        // console.log(points_str);
+                        _this.pen_form.fenceArea['points'] = points_str;
+
+                        api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
+                            console.log(res);
+                            if(res.success){
+                                    _this.submit_result();
+                            }else{
+                                _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                            }
+                        }).catch((err) => {
+                            _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                        })
+                    }
+                })
+            }else{
+                api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
+                    console.log(res);
+                    if(res.success){
+                            _this.submit_result();
+                    }else{
+                        _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
+                })
             }
-            delete _this.pen_form.fenceArea.radius;
-            api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
-                console.log(res);
-                if(res.success){
-                        _this.submit_result();
-                }else{
-                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
-                }
-            }).catch((err) => {
-                _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
-            })
            
         },
          // 选择更新围栏
@@ -778,6 +817,10 @@ export default {
             for(let i = 0, len = this.select_first_region.length; i < len; i++){
                 if(name == this.select_first_region[i].name){
                     this.select_second_region = this.select_first_region[i].districts;
+                    
+                    this.selected_adcode = this.select_first_region[i].adcode;//最终选择的行政区域码
+                    this.selected_areaName = name;//最终选择的行政区名称
+                    this.selected_level = 1;//最终选择的行政区级别
                     break;
                 }
             }
@@ -789,10 +832,14 @@ export default {
             for(let i = 0, len = this.select_second_region.length; i < len; i++){
                 if(name == this.select_second_region[i].name){
                     this.select_third_region = this.select_second_region[i].districts;
-                    if(this.select_second_region[i].districts.length == 0){
-                        this.selected_adcode = this.select_second_region[i].adcode;
-                        this.selected_areaName = this.select_second_region[i].name;
-                    }
+                    // if(this.select_second_region[i].districts.length == 0){
+                    //     this.selected_adcode = this.select_second_region[i].adcode;
+                    //     this.selected_areaName = this.select_second_region[i].name;
+                    // }
+
+                    this.selected_adcode = this.select_second_region[i].adcode;//最终选择的行政区域码
+                    this.selected_areaName = name;//最终选择的行政区名称
+                    this.selected_level = 2;//最终选择的行政区级别
                     break;
                 }
             }
@@ -802,8 +849,12 @@ export default {
             // console.log(name);
             for(let i = 0 ,len = this.select_third_region.length; i < len; i++){
                 if(name == this.select_third_region[i].name){
-                    this.selected_adcode = this.select_third_region[i].adcode;
-                    this.selected_areaName = this.select_third_region[i].name;
+                    // this.selected_adcode = this.select_third_region[i].adcode;
+                    // this.selected_areaName = this.select_third_region[i].name;
+
+                    this.selected_adcode = this.select_third_region[i].adcode;//最终选择的行政区域码
+                    this.selected_areaName = name;//最终选择的行政区名称
+                    this.selected_level = 3;//最终选择的行政区级别
                     break;
                 }
             }
