@@ -564,7 +564,7 @@ export default {
                                 var point = point_arr[j].split(',');
                                 var lng = point[0].slice(0,point[0].indexOf('.')+7);
                                 arr_item.push(lng);
-                                var lat = point[1].slice(0,point[1].indexOf('.')+7);
+                                var lat = point[1].trim().slice(0,point[1].trim().indexOf('.')+7);
                                 arr_item.push(lat);
                                 arr.push(arr_item.join(','));
                             }
@@ -607,6 +607,8 @@ export default {
             this.pen_form['fenceId'] = item.fenceId;
             this.pen_form['fenceName'] = item.fenceName;
             this.pen_form['fenceRemark'] = item.fenceRemark;
+            this.pen_form['inAlarm'] = item.inAlarm;
+            this.pen_form['outAlarm'] = item.outAlarm;
             this.add_pen_flag =  true;
             if(item.fenceType == '0'){
                 this.pen_type_value = '1';
@@ -619,6 +621,43 @@ export default {
             }else if(item.fenceType == '2'){
                 this.pen_type_value = '3';
                 this.pen_form.fenceArea['areaCode'] = item.districtFence.areaCode;
+                this.pen_form.fenceArea['areaName'] = item.districtFence.areaName;
+                this.pen_form.fenceArea['areaLevel'] = item.districtFence.areaLevel;
+                // 遍历选中的 行政区域
+                var adcode = item.districtFence.areaCode.toString();
+                var level = item.districtFence.areaLevel;
+                for(var i = 0, len = this.select_first_region.length; i < len; i++){
+                    if(this.select_first_region[i].adcode.indexOf(adcode.substr(0,2)) > -1){
+                        this.selected_frist_region = this.select_first_region[i].name;
+                        if(level == 1){
+                            this.selected_level = 1;
+                            this.selected_adcode = this.select_first_region[i].adcode;
+                            this.selected_areaName = this.select_first_region[i].name;
+                        }else{
+                            this.select_second_region = this.select_first_region[i].districts;
+                            for(var j = 0, lth =  this.select_second_region.length; j < lth; j++){
+                                if(this.select_second_region[j].adcode.indexOf(adcode.substr(0,4)) > -1){
+                                    this.selected_second_region = this.select_second_region[j].name;
+                                    if(level == 2){
+                                        this.selected_level = 2;
+                                        this.selected_adcode = this.select_second_region[j].adcode;
+                                        this.selected_areaName = this.select_second_region[j].name;
+                                    }else{
+                                        this.select_third_region = this.select_second_region[j].districts;
+                                        for(var z = 0, le = this.select_third_region.length; z < le; z++){
+                                            if(this.select_third_region[z].adcode == adcode){
+                                                this.selected_level = 3;
+                                                this.selected_third_region = this.select_third_region[z].name;
+                                                this.selected_adcode = this.select_third_region[z].adcode;
+                                                this.selected_areaName = this.select_third_region[z].name
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         // 删除围栏
