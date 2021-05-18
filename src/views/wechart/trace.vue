@@ -45,7 +45,7 @@ export default {
         console.log(this.$route.query.deviceId);
         console.log(this.$route.query.panorama);
         this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
-        this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示辨识
+        this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示标识
         this.deviceId = this.$route.query.deviceId;
         this.evt_getDeviceLastCoordinate();
     },
@@ -85,7 +85,7 @@ export default {
             request_data['deviceId'] = _this.deviceId;
             api.getDeviceLastCoordinate(request_data).then((res) => {
                 // console.log(res);
-                if(res.msg == 'OK' && res.success){
+                if(res.success && res.data){
                     _this.locationInfo = res.data;
                     _this.locationArr = _this.locationArr.concat(res.data);
                     if(_this.Panorama_flag){
@@ -107,9 +107,8 @@ export default {
                         }
                     })
                 }
-
             }).catch((err) => {
-                _this.$message({message:err.errMsg,type:'error',duration:'1000',offset:'200'})
+                _this.$message({message:err.msg,type:'error',duration:'1000',offset:'200'})
             })
         },
         // 关闭全景
@@ -121,17 +120,17 @@ export default {
         evt_addInfoWindow:function(point,info){
             var infoWindow_html = `<div class="info_window_content">
                 <div class="info_window_content_title">
-                    <span>${this.deviceName}</span>
+                    <span>设备名称:${this.deviceName}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>网络状态：</span>
-                    <span>在线</span>
+                    <span>--</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>定位方式：基站定位</span>
+                    <span>定位方式：--</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：516546546484688</span>
+                    <span>设备号：${this.deviceId}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.time)}</span>
