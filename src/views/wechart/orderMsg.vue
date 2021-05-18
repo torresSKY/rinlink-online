@@ -1,20 +1,20 @@
 <template>
     <div  >
         <el-row class="cust-title">
-            <span>{{$t('table.model')}}</span>
+            <el-page-header @back="goBack" >
+            </el-page-header>
         </el-row>
         <el-card  :style="{height:height + 'px'}" >
             <el-col :span='24'>
                 <el-row class="list-search" :gutter="22">
                   <el-col :span='3'>
-                    <el-input v-model="deviceModelName" :placeholder="$t('table.model')" clearable></el-input>
+                    <el-input v-model="deviceModelName" :placeholder="$t('message.orderName')" clearable></el-input>
                   </el-col>
                   <el-col :span='5'>
                     <el-button class="butresh" @click="getlist()">{{$t('button.search')}}</el-button>
                     <el-button class="butadd" @click="addModel">{{$t('button.add')}}</el-button>
                   </el-col>
                 </el-row>
-                
                 <el-row :gutter="22" class="list-search" >
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
                 </el-row>
@@ -29,27 +29,33 @@
                 </el-pagination>
             </el-col>
         </el-card>
-        <!-- 添加/编辑设备型号 -->
+        <!-- 添加/编辑指令 -->
         <el-dialog
             :title="isEdit? $t('button.editor'): $t('button.add')"
             :visible.sync="dialogModel"
-            width="30%">
-            <el-form :model="modelForm" :rules="rules" ref="modelForm" label-width="120px" class="demo-ruleForm">
-              <el-form-item :label="$t('table.model')" prop="name" >
-                  <el-input v-model="modelForm.name" :placeholder="$t('table.model')"></el-input>
+            width="38%">
+            <el-form :model="modelForm" :rules="rules" ref="modelForm" label-width="140px" class="demo-ruleForm">
+              <el-form-item :label="$t('table.orderName')" prop="templateName" >
+                  <el-input v-model="modelForm.templateName" :placeholder="$t('table.orderName')"></el-input>
               </el-form-item>
-              <el-form-item :label="$t('table.communication')" prop="iotServiceId">
-                 <el-select v-model="modelForm.iotServiceId" :placeholder="$t('table.communication')">
+              <el-form-item :label="$t('table.orderData')" prop="templateContent" >
+                  <el-input v-model="modelForm.templateContent" :placeholder="$t('table.orderData')"></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('table.instructions')" prop="templateRemark" >
+                  <el-input v-model="modelForm.templateRemark" :placeholder="$t('table.instructions')" type="textarea" :rows="2"></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('table.orderDataMode')" prop="commandDataProcessType">
+                 <el-select v-model="modelForm.commandDataProcessType" :placeholder="$t('table.orderDataMode')" >
                     <el-option
                       v-for="item in options"
-                      :key="item.iotServiceId"
-                      :label="item.iotServiceName"
-                      :value="item.iotServiceId">
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                     </el-option>
                   </el-select>
               </el-form-item>
-              <el-form-item :label="$t('table.note')" prop="description" >
-                  <el-input v-model="modelForm.description" :placeholder="$t('table.note')" type="textarea" :rows="2"></el-input>
+              <el-form-item label="groovyScript" prop="groovyScript" >
+                  <el-input v-model="modelForm.groovyScript" placeholder="groovyScript" type="textarea" :rows="3"></el-input>
               </el-form-item>
             </el-form>  
             <span slot="footer" class="dialog-footer">
@@ -97,63 +103,136 @@ export default{
         loading:false,
         dataList:[],
         tableLabel: [
-          {label: this.$t('table.model'), prop: 'name'},
-          {label: this.$t('table.communication'), prop: 'iotServiceName'},
-          {label: this.$t('table.template'), type:'clickEvent',
-          tableClick: (val) => {
-            this.showDialog('a', val)
-          }},
-          {label: this.$t('table.addtime'), prop: 'createTime'},
+          {label: this.$t('table.orderName'), prop: 'templateName'},
+          {label: this.$t('table.instructions'), prop: 'templateRemark'},
           {label: this.$t('table.operation'),
             type: 'clickSelect',
             selectOperation: (index, row) => {
               this.showDialog(index, row)
             },
             selectText: [
-              // {command: '1', text: this.$t('button.editor'), index: 1},
+              {command: '1', text: this.$t('button.editor'), index: 1},
               {command: '2', text: this.$t('button.dele'), index: 2} ]
           }
         ],
         isEdit:false,
         dialogModel:false,
         modelForm:{
-          name:'',
-          iotServiceId:'',
-          description:''
+          templateName:'',
+          templateContent:'',
+          templateRemark:'',
+          commandDataProcessType:'groovy',
+          groovyScript:''
         },
         rules:{
-          name: [
-            { required: true, message: this.$t('message.enterModel'), trigger: 'blur' },
+          templateName: [
+            { required: true, message: this.$t('message.enterOrderName'), trigger: 'blur' },
           ],
-          iotServiceId: [
-            { required: true, message: this.$t('message.selCommun'), trigger: 'blur' },
+          templateContent: [
+            { required: true, message: this.$t('message.enterOrderData'), trigger: 'blur' },
+          ],
+          groovyScript: [
+            { required: true, message: this.$t('message.groovyScript'), trigger: 'blur' },
           ],
         },
-        options:[]
+        options:[{id: 'groovy', name: 'groovy'}],
+        deviceModelId:null
       }
     },
     mounted(){
         this.height=document.body.offsetHeight-152
+        this.deviceModelId = this.$route.query.deviceModelId
         this.getlist()
     },
     methods:{
-        getlist(){ // 获取设备型号列表
+        goBack(){
+          this.$router.push({ path: '/setting/modelManage' })
+        },
+        getlist(){ // 获取指令模板列表
             this.loading = true
-            api.getModelList({params: {
-              pageSize: this.page.size,
-              pageNo: this.page.index - 1,
-              deviceModelName: this.deviceModelName,
-            }}).then(res => {
+            let data = {
+              deviceModelId:this.deviceModelId
+            }
+            api.getCmdTemplates(data).then(res => {
               this.loading = false
-              this.dataList = res.data.content
-              this.page.total = res.data.pageTotal
+              this.dataList = res.data
+              this.page.total = res.data.pageTotal != null ? res.data.pageTotal :1
             }).catch(err => {
               this.loading = false
               this.dataList = []
               this.$message.error(err.errMsg)
             })
         },
-        
+        addModel(){ // 添加指令模板
+          if(this.$refs['modelForm']){
+            this.$refs['modelForm'].resetFields()
+          }
+          this.modelForm = {
+            templateName:'',
+            templateContent:'',
+            templateRemark:'',
+            commandDataProcessType:'groovy',
+            groovyScript:''
+          }
+          this.isEdit = false
+          this.dialogModel = true
+        },
+        confrimModel(){ // 确认添加指令模板
+          this.$refs['modelForm'].validate((valid) => {
+            if (valid) {
+              if(!this.isEdit){
+                let data = {
+                  deviceModelId:this.deviceModelId,
+                  templateName:this.modelForm.templateName,
+                  templateContent:this.modelForm.templateContent,
+                  templateRemark:this.modelForm.templateRemark,
+                  commandDataProcessType:this.modelForm.commandDataProcessType,
+                  groovyScript:this.modelForm.groovyScript
+                }
+                api.createCmdTemplates(data).then(res => {
+                  // debugger
+                  if(res.success){
+                    this.$message.success(this.$t('message.addsuc'))
+                    this.$refs['modelForm'].resetFields()
+                    this.dialogModel = false
+                    this.getlist()
+                  }else {
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.msg)
+                })
+              }else {
+                let data = {
+                  id:this.modelForm.id,
+                  deviceModelId:this.deviceModelId,
+                  templateName:this.modelForm.templateName,
+                  templateContent:this.modelForm.templateContent,
+                  templateRemark:this.modelForm.templateRemark,
+                  commandDataProcessType:this.modelForm.commandDataProcessType,
+                  groovyScript:this.modelForm.groovyScript
+                }
+                api.updateCmdTemplates(data).then(res => {
+                  // debugger
+                  if(res.success){
+                    this.$message.success(this.$t('message.addsuc'))
+                    this.$refs['modelForm'].resetFields()
+                    this.dialogModel = false
+                    this.getlist()
+                  }else {
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.msg)
+                })
+              }
+              
+            } else {
+              this.$message.warning(this.$t('message.checkmsg'))
+              return false
+            }
+          })
+        },
         showDialog(index, data){ // 操作
           console.log(index, data)
           if(index == 2){
@@ -163,10 +242,10 @@ export default{
               type: 'warning'
             }).then(() => {
               let id = {
-                deviceModelId:data.id
+                deviceCmdTemplateId:data.deviceCmdTemplateId
               }
-              api.deleModel(id).then(res => {
-                if(res.msg=='OK'){
+              api.deleteCmdTemplates(id).then(res => {
+                if(res.success){
                   this.$message.success(this.$t('message.delesuc'))
                   this.getlist()
                 }else{
@@ -174,12 +253,34 @@ export default{
                 }
                 
               }).catch(err => {
-                this.$message.error(err.errMsg)
+                this.$message.error(err.msg)
               })
             }).catch(err => {
               console.log(err)
             })
+          }else if (index == 1){
+
+            this.getDeviceCmdTemplates(data.deviceCmdTemplateId)
           }
+        },
+        getDeviceCmdTemplates(id){ // 获取指令模板
+          let data = {
+            deviceCmdTemplateId:id
+          }
+          api.getDeviceCmdTemplates(data).then(res => {
+            this.modelForm = {
+              templateName:res.data.templateName,
+              templateContent:res.data.templateContent,
+              templateRemark:res.data.templateRemark,
+              commandDataProcessType:'groovy',
+              groovyScript:res.data.groovyScript
+            }
+            this.modelForm['id'] = id
+            this.isEdit = true
+            this.dialogModel = true
+          }).catch(err => {
+            console.log(err)
+          })
         }
     
    },
@@ -203,7 +304,7 @@ export default{
   line-height: 40px;
   border: 1px solid #dbe6fa;
   background: #EDF3FF;
-  padding-left: 20px;
+  padding:5px 0 5px 20px;
 }
 .cust-subtitle{
     margin-top: 10px;

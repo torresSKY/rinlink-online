@@ -271,8 +271,8 @@
         <el-dialog
             :title="$t('button.send')"
             :visible.sync="dialogSend"
-            width="40%">
-            <send-order ref="sendOrder" @confrimSend='confrimSend'/>
+            width="50%">
+            <send-order ref="sendOrder" :list = "multipleSelection" @confrimSend='confrimSend'/>
         </el-dialog>
         <!-- 历史指令 -->
         <el-dialog
@@ -281,19 +281,19 @@
             width="50%">
             <el-row :gutter='22'>
               <el-col :span='4'>
-                <el-select v-model="value" :placeholder="$t('table.zhitype')">
+                <el-select v-model="commandName" :placeholder="$t('table.zhitype')">
                   <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    v-for="item in cmdOptions"
+                    :key="item.deviceCmdTemplateId"
+                    :label="item.templateName"
+                    :value="item.templateName">
                   </el-option>
                 </el-select>
               </el-col>
               <el-col :span='12'>
                 <el-date-picker
                   style="height:98%"
-                  v-model="value1"
+                  v-model="hisTime"
                   type="datetimerange"
                   range-separator="-"
                   start-placeholder="开始日期"
@@ -421,6 +421,10 @@ export default{
           children: 'children',
           label: 'username'
         },
+        hisTime:null,
+        commandName:null,
+        cmdOptions:[],
+        deviceId:null,
         value1:null,
         value:null,
         options: [],
@@ -428,7 +432,7 @@ export default{
         searchImei:'',
         searchName:'',
         deviceIdList:'',
-        deviceModelId:'',
+        deviceModelId:null,
         deviceModeOptions:[],
         networkStatus:'',
         networkStatusOptions:[
@@ -458,7 +462,15 @@ export default{
             params['model'] = params.deviceModel.name
             return params
           }},
-          {label: this.$t('table.status'), prop: 'networkStatus'},
+          {label: this.$t('table.status'), prop: 'status',
+            type: 'render',
+              formatter: (params) => {
+                params['status'] = params.networkStatus == 1 ? '在线'  : params.networkStatus == 2 ? '离线'
+                : params.networkStatus == '在线' ? '在线': params.networkStatus == '离线' ? '离线' : ''
+                // console.log(params,123)
+                return params
+              }
+          },
           {label: this.$t('table.usestatus'), prop: 'useStatus'},
           {label: this.$t('table.iccid'), prop: 'iccid'},
           {label: this.$t('table.customers'), prop: 'username',type: 'render',
@@ -514,11 +526,10 @@ export default{
         historysendList:[],
         tableHistorysend:[
           {label: this.$t('table.index'), type: 'index'},
-          {label: this.$t('table.orderCode'), prop: 'serial_number'},
-          {label: this.$t('table.zhitype'), prop: 'category'},
-          {label: this.$t('table.zhidata'), prop: 'category'},
-          {label: this.$t('table.creattime'), prop: 'category'},
-          {label: this.$t('table.jie'), prop: 'category'}
+          {label: this.$t('table.zhitype'), prop: 'commandName'},
+          {label: this.$t('table.zhidata'), prop: 'commandData'},
+          {label: this.$t('table.creattime'), prop: 'createTime', type: 'Timestamp'},
+          {label: this.$t('table.jie'), prop: 'commandStatus'}
         ],
         dialogCommLog:false,
         commLogList:[],
@@ -569,7 +580,7 @@ export default{
           let data = {
             pageSize: this.page.size,
             page: this.page.index - 1,
-            deviceIdList:[this.deviceIdList],
+            // deviceIdList:[this.deviceIdList],
             deviceModelId:this.deviceModelId,
             networkStatus:this.networkStatus,
             useStatus:this.useStatus,
@@ -604,7 +615,8 @@ export default{
         },
         searchCustomer(){ // 搜索客户或账号
           let data = {
-            searchType : this.search
+            searchType : 'username',
+            searchContent:this.searchType
           }
           api.searchBusiness(data).then(res => {
             if(res.success){
@@ -716,6 +728,14 @@ export default{
                 }
               }
               break
+            case '5' : // 历史指令
+              this.hisTime = null
+              this.commandName = null
+              this.deviceId = data.id
+              this.getCmdTemplates(data.deviceModel.id)
+              this.dialogHistorysend = true
+              this.queryDeviceCmds()
+              break
           }
         },
         confrimEquinfo(){ //确认更新设备
@@ -738,7 +758,7 @@ export default{
           })
         },
         childByValue(val){ //选择处理数据
-          // console.log(val)
+          console.log(val)
           this.multipleSelection = val
         },
         sale(){ // 销售
@@ -772,10 +792,13 @@ export default{
           this.equNum = this.saleList.length
         },
         searchEqu(){ //销售-搜索设备
-          let data = {
-            searchType : this.searchImei
+          if(!this.searchImei){
+            return this.$message.warning(this.$t('table.searchimei'))
           }
-          api.searchDevices(data).then(res => {
+          let data = {
+            deviceNumberKeyword : this.searchImei
+          }
+          api.getDevicesList(data).then(res => {
             if(res.success){
               let item = res.data[0]
               if(item.deviceModel){
@@ -813,7 +836,8 @@ export default{
         },
         searchCust(){ //销售-搜索客户或账号
           let data = {
-            searchType : this.searchName
+            searchType : 'username',
+            searchContent:this.searchName
           }
           api.searchBusiness(data).then(res => {
             if(res.success){
@@ -853,13 +877,14 @@ export default{
           if(this.checked){
             time = null
           }
+          // debugger
           this.saleList.forEach(function(item) {
-            arr.push(item.deviceId)
+            arr.push(item.id)
           })
           let data = {
             deviceIdList : arr,
             expiredTime : time ,
-            ownerId :this.custinfo.custinfo
+            ownerId :this.custinfo.userId
           }
           api.sellDevices(data).then(res => {
             if(res.success){
@@ -883,11 +908,51 @@ export default{
           this.dialogSIM = true
         },
         send(){ // 下发指令
-          // this.dialogSend = true
+          if(this.multipleSelection.length<=0){
+            return this.$message.warning(this.$t('message.selOne'))
+          }
+          for(let i = 0;i<this.multipleSelection.length;i++){
+            if(this.multipleSelection[0].model!==this.multipleSelection[i].model){
+              return this.$message.warning(this.$t('message.defeModel'))
+            }
+          }
+          
+          this.dialogSend = true
+          this.$nextTick(() => {
+            this.$refs.sendOrder.formData = {}
+            this.$refs.sendOrder.schema = null
+            this.$refs.sendOrder.deviceCmdTemplateId = null
+            this.$refs.sendOrder.getlist()
+          })
         },
         confrimSend(data){ // 关闭下发指令框
           this.dialogSend = data
-        }
+        },
+        getCmdTemplates(id){ // 获取指令模板列表
+            let data = {
+              deviceModelId:id
+            }
+            api.getCmdTemplates(data).then(res => {
+              this.cmdOptions = res.data
+            }).catch(err => {
+              this.cmdOptions = []
+              this.$message.error(err.errMsg)
+            })
+        },
+        queryDeviceCmds(){ // 历史指令分页查询
+            let data = {
+              commandName:this.commandName,
+              deviceId:this.deviceId,
+              startTime:this.hisTime != null ? this.hisTime[0] : null,
+              endTime:this.hisTime != null ? this.hisTime[1] : null
+            }
+            api.queryDeviceCmds(data).then(res => {
+              this.historysendList = res.data.content
+            }).catch(err => {
+              this.historysendList = []
+              this.$message.error(err.errMsg)
+            })
+        },
     
    },
   // 过滤器格式化时间戳

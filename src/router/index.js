@@ -122,6 +122,17 @@ const list={
           {path: 'setting',name: 'button.personal',component: () =>import('@/views/wechart/personalCenter'),hidden: true,radius:false,roles:[0,1,88,99],},
         ]
       },
+      {
+        path: '/orderMsg',
+        name: 'table.orderMsg',
+        radius:false,
+        roles:[0,1,88,99],
+        component: _import('index'),
+        redirect: '/orderMsg/setting',
+        children: [
+          {path: 'setting',name: 'table.orderMsg',component: () =>import('@/views/wechart/orderMsg'),hidden: true,radius:false,roles:[0,1,88,99],},
+        ]
+      },
       // {
       //   path: '/log',
       //   name: 'table.operLog',

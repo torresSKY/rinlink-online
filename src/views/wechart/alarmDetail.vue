@@ -127,7 +127,7 @@ export default {
   },
   data() {
     return {
-      input3:'',
+      input3:null,
       value:'',
       businessoptions:[],
       checked:true,
@@ -153,7 +153,7 @@ export default {
         {label: this.$t('table.process'), prop: 'handleRemark'},     
       ],
       time:[],
-      alarmTypeId:'',
+      alarmTypeId:null,
       handleStatus:'',
       handleStatusOptions:[
         { value: 1, label: '未处理'}, 
@@ -176,13 +176,18 @@ export default {
       let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
-        startTime:this.time[0] || '',
-        endTime:this.time[1] || '',
-        userId:this.value,
-        deviceIdList:this.input3,
-        alarmTypeCodeList:[this.alarmTypeId],
+        startTime:this.time[0] || null,
+        endTime:this.time[1] || null,
+        deviceOwnerId:this.value,
+        deviceIdList:this.input3!=null?[this.input3]:[],
+        alarmTypeCodeList:this.alarmTypeId!=null?[this.alarmTypeId]:[],
         handleStatus:this.handleStatus
       }
+      // if(this.alarmTypeId){
+      //   data.alarmTypeCodeList = [this.alarmTypeId]
+      // }else {
+      //   data.alarmTypeCodeList = []
+      // }
       if(type==1){
         data.page = 0
       }
@@ -198,7 +203,10 @@ export default {
       })
     },
     getBusiness(){ // 获取代理商
-      api.getBusiness().then(res => {
+      let data = {
+        parentId:null
+      }
+      api.getBusiness(data).then(res => {
           this.businessoptions = res.data
         }).catch(err => {
           this.businessoptions = []
@@ -206,8 +214,8 @@ export default {
         })
     },
     getAlarmType(){ // 查询报警类型
-        api.getAlarmType().then(res => {
-          if(res.msg=='OK'){
+        api.getAlarmType({headers: { 'Content-Type': 'application/json,charset=utf-8' }}).then(res => {
+          if(res.success){
             this.alarmTypeList = Object.entries(res.data)
             console.log(this.alarmTypeList)
           }else{

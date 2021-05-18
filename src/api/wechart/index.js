@@ -105,13 +105,13 @@ const getShipmentList = (data) => (   //分页查询出货的设备
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=1', data)
 )
 const shipment = (data) => (   //出货
-    axios.post(url+'/shipment_device', data)
+    axios.post(url+'/shipment_device?__OPERATOR_TYPE=1', data)
 )
 const batchShipment = (data) => (   //批量出货
-    axios.post(url+'/batch_shipment_device', data)
+    axios.post(url+'/batch_shipment_device?__OPERATOR_TYPE=1', data)
 )
 const uploadDeviceNumber = (data) => (   //上传文件-设备号
-    axios.post(url+'/upload_device_number', data)
+    axios.post(url+'/upload_device_number?__OPERATOR_TYPE=1', data)
 )
 const getBusinessList = (data) => (   //分页查询客户
     axios.post(url+'/paging_query_business_users?__OPERATOR_TYPE=1', data)
@@ -138,7 +138,7 @@ const updateCurrentPwd = (data) => (   //更新当前用户密码
     axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE=2', data)
 )
 const searchBusiness = (data) => (   //搜索客户信息
-    axios.post(url+'/search_business_users?__OPERATOR_TYPE=2', data)
+    axios.post(url+'/search_business_users?__OPERATOR_TYPE=1', data)
 )
 const getAlarmsDetail = (data) => (   //分页查询报警详情
     axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE=2', data)
@@ -171,13 +171,31 @@ const getModelList = (data) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models?__OPERATOR_TYPE=1', data)
 )
 const getBusiness = (data) => (   //查询代理商
-    axios.post(url+'/query_business_users?__OPERATOR_TYPE=2', data)
+    axios.post(url+'/query_business_users?__OPERATOR_TYPE=1', data)
 )
 const getServices = (data) => (   //查询所有IOT服务
     axios.post(url+'/query_all_iot_services?__OPERATOR_TYPE=1', data)
 )
 const getRangeinfo = (data) => (   //查询使用范围信息
     axios.post(url+'/query_device_use_range_info?__OPERATOR_TYPE=2', data)
+)
+const getCmdTemplates = (data) => (   //查询指令模板
+    axios.post(url+'/list_device_command_templates', data)
+)
+const createCmdTemplates = (data) => (   //创建指令模板
+    axios.post(url+'/create_device_command_template?__OPERATOR_TYPE=1', data)
+)
+const updateCmdTemplates = (data) => (   //修改指令模板
+    axios.post(url+'/update_device_command_template?__OPERATOR_TYPE=1', data)
+)
+const deleteCmdTemplates = (data) => (   //删除指令模板
+    axios.post(url+'/delete_device_command_template?__OPERATOR_TYPE=1', data)
+)
+const getDeviceCmdTemplates = (data) => (   //获取指令模板
+    axios.post(url+'/get_device_command_template?__OPERATOR_TYPE=1', data)
+)
+const createDeviceCmd = (data) => (   //下发指令
+    axios.post(url+'/create_device_cmd?__OPERATOR_TYPE=2', data)
 )
 const addModel = (data) => (   //创建设备型号
     axios.post(url+'/create_device_model?__OPERATOR_TYPE=1', data)
@@ -309,6 +327,12 @@ export default {
     editDevices,
     sellDevices,
     getRangeinfo,
+    getCmdTemplates,
+    createCmdTemplates,
+    updateCmdTemplates,
+    deleteCmdTemplates,
+    getDeviceCmdTemplates,
+    createDeviceCmd,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

@@ -109,11 +109,17 @@ export default {
         pageSize: this.page.size,
         page: this.page.index - 1,
         deviceIdList:this.deviceIdList,
-        childUserId:this.value
+        childUserId:this.value,
+        startTime:null,
+        endTime:null
       }
       if(type==1){
         this.page.index = 1
         data.page = 0
+      }
+      if(this.time.length>0){
+        data.startTime = this.time[0]
+        data.endTime = this.time[1]
       }
       this.loading = true
       api.alarmStatistic(data).then(res => {
@@ -132,20 +138,23 @@ export default {
       }).catch(err => {
         this.loading = false
         this.dataList = []
-        this.$message.error(err.errMsg)
+        this.$message.error(err.msg)
       })
     },
     getBusiness(){ // 获取代理商
-      api.getBusiness().then(res => {
+      let data = {
+        parentId:null
+      }
+      api.getBusiness(data).then(res => {
           this.businessoptions = res.data
         }).catch(err => {
           this.businessoptions = []
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     getAlarmType(){ // 查询报警类型
-        api.getAlarmType().then(res => {
-          if(res.msg=='OK'){
+        api.getAlarmType({headers: { 'Content-Type': 'application/json,charset=utf-8' }}).then(res => {
+          if(res.success){
             let data = Object.entries(res.data)
             // debugger
             for(let i =0;i<data.length;i++){
@@ -153,12 +162,12 @@ export default {
             }
           }else{
 
-            this.$message.error(res.errMsg)
+            this.$message.error(res.msg)
           }
           
         }).catch(err => {
  
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     changeDate(val){ //切换时间范围

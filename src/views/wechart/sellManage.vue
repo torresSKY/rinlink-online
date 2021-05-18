@@ -23,9 +23,9 @@
                     <el-select v-model="businessUserId" clearable :placeholder="$t('table.agent')">
                       <el-option
                         v-for="item in businessoptions"
-                        :key="item.parentId"
+                        :key="item.userId"
                         :label="item.username"
-                        :value="item.parentId">
+                        :value="item.userId">
                       </el-option>
                     </el-select>
                   </el-col>
@@ -44,7 +44,7 @@
                      <el-input v-model="batchNumber" :placeholder="$t('table.batch')"></el-input>
                   </el-col>
                   <el-col :span='5'>
-                    <el-button class="butresh" >{{$t('button.search')}}</el-button>
+                    <el-button class="butresh" @click="getlist">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="sell('one')">{{$t('button.sell')}}</el-button>
                     <el-button class="butdele" @click="sell('more')">{{$t('button.sellMore')}}</el-button>
                     <el-button class="butadd" >{{$t('button.download')}}</el-button>
@@ -118,9 +118,9 @@
                  <el-select v-model="shipmentForm.businessUserId" :placeholder="$t('table.agent')">
                     <el-option
                       v-for="item in businessoptions"
-                      :key="item.parentId"
+                      :key="item.userId"
                       :label="item.username"
-                      :value="item.parentId">
+                      :value="item.userId">
                     </el-option>
                   </el-select>
               </el-form-item>
@@ -223,16 +223,16 @@ export default{
             },
         height:800,
         deviceNumber:null,
-        deviceModelId:'',
+        deviceModelId:null,
         modelList:[],
-        isWithCard:'',
+        isWithCard:null,
         isCardoptions:[
           {value: true,label: '是'},{value: false,label: '否'},
         ],
-        batchNumber:'',
-        businessUserId:'',
+        batchNumber:null,
+        businessUserId:null,
         businessoptions:[],
-        useStatus:'',
+        useStatus:null,
         useStatusoptions:[
           {value: 0,label: '未激活'},{value: 1,label: '激活'},{value: 2,label: '到期'}
         ],
@@ -277,7 +277,7 @@ export default{
             }
           },
           {label: this.$t('table.activationTime'), prop: 'activationTime', type: 'Timestamp'},
-          {label: this.$t('table.date'), prop: 'productionDate'},
+          {label: this.$t('table.date'), prop: 'productionDate', type: 'TimestampDate'},
           {label: this.$t('table.isCard'), prop: 'withCard',
             type: 'render',
               formatter: (params) => {

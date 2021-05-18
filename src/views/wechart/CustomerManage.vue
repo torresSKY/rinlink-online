@@ -254,7 +254,10 @@ export default {
         })
     },
     getBusiness(){ // 获取代理商
-      api.getBusiness().then(res => {
+      let data = {
+        parentId: null
+      }
+      api.getBusiness(data).then(res => {
           let data = res.data
           this.businessData = this.setTreeData(data)
           this.getBusinessUserinfo(res.data[0].userId)
@@ -266,7 +269,8 @@ export default {
     },
     searchCustomer(){ // 搜索客户或账号
       let data = {
-        searchType : this.searchType
+        searchType : 'username',
+        searchContent:this.searchType
       }
      api.searchBusiness(data).then(res => {
         if(res.success){

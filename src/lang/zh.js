@@ -3,7 +3,7 @@ export default {
   // 导航栏
   navbar: {
     // 'title': '零零AEP资产管理平台',
-    'title': '零零在线',
+    'title': '云途在线',
     // 'title': '中国联通资产管理平台',
     'languageSwitch': 'languageSwitch',
     'theme': 'Theme'
@@ -161,7 +161,9 @@ export default {
     Photosensitive: '光敏开关触发报警',
     select2: '请选择',
     userLogin:'用户登录',
-    sel: '请选择设备'
+    sel: '请选择设备',
+    selList:'已选列表',
+    parmas:'指令参数'
   },
   table: {
     logContent:'日志内容',
@@ -526,7 +528,11 @@ export default {
     yellow:'黄色',
     black:'黑色',
     white:'白色',
-    other:'其他'
+    other:'其他',
+    orderName:'指令名称',
+    instructions:'指令说明',
+    orderData:'指令数据格式',
+    orderDataMode:'指令数据处理方式',
   },
   message: {
     upload:'请上传文件',
@@ -534,6 +540,9 @@ export default {
     nickname:'请输入管理员名称',
     selCommun:'请选择通信协议',
     enterModel:'请输入设备型号',
+    enterOrderName:'请输入指令名称',
+    enterOrderData:'请输入指令数据格式',
+    groovyScript:'请输入groovyScript',
     equdele: '删除后无法恢复, 是否继续?',
     xuanze: '请选择电子围栏中心',
     delesuc: '删除成功',
@@ -603,6 +612,8 @@ export default {
     selOne:'请选择一条处理数据',
     selUnprocessed:'请选择未处理数据',
     handleAll:'确定统一处理所有未处理的报警信息吗?',
-    selCust:'请选择销售客户'
+    selCust:'请选择销售客户',
+    orderName:'请输入指令名称',
+    defeModel:'所选设备的设备型号不一致'
   }
 }

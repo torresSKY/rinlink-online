@@ -8,9 +8,9 @@
                <el-tab-pane :label="$t('view.aladetail')" name="second">
                    <alarm-detail ref="alarmDetail"  :style="{height:80 + 'vh'}"/>
                </el-tab-pane>
-               <el-tab-pane :label="$t('view.punchReport')" name="third">
+               <!-- <el-tab-pane :label="$t('view.punchReport')" name="third">
                    <punch-report ref="punchReport"  :style="{height:80 + 'vh'}"/>
-               </el-tab-pane>
+               </el-tab-pane> -->
             </el-tabs>
         </el-card>
     </div>

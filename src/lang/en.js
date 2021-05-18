@@ -1,6 +1,6 @@
 export default {
   navbar: {
-    title: 'Vehicle management platform'
+    title: 'Yuntu Online'
   },
   route: {
     Home: 'Home page',
@@ -153,7 +153,9 @@ export default {
     Photosensitive: 'Photosensitive switch triggers alarm',
     select2: 'please choose',
     userLogin:'User login',
-    sel: 'please choose device'
+    sel: 'please choose device',
+    selList:'Selected list',
+    parmas:'Instruction parameters'
   },
   table: {
     logContent:'Log content',
@@ -507,7 +509,11 @@ export default {
     params25:'Cut off oil and electricity',
     params26:'Oil and electricity',
     params27:'Fortification',
-    params28:'Withdraw'
+    params28:'Withdraw',
+    orderName:'Instruction name',
+    instructions:'Instructions',
+    orderData:'Instruction data format',
+    orderDataMode:'Instruction data processing mode',
   },
   message: {
     upload:'Please upload the file',
@@ -515,6 +521,9 @@ export default {
     nickname:'Please enter the administrator name',
     selCommun:'Please select the communication protocol',
     enterModel:'Please enter the device model',
+    enterOrderName:'Please enter the instruction name',
+    enterOrderData:'Please input command data format',
+    groovyScript:'Please input groovyScript',
     equdele: 'Cannot restore after deleting, continue?',
     xuanze: 'Please select the fence center',
     delesuc: 'Delete the success',
@@ -584,6 +593,8 @@ export default {
     selOne:'Please select one to process data',
     selUnprocessed:'Please select unprocessed data',
     handleAll:'Are you sure to deal with all unprocessed alarm information uniformly?',
-    selCust:'Please select a sales customer'
+    selCust:'Please select a sales customer',
+    orderName:'Please enter the instruction name',
+    defeModel:'The device model of the selected device is inconsistent'
   }
 }

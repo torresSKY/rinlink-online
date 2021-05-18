@@ -40,6 +40,7 @@
                     <template slot-scope="scop">
                         <span v-if="item.type == 'number'">{{Number(scop.row[item.prop]).toFixed(2)}}</span>
                         <span v-else-if="item.type == 'Timestamp'">{{scop.row[item.prop] | formatDate2}}</span>
+                        <span v-else-if="item.type == 'TimestampDate'">{{scop.row[item.prop] | formatDate3}}</span>
                         <span v-else-if="item.type == 'render'" :formatter='item.formatter(scop.row)'>{{scop.row[item.prop]}}</span>
                         <span v-else>{{scop.row[item.prop]}}</span>
                     </template>
@@ -105,6 +106,18 @@ export default {
 
       // let date = new Date(time)
       // return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+    },
+    formatDate3 (time) {
+      // debugger
+      if (!time) {
+        return '--'
+      }
+      if (time != '--') {
+        let date = new Date(Number(time))
+        return formatDate(date, 'yyyy-MM-dd')
+      } else {
+        return time
+      }
     }
   }
 }

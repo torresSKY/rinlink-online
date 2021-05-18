@@ -17,7 +17,7 @@
                      <el-menu-item index="model">{{$t('table.model')}}</el-menu-item>
                    </el-menu-item-group>
                  </el-submenu>
-                 <el-menu-item index="site">
+                 <!-- <el-menu-item index="site">
                    <template slot="title">
                      <i class="el-icon-location"></i>
                      <span>{{$t('view.siteSettings')}}</span>
@@ -28,7 +28,7 @@
                      <i class="el-icon-location"></i>
                      <span>{{$t('table.operLog')}}</span>
                    </template>
-                 </el-menu-item>
+                 </el-menu-item> -->
                </el-menu>
            </el-col>
            <el-col :span='19'>

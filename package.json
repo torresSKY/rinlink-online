@@ -12,6 +12,7 @@
     "build_zs": "cross-env type=build_zs node build/build.js"
   },
   "dependencies": {
+    "@lljj/vue-json-schema-form": "^1.5.0",
     "axios": "^0.18.0",
     "echarts": "^4.8.0",
     "element-ui": "^2.4.6",

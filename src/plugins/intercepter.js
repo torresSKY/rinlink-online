@@ -43,7 +43,7 @@ export default (Vue) => {
   )
 //response 拦截器
   axios.interceptors.response.use(function (response) {
-    console.log(response,12312313123)
+    // console.log(response,12312313123)
     // _.remove(requests, r => {
     //   return r === response.config
     // })

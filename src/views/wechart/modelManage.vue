@@ -230,7 +230,7 @@ export default{
               })
               break
             case 'a' : // 跳转指令信息
-              // this.$router.push({ name: 'orderMsg' })
+              this.$router.push({ path: '/orderMsg/setting' ,query:{deviceModelId:data.id} })
               break
           }
         }
