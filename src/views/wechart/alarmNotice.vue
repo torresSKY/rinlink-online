@@ -15,8 +15,10 @@
                     <el-button type="text" @click="selAlarmType">{{$t('button.sel')}}</el-button>
                 </el-col>
             </el-row>
-            <el-row :gutter="22" style="margin-top:10px" >
-                <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
+            <el-row :gutter="22" style="margin:10px 0" >
+              <el-scrollbar style="height:70vh;" ref="scrollbar">
+                <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
+              </el-scrollbar>
             </el-row>
             <el-pagination
                 @current-change='changeindex'
@@ -82,20 +84,20 @@
         data(){
             return {
                 loading:false,
-                height:1000,
+                height:800,
                 dataList:[],
                 tableLabel: [
                   {label: this.$t('table.noticeContent'), prop: 'deviceNumber'},
                   {label: this.$t('table.count'), prop: 'handleName'},
-                  {label: this.$t('table.noticeTime'), prop: 'alarmTime'},
+                  {label: this.$t('table.noticeTime'), prop: 'alarmTime', type: 'Timestamp'},
                   {label: this.$t('table.operation'),
                     type: 'clickSelect',
                     selectOperation: (index, row) => {
                       this.showDialog(index, row)
                     },
                     selectText: [
-                      {command: '1', text: this.$t('table.chuli'), index: 1},
-                      {command: '2', text: this.$t('table.checkchuli'), index: 2}
+                      {command: '1', text: this.$t('table.chuli'), index: 1 ,status : 1},
+                      {command: '2', text: this.$t('table.checkchuli'), index: 2 ,status : 2}
                     ]  
                   }
                 ],
@@ -111,8 +113,14 @@
             }
         },
         mounted(){
-           this.height = document.body.offsetHeight-152
-           this.getlist()
+          var that =this
+          this.getlist()
+          window.onresize = () => {
+             return (() => {
+                 that.height = document.body.offsetHeight-142
+             })()
+           }
+           
         },
         methods:{
             getlist(){ // 获取列表
@@ -125,33 +133,33 @@
                 }
                 api.getAlarmsDetail(data).then(res => {
                   this.loading = false
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.dataList = res.data.content
                     this.page.total = res.data.pageTotal
                   }else{
                     this.dataList = []
-                    this.$message.error(res.errMsg)
+                    this.$message.error(res.msg)
                   }
                   
                 }).catch(err => {
                   this.loading = false
                   this.dataList = []
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
             },
             getAlarmType(){ // 查询报警类型
                 api.getAlarmType().then(res => {
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.alarmTypeList = Object.entries(res.data)
                     console.log(this.alarmTypeList)
                   }else{
                     this.alarmTypeList = []
-                    this.$message.error(res.errMsg)
+                    this.$message.error(res.msg)
                   }
                   
                 }).catch(err => {
                   this.alarmTypeList = []
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
             },
             selAlarmType(){ // 筛选报警类型
@@ -168,7 +176,7 @@
                 switch (index) {
                     case '1': // 处理
                       this.remark = ''
-                      this.messageId = data.deviceId
+                      this.messageId = data.id
                       this.flag = false
                       this.dialogHandle = true
                       break
@@ -185,15 +193,15 @@
                   remark:this.remark
                 }
                 api.handleDeviceAlarm(data).then(res => {
-                  if(res.msg=='OK'){
+                  if(res.success){
                     this.$message.success(this.$t('message.alaedit'))
                     this.dialogHandle = false
                     this.getlist()
                   }else {
-                    this.$message.error(res.errMsg)
+                    this.$message.error(res.msg)
                   }
                 }).catch(err => {
-                  this.$message.error(err.errMsg)
+                  this.$message.error(err.msg)
                 })
             },
             allHandle(){ // 全部处理
@@ -206,15 +214,15 @@
                     // userId:data.userId
                   }
                   api.handleDeviceAlarms().then(res => {
-                    if(res.msg=='OK'){
+                    if(res.success){
                       this.$message.success(this.$t('message.alaedit'))
                       this.getlist()
                     }else{
-                      this.$message.error(res.errMsg)
+                      this.$message.error(res.msg)
                     }
                     
                   }).catch(err => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.msg)
                   })
                 }).catch(err => {
                   console.log(err)

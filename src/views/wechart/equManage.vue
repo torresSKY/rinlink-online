@@ -479,9 +479,9 @@ export default{
             params['username'] = params.owner.username
             return params
           }},
-          {label: this.$t('table.activeTime'), prop: 'activationTime'},
-          {label: this.$t('table.expire'), prop: 'serviceExpireTime'},
-          {label: this.$t('table.salesTime'), prop: 'sellTime'},
+          {label: this.$t('table.activeTime'), prop: 'activationTime', type: 'Timestamp'},
+          {label: this.$t('table.expire'), prop: 'serviceExpireTime', type: 'Timestamp'},
+          {label: this.$t('table.salesTime'), prop: 'sellTime', type: 'Timestamp'},
           {label: this.$t('table.mileage'), prop: 'odb'},
           {label: this.$t('table.deliveryTime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.operation'),
@@ -495,8 +495,9 @@ export default{
             {command: '4', text: this.$t('button.send'), index: 4},
             {command: '5', text: this.$t('button.historysend'), index: 5},
             {command: '6', text: this.$t('button.viewAlarm'), index: 6},
-            {command: '7', text: this.$t('button.commLog'), index: 7},
-            {command: '8', text: this.$t('button.SIM'), index: 8} ]
+            // {command: '7', text: this.$t('button.commLog'), index: 7},
+            // {command: '8', text: this.$t('button.SIM'), index: 8} 
+            ]
         }],
         dialogEquinfo:false,
         dialogSend:false,

@@ -145,7 +145,7 @@ export default {
         {label: this.$t('table.proStatus'), prop: 'handleStatus',
          type: 'render',
             formatter: (params) => {
-              params.handleStatus = params.handleStatus == 1 ? '未处理' : params.handleStatus == 2 ? '已处理' : params.handleStatus
+              params.handleStatus = params.handleStatus === 0 ? '未处理' : params.handleStatus == 1 ? '已处理' : params.handleStatus
               return params
             }
         },

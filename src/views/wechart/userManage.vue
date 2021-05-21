@@ -5,9 +5,9 @@
                <el-tab-pane :label="$t('view.customerManage')" name="first">
                    <customer-manage ref="customerManage"  :style="{height:80 + 'vh'}"/>
                </el-tab-pane>
-               <el-tab-pane :label="$t('view.usersManage')" name="second">
+               <!-- <el-tab-pane :label="$t('view.usersManage')" name="second">
                    <role-manage ref="customerManage"  :style="{height:80 + 'vh'}"/>
-               </el-tab-pane>
+               </el-tab-pane> -->
                <el-tab-pane :label="$t('view.adminManage')" name="third">
                    <admin-manage ref="customerManage"  :style="{height:80 + 'vh'}"/>
                </el-tab-pane>

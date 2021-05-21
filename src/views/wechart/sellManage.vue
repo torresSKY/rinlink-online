@@ -7,7 +7,7 @@
             <el-col :span='24'>
                 <el-row class="list-search" :gutter="22">
                   <el-col :span='3'>
-                    <el-input v-model="deviceNumber" :placeholder="$t('table.searchimeiiccid')"></el-input>
+                    <el-input v-model="deviceNumber" :placeholder="$t('table.searchimeiiccid')" clearable></el-input>
                   </el-col>
                   <el-col :span='3'>
                     <el-select v-model="deviceModelId" clearable :placeholder="$t('table.model')">
@@ -43,11 +43,11 @@
                   <el-col :span='3'>
                      <el-input v-model="batchNumber" :placeholder="$t('table.batch')"></el-input>
                   </el-col>
-                  <el-col :span='5'>
+                  <el-col :span='6'>
                     <el-button class="butresh" @click="getlist">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="sell('one')">{{$t('button.sell')}}</el-button>
                     <el-button class="butdele" @click="sell('more')">{{$t('button.sellMore')}}</el-button>
-                    <el-button class="butadd" >{{$t('button.download')}}</el-button>
+                    <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
                   </el-col>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
@@ -84,8 +84,10 @@
                       </el-select>
                     </el-col>   -->
                 </el-row>
-                <el-row :gutter="22" class="list-search" >
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
+                <el-row :gutter="22" class="list-search" style="margin-bottom:10px">
+                  <el-scrollbar style="height:64vh;" ref="scrollbar">
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  ></BaseTable>
+                  </el-scrollbar>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -272,7 +274,7 @@ export default{
           {label: this.$t('table.activationType'), prop: 'activationType',
             type: 'render',
             formatter: (params) => {
-              params.activationType = params.activationType == 0 ? '开机激活' : params.activationType == 1 ? '注册激活' : params.activationType == 3 ? '固定时间激活' : params.activationType
+              params.activationType = params.activationType == 0 ? '开机激活' : params.activationType == 1 ? '注册激活' : params.activationType == 2 ? '固定时间激活' : params.activationType
               return params
             }
           },
@@ -333,10 +335,15 @@ export default{
       }
     },
     mounted(){
-        this.height=document.body.offsetHeight-152
+        var that = this
         this.getlist()
         this.getModel()
         this.getBusiness()
+        window.onresize = () => {
+             return (() => {
+                 that.height = document.body.offsetHeight-142
+             })()
+           }
     },
     methods:{
         getlist(){ // 获取出货列表
@@ -347,10 +354,13 @@ export default{
               start = this.timevalue[0]
               end = this.timevalue[1]
             }
+            if(this.deviceNumber==''){
+              this.deviceNumber = null
+            }
             let data = {
               pageSize: this.page.size,
               page: this.page.index - 1,
-              iccid:this.deviceNumber,
+              iccid:null,
               deviceNumberKeyword:this.deviceNumber,
               deviceModelId:this.deviceModelId,
               ownerId:this.businessUserId,

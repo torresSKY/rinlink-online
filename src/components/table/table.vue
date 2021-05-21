@@ -24,7 +24,15 @@
                             操作<i class="el-icon-arrow-down el-icon--right"></i>
                         </el-button>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item v-for="selectItem in item.selectText" :key="selectItem.index" :command="selectItem.command">{{selectItem.text}}</el-dropdown-item>
+                            <el-dropdown-item v-for="selectItem in item.selectText" :key="selectItem.index" :command="selectItem.command">
+                              <span v-if="selectItem.status===1&&scope.row.handleStatus==0">
+                                {{selectItem.text}}
+                              </span>
+                              <span v-else-if="selectItem.status===2&&scope.row.handleStatus==1">
+                                {{selectItem.text}}
+                              </span>
+                              <span v-else-if='!selectItem.status'>{{selectItem.text}}</span>
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                         </el-dropdown>
                     </template>
@@ -94,7 +102,7 @@ export default {
     //  时间格式自定义 只需把字符串里面的改成自己所需的格式
     formatDate2 (time) {
       // debugger
-      if (!time) {
+      if (!time||time == -1) {
         return '--'
       }
       if (time != '--') {

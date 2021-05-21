@@ -156,7 +156,7 @@ export default{
             api.getCmdTemplates(data).then(res => {
               this.loading = false
               this.dataList = res.data
-              this.page.total = res.data.pageTotal != null ? res.data.pageTotal :1
+              this.page.total = res.data.pageTotal != null ? res.data.pageTotal :0
             }).catch(err => {
               this.loading = false
               this.dataList = []

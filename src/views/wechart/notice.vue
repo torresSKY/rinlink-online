@@ -17,7 +17,7 @@
                      <el-menu-item index="alarm">{{$t('route.Alarm')}}</el-menu-item>
                    </el-menu-item-group>
                  </el-submenu>
-                 <el-submenu index="2">
+                 <!-- <el-submenu index="2">
                    <template slot="title">
                      <i class="el-icon-location"></i>
                      <span>{{$t('view.expNotice')}}</span>
@@ -34,7 +34,7 @@
                    <el-menu-item-group>
                      <el-menu-item index="system">{{$t('view.sysNotice')}}</el-menu-item>
                    </el-menu-item-group>
-                 </el-submenu>
+                 </el-submenu> -->
                </el-menu>
            </el-col>
            <el-col :span='19'>

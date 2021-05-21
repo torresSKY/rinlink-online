@@ -260,7 +260,7 @@ export default {
     loctype: '定位方式',
     nouser: '暂无用户',
     searchimei: '请输入设备imei号',
-    searchimeiiccid: '请输入设备imei号或ICCID',
+    searchimeiiccid: '请输入设备imei号',
     devuser: '设备管理员',
     userid: '管理员ID',
     Device: '设备名称',

@@ -73,13 +73,13 @@ export default {
         { value: '5', label: '本月'},{ value: '6', label: '上月'},
       ],
       time:[new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()],
-      deviceIdList:'',
+      deviceIdList:null,
       data: [],
       defaultProps: {
         children: 'children',
         label: 'label'
       },
-      value:'',
+      value:null,
       businessoptions:[],
       checked:true,
       loading:false,
@@ -105,11 +105,15 @@ export default {
   },
   methods: {
     getlist(type){ // 分页查询设备报警统计
+      if(this.deviceIdList==null||this.deviceIdList==''){
+        this.deviceIdList=null
+      }
       let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
-        deviceIdList:this.deviceIdList,
+        deviceIdList:this.deviceIdList!==null?[this.deviceIdList]:[],
         childUserId:this.value,
+        containsChildren:false,
         startTime:null,
         endTime:null
       }
