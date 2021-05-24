@@ -35,6 +35,11 @@
            window.onresize = function () {
               that.height = 80 + 'vh'
            }
+           if(this.$route.params.data){
+               this.activeName = 'second'
+           }else{
+               this.activeName = 'first'
+           }
         },
         methods:{
            handleClick(tab, event) {

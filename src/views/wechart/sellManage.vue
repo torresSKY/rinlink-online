@@ -70,8 +70,12 @@
                           value-format="timestamp"
                           range-separator="-"
                           start-placeholder="开始日期"
-                          end-placeholder="结束日期">
+                          end-placeholder="结束日期"
+                          :default-time="['00:00:00', '23:59:59']">
                         </el-date-picker>
+                    </el-col>
+                    <el-col :span='3'>
+                      <el-input v-model="iccid" :placeholder="$t('table.searchiccid')" clearable></el-input>
                     </el-col>
                     <!-- <el-col :span='3'>
                       <el-select v-model="useStatus" clearable :placeholder="$t('view.inputstate2')">
@@ -226,6 +230,7 @@ export default{
         height:800,
         deviceNumber:null,
         deviceModelId:null,
+        iccid:null,
         modelList:[],
         isWithCard:null,
         isCardoptions:[
@@ -242,7 +247,7 @@ export default{
         timeTypeoptions: [
           {value: 0,label: '激活时间'},{value: 1,label: '生产时间'},{value: 2,label: '出货时间'}
         ],
-        timevalue:'',
+        timevalue:null,
         usageYearsoptions:[
           {value: 1,label: '1年'},{value: 2,label: '2年'},{value: 3,label: '3年'},
           {value: 5,label: '5年'},{value: -1,label: '无限制'}
@@ -266,7 +271,7 @@ export default{
           {label: this.$t('table.agent'), prop: 'username',
             type: 'render',
             formatter: (params) => {
-              console.log(params)
+              // console.log(params)
               params['username'] = params.owner.username
               return params
             }
@@ -331,10 +336,12 @@ export default{
           ]
         },
         fileList:[],
-        uploadDeviceNumber:''
+        uploadDeviceNumber:'',
+        flag:false
       }
     },
     mounted(){
+        console.log(this.$store.getters.user)
         var that = this
         this.getlist()
         this.getModel()
@@ -348,19 +355,28 @@ export default{
     methods:{
         getlist(){ // 获取出货列表
             this.loading = true
-            let start = ''
-            let end = ''
-            if(this.timevalue.length>0){
+            let start = null
+            let end = null
+            if(this.timevalue!=null&&this.timevalue!=''){
               start = this.timevalue[0]
               end = this.timevalue[1]
+            }else{
+              start = null
+              end = null
             }
             if(this.deviceNumber==''){
               this.deviceNumber = null
             }
+            if(this.deviceModelId==''){
+              this.deviceModelId=null
+            }
+            if(this.iccid==''){
+              this.iccid = null
+            }
             let data = {
               pageSize: this.page.size,
               page: this.page.index - 1,
-              iccid:null,
+              iccid:this.iccid,
               deviceNumberKeyword:this.deviceNumber,
               deviceModelId:this.deviceModelId,
               ownerId:this.businessUserId,

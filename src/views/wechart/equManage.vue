@@ -86,7 +86,7 @@
                       :end-placeholder="$t('table.enddata')">
                     </el-date-picker>
                   </el-col>
-                  <el-col :span='8' >
+                  <!-- <el-col :span='8' >
                     <el-row style="line-height:40px">
                       <el-col :span='4'>
                         <span>{{$t('table.useLimit')}}：</span>
@@ -95,7 +95,7 @@
                         <img :src="item[1].iconUrl" alt="">
                       </el-col>
                     </el-row>
-                  </el-col>
+                  </el-col> -->
                 </el-row>
                 <el-row class="list-search" >
                     <el-col :span='8'>
@@ -106,7 +106,9 @@
                     </el-col>  
                 </el-row>
                 <el-row  class="list-search" >
-                    <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
+                  <el-scrollbar style="height:66vh;" ref="scrollbar">
+                    <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
+                  </el-scrollbar>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -208,57 +210,57 @@
           width="40%">
           <el-form :model="equinfoForm" ref="equinfoForm"  label-width="140px">
             <el-col :span='12'>
-              <el-form-item :label="$t('table.Device')"  >
+              <el-form-item :label="$t('table.Device')+'：'"  >
                 <el-input  v-model="equinfoForm.deviceName" :placeholder="$t('table.Device')" ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.imei')"  >
+              <el-form-item :label="$t('table.imei')+'：'"  >
                 <span>{{equinfoForm.deviceNumber}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.model')"  >
+              <el-form-item :label="$t('table.model')+'：'"  >
                 <span>{{equinfoForm.deviceModel.name}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.status')"  >
-                <span>{{equinfoForm.networkStatus}}</span>
+              <el-form-item :label="$t('table.status')+'：'"  >
+                <span>{{equinfoForm.networkStatus == 1 ? '在线'  : '离线'}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.activationTime')"  >
-                <span>{{equinfoForm.activationTime}}</span>
+              <el-form-item :label="$t('table.activationTime')+'：'"  >
+                <span>{{equinfoForm.activationTime | formatDate}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.salesTime')"  >
-                <span>{{equinfoForm.sellTime}}</span>
+              <el-form-item :label="$t('table.salesTime')+'：'"  >
+                <span>{{equinfoForm.sellTime | formatDate}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.expire')"  >
-                <span>{{equinfoForm.serviceExpireTime}}</span>
+              <el-form-item :label="$t('table.expire')+'：'"  >
+                <span>{{equinfoForm.serviceExpireTime | formatDate}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.importtime')"  >
-                <span>{{equinfoForm.createTime}}</span>
+              <el-form-item :label="$t('table.importtime')+'：'"  >
+                <span>{{equinfoForm.createTime | formatDate}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.useLimit')"  >
+              <el-form-item :label="$t('table.useLimit')+'：'"  >
                 <span>{{equinfoForm.useRangeCode}}</span>
               </el-form-item>
             </el-col>
             <el-col :span='12'>
-              <el-form-item :label="$t('table.iccid')"  >
+              <el-form-item :label="$t('table.iccid')+'：'"  >
                 <span>{{equinfoForm.iccid}}</span>
                 <!-- <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input> -->
               </el-form-item>
             </el-col>
-            <el-form-item :label="$t('table.note')"  >
+            <el-form-item :label="$t('table.note')+'：'"  >
               <el-input type='textarea' :rows="2" v-model="equinfoForm.remark" :placeholder="$t('table.note')" ></el-input>
             </el-form-item>
           </el-form>
@@ -297,21 +299,31 @@
                   type="datetimerange"
                   range-separator="-"
                   start-placeholder="开始日期"
-                  end-placeholder="结束日期">
+                  end-placeholder="结束日期"
+                  :default-time="['00:00:00', '23:59:59']">
                 </el-date-picker>
               </el-col>
               <el-col :span='5'>
-                <el-button class="butresh" >{{$t('button.search')}}</el-button>
-                <el-button  >{{$t('button.refresh')}}</el-button>
+                <el-button class="butresh" @click="queryDeviceCmds">{{$t('button.search')}}</el-button>
+                <el-button  @click="refreshHistory">{{$t('button.refresh')}}</el-button>
               </el-col>
             </el-row>
             <el-row :gutter='22' style="margin-top:10px">
               <BaseTable v-loading="loading" :dataList="historysendList" :tableLabel="tableHistorysend"  ></BaseTable>
             </el-row>
-            <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogHistorysend = false">{{$t('button.cancel')}}</el-button>
-            <el-button type="primary" @click="dialogHistorysend = false">{{$t('button.determine')}}</el-button>
-          </span>
+            <el-pagination
+                    @current-change='changeindex1'
+                    layout="prev, pager, next"
+                    :current-page.sync="page1.index"
+                    :page-size="page1.size"
+                    :total="page1.total"
+                    background
+                    style="text-align:center">
+                </el-pagination>
+            <!-- <span slot="footer" class="dialog-footer"> -->
+            <!-- <el-button @click="dialogHistorysend = false">{{$t('button.cancel')}}</el-button>
+            <el-button type="primary" @click="dialogHistorysend = false">{{$t('button.determine')}}</el-button> -->
+          <!-- </span> -->
         </el-dialog>
         <!-- 通信日志 -->
         <el-dialog
@@ -431,7 +443,7 @@ export default{
         checked:false,
         searchImei:'',
         searchName:'',
-        deviceIdList:'',
+        deviceIdList:null,
         deviceModelId:null,
         deviceModeOptions:[],
         networkStatus:'',
@@ -530,8 +542,20 @@ export default{
           {label: this.$t('table.zhitype'), prop: 'commandName'},
           {label: this.$t('table.zhidata'), prop: 'commandData'},
           {label: this.$t('table.creattime'), prop: 'createTime', type: 'Timestamp'},
-          {label: this.$t('table.jie'), prop: 'commandStatus'}
+          {label: this.$t('table.jie'), prop: 'status',type: 'render',
+          formatter: (params) => {
+            // console.log(params)
+            params['status'] = params.commandStatus == 0 ? '已受理'  : params.commandStatus == 1 ? '待发送'
+            : params.commandStatus == 2 ? '已发送': params.commandStatus == 3 ? '已送达' 
+            : params.commandStatus == 4 ? '失败': params.commandStatus == 5 ? '过期' :''
+            return params
+          }}
         ],
+        page1:{
+            index:1,   //当前页   
+            size:20,   //一页的数量
+            total:0    //总数量
+        },
         dialogCommLog:false,
         commLogList:[],
         tableCommLog:[
@@ -578,6 +602,9 @@ export default{
             startTime = this.time[0]
             endTime = this.time[1]
           }
+          if(this.deviceIdList==''){
+            this.deviceIdList=null
+          }
           let data = {
             pageSize: this.page.size,
             page: this.page.index - 1,
@@ -587,7 +614,8 @@ export default{
             useStatus:this.useStatus,
             containsChildren:this.containsChildren,
             startTime:startTime,
-            endTime:endTime
+            endTime:endTime,
+            deviceNumberKeyword:this.deviceIdList
           }
           if(type==1){
             this.page.index = 1
@@ -728,7 +756,19 @@ export default{
                   this.saleList.splice(i,1)
                 }
               }
+              this.equNum = this.saleList.length
               break
+            case '4' : // 下发指令
+              this.multipleSelection = []
+              this.multipleSelection.push(data)
+              this.dialogSend = true
+              this.$nextTick(() => {
+                this.$refs.sendOrder.formData = {}
+                this.$refs.sendOrder.schema = null
+                this.$refs.sendOrder.deviceCmdTemplateId = null
+                this.$refs.sendOrder.getlist()
+              })
+              break  
             case '5' : // 历史指令
               this.hisTime = null
               this.commandName = null
@@ -736,6 +776,9 @@ export default{
               this.getCmdTemplates(data.deviceModel.id)
               this.dialogHistorysend = true
               this.queryDeviceCmds()
+              break
+            case '6' : // 查看报警  
+              this.$router.push({name:"route.statistics",params:{data:data}})
               break
           }
         },
@@ -759,7 +802,7 @@ export default{
           })
         },
         childByValue(val){ //选择处理数据
-          console.log(val)
+          // console.log(val)
           this.multipleSelection = val
         },
         sale(){ // 销售
@@ -770,13 +813,14 @@ export default{
             userId:'',
             username:''
           }
+          let list =[]
           this.searchImei = ''
           this.searchName = ''
           this.expiredTimeType = ''
           this.checked = false
           this.insiadeData = this.custData 
-          this.saleList = this.multipleSelection
-          this.equNum = this.saleList.length
+          this.saleList = list.concat(this.multipleSelection) 
+          this.equNum = this.multipleSelection.length
           this.dialogSale = true
         },
         restInfo(){ // 重置
@@ -784,13 +828,14 @@ export default{
             userId:'',
             username:''
           }
+          let list =[]
           this.checked = false
           this.expiredTimeType = ''
           this.searchImei = ''
           this.searchName = ''
           this.insiadeData = this.custData 
-          this.saleList = this.multipleSelection
-          this.equNum = this.saleList.length
+          this.saleList = list.concat(this.multipleSelection) 
+          this.equNum = this.multipleSelection.length
         },
         searchEqu(){ //销售-搜索设备
           if(!this.searchImei){
@@ -949,17 +994,34 @@ export default{
             }
             api.queryDeviceCmds(data).then(res => {
               this.historysendList = res.data.content
+              this.page1.total = res.data.pageTotal
             }).catch(err => {
               this.historysendList = []
+              this.page1.total = 0
               this.$message.error(err.errMsg)
             })
         },
-    
+        changeindex1(val){ // 历史指令查询
+          this.page1.index=val
+          try{
+              this.queryDeviceCmds()
+          }catch(res){
+              
+          }
+        },
+        refreshHistory(){ // 刷新历史指令
+          this.hisTime = null
+          this.commandName = null
+          this.queryDeviceCmds()
+        }
    },
   // 过滤器格式化时间戳
   filters: {
     //  时间格式自定义 只需把字符串里面的改成自己所需的格式
     formatDate(time) {
+      if(time == null){
+        return '--'
+      }
       let date = new Date(time)
       return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
     },

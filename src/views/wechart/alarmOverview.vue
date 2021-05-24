@@ -21,7 +21,8 @@
                           range-separator="-"
                           value-format="timestamp"
                           :start-placeholder="$t('table.startdata')"
-                          :end-placeholder="$t('table.enddata')">
+                          :end-placeholder="$t('table.enddata')"
+                          :default-time="['00:00:00', '23:59:59']">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
@@ -42,12 +43,23 @@
                     </el-col>
                     <el-col :span='4'>
                       <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
-                      <el-button class="butadd" >{{$t('button.download')}}</el-button>
+                      <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
                     </el-col>
                 </el-row>
-                <el-row style="margin-top:10px">
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
+                <el-row style="margin:10px 0">
+                  <el-scrollbar style="height:66vh;" ref="scrollbar">
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
+                  </el-scrollbar>
                 </el-row>
+                <el-pagination
+                    @current-change='changeindex'
+                    layout="prev, pager, next"
+                    :current-page.sync="page.index"
+                    :page-size="page.size"
+                    :total="page.total"
+                    background
+                    style="text-align:center">
+                </el-pagination>
             </el-col>
         </el-row>
     </div>

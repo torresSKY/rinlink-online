@@ -31,6 +31,9 @@
                     @on-cancel="handlerCancel"/>
             </el-col>
         </el-row>
+        <el-row v-else style="margin-left:72%;margin-top:10px">
+            <el-button type="primary" @click="confrim">{{$t('button.send')}}</el-button>
+        </el-row>
         <div style="border-top:1px solid grey;margin:20px 0"></div>
         <el-row>
             <span>{{$t('view.selList')}}</span>

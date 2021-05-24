@@ -132,9 +132,10 @@ export default {
               // this.setUser(res.holder)
               this.setUserName(this.loginForm.username)
               this.setIsLogin(1)
+              
               // this.setUsercode(res.holder)
               this.$nextTick(() => {
-                
+                this.getInfo()  
                 this.$router.push('index')
               })
             // }
@@ -145,6 +146,14 @@ export default {
           console.log('error submit!!')
           return false
         }
+      })
+    },
+    getInfo(){
+      api.getInfo().then(res => {
+        this.setUser(JSON.stringify(res.data))
+        // console.log(res)
+      }).catch(err => {
+        this.$message.error(err.errMsg)
       })
     },
     changeLangEvent() {

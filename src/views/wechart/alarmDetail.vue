@@ -21,7 +21,8 @@
                           value-format="timestamp"
                           range-separator="-"
                           :start-placeholder="$t('table.startdata')"
-                          :end-placeholder="$t('table.enddata')">
+                          :end-placeholder="$t('table.enddata')"
+                          :default-time="['00:00:00', '23:59:59']">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
@@ -35,10 +36,10 @@
                         </el-select>
                     </el-col>
                     <el-col :span='3'>
-                        <el-input v-model="input3" :placeholder="$t('view.inputimei')"></el-input>
+                        <el-input v-model="input3" :placeholder="$t('view.inputimei')" clearable></el-input>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')">
+                        <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')" clearable>
                           <el-option
                             v-for="item in alarmTypeList"
                             :key="item[0]"
@@ -72,7 +73,9 @@
                     </el-col> 
                 </el-row>    
                 <el-row style="margin-top:10px">
+                  <el-scrollbar style="height:66vh;" ref="scrollbar">
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
+                  </el-scrollbar>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -163,24 +166,33 @@ export default {
       multipleSelection:[],
       radio:'1',
       remark:'',
-      alarmTypeList:[]
+      alarmTypeList:[],
+      deviceId:null
     }
   },
   mounted() {
+    if(this.$route.params.data){
+        this.deviceId = this.$route.params.data.id
+    }else{
+        this.deviceId = null
+    }
     this.getlist()
     this.getBusiness()
     this.getAlarmType()
   },
   methods: {
-    getlist(type){ // 获取系统管理员列表
+    getlist(type){ // 获取报警详情列表
+      if(this.input3){
+        this.getdeviceId(this.input3)
+      }
       let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
         startTime:this.time[0] || null,
         endTime:this.time[1] || null,
         deviceOwnerId:this.value,
-        deviceIdList:this.input3!=null?[this.input3]:[],
-        alarmTypeCodeList:this.alarmTypeId!=null?[this.alarmTypeId]:[],
+        deviceIdList:this.deviceId==''?[]:this.deviceId!=null?[this.deviceId]:[],
+        alarmTypeCodeList:this.alarmTypeId==''?[]:this.alarmTypeId!=null?[this.alarmTypeId]:[],
         handleStatus:this.handleStatus
       }
       // if(this.alarmTypeId){
@@ -189,6 +201,7 @@ export default {
       //   data.alarmTypeCodeList = []
       // }
       if(type==1){
+        this.page.index = 1
         data.page = 0
       }
       this.loading = true
@@ -200,6 +213,21 @@ export default {
         this.loading = false
         this.dataList = []
         this.$message.error(err.errMsg)
+      })
+    },
+    getdeviceId(deviceNumber){ // 获取设备id
+      let data = {
+        deviceNumberKeyword: deviceNumber,
+      }
+      api.getDevicesList(data).then(res => {
+        // debugger
+        if(res.success){
+          console.log(res)
+        }else{
+          this.$message.error(res.msg)
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
       })
     },
     getBusiness(){ // 获取代理商
@@ -236,7 +264,7 @@ export default {
       if(this.multipleSelection.length !==1){
         return this.$message.warning(this.$t('message.selOne'))
       }
-      if(this.multipleSelection[0].handleStatus!==1){
+      if(this.multipleSelection[0].handleStatus!=='未处理'){
         return this.$message.warning(this.$t('message.selUnprocessed'))
       }
       this.remark = ''
@@ -244,7 +272,7 @@ export default {
     },
     confrimHandle(){ // 确认单个处理
       let data = {
-        deviceAlarmId:this.multipleSelection[0].deviceId,
+        deviceAlarmId:this.multipleSelection[0].id,
         remark:this.remark
       }
       api.handleDeviceAlarm(data).then(res => {
