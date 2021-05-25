@@ -186,7 +186,7 @@
                     <el-input v-model="pen_form.fenceName" style="width:80%"></el-input>
                 </el-form-item>
                 <el-form-item v-if="pen_type_value == '1'" label="半径:"  required>
-                    <el-input type="number"  v-model="pen_form.fenceArea.radius" style="width:80%"></el-input><span style="margin-left:10px">米</span>
+                    <el-input type="number" placeholder="输入半径值不能小于500" v-model="pen_form.fenceArea.radius" style="width:80%"></el-input><span style="margin-left:10px">米</span>
                 </el-form-item>
                 <el-form-item v-if="pen_type_value == '3'" label="行政区域" required>
                     <el-select @change="evt_change_frist_region" v-model="selected_frist_region"  placeholder="请选择省份" size="small" style="width:32%">
@@ -499,6 +499,14 @@ export default {
         evt_CircleFence:function(){
             var _this = this;
             var type = 'update';
+            if(_this.pen_form.fenceName.trim() == ''){
+                _this.$message({type:'warning',message:'围栏名称不能为空',offset:'200',duration:'1500'});
+                return;
+            }
+            if(_this.pen_form.fenceArea.radius < 500){
+                _this.$message({type:'warning',message:'圆形围栏半径不能小于500米',offset:'200',duration:'1500'});
+                return;
+            }
             if(!_this.update_pen){
                 type = 'create';
                 _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
@@ -509,6 +517,11 @@ export default {
                     if(!_this.update_pen){
                         _this.map.removeOverlay(_this.current_circle);
                         _this.current_circle = '';
+                        // 重新查询围栏数据
+                        _this.queryPen_page = 0;
+                        _this.queryPen_dataList = [];
+                        _this.queryPen_pageTotal = 1;
+                        _this.evt_queryPen();
                     }
                     _this.submit_result();
                 }else{
@@ -522,6 +535,10 @@ export default {
         evt_PolygonFence:function(){
             var _this = this;
             var type = 'update';
+            if(_this.pen_form.fenceName.trim() == ''){
+                _this.$message({type:'warning',message:'围栏名称不能为空',offset:'200',duration:'1500'});
+                return;
+            }
             if(!_this.update_pen){
                 type = 'create';
                 _this.pen_form.fenceArea['points'] = _this.point_arr;
@@ -532,6 +549,11 @@ export default {
                     if(!_this.update_pen){
                         _this.map.removeOverlay(_this.current_polygon);
                         _this.current_polygon = '';
+                        // 重新查询围栏数据
+                        _this.queryPen_page = 0;
+                        _this.queryPen_dataList = [];
+                        _this.queryPen_pageTotal = 1;
+                        _this.evt_queryPen();
                     }
                     _this.submit_result();
                 }else{
@@ -545,6 +567,10 @@ export default {
         evt_DistrictFence:function(){
             var _this = this;
             var type = 'update';
+            if(_this.pen_form.fenceName.trim() == ''){
+                _this.$message({type:'warning',message:'围栏名称不能为空',offset:'200',duration:'1500'});
+                return;
+            }
             delete _this.pen_form.fenceArea.radius;
             if(!_this.update_pen){
                 type = 'create';
@@ -553,7 +579,7 @@ export default {
                 _this.pen_form.fenceArea['areaLevel'] = _this.selected_level;
                 var boundary = new BMap.Boundary();
                 boundary.get(_this.selected_areaName,function(res){
-                    console.log(res);
+                    // console.log(res);
                     if(res){
                         var points = [];
                         for(var i = 0, len = res.boundaries.length; i < len; i++){
@@ -577,7 +603,13 @@ export default {
                         api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
                             console.log(res);
                             if(res.success){
-                                    _this.submit_result();
+                                // 重新查询围栏数据
+                                _this.queryPen_page = 0;
+                                _this.queryPen_dataList = [];
+                                _this.queryPen_pageTotal = 1;
+                                _this.evt_queryPen();
+
+                                _this.submit_result();
                             }else{
                                 _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                             }
@@ -688,7 +720,9 @@ export default {
                         _this.queryPen_page = 0;
                         _this.queryPen_dataList = [];
                         _this.queryPen_pageTotal = 1;
+                        _this.map.clearOverlays();
                         _this.evt_queryPen();
+                        _this.active = -1;
                     }else{
                         _this.$message({message: '删除失败',type:'error',offset:'200',duration:'1000'});
                     }
