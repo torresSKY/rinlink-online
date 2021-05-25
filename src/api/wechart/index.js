@@ -285,6 +285,15 @@ const queryDeviceTracks = (data) => (//查询设备轨迹
 const getDeviceLastCoordinate = (data) => (
     axios.post(url + '/get_device_last_coordinate?__OPERATOR_TYPE=2',data)
 )
+const queryCommandTemplate = (data) => (
+    axios.post(url + '/list_device_command_templates?__OPERATOR_TYPE=2',data)
+)
+const getDeviceCommand = (data) => (
+    axios.post(url + '/get_device_command_template?__OPERATOR_TYPE=2',data)
+)
+const sendCommand = (data) => (
+    axios.post(url + '/create_device_cmd?__OPERATOR_TYPE=2',data)
+)
 export default {
     login,
     getManagerList,
@@ -364,5 +373,8 @@ export default {
     getRangeIconList,
     queryDeviceCmds,
     queryDeviceTracks,
-    getDeviceLastCoordinate
+    getDeviceLastCoordinate,
+    queryCommandTemplate,
+    getDeviceCommand,
+    sendCommand
 }
