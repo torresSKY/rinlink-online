@@ -50,7 +50,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div v-if="queryPen_page > queryPen_pageTotal" style="font-size: 14px; color: #999999; text-align: center">没有更多了~</div>
+                                <div v-if="queryPen_page == queryPen_pageTotal - 1" style="font-size: 14px; color: #999999; text-align: center">没有更多了~</div>
                             </template>
                             <div class='list' v-else><span style='margin-left:30%;margin-top:200px;color:#909399;'>暂无数据</span></div>
                         </div>
@@ -658,6 +658,12 @@ export default {
                         }
                     }
                 }
+                var point_arr = [];
+                for(var i = 0, len = item.districtFence.points.length; i < len; i++){
+                    var str = item.districtFence.points[i].lng + ',' + item.districtFence.points[i].lat;
+                    point_arr.push(str);
+                }
+                this.pen_form.fenceArea['points'] = point_arr.join(';');
             }
         },
         // 删除围栏
@@ -782,10 +788,10 @@ export default {
         },
         // 触底加载更多
         evt_scroll_load:function(){
-            this.queryPen_page = this.queryPen_page + 1;
-            if(this.queryPen_page >= this.queryPen_pageTotal){
+            if(this.queryPen_page == this.queryPen_pageTotal - 1){
                 return;
             }
+            this.queryPen_page = this.queryPen_page + 1;
             this.evt_queryPen();
         },
         // 切换围栏

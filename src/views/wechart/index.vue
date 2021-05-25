@@ -12,18 +12,18 @@
             }}</el-col>
           </el-row> -->
           <div class="myChart_top ">
-            <div class="top_left_title top_left_title_t">{{$t("view.mine")}}</div>
-            <div class="top_left_title">{{$t("view.service")}}</div>
+            <div @click="evt_change_userInfoType('my')" class="top_left_title" :class="user_info_type == 'my' ? 'top_left_title_t' : ''">{{$t("view.mine")}}</div>
+            <div v-if="user_type == '2' && user_falg" @click="evt_change_userInfoType('service')" class="top_left_title" :class="user_info_type == 'service' ? 'top_left_title_t' : ''">{{$t("view.service")}}</div>
           </div>
           <el-row>
             <div class="top_left_bottom">
               <div>
-                <img src="" alt="" />
+                <img src="../../assets/img/deafult_user_head_portrait.png" alt="" />
               </div>
               <div>
-                <div>{{ $t("table.count") }}：Admin</div>
-                <div>{{ $t("view.customerType") }}：代理商</div>
-                <div>{{ $t("table.phone") }}：18586861988</div>
+                <div>{{ $t("table.count") }}：{{userInfo.username}}</div>
+                <div>{{ $t("view.customerType") }}：{{user_info_type == 'service' ? '服务商' : user_sort[user_type]}}</div>
+                <div>{{ $t("table.phone") }}：{{userInfo.phoneNumber}}</div>
               </div>
             </div>
           </el-row>
@@ -260,6 +260,16 @@ export default {
       search_word:'',
       search_result:[],
       btn_type:'',
+      userInfo:{},
+      user_type: '',
+      user_id:'',
+      user_info_type: 'my',//
+      user_falg: true,//是否显示服务商信息
+      user_sort:{
+        1: '管理员',
+        2: '服务商',
+        3: '用户'
+      }
     };
   },
   watch: {},
@@ -272,6 +282,11 @@ export default {
     _this.getEchartsData_two();
     _this.getEchartsData_three();
     _this.getEchartsData_four();
+    _this.user_type = JSON.parse(sessionStorage['user']).userType;
+    _this.user_id = JSON.parse(sessionStorage['user']).userId;
+    if(_this.user_type == '2'){
+      _this.evt_queryBusinessUserInfo();
+    }
   },
   mounted() {
     this.height = document.body.offsetHeight - 150;
@@ -279,6 +294,39 @@ export default {
   },
   beforeDestroy() {},
   methods: {
+    evt_change_userInfoType:function(type){
+      // console.log(type);
+      if(this.user_info_type == type) return;
+      this.user_info_type = type;
+      this.evt_queryBusinessUserInfo();
+    },
+    // 获取用户服务商信息
+    evt_queryBusinessUserInfo:function(){
+      var _this = this;
+      var request_data = {};
+      // request_data['userId'] = _this.user_id;
+      api.queryBusinessUserInfo(request_data).then((res) => {
+        // console.log(res);
+        if(res.success){
+          if(res.data.parentInfo == null || Object.keys(res.data.parentInfo).length == 0){
+            _this.user_falg = false;
+          }
+          if(_this.user_info_type == 'my'){
+            var userInfo = {};
+            userInfo['username'] = res.data.username;
+            userInfo['phoneNumber'] = res.data.phoneNumber || '----';
+            _this.userInfo = userInfo;
+          }else if(_this.user_info_type == 'service' && res.data.parentInfo){
+            var userInfo = {};
+            userInfo['username'] = res.data.parentInfo.username;
+            userInfo['phoneNumber'] = res.data.parentInfo.phoneNumber || '----';
+            _this.userInfo = userInfo;
+          }
+        }
+      }).catch((err) => {
+        _this.$message({type: 'error',message: '获取用户信息请求错误',offset:'200',duration:'1500'});
+      })
+    },
     handleNodeClick(data) {
       // 选择用户节点
       console.log(data);
@@ -557,6 +605,7 @@ export default {
     font-weight: 400;
     color: #666666;
     text-align: center;
+    cursor: pointer;
   }
   .top_left_title_t {
     color: #547fed;

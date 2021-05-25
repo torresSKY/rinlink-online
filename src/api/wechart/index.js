@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 axios.defaults.headers.common['Authorization'] = sessionStorage['token']
+let type = JSON.parse(sessionStorage['user']).userType;
 
 const login=(data)=>(
     axios.post('/users/login',data)
@@ -54,7 +55,7 @@ const getUsersList = (obj) => {
 const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
 
 const getDevicesList = (data) => (   //分页查询设备列表
-    axios.post(url+'/paging_devices?__OPERATOR_TYPE=2', data)
+    axios.post(url+'/paging_devices?__OPERATOR_TYPE=' + type, data)
 )
 const searchDevices = (data) => (   //搜索设备列表
     axios.post(url+'/search_devices?__OPERATOR_TYPE=2', data)
@@ -204,86 +205,98 @@ const deleModel = (data) => (   //删除设备型号
     axios.post(url+'/delete_device_model?__OPERATOR_TYPE=1', data)
 )
 const getOnlineDvice = (data) => ( //统计在线设备
-    axios.post(url + '/statistics_online_devices',data)
+    axios.post(url + '/statistics_online_devices?__OPERATOR_TYPE=' + type,data)
 )
 const getOfflineDevice = (data) => ( //统计离线设备
-    axios.post(url + '/statistics_offline_devices',data)
+    axios.post(url + '/statistics_offline_devices?__OPERATOR_TYPE=' + type,data)
 )
 const getActivated = (data) => ( //统计激活设备
-    axios.post(url + '/statistics_activated_devices', data)
+    axios.post(url + '/statistics_activated_devices?__OPERATOR_TYPE=' + type, data)
 )
 const getUnactivated_device =(data) => ( //统计未激活设备
-    axios.post(url + '/statistics_unactivated_devices', data)
+    axios.post(url + '/statistics_unactivated_devices?__OPERATOR_TYPE=' + type, data)
 )
 const getUsing_device = (data) => ( //正在使用中的设备
-    axios.post(url + '/statistics_using_devices', data)
+    axios.post(url + '/statistics_using_devices?__OPERATOR_TYPE=' + type, data)
 )
 const getUnexpired_device = (data) => ( //未过期设备
-    axios.post(url + '/statistics_unexpired_devices', data)
+    axios.post(url + '/statistics_unexpired_devices?__OPERATOR_TYPE=' + type, data)
 )
 const getExpired_device = (data) => ( //已过期设备
-    axios.post(url + '/statistics_expired_devices', data)
+    axios.post(url + '/statistics_expired_devices?__OPERATOR_TYPE=' + type, data)
 )
 const getInventory_device = (data) => ( //设备库存
-    axios.post(url + '/statistics_inventory_devices', data)
+    axios.post(url + '/statistics_inventory_devices?__OPERATOR_TYPE=' + type, data)
 )
 const getSold_device = (data) => ( //已销售设备
-    axios.post(url + '/statistics_sold_devices', data)
+    axios.post(url + '/statistics_sold_devices?__OPERATOR_TYPE=' + type, data)
 )
 
 const queryPen = (data) => ( //查询电子围栏
-    axios.post(url + '/paging_fences?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/paging_fences?__OPERATOR_TYPE=' + type,data)
 )
 // 添加、更新圆形电子围栏
-const createUpdateCircleFence = (type,data) => {
-    if (type == 'create'){
-       return axios.post(url + '/create_circle_fence?__OPERATOR_TYPE=2',data)
+const createUpdateCircleFence = (sort,data) => {
+    if (sort == 'create'){
+       return axios.post(url + '/create_circle_fence?__OPERATOR_TYPE=' + type,data)
     }
-    if (type == 'update'){
-       return axios.post(url + '/update_to_circle_fence?__OPERATOR_TYPE=2',data)
+    if (sort == 'update'){
+       return axios.post(url + '/update_to_circle_fence?__OPERATOR_TYPE=' + type,data)
     }
 }
 // 添加、更新多边形电子围栏
-const createUpdatePolygonFence = (type,data) => {
-    if (type == 'create'){
-        return axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=2',data)
+const createUpdatePolygonFence = (sort,data) => {
+    if (sort == 'create'){
+        return axios.post(url + '/create_polygon_fence?__OPERATOR_TYPE=' + type,data)
     }
-    if (type == 'update'){
-        return axios.post(url + '/update_to_polygon_fence?__OPERATOR_TYPE=2',data)
+    if (sort == 'update'){
+        return axios.post(url + '/update_to_polygon_fence?__OPERATOR_TYPE=' + type,data)
     }
 }
 // 添加、更新行政区域电子围栏
-const createUpdateDistrictFence = (type,data) => {
-    if(type == 'create'){
-        return axios.post(url + '/create_district_fence?__OPERATOR_TYPE=2',data)
+const createUpdateDistrictFence = (sort,data) => {
+    if(sort == 'create'){
+        return axios.post(url + '/create_district_fence?__OPERATOR_TYPE=' + type,data)
     }
-    if(type == 'update'){
-        return axios.post(url + '/update_to_district_fence?__OPERATOR_TYPE=2',data)
+    if(sort == 'update'){
+        return axios.post(url + '/update_to_district_fence?__OPERATOR_TYPE=' + type,data)
     }
 }
 const deleteFence = (data) => ( //删除电子围栏
-    axios.post(url + '/delete_fence?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/delete_fence?__OPERATOR_TYPE=' + type,data)
 )
 const deviceBindFence = (data) => ( //设备绑定围栏
-    axios.post(url + '/devices_bind_fence?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/devices_bind_fence?__OPERATOR_TYPE=' + type,data)
 )
 const searchFences = (data) => ( //搜索电子围栏
-    axios.post(url + '/search_fences?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/search_fences?__OPERATOR_TYPE=' + type,data)
 )
 const getDeviceDetail = (data) => ( //获取设备详细信息
-    axios.post(url + '/get_device_detail?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/get_device_detail?__OPERATOR_TYPE=' + type,data)
 )
 const getRangeIconList = (data) => ( //获取设备使用范围的icon
     axios.post(url + '/query_device_use_range_info',data)
 )
 const queryDeviceCmds = (data) => ( //获取设备历史指令
-    axios.post(url + '/paging_query_device_cmds?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/paging_query_device_cmds?__OPERATOR_TYPE=' + type,data)
 )
 const queryDeviceTracks = (data) => (//查询设备轨迹
-    axios.post(url + '/query_device_tracks?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/query_device_tracks?__OPERATOR_TYPE=' + type,data)
 )
 const getDeviceLastCoordinate = (data) => (
-    axios.post(url + '/get_device_last_coordinate?__OPERATOR_TYPE=2',data)
+    axios.post(url + '/get_device_last_coordinate?__OPERATOR_TYPE=' + type,data)
+)
+const queryCommandTemplate = (data) => (
+    axios.post(url + '/list_device_command_templates?__OPERATOR_TYPE=' + type,data)
+)
+const getDeviceCommand = (data) => (
+    axios.post(url + '/get_device_command_template?__OPERATOR_TYPE=' + type,data)
+)
+const sendCommand = (data) => (
+    axios.post(url + '/create_device_cmd?__OPERATOR_TYPE=' + type,data)
+)
+const queryBusinessUserInfo = (data) => (//获取客户服务商信息
+    axios.post(url + '/get_business_user_info?__OPERATOR_TYPE=' + type, data)
 )
 export default {
     login,
@@ -364,5 +377,9 @@ export default {
     getRangeIconList,
     queryDeviceCmds,
     queryDeviceTracks,
-    getDeviceLastCoordinate
+    getDeviceLastCoordinate,
+    queryCommandTemplate,
+    getDeviceCommand,
+    sendCommand,
+    queryBusinessUserInfo
 }
