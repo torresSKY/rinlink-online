@@ -197,7 +197,7 @@
     </div>
 </template>
 <script>
-import api from '@/api/wechart/index'
+import api from '@/api/wechart/index.js'
 import mixin from '@/mixins/index'
 import axios from 'axios'
 import {mapState} from 'vuex'
@@ -387,6 +387,7 @@ export default{
               startTime:start,
               endTime:end
             }
+            console.log(api)
             api.getShipmentList(data).then(res => {
               this.loading = false
               this.dataList = res.data.content
