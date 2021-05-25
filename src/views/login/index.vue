@@ -151,6 +151,7 @@ export default {
     getInfo(){
       api.getInfo().then(res => {
         this.setUser(JSON.stringify(res.data))
+        this.setRoles([res.data.userType])
         // console.log(res)
       }).catch(err => {
         this.$message.error(err.errMsg)
