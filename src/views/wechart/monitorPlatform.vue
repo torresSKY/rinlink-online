@@ -454,9 +454,11 @@ export default {
             interval_num:20,//倒计时
             refresh_time_interval:null,
             current_login_user_info:{},//当前登录用户的信息
+            userType_parameter: '',//请求接口拼接的用户类型
         }
     },
     created(){
+        this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
         // 判断是否从首页搜索查看轨迹进入
         if(this.$route.query.deviceId){
             this.track_detail = true;
@@ -511,7 +513,7 @@ export default {
         // 获取当前登录用户的信息
         evt_getBusinessUserinfo:function(){
             var _this = this;
-            api.getBusinessUserinfo({}).then((res) =>{
+            api.getBusinessUserinfo({},_this.userType_parameter).then((res) =>{
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.current_login_user_info = res.data;
@@ -523,7 +525,7 @@ export default {
         //获取代理商
         evt_getBusiness:function(){
             var _this = this;
-            api.getBusiness({}).then((res) => {
+            api.getBusiness({},_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data && res.data.length > 0){
                     for(let i = 0, len = res.data.length; i < len; i++){
@@ -557,7 +559,7 @@ export default {
             if(node.level != 0){
                 var request_data = {};
                 request_data['parentId'] = node.data.info.userId;
-                api.getBusiness(request_data).then((res) => {
+                api.getBusiness(request_data,_this.userType_parameter).then((res) => {
                     if(res.success){
                         if(res.data.length == 0){
                             resolve([]);
@@ -613,7 +615,7 @@ export default {
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
             request_data['searchType'] = 'username';
-            api.searchBusiness(request_data).then((res) => {
+            api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
                     _this.user_id = res.data[0].userId;
@@ -636,7 +638,7 @@ export default {
             }else if(_this.change_type != 'all' && _this.change_type == 'off'){
                 request_data['networkStatus'] = '2';
             }
-            api.queryDevices(request_data).then((res) => {
+            api.queryDevices(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data){
                     _this.devices_list = [];
@@ -709,7 +711,7 @@ export default {
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
-            api.getDevicesList(request_data).then((res) => {
+            api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.devices_list = res.data.content;
@@ -753,7 +755,7 @@ export default {
             }else if(_this.change_type != 'all' && _this.change_type == 'off'){
                 request_data['networkStatus'] = '2';
             }
-            api.queryDevices(request_data).then((res) => {
+            api.queryDevices(request_data,_this.userType_parameter).then((res) => {
                 if(res.success && res.data && res.data.length > 0){
                     _this.evt_clearOverlays();
                     var refresh_devices_list = res.data;
@@ -850,7 +852,7 @@ export default {
             var _this = this;
             var request_data = {};
             request_data['deviceId'] = _this.need_handle_deviceId;
-            api.getDeviceDetail(request_data).then((res) => {
+            api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.device_detail_info = res.data;
@@ -865,7 +867,7 @@ export default {
         // 获取适用范围的icon信息
         evt_getRangeIconList:function(){
             var _this = this;
-            api.getRangeIconList({}).then((res) => {
+            api.getRangeIconList({},_this.userType_parameter).then((res) => {
                 if(res.success && Object.keys(res.data).length > 0){
                     var icon_list = [];
                     for(var key in res.data){
@@ -896,7 +898,7 @@ export default {
             request_data['deviceName'] = _this.device_name;
             request_data['remark'] = _this.remark_text;
             request_data['useRangeCode'] = _this.range_code;
-            api.editDevices(request_data).then((res) => {
+            api.editDevices(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success){
                     _this.device_info_visible = false;
@@ -938,7 +940,7 @@ export default {
             var _this = this;
             var request_data = {};
             request_data['deviceModelId'] = _this.need_deviceModelId;
-            api.queryCommandTemplate(request_data).then((res) => {
+            api.queryCommandTemplate(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data && res.data.length > 0){
                     _this.command_templates_list = res.data;
@@ -954,7 +956,7 @@ export default {
             var _this = this;
             var request_data = {};
             request_data['deviceCmdTemplateId'] = deviceCmdTemplateId;
-            api.getDeviceCommand(request_data).then((res) => {
+            api.getDeviceCommand(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.template_content = res.data;
@@ -982,7 +984,7 @@ export default {
             if(Object.keys(JSON.parse(_this.template_content.templateContent)).length > 0){
                 request_data['cmdData'] = 'cmdData';
             }
-            api.sendCommand(request_data).then((res) => {
+            api.sendCommand(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success){
                     _this.$message({message:"下发成功",type:"success",offset:"200",duration:"1500"});
@@ -999,7 +1001,7 @@ export default {
             request_data['page'] = _this.command_page;
             request_data['pageSize'] = _this.command_pageSize;
             request_data['deviceId'] = _this.need_handle_deviceId;
-            api.queryDeviceCmds(request_data).then((res) => {
+            api.queryDeviceCmds(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.command_data_list = res.data.content;
@@ -1189,7 +1191,7 @@ export default {
             request_data['deviceId'] = deviceId;
             request_data['coordinateSystem'] = 'BD09'
             request_data['positionTypes'] = _this.position_type;
-            api.queryDeviceTracks(request_data).then((res) => {
+            api.queryDeviceTracks(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
 

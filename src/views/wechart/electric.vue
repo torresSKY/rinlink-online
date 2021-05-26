@@ -332,6 +332,7 @@ export default {
             searchDevice_name:'',//搜索设备
             label_true: true,
             label_false: false,
+            userType_parameter: '',//请求接口拼接的用户类型
         }
     },
     watch: {
@@ -350,6 +351,7 @@ export default {
         }
     },
     created(){
+        this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
         if(this.$route.query.deviceName){
             this.select_type_name = 'deviceName';
             this.fenceSearchContent = this.$route.query.deviceName;
@@ -512,7 +514,7 @@ export default {
                 _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
                 _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
             }
-            api.createUpdateCircleFence(type,_this.pen_form).then((res) => {
+            api.createUpdateCircleFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
                 if(res.success){
                     if(!_this.update_pen){
                         _this.map.removeOverlay(_this.current_circle);
@@ -544,7 +546,7 @@ export default {
                 _this.pen_form.fenceArea['points'] = _this.point_arr;
             }
             delete _this.pen_form.fenceArea.radius;
-            api.createUpdatePolygonFence(type, _this.pen_form).then((res) => {
+            api.createUpdatePolygonFence(type, _this.pen_form,_this.userType_parameter).then((res) => {
                 if(res.success){
                     if(!_this.update_pen){
                         _this.map.removeOverlay(_this.current_polygon);
@@ -600,7 +602,7 @@ export default {
                         // console.log(points_str);
                         _this.pen_form.fenceArea['points'] = points_str;
 
-                        api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
+                        api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
                             console.log(res);
                             if(res.success){
                                 // 重新查询围栏数据
@@ -619,7 +621,7 @@ export default {
                     }
                 })
             }else{
-                api.createUpdateDistrictFence(type,_this.pen_form).then((res) => {
+                api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
                     console.log(res);
                     if(res.success){
                             _this.submit_result();
@@ -709,7 +711,7 @@ export default {
                 type: 'warning',
                 center: true
             }).then(() => {
-                api.deleteFence(request_data).then((res) => {
+                api.deleteFence(request_data,_this.userType_parameter).then((res) => {
                     console.log(res);
                     if(res.success){
                         _this.$message({
@@ -751,7 +753,7 @@ export default {
             var request_data = {};
             request_data['searchType'] = _this.select_type_name;
             request_data['searchContent'] = _this.fenceSearchContent;
-            api.searchFences(request_data).then((res) => {
+            api.searchFences(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success){
                     // 判断是否页面跳转查看电子围栏
@@ -809,7 +811,7 @@ export default {
             if(_this.fenceSearchDeviceId != ''){
                 query_data['deviceId'] = _this.fenceSearchDeviceId;
             }
-            api.queryPen(query_data).then((res) => {
+            api.queryPen(query_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success  && res.data.content.length > 0){
                     var new_data = res.data.content;
@@ -1025,7 +1027,7 @@ export default {
         //获取代理商
         evt_getBusiness:function(){
             var _this = this;
-            api.getBusiness({}).then((res) => {
+            api.getBusiness({},_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
                     if(res.data && res.data.length == 0){
@@ -1062,7 +1064,7 @@ export default {
             if(node.level != 0){
                 var request_data = {};
                 request_data['parentId'] = node.data.info.userId;
-                api.getBusiness(request_data).then((res) => {
+                api.getBusiness(request_data,_this.userType_parameter).then((res) => {
                     if(res.success){
                         if(res.data.length == 0){
                             resolve([]);
@@ -1103,7 +1105,7 @@ export default {
             var _this = this;
             var request_data = {};
             request_data['ownerId'] = _this.user_id;
-            api.queryDevices(request_data).then((res) => {
+            api.queryDevices(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
                     _this.devices_list = [];
@@ -1260,7 +1262,7 @@ export default {
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
             request_data['searchType'] = 'username';
-            api.searchBusiness(request_data).then((res) => {
+            api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.msg == "OK" && res.success){
                     _this.user_id = res.data[0].userId;
@@ -1289,7 +1291,7 @@ export default {
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
-            api.getDevicesList(request_data).then((res) => {
+            api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.devices_list = res.data.content;
@@ -1314,7 +1316,7 @@ export default {
             }
             request_data['deviceIdList'] = deviceIdList;
             request_data['fenceId'] = _this.relevance_fenceId;
-            api.deviceBindFence(request_data).then((res) => {
+            api.deviceBindFence(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success){
                     _this.relevance_device_flag = false;
