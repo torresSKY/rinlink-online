@@ -1009,7 +1009,8 @@ export default {
         evt_show_relevance:function(item){
             this.relevance_fenceId = item.fenceId;
             this.relevance_device_flag = true;
-            this.evt_getBusiness();
+            this.evt_getCurrentUserInfo();
+            // this.evt_getBusiness();
         },
         // 关闭关联设备弹框
         evt_close:function(){
@@ -1023,6 +1024,29 @@ export default {
             this.relevance_fenceId = '';
             this.searchBusiness_name = '';
             this.searchDevice_name = '';
+        },
+        // 获取当前用户的信息
+        evt_getCurrentUserInfo:function(){
+            var _this = this;
+            api.getCurrentUserInfo({}).then((res) => {
+                console.log(res);
+                if(res.success && Object.keys(res.data).length > 0){
+                    var user_data = {};
+                    user_data['label'] = res.data.username;
+                    user_data['info'] = res.data
+                    user_data['user_id'] = res.data.userId;
+                    _this.user_list.push(user_data);
+                    _this.user_id = res.data.userId;
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices('currentUser');
+                    })
+                }else{
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg || '请求失败',type:'error',offset:'200',duration:'1000'});
+            })
         },
         //获取代理商
         evt_getBusiness:function(){
@@ -1098,13 +1122,20 @@ export default {
             }
             this.user_id = e.info.userId;
             // this.devices_list = [];
-            this.evt_queryDevices();
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(this.user_id == JSON.parse(sessionStorage['user']).userId){
+                this.evt_queryDevices('currentUser');
+            }else{
+                this.evt_queryDevices();
+            }
         },
         // 查询设备
-        evt_queryDevices:function(){
+        evt_queryDevices:function(type){
             var _this = this;
             var request_data = {};
-            request_data['ownerId'] = _this.user_id;
+            if(type != 'currentUser'){
+                request_data['ownerId'] = _this.user_id;
+            }
             api.queryDevices(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
@@ -1602,8 +1633,8 @@ export default {
             color: #F19B04 !important;
         }
         /deep/  .el-tree-node.is-current > .el-tree-node__content {
-            background-color: #FFE6B0 !important;
-            border: 1px solid #F19B04;
+            background-color: #D8E3FF !important;
+            border: 1px solid #4391FE;
         }
     }
 }

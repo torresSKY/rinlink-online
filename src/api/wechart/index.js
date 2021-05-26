@@ -297,6 +297,9 @@ const sendCommand = (data,type) => (
 const queryBusinessUserInfo = (data,type) => (//获取客户服务商信息
     axios.post(url + '/get_business_user_info?__OPERATOR_TYPE=' + type, data)
 )
+const getCurrentUserInfo = (data) => (
+    axios.post(url + '/get_current_user_info',data)
+)
 export default {
     login,
     getManagerList,
@@ -380,5 +383,6 @@ export default {
     queryCommandTemplate,
     getDeviceCommand,
     sendCommand,
-    queryBusinessUserInfo
+    queryBusinessUserInfo,
+    getCurrentUserInfo
 }
