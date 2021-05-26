@@ -71,10 +71,12 @@
                 pwdRules: {
                   password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
                   confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
-                }
+                },
+                type:null
             }
         },
         mounted(){
+          this.type = JSON.parse(sessionStorage['user']).userType
            this.height = document.body.offsetHeight-152
            this.getlist()
         },
@@ -84,7 +86,7 @@
                 let data = {
                     userId: this.userId
                 }
-                api.getBusinessUserinfo(data).then(res => {
+                api.getBusinessUserinfo(data,this.type).then(res => {
                   this.loading = false
                   if(res.success){
                     this.info = res.data
@@ -122,7 +124,7 @@
                     userId:this.pwdForm.userId,
                     password:this.pwdForm.password
                   }
-                  api.updateCurrentPwd(data).then(res => {
+                  api.updateCurrentPwd(data,this.type).then(res => {
                     // debugger
                     if(res.success){
                       this.$message.success(this.$t('message.changesuc'))

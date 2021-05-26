@@ -131,23 +131,23 @@ const resetBusiness = (data,type) => (   //重置客户密码
 const getBusinessUserinfo = (data,type) => (   //获取客户信息
     axios.post(url+'/get_business_user_info?__OPERATOR_TYPE='+type, data)
 )
-const editBusinessUserinfo = (data) => (   //更新客户信息
-    axios.post(url+'/update_current_business_user?__OPERATOR_TYPE=2', data)
+const editBusinessUserinfo = (data,type) => (   //更新客户信息
+    axios.post(url+'/update_current_business_user?__OPERATOR_TYPE='+type, data)
 )
-const updateCurrentPwd = (data) => (   //更新当前用户密码
-    axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE=2', data)
+const updateCurrentPwd = (data,type) => (   //更新当前用户密码
+    axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE='+type, data)
 )
 const searchBusiness = (data,type) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
 )
-const getAlarmsDetail = (data) => (   //分页查询报警详情
-    axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE=2', data)
+const getAlarmsDetail = (data,type) => (   //分页查询报警详情
+    axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE='+type, data)
 )
-const handleDeviceAlarm = (data) => (   //处理报警
-    axios.post(url+'/handle_device_alarm?__OPERATOR_TYPE=2', data)
+const handleDeviceAlarm = (data,type) => (   //处理报警
+    axios.post(url+'/handle_device_alarm?__OPERATOR_TYPE='+type, data)
 )
-const handleDeviceAlarms = (data) => (   //全部处理报警
-    axios.post(url+'/handle_device_alarms?__OPERATOR_TYPE=2', data)
+const handleDeviceAlarms = (type,data) => (   //全部处理报警
+    axios.post(url+'/handle_device_alarms?__OPERATOR_TYPE='+type, data)
 )
 const platformExpire = (data) => (   //分页查询平台服务到期
     axios.post(url+'/paging_platform_device_expire_messages?__OPERATOR_TYPE=2', data)
@@ -164,8 +164,8 @@ const systemMessages = (data) => (   //分页查询系统通知
 const getAlarmType = (data) => (   //查询报警类型
     axios.post(url+'/query_alarm_type_info', data)
 )
-const alarmStatistic = (data) => (   //分页查询设备报警统计
-    axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE=2', data)
+const alarmStatistic = (data,type) => (   //分页查询设备报警统计
+    axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE='+type, data)
 )
 const getModelList = (data,type) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models?__OPERATOR_TYPE='+type, data)
@@ -173,11 +173,11 @@ const getModelList = (data,type) => (   //分页查询设备型号
 const getBusiness = (data,type) => (   //查询代理商
     axios.post(url+'/query_business_users?__OPERATOR_TYPE='+type, data)
 )
-const getServices = (data) => (   //查询所有IOT服务
-    axios.post(url+'/query_all_iot_services?__OPERATOR_TYPE=1', data)
+const getServices = (type,data) => (   //查询所有IOT服务
+    axios.post(url+'/query_all_iot_services?__OPERATOR_TYPE='+type, data)
 )
-const getRangeinfo = (data) => (   //查询使用范围信息
-    axios.post(url+'/query_device_use_range_info?__OPERATOR_TYPE=2', data)
+const getRangeinfo = (type,data) => (   //查询使用范围信息
+    axios.post(url+'/query_device_use_range_info?__OPERATOR_TYPE='+type, data)
 )
 const getCmdTemplates = (data) => (   //查询指令模板
     axios.post(url+'/list_device_command_templates', data)
@@ -197,11 +197,11 @@ const getDeviceCmdTemplates = (data,type) => (   //获取指令模板
 const createDeviceCmd = (data,type) => (   //下发指令
     axios.post(url+'/create_device_cmd?__OPERATOR_TYPE='+type, data)
 )
-const addModel = (data) => (   //创建设备型号
-    axios.post(url+'/create_device_model?__OPERATOR_TYPE=1', data)
+const addModel = (data,type) => (   //创建设备型号
+    axios.post(url+'/create_device_model?__OPERATOR_TYPE='+type, data)
 )
-const deleModel = (data) => (   //删除设备型号
-    axios.post(url+'/delete_device_model?__OPERATOR_TYPE=1', data)
+const deleModel = (data,type) => (   //删除设备型号
+    axios.post(url+'/delete_device_model?__OPERATOR_TYPE='+type, data)
 )
 const getOnlineDvice = (data,type) => ( //统计在线设备
     axios.post(url + '/statistics_online_devices?__OPERATOR_TYPE=' + type,data)

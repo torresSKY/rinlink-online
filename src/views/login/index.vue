@@ -127,7 +127,8 @@ export default {
               // if(1){
               // this.setRoles(res.detail.role)
               this.setToken('Bearer '+ res.data.token)
-              this.setRouterList(routerlist.routes)
+              // console.log(routerlist.routes)
+              // this.setRouterList(routerlist.routes)
               
               // this.setUser(res.holder)
               this.setUserName(this.loginForm.username)
@@ -152,7 +153,16 @@ export default {
       api.getInfo().then(res => {
         this.setUser(JSON.stringify(res.data))
         this.setRoles([res.data.userType])
+        const list = routerlist.routes
+        for(let i = 0;i <list.length;i++){
+          if(list[i].roles&&(!list[i].roles.includes(res.data.userType))){
+            list.splice(i,1)
+            i--
+          }
+        }
+        console.log(list)
         this.$nextTick(() => {
+          this.setRouterList(list)
           this.$router.push('index')
         })
         // console.log(res)

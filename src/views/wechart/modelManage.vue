@@ -129,10 +129,12 @@ export default{
           //   { required: true, message: this.$t('message.selCommun'), trigger: 'blur' },
           // ],
         },
-        options:[]
+        options:[],
+        type:null
       }
     },
     mounted(){
+      this.type = JSON.parse(sessionStorage['user']).userType
         this.height=document.body.offsetHeight-152
         this.getlist()
     },
@@ -144,7 +146,7 @@ export default{
               pageNumber: this.page.index - 1,
               deviceModelName: this.deviceModelName,
             }
-            api.getModelList(data).then(res => {
+            api.getModelList(data,this.type).then(res => {
               this.loading = false
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
@@ -155,7 +157,7 @@ export default{
             })
         },
         getServices(){ // 获取通信协议
-            api.getServices().then(res => {
+            api.getServices(this.type).then(res => {
               this.options = res.data
             }).catch(err => {
               this.options = []
@@ -183,7 +185,7 @@ export default{
                 iotServiceId:'tcp',
                 description:this.modelForm.description
               }
-              api.addModel(data).then(res => {
+              api.addModel(data,this.type).then(res => {
                 // debugger
                 if(res.success){
                   this.$message.success(this.$t('message.addsuc'))
@@ -214,7 +216,7 @@ export default{
                 let id = {
                   deviceModelId:data.id
                 }
-                api.deleModel(id).then(res => {
+                api.deleModel(id,this.type).then(res => {
                   if(res.success){
                     this.$message.success(this.$t('message.delesuc'))
                     this.getlist()

@@ -167,10 +167,12 @@ export default {
       radio:'1',
       remark:'',
       alarmTypeList:[],
-      deviceId:null
+      deviceId:null,
+      type:null
     }
   },
   mounted() {
+    this.type = JSON.parse(sessionStorage['user']).userType
     if(this.$route.params.data){
         this.deviceId = this.$route.params.data.id
     }else{
@@ -205,21 +207,21 @@ export default {
         data.page = 0
       }
       this.loading = true
-      api.getAlarmsDetail(data).then(res => {
+      api.getAlarmsDetail(data,this.type).then(res => {
         this.loading = false
         this.dataList = res.data.content
         this.page.total = res.data.pageTotal
       }).catch(err => {
         this.loading = false
         this.dataList = []
-        this.$message.error(err.errMsg)
+        this.$message.error(err.msg)
       })
     },
     getdeviceId(deviceNumber){ // 获取设备id
       let data = {
         deviceNumberKeyword: deviceNumber,
       }
-      api.getDevicesList(data).then(res => {
+      api.getDevicesList(data,this.type).then(res => {
         // debugger
         if(res.success){
           console.log(res)
@@ -234,11 +236,11 @@ export default {
       let data = {
         parentId:null
       }
-      api.getBusiness(data).then(res => {
+      api.getBusiness(data,this.type).then(res => {
           this.businessoptions = res.data
         }).catch(err => {
           this.businessoptions = []
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     getAlarmType(){ // 查询报警类型
@@ -248,12 +250,12 @@ export default {
             console.log(this.alarmTypeList)
           }else{
             this.alarmTypeList = []
-            this.$message.error(res.errMsg)
+            this.$message.error(res.msg)
           }
           
         }).catch(err => {
           this.alarmTypeList = []
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
     },
     childByValue(val){ //选择处理数据
@@ -275,16 +277,16 @@ export default {
         deviceAlarmId:this.multipleSelection[0].id,
         remark:this.remark
       }
-      api.handleDeviceAlarm(data).then(res => {
-        if(res.msg=='OK'){
+      api.handleDeviceAlarm(data,this.type).then(res => {
+        if(res.success){
           this.$message.success(this.$t('message.alaedit'))
           this.dialogHandle = false
           this.getlist()
         }else {
-          this.$message.error(res.errMsg)
+          this.$message.error(res.msg)
         }
       }).catch(err => {
-        this.$message.error(err.errMsg)
+        this.$message.error(err.msg)
       })
     },
     allHandle(){ // 全部处理
@@ -296,16 +298,16 @@ export default {
         let id = {
           // userId:data.userId
         }
-        api.handleDeviceAlarms().then(res => {
-          if(res.msg=='OK'){
+        api.handleDeviceAlarms(this.type).then(res => {
+          if(res.success){
             this.$message.success(this.$t('message.alaedit'))
             this.getlist()
           }else{
-            this.$message.error(res.errMsg)
+            this.$message.error(res.msg)
           }
           
         }).catch(err => {
-          this.$message.error(err.errMsg)
+          this.$message.error(err.msg)
         })
       }).catch(err => {
         console.log(err)

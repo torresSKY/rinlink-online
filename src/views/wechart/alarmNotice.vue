@@ -109,11 +109,13 @@
                 flag:false,
                 alarmTypeCodeList:[],
                 dialogSel:false,
-                alarmTypeList:[]
+                alarmTypeList:[],
+                type:null
             }
         },
         mounted(){
           var that =this
+          this.type = JSON.parse(sessionStorage['user']).userType
           this.getlist()
           window.onresize = () => {
              return (() => {
@@ -131,7 +133,7 @@
                   alarmTypeCodeList:this.alarmTypeCodeList,
                   containsChildren: this.containsChildren,
                 }
-                api.getAlarmsDetail(data).then(res => {
+                api.getAlarmsDetail(data,this.type).then(res => {
                   this.loading = false
                   if(res.success){
                     this.dataList = res.data.content
@@ -192,7 +194,7 @@
                   deviceAlarmId:this.messageId,
                   remark:this.remark
                 }
-                api.handleDeviceAlarm(data).then(res => {
+                api.handleDeviceAlarm(data,this.type).then(res => {
                   if(res.success){
                     this.$message.success(this.$t('message.alaedit'))
                     this.dialogHandle = false
@@ -213,7 +215,7 @@
                   let id = {
                     // userId:data.userId
                   }
-                  api.handleDeviceAlarms().then(res => {
+                  api.handleDeviceAlarms(this.type).then(res => {
                     if(res.success){
                       this.$message.success(this.$t('message.alaedit'))
                       this.getlist()

@@ -107,9 +107,11 @@ export default {
         // {label: this.$t('table.weiyiala'), prop: 'partner_contacts'},
         // {label: this.$t('table.alarm7'), prop: 'partner_contacts'}
       ],
+      type:null
     }
   },
   mounted() {
+    this.type = JSON.parse(sessionStorage['user']).userType
     this.getAlarmType()
     this.getlist()
     this.getBusiness()
@@ -138,7 +140,7 @@ export default {
         data.endTime = this.time[1]
       }
       this.loading = true
-      api.alarmStatistic(data).then(res => {
+      api.alarmStatistic(data,this.type).then(res => {
         this.loading = false
         this.dataList = res.data.content
         for(let i = 0;i<this.dataList.length;i++){
@@ -161,7 +163,7 @@ export default {
       let data = {
         parentId:null
       }
-      api.getBusiness(data).then(res => {
+      api.getBusiness(data,this.type).then(res => {
           this.businessoptions = res.data
         }).catch(err => {
           this.businessoptions = []

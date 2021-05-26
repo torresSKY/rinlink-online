@@ -676,7 +676,7 @@ export default{
             })
         },
         getRange(){ // 获取使用范围
-          api.getRangeinfo().then(res => {
+          api.getRangeinfo(this.type).then(res => {
             let data = res.data
             this.range = Object.entries(data)
             console.log(this.range)

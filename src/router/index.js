@@ -15,21 +15,21 @@ const list={
         path: '/index',
         component: _import('index'),
         radius:true,
-        roles:[0,1,88,99],
+        roles:[1,2],
         redirect: '/index/index',
         icon: 'shouyex',
-        children: [{path: 'index',name:'route.Home',radius:true,roles:[0,1,88,99],component: () =>import('@/views/wechart/index'),meta: { keep:'users',keepAlive: true }}]
+        children: [{path: 'index',name:'route.Home',radius:true,roles:[1,2],component: () =>import('@/views/wechart/index'),meta: { keep:'users',keepAlive: true }}]
       }, 
       {
         path: '/equManage',
         name: 'route.Equmanage',
         radius:true,
-        roles:[0,1,88,99],
+        roles:[2,3],
         component: _import('index'),
         icon: 'shebeiguanli1',
         redirect: '/equManage',
         children: [
-          {path: 'equManage',name: 'route.Equmanage',component: () =>import('@/views/wechart/equManage'),hidden: true,meta: { keep: 'jihuo'},radius:true,roles:[0,1,88,99],},
+          {path: 'equManage',name: 'route.Equmanage',component: () =>import('@/views/wechart/equManage'),hidden: true,meta: { keep: 'jihuo'},radius:true,roles:[2,3],},
           ]
       },   
       {
@@ -39,8 +39,8 @@ const list={
         radius:true,
         component: _import('index'),
         icon: 'chuweilan',
-        roles:[0,1,88,99],
-        children: [{path: 'electric',name: 'button.shewei',component: () =>import('@/views/wechart/electric'),hidden: true,meta: { keep: 'equs'},radius:true,roles:[0,1,88,99],}]
+        roles:[2,3],
+        children: [{path: 'electric',name: 'button.shewei',component: () =>import('@/views/wechart/electric'),hidden: true,meta: { keep: 'equs'},radius:true,roles:[2,3],}]
       },   
       {
         path:'/control',
@@ -49,14 +49,14 @@ const list={
         radius:true,
         component: _import('index'),
         icon: 'chuweilan',
-        roles:[0,1,88,99],
+        roles:[2,3],
         children: [{path: 'control',name: 'button.control',component: () =>import('@/views/wechart/monitorPlatform'),hidden: true,meta: { keep: 'equs'},radius:true,roles:[0,1,88,99],}]
       },
       {
         path: '/Statistics',
         name: 'route.statistics',
         radius:true,
-        roles:[0,1,88,99],
+        roles:[2,3],
         component: _import('index'),
         icon: 'tongzhi',
         redirect: '/Statistics/list',
@@ -68,69 +68,69 @@ const list={
         path: '/UserManagement',
         name: 'route.User',
         radius:true,
-        roles:[0,1,88,99],
+        roles:[1,2],
         component: _import('index'),
         icon: 'yonghuguanli1',
         redirect: '/UserManagement/wechartUser',
         children: [
-          {path: 'wechartUser',name: 'route.User',component: () =>import('@/views/wechart/userManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[0,1,88,99],},
+          {path: 'wechartUser',name: 'route.User',component: () =>import('@/views/wechart/userManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[1,2],},
         ]
       },
       {
         path: '/sellManage',
         name: 'route.sell',
         radius:true,
-        roles:[0,1,88,99],
+        roles:[1],
         component: _import('index'),
         icon: 'yonghuguanli1',
         redirect: '/sellManage/sell',
         children: [
-          {path: 'sell',name: 'route.sell',component: () =>import('@/views/wechart/sellManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[0,1,88,99],},
+          {path: 'sell',name: 'route.sell',component: () =>import('@/views/wechart/sellManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[1],},
         ]
       },
       {
         path: '/setting',
         name: 'route.setting',
         radius:true,
-        roles:[0,1,88,99],
+        roles:[1],
         component: _import('index'),
         icon: 'tongzhi',
         redirect: '/setting/modelManage',
         children: [
-          {path: 'modelManage',name: 'route.setting',component: () =>import('@/views/wechart/setting'),hidden: true,radius:true,roles:[0,1,88,99],},
+          {path: 'modelManage',name: 'route.setting',component: () =>import('@/views/wechart/setting'),hidden: true,radius:true,roles:[1],},
         ]
       },
       {
         path: '/notice',
         name: 'route.notice',
         radius:false,
-        roles:[0,1,88,99],
+        roles:[2,3],
         component: _import('index'),
         redirect: '/notice/alarm',
         children: [
-          {path: 'alarm',name: 'route.notice',component: () =>import('@/views/wechart/notice'),hidden: true,radius:false,roles:[0,1,88,99],},
+          {path: 'alarm',name: 'route.notice',component: () =>import('@/views/wechart/notice'),hidden: true,radius:false,roles:[2,3],},
         ]
       },
       {
         path: '/personalCenter',
         name: 'button.personal',
         radius:false,
-        roles:[0,1,88,99],
+        roles:[2,3],
         component: _import('index'),
         redirect: '/personalCenter/setting',
         children: [
-          {path: 'setting',name: 'button.personal',component: () =>import('@/views/wechart/personalCenter'),hidden: true,radius:false,roles:[0,1,88,99],},
+          {path: 'setting',name: 'button.personal',component: () =>import('@/views/wechart/personalCenter'),hidden: true,radius:false,roles:[2,3],},
         ]
       },
       {
         path: '/orderMsg',
         name: 'table.orderMsg',
         radius:false,
-        roles:[0,1,88,99],
+        roles:[1],
         component: _import('index'),
         redirect: '/orderMsg/setting',
         children: [
-          {path: 'setting',name: 'table.orderMsg',component: () =>import('@/views/wechart/orderMsg'),hidden: true,radius:false,roles:[0,1,88,99],},
+          {path: 'setting',name: 'table.orderMsg',component: () =>import('@/views/wechart/orderMsg'),hidden: true,radius:false,roles:[1],},
         ]
       },
       // {

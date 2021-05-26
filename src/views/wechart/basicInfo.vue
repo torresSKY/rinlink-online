@@ -64,10 +64,12 @@
                     personToContact:'',
                     userId:''
                 },
-                userId:''
+                userId:'',
+                type:null
             }
         },
         mounted(){
+            this.type = JSON.parse(sessionStorage['user']).userType
            this.height = document.body.offsetHeight-152
            this.getlist()
         },
@@ -77,7 +79,7 @@
                 let data = {
                     userId: this.userId
                 }
-                api.getBusinessUserinfo(data).then(res => {
+                api.getBusinessUserinfo(data,this.type).then(res => {
                   this.loading = false
                   if(res.success){
                     this.info = res.data
@@ -97,7 +99,7 @@
                     personToContact: this.info.personToContact,
                     phoneNumber: this.info.phoneNumber
                 }
-                api.editBusinessUserinfo(data).then(res => {
+                api.editBusinessUserinfo(data,this.type).then(res => {
                   if(res.success){
                     this.$message.success(this.$t('message.savesuc'))
                     this.getlist()
