@@ -269,7 +269,8 @@ export default {
         1: '管理员',
         2: '服务商',
         3: '用户'
-      }
+      },
+      userType_parameter: '',//请求接口拼接的用户类型
     };
   },
   watch: {},
@@ -278,6 +279,7 @@ export default {
   },
   created:function(){
     var _this = this;
+    _this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
     _this.getEchartsData_one();
     _this.getEchartsData_two();
     _this.getEchartsData_three();
@@ -305,7 +307,7 @@ export default {
       var _this = this;
       var request_data = {};
       // request_data['userId'] = _this.user_id;
-      api.queryBusinessUserInfo(request_data).then((res) => {
+      api.queryBusinessUserInfo(request_data,_this.userType_parameter).then((res) => {
         // console.log(res);
         if(res.success){
           if(res.data.parentInfo == null || Object.keys(res.data.parentInfo).length == 0){
@@ -342,10 +344,10 @@ export default {
     // 库存和已销售
     getEchartsData_one:function(){
       var _this = this;
-      api.getInventory_device({}).then((res) => {
+      api.getInventory_device({},_this.userType_parameter).then((res) => {
         if(res.success){
           _this.Inventory_deviceCount = res.data.devices;
-          api.getSold_device({}).then((_res) => {
+          api.getSold_device({},_this.userType_parameter).then((_res) => {
             if(_res.success){
               _this.Sold_deviceCount = _res.data.devices;
               _this.$nextTick(function(){
@@ -384,10 +386,10 @@ export default {
     // 设备状态
     getEchartsData_two:function(){
       var _this = this;
-      api.getOnlineDvice({}).then((res) => {
+      api.getOnlineDvice({},_this.userType_parameter).then((res) => {
         if(res.success){
           _this.OnlineDviceCount = res.data.devices;
-          api.getOfflineDevice({}).then((_res) => {
+          api.getOfflineDevice({},_this.userType_parameter).then((_res) => {
             if(_res.success){
               _this.OfflineDeviceCount = _res.data.devices;
               _this.$nextTick(function(){
@@ -426,10 +428,10 @@ export default {
     // 激活统计
     getEchartsData_three:function(){
       var _this = this;
-      api.getActivated({}).then((res) => {
+      api.getActivated({},_this.userType_parameter).then((res) => {
         if(res.success){
           _this.ActivatedCount = res.data.devices;
-          api.getUnactivated_device({}).then((_res) => {
+          api.getUnactivated_device({},_this.userType_parameter).then((_res) => {
             if(_res.success){
               _this.Unactivated_deviceCount = _res.data.devices;
               _this.$nextTick(function(){
@@ -469,13 +471,13 @@ export default {
     getEchartsData_four:function(){
       var _this = this;
       // getUsing_device()
-      api.getOnlineDvice({}).then((res) => {
+      api.getOnlineDvice({},_this.userType_parameter).then((res) => {
         if(res.success){
           _this.Using_deviceCount = res.data.devices;
-          api.getUnexpired_device({}).then((_res) => {
+          api.getUnexpired_device({},_this.userType_parameter).then((_res) => {
             if(_res.success){
               _this.Unexpired_deviceCount = _res.data.devices;
-              api.getExpired_device({}).then((res_) => {
+              api.getExpired_device({},_this.userType_parameter).then((res_) => {
                 if(res_.success){
                   _this.Expired_deviceCount = res_.data.devices;
                   _this.$nextTick(function(){
@@ -541,7 +543,7 @@ export default {
       request_data['deviceNumberKeyword'] = _this.search_word;
       request_data['page'] = 0;
       request_data['pageSize'] = 20;
-      api.getDevicesList(request_data).then((res) => {
+      api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
         // console.log(res);
         _this.search_result = [];
         if(res.success && res.data && res.data.content && res.data.content.length > 0){
