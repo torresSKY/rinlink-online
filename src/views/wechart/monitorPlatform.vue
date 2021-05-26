@@ -467,9 +467,10 @@ export default {
             this.current_select_deviceId = this.$route.query.deviceId;
             this.need_handle_deviceId = this.$route.query.deviceId;
         }
-        this.evt_getBusiness();
+        
         this.evt_getRangeIconList();
         this.evt_getBusinessUserinfo();
+        this.evt_getCurrentUserInfo();
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
@@ -549,6 +550,29 @@ export default {
                 _this.$message({message: err.msg || '请求失败！',type:'error',offset:'200',duration:'1000'});
             })
         },
+        // 获取当前用户的信息
+        evt_getCurrentUserInfo:function(){
+            var _this = this;
+            api.getCurrentUserInfo({}).then((res) => {
+                console.log(res);
+                if(res.success && Object.keys(res.data).length > 0){
+                    var user_data = {};
+                    user_data['label'] = res.data.username;
+                    user_data['info'] = res.data
+                    user_data['user_id'] = res.data.userId;
+                    _this.user_list.push(user_data);
+                    _this.user_id = res.data.userId;
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices('currentUser');
+                    })
+                }else{
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg || '请求失败',type:'error',offset:'200',duration:'1000'});
+            })
+        },
          // el-tree 懒加载数组
         evt_loadTree:function(node, resolve){
             // console.log(node)
@@ -598,7 +622,12 @@ export default {
             this.user_id = e.info.userId;
             // this.devices_list = [];
             this.evt_clearOverlays();
-            this.evt_queryDevices();
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(this.user_id == JSON.parse(sessionStorage['user']).userId){
+                this.evt_queryDevices('currentUser');
+            }else{
+                this.evt_queryDevices();
+            }
             // 
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
@@ -629,10 +658,12 @@ export default {
             })
         },
         // 查询设备
-        evt_queryDevices:function(){
+        evt_queryDevices:function(type){
             var _this = this;
             var request_data = {};
-            request_data['ownerId'] = _this.user_id;
+            if(type != 'currentUser'){
+                request_data['ownerId'] = _this.user_id;
+            }
             if(_this.change_type != 'all' && _this.change_type == 'on'){
                 request_data['networkStatus'] = '1';
             }else if(_this.change_type != 'all' && _this.change_type == 'off'){
@@ -749,7 +780,10 @@ export default {
         evt_refresh:function(){
             var _this = this;
             var request_data = {};
-            request_data['ownerId'] = _this.user_id;
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(this.user_id != JSON.parse(sessionStorage['user']).userId){
+                request_data['ownerId'] = _this.user_id;
+            }
             if(_this.change_type != 'all' && _this.change_type == 'on'){
                 request_data['networkStatus'] = '1';
             }else if(_this.change_type != 'all' && _this.change_type == 'off'){

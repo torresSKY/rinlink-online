@@ -8,7 +8,7 @@
                         <el-row class="select_type_name" :gutter="4" type="flex" align="center">
                             <el-col :span="10">
                                 <el-select v-model="select_type_name" placeholder="请选择查询类型" size="small">
-                                    <el-option key="设备名称/IMEI"  label="设备名称/IMEI" value="deviceName"></el-option>
+                                    <el-option key="设备名称"  label="设备名称" value="deviceName"></el-option>
                                     <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
                             </el-col>
@@ -755,7 +755,7 @@ export default {
             request_data['searchContent'] = _this.fenceSearchContent;
             api.searchFences(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
-                if(res.success){
+                if(res.success && res.data && res.data.length > 0){
                     // 判断是否页面跳转查看电子围栏
                     if(_this.$route.query.deviceName){
                         _this.fenceSearchId = '';
