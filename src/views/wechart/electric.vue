@@ -7,7 +7,7 @@
                         <div class="search_top">电子围栏</div>
                         <el-row class="select_type_name" :gutter="4" type="flex" align="center">
                             <el-col :span="10">
-                                <el-select v-model="select_type_name" placeholder="请选择查询类型" size="small">
+                                <el-select @change="evt_changeSearchType" v-model="select_type_name" placeholder="请选择查询类型" size="small">
                                     <el-option key="设备名称"  label="设备名称" value="deviceName"></el-option>
                                     <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
@@ -519,12 +519,13 @@ export default {
                     if(!_this.update_pen){
                         _this.map.removeOverlay(_this.current_circle);
                         _this.current_circle = '';
-                        // 重新查询围栏数据
-                        _this.queryPen_page = 0;
-                        _this.queryPen_dataList = [];
-                        _this.queryPen_pageTotal = 1;
-                        _this.evt_queryPen();
                     }
+                    // 重新查询围栏数据
+                    _this.queryPen_page = 0;
+                    _this.queryPen_dataList = [];
+                    _this.queryPen_pageTotal = 1;
+                    _this.evt_queryPen();
+                    
                     _this.submit_result();
                 }else{
                     _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
@@ -551,12 +552,13 @@ export default {
                     if(!_this.update_pen){
                         _this.map.removeOverlay(_this.current_polygon);
                         _this.current_polygon = '';
-                        // 重新查询围栏数据
-                        _this.queryPen_page = 0;
-                        _this.queryPen_dataList = [];
-                        _this.queryPen_pageTotal = 1;
-                        _this.evt_queryPen();
                     }
+                    // 重新查询围栏数据
+                    _this.queryPen_page = 0;
+                    _this.queryPen_dataList = [];
+                    _this.queryPen_pageTotal = 1;
+                    _this.evt_queryPen();
+
                     _this.submit_result();
                 }else{
                     _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
@@ -624,7 +626,13 @@ export default {
                 api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
                     console.log(res);
                     if(res.success){
-                            _this.submit_result();
+                        // 重新查询围栏数据
+                        _this.queryPen_page = 0;
+                        _this.queryPen_dataList = [];
+                        _this.queryPen_pageTotal = 1;
+                        _this.evt_queryPen();
+                        
+                        _this.submit_result();
                     }else{
                         _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                     }
@@ -754,7 +762,7 @@ export default {
             request_data['searchType'] = _this.select_type_name;
             request_data['searchContent'] = _this.fenceSearchContent;
             api.searchFences(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && res.data.length > 0){
                     // 判断是否页面跳转查看电子围栏
                     if(_this.$route.query.deviceName){
@@ -765,6 +773,9 @@ export default {
                     }
 
                     _this.search_result = res.data;
+                    _this.fenceSearch_content_flag = true;
+                }else if(res.success && res.data && res.data.length == 0){
+                    _this.search_result = [];
                     _this.fenceSearch_content_flag = true;
                 }
             }).catch((err) => {
@@ -782,6 +793,10 @@ export default {
                 _this.fenceSearch_content_flag = false;
                 dom_element.removeEventListener('click',function(){})
             })
+        },
+        evt_changeSearchType:function(e){
+            // console.log(e);
+            this.search_result = [];
         },
         evt_row_click:function(row){
             // console.log(row);
