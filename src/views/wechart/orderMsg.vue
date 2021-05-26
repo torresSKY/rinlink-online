@@ -136,10 +136,12 @@ export default{
           ],
         },
         options:[{id: 'groovy', name: 'groovy'}],
-        deviceModelId:null
+        deviceModelId:null,
+        type:null
       }
     },
     mounted(){
+      this.type = JSON.parse(sessionStorage['user']).userType
         this.height=document.body.offsetHeight-152
         this.deviceModelId = this.$route.query.deviceModelId
         this.getlist()
@@ -189,7 +191,7 @@ export default{
                   commandDataProcessType:this.modelForm.commandDataProcessType,
                   groovyScript:this.modelForm.groovyScript
                 }
-                api.createCmdTemplates(data).then(res => {
+                api.createCmdTemplates(data,this.type).then(res => {
                   // debugger
                   if(res.success){
                     this.$message.success(this.$t('message.addsuc'))
@@ -212,7 +214,7 @@ export default{
                   commandDataProcessType:this.modelForm.commandDataProcessType,
                   groovyScript:this.modelForm.groovyScript
                 }
-                api.updateCmdTemplates(data).then(res => {
+                api.updateCmdTemplates(data,this.type).then(res => {
                   // debugger
                   if(res.success){
                     this.$message.success(this.$t('message.addsuc'))
@@ -244,7 +246,7 @@ export default{
               let id = {
                 deviceCmdTemplateId:data.deviceCmdTemplateId
               }
-              api.deleteCmdTemplates(id).then(res => {
+              api.deleteCmdTemplates(id,this.type).then(res => {
                 if(res.success){
                   this.$message.success(this.$t('message.delesuc'))
                   this.getlist()
@@ -267,7 +269,7 @@ export default{
           let data = {
             deviceCmdTemplateId:id
           }
-          api.getDeviceCmdTemplates(data).then(res => {
+          api.getDeviceCmdTemplates(data,this.type).then(res => {
             this.modelForm = {
               templateName:res.data.templateName,
               templateContent:res.data.templateContent,

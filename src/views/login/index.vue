@@ -136,7 +136,7 @@ export default {
               // this.setUsercode(res.holder)
               this.$nextTick(() => {
                 this.getInfo()  
-                this.$router.push('index')
+                // this.$router.push('index')
               })
             // }
           }).catch(err=>{
@@ -152,6 +152,9 @@ export default {
       api.getInfo().then(res => {
         this.setUser(JSON.stringify(res.data))
         this.setRoles([res.data.userType])
+        this.$nextTick(() => {
+          this.$router.push('index')
+        })
         // console.log(res)
       }).catch(err => {
         this.$message.error(err.errMsg)

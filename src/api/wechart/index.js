@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 axios.defaults.headers.common['Authorization'] = sessionStorage['token']
-let type = JSON.parse(sessionStorage['user']).userType;
+// const type = JSON.parse(sessionStorage['user']).userType;
 
 const login=(data)=>(
     axios.post('/users/login',data)
@@ -54,35 +54,35 @@ const getUsersList = (obj) => {
 // const url = 'http://rap2api.taobao.org/app/mock/277955/post'
 const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
 
-const getDevicesList = (data) => (   //分页查询设备列表
+const getDevicesList = (data,type) => (   //分页查询设备列表
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=' + type, data)
 )
 const searchDevices = (data) => (   //搜索设备列表
     axios.post(url+'/search_devices?__OPERATOR_TYPE=2', data)
 )
-const queryDevices = (data) => (   //查询设备列表
-    axios.post(url+'/query_devices?__OPERATOR_TYPE=2', data)
+const queryDevices = (data,type) => (   //查询设备列表
+    axios.post(url+'/query_devices?__OPERATOR_TYPE='+type, data)
 )
-const editDevices = (data) => (   //更新设备
-    axios.post(url+'/update_device?__OPERATOR_TYPE=2', data)
+const editDevices = (data,type) => (   //更新设备
+    axios.post(url+'/update_device?__OPERATOR_TYPE='+type, data)
 )
-const sellDevices = (data) => (   //销售设备
-    axios.post(url+'/sell_devices?__OPERATOR_TYPE=2', data)
+const sellDevices = (data,type) => (   //销售设备
+    axios.post(url+'/sell_devices?__OPERATOR_TYPE='+type, data)
 )
-const getManagerList = (data) => (   //分页查询系统管理员
-    axios.post(url+'/paging_query_system_manager_users?__OPERATOR_TYPE=1', data)
+const getManagerList = (data,type) => (   //分页查询系统管理员
+    axios.post(url+'/paging_query_system_manager_users?__OPERATOR_TYPE='+type, data)
 )
-const addManager = (data) => (   //添加系统管理员
-    axios.post(url+'/create_system_manager_user?__OPERATOR_TYPE=1', data)
+const addManager = (data,type) => (   //添加系统管理员
+    axios.post(url+'/create_system_manager_user?__OPERATOR_TYPE='+type, data)
 )
-const editManager = (data) => (   //修改系统管理员
-    axios.post(url+'/update_system_manager_user?__OPERATOR_TYPE=1', data)
+const editManager = (data,type) => (   //修改系统管理员
+    axios.post(url+'/update_system_manager_user?__OPERATOR_TYPE='+type, data)
 )
-const deleManager = (data) => (   //删除系统管理员
-    axios.post(url+'/delete_system_manager_user?__OPERATOR_TYPE=1', data)
+const deleManager = (data,type) => (   //删除系统管理员
+    axios.post(url+'/delete_system_manager_user?__OPERATOR_TYPE='+type, data)
 )
-const upsetPwd = (data) => (   //重置系统管理员密码
-    axios.post(url+'/reset_system_manager_user_password?__OPERATOR_TYPE=1', data)
+const upsetPwd = (data,type) => (   //重置系统管理员密码
+    axios.post(url+'/reset_system_manager_user_password?__OPERATOR_TYPE='+type, data)
 )
 const getAuthority = (data) => (   //查询权限
     axios.post(url+'/query_system_manager_user_authorities', data)
@@ -90,8 +90,8 @@ const getAuthority = (data) => (   //查询权限
 const getCheckedAuthority = (data) => (   //查询选中的权限
     axios.post(url+'/query_system_manager_user_role_authorities', data)
 )
-const getRolesList = (data) => (   //分页查询角色
-    axios.post(url+'/paging_query_system_manager_user_roles?__OPERATOR_TYPE=1', data)
+const getRolesList = (type,data) => (   //分页查询角色
+    axios.post(url+'/paging_query_system_manager_user_roles?__OPERATOR_TYPE='+type, data)
 )
 const addRoles = (data) => (   //添加角色
     axios.post(url+'/create_system_manager_user_role', data)
@@ -102,35 +102,35 @@ const editRoles = (data) => (   //更新角色
 const deleRoles = (data) => (   //删除角色
     axios.post(url+'/delete_system_manager_user_role', data)
 )
-const getShipmentList = (data) => (   //分页查询出货的设备
-    axios.post(url+'/paging_devices?__OPERATOR_TYPE=1', data)
+const getShipmentList = (data,type) => (   //分页查询出货的设备
+    axios.post(url+'/paging_devices?__OPERATOR_TYPE='+type, data)
 )
-const shipment = (data) => (   //出货
-    axios.post(url+'/shipment_device?__OPERATOR_TYPE=1', data)
+const shipment = (data,type) => (   //出货
+    axios.post(url+'/shipment_device?__OPERATOR_TYPE='+type, data)
 )
-const batchShipment = (data) => (   //批量出货
-    axios.post(url+'/batch_shipment_device?__OPERATOR_TYPE=1', data)
+const batchShipment = (data,type) => (   //批量出货
+    axios.post(url+'/batch_shipment_device?__OPERATOR_TYPE='+type, data)
 )
-const uploadDeviceNumber = (data) => (   //上传文件-设备号
-    axios.post(url+'/upload_device_number?__OPERATOR_TYPE=1', data)
+const uploadDeviceNumber = (data,type) => (   //上传文件-设备号
+    axios.post(url+'/upload_device_number?__OPERATOR_TYPE='+type, data)
 )
-const getBusinessList = (data) => (   //分页查询客户
-    axios.post(url+'/paging_query_business_users?__OPERATOR_TYPE=1', data)
+const getBusinessList = (data,type) => (   //分页查询客户
+    axios.post(url+'/paging_query_business_users?__OPERATOR_TYPE='+type, data)
 )
-const addBusiness = (data) => (   //添加客户
-    axios.post(url+'/create_business_user?__OPERATOR_TYPE=1', data)
+const addBusiness = (data,type) => (   //添加客户
+    axios.post(url+'/create_business_user?__OPERATOR_TYPE='+type, data)
 )
-const editBusiness = (data) => (   //修改客户
-    axios.post(url+'/update_business_user?__OPERATOR_TYPE=1', data)
+const editBusiness = (data,type) => (   //修改客户
+    axios.post(url+'/update_business_user?__OPERATOR_TYPE='+type, data)
 )
-const deleBusiness = (data) => (   //删除客户
-    axios.post(url+'/delete_business_user?__OPERATOR_TYPE=1', data)
+const deleBusiness = (data,type) => (   //删除客户
+    axios.post(url+'/delete_business_user?__OPERATOR_TYPE='+type, data)
 )
-const resetBusiness = (data) => (   //重置客户密码
-    axios.post(url+'/reset_business_user_password?__OPERATOR_TYPE=1', data)
+const resetBusiness = (data,type) => (   //重置客户密码
+    axios.post(url+'/reset_business_user_password?__OPERATOR_TYPE='+type, data)
 )
-const getBusinessUserinfo = (data) => (   //获取客户信息
-    axios.post(url+'/get_business_user_info?__OPERATOR_TYPE=2', data)
+const getBusinessUserinfo = (data,type) => (   //获取客户信息
+    axios.post(url+'/get_business_user_info?__OPERATOR_TYPE='+type, data)
 )
 const editBusinessUserinfo = (data) => (   //更新客户信息
     axios.post(url+'/update_current_business_user?__OPERATOR_TYPE=2', data)
@@ -138,8 +138,8 @@ const editBusinessUserinfo = (data) => (   //更新客户信息
 const updateCurrentPwd = (data) => (   //更新当前用户密码
     axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE=2', data)
 )
-const searchBusiness = (data) => (   //搜索客户信息
-    axios.post(url+'/search_business_users?__OPERATOR_TYPE=1', data)
+const searchBusiness = (data,type) => (   //搜索客户信息
+    axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
 )
 const getAlarmsDetail = (data) => (   //分页查询报警详情
     axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE=2', data)
@@ -168,11 +168,11 @@ const getAlarmType = (data) => (   //查询报警类型
 const alarmStatistic = (data) => (   //分页查询设备报警统计
     axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE=2', data)
 )
-const getModelList = (data) => (   //分页查询设备型号
-    axios.post(url+'/paging_query_device_models?__OPERATOR_TYPE=1', data)
+const getModelList = (data,type) => (   //分页查询设备型号
+    axios.post(url+'/paging_query_device_models?__OPERATOR_TYPE='+type, data)
 )
-const getBusiness = (data) => (   //查询代理商
-    axios.post(url+'/query_business_users?__OPERATOR_TYPE=1', data)
+const getBusiness = (data,type) => (   //查询代理商
+    axios.post(url+'/query_business_users?__OPERATOR_TYPE='+type, data)
 )
 const getServices = (data) => (   //查询所有IOT服务
     axios.post(url+'/query_all_iot_services?__OPERATOR_TYPE=1', data)
@@ -183,20 +183,20 @@ const getRangeinfo = (data) => (   //查询使用范围信息
 const getCmdTemplates = (data) => (   //查询指令模板
     axios.post(url+'/list_device_command_templates', data)
 )
-const createCmdTemplates = (data) => (   //创建指令模板
-    axios.post(url+'/create_device_command_template?__OPERATOR_TYPE=1', data)
+const createCmdTemplates = (data,type) => (   //创建指令模板
+    axios.post(url+'/create_device_command_template?__OPERATOR_TYPE='+type, data)
 )
-const updateCmdTemplates = (data) => (   //修改指令模板
-    axios.post(url+'/update_device_command_template?__OPERATOR_TYPE=1', data)
+const updateCmdTemplates = (data,type) => (   //修改指令模板
+    axios.post(url+'/update_device_command_template?__OPERATOR_TYPE='+type, data)
 )
-const deleteCmdTemplates = (data) => (   //删除指令模板
-    axios.post(url+'/delete_device_command_template?__OPERATOR_TYPE=1', data)
+const deleteCmdTemplates = (data,type) => (   //删除指令模板
+    axios.post(url+'/delete_device_command_template?__OPERATOR_TYPE='+type, data)
 )
-const getDeviceCmdTemplates = (data) => (   //获取指令模板
-    axios.post(url+'/get_device_command_template?__OPERATOR_TYPE=1', data)
+const getDeviceCmdTemplates = (data,type) => (   //获取指令模板
+    axios.post(url+'/get_device_command_template?__OPERATOR_TYPE='+type, data)
 )
-const createDeviceCmd = (data) => (   //下发指令
-    axios.post(url+'/create_device_cmd?__OPERATOR_TYPE=2', data)
+const createDeviceCmd = (data,type) => (   //下发指令
+    axios.post(url+'/create_device_cmd?__OPERATOR_TYPE='+type, data)
 )
 const addModel = (data) => (   //创建设备型号
     axios.post(url+'/create_device_model?__OPERATOR_TYPE=1', data)
@@ -277,7 +277,7 @@ const getDeviceDetail = (data) => ( //获取设备详细信息
 const getRangeIconList = (data) => ( //获取设备使用范围的icon
     axios.post(url + '/query_device_use_range_info',data)
 )
-const queryDeviceCmds = (data) => ( //获取设备历史指令
+const queryDeviceCmds = (data,type) => ( //获取设备历史指令
     axios.post(url + '/paging_query_device_cmds?__OPERATOR_TYPE=' + type,data)
 )
 const queryDeviceTracks = (data) => (//查询设备轨迹

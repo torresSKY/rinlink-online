@@ -30,13 +30,15 @@
                     <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col>
-                    <el-col :span='4'>
+                    <el-col :span='6'>
                       <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                       <el-button class="butadd" @click="addCustomer">{{$t('button.addCustomer')}}</el-button>
                     </el-col>
                 </el-row>
                 <el-row style="margin-top:10px">
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
+                  <el-scrollbar style="height:64vh;" ref="scrollbar">
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
+                  </el-scrollbar>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -207,9 +209,11 @@ export default {
         password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
         confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
       },
+      type:null
     }
   },
   mounted() {
+    this.type = JSON.parse(sessionStorage['user']).userType
     this.getlist()
     this.getBusiness()
   },
@@ -243,7 +247,7 @@ export default {
             page: this.page.index - 1,
           }
         }
-        api.getBusinessList(data).then(res => {
+        api.getBusinessList(data,this.type).then(res => {
           this.loading = false
           this.dataList = res.data.content
           this.page.total = res.data.pageTotal
@@ -257,7 +261,7 @@ export default {
       let data = {
         parentId: null
       }
-      api.getBusiness(data).then(res => {
+      api.getBusiness(data,this.type).then(res => {
           let data = res.data
           this.businessData = this.setTreeData(data)
           this.getBusinessUserinfo(res.data[0].userId)
@@ -290,7 +294,7 @@ export default {
     getBusinessUserinfo(userId){ // 获取客户信息
       api.getBusinessUserinfo({params: {
           userId: userId,
-        }}).then(res => {
+        }},this.type).then(res => {
           let data = res.data
           this.company = data.nickname
           this.username = data.username
@@ -371,7 +375,7 @@ export default {
               email:this.customerForm.email,
               remark:this.customerForm.remark
             }
-            api.addBusiness(data).then(res => {
+            api.addBusiness(data,this.type).then(res => {
               if(res.success){
                 this.$message.success(this.$t('message.addsuc'))
                 this.$refs['customerForm'].resetFields()
@@ -392,7 +396,7 @@ export default {
               email:this.customerForm.email,
               remark:this.customerForm.remark
             }
-            api.editBusiness(data).then(res => {
+            api.editBusiness(data,this.type).then(res => {
               if(res.success){
                 this.$message.success(this.$t('message.changesuc'))
                 this.$refs['customerForm'].resetFields()
@@ -434,7 +438,7 @@ export default {
             let id = {
               userId:data.userId
             }
-            api.deleBusiness(id).then(res => {
+            api.deleBusiness(id,this.type).then(res => {
               if(res.success){
                 this.$message.success(this.$t('message.delesuc'))
                 this.getlist()
@@ -473,7 +477,7 @@ export default {
             userId:this.pwdForm.userId,
             password:this.pwdForm.password
           }
-          api.resetBusiness(data).then(res => {
+          api.resetBusiness(data,this.type).then(res => {
             // debugger
             if(res.success){
               this.$message.success(this.$t('message.changesuc'))

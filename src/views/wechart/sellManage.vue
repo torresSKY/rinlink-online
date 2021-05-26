@@ -197,7 +197,7 @@
     </div>
 </template>
 <script>
-import api from '@/api/wechart/index.js'
+import api from '@/api/wechart/index'
 import mixin from '@/mixins/index'
 import axios from 'axios'
 import {mapState} from 'vuex'
@@ -337,11 +337,13 @@ export default{
         },
         fileList:[],
         uploadDeviceNumber:'',
-        flag:false
+        flag:false,
+        type:null
       }
     },
     mounted(){
-        console.log(this.$store.getters.user)
+        // console.log(this.$store.getters.user)
+        this.type = JSON.parse(sessionStorage['user']).userType
         var that = this
         this.getlist()
         this.getModel()
@@ -387,8 +389,7 @@ export default{
               startTime:start,
               endTime:end
             }
-            console.log(api)
-            api.getShipmentList(data).then(res => {
+            api.getShipmentList(data,this.type).then(res => {
               this.loading = false
               this.dataList = res.data.content
               this.page.total = res.data.pageTotal
@@ -402,7 +403,7 @@ export default{
           api.getModelList({params: {
               pageSize: 100,
               page: this.page.index - 1
-            }}).then(res => {
+            }},this.type).then(res => {
               this.modelList = res.data.content
             }).catch(err => {
               this.modelList = []
@@ -413,7 +414,7 @@ export default{
           let data = {
             parentId:null
           }
-          api.getBusiness(data).then(res => {
+          api.getBusiness(data,this.type).then(res => {
               this.businessoptions = res.data
             }).catch(err => {
               this.businessoptions = []
@@ -465,7 +466,7 @@ export default{
                   batchNumber:this.shipmentForm.batchNumber,
                   productionDate:this.shipmentForm.productionDate
                 }
-                api.shipment(data).then(res => {
+                api.shipment(data,this.type).then(res => {
                   // debugger
                   if(res.success){
                     this.$message.success(this.$t('message.success'))
@@ -493,7 +494,7 @@ export default{
                   batchNumber:this.shipmentForm.batchNumber,
                   productionDate:this.shipmentForm.productionDate
                 }
-                api.batchShipment(data).then(res => {
+                api.batchShipment(data,this.type).then(res => {
                   // debugger
                   if(res.success){
                     this.$message.success(this.$t('message.success'))
@@ -538,7 +539,7 @@ export default{
             headers: { 'Content-Type': 'multipart/form-data' } // 这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
           }
           api
-          .uploadDeviceNumber(formData, config)
+          .uploadDeviceNumber(formData,this.type,config)
           .then(res => {
             if (res.success) {
               this.$message.success(this.$t('message.success'))

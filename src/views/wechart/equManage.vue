@@ -260,9 +260,11 @@
                 <!-- <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input> -->
               </el-form-item>
             </el-col>
-            <el-form-item :label="$t('table.note')+'：'"  >
-              <el-input type='textarea' :rows="2" v-model="equinfoForm.remark" :placeholder="$t('table.note')" ></el-input>
-            </el-form-item>
+            <el-col :span='23'>
+              <el-form-item :label="$t('table.note')+'：'"  >
+                <el-input type='textarea' :rows="2" v-model="equinfoForm.remark" :placeholder="$t('table.note')" ></el-input>
+              </el-form-item>
+            </el-col>
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogEquinfo = false">{{$t('button.cancel')}}</el-button>
@@ -584,9 +586,11 @@ export default{
           }
          }
         ],
+        type:null
       }
     },
     mounted(){
+      this.type = JSON.parse(sessionStorage['user']).userType
         this.height=document.body.offsetHeight-80
         this.getlist()
         this.getModelList()
@@ -621,7 +625,7 @@ export default{
             this.page.index = 1
             data.page = 0
           }
-          api.getDevicesList(data).then(res => {
+          api.getDevicesList(data,this.type).then(res => {
             this.loading = false
             // debugger
             if(res.success){
@@ -664,7 +668,7 @@ export default{
             api.getModelList({params: {
               pageSize: 100,
               page: this.page.index - 1,
-            }}).then(res => {
+            }},this.type).then(res => {
               this.deviceModeOptions = res.data.content
             }).catch(err => {
               this.deviceModeOptions = []
@@ -685,7 +689,7 @@ export default{
           let data = {
             parentId:null
           }
-          api.getBusiness(data).then(res => {
+          api.getBusiness(data,this.type).then(res => {
               let data = res.data
               this.insiadeData = this.data = this.setTreeData(data)
               this.custData = this.setTreeData(data)
@@ -728,7 +732,7 @@ export default{
             let item = {
               ownerId : data.userId
             }
-          api.queryDevices(item).then(res => {
+          api.queryDevices(item,this.type).then(res => {
             if(res.success){
               this.dataList = res.data
               this.page.total = res.data.pageTotal  
@@ -789,7 +793,7 @@ export default{
             remark:this.equinfoForm.remark,
             useRangeCode:this.equinfoForm.useRangeCode
           }
-          api.editDevices(data).then(res => {
+          api.editDevices(data,this.type).then(res => {
             if(res.success){
               this.$message.success(this.$t('message.changesuc'))
               this.dialogEquinfo = false
@@ -844,22 +848,23 @@ export default{
           let data = {
             deviceNumberKeyword : this.searchImei
           }
-          api.getDevicesList(data).then(res => {
+          api.getDevicesList(data,this.type).then(res => {
             if(res.success){
-              let item = res.data[0]
+              let item = res.data.content[0]
               if(item.deviceModel){
                 item['model'] = item.deviceModel.name
               }else{
                 item['model'] = ''
               }
-              if(item.ownerName){
-                item['username'] = item.ownerName
+              if(item.owner){
+                item['username'] = item.owner.username
               }else{
                 item['username'] = ''
               }
               var num = 0
+              
               for(let i = 0;i < this.saleList.length;i++){
-                if(this.saleList[i].deviceId == item.deviceId){
+                if(this.saleList[i].id == item.id){
                   num = 0
                 }else {
                   num++
@@ -871,12 +876,12 @@ export default{
               this.equNum = this.saleList.length
               // console.log(this.saleList)
             }else{
-              this.insiadeData = []
+              // this.insiadeData = []
               this.$message.error(res.msg)
             }
             
           }).catch(err => {
-            this.insiadeData = []
+            // this.insiadeData = []
             this.$message.error(err.msg)
           })
         },
@@ -885,7 +890,7 @@ export default{
             searchType : 'username',
             searchContent:this.searchName
           }
-          api.searchBusiness(data).then(res => {
+          api.searchBusiness(data,this.type).then(res => {
             if(res.success){
               this.insiadeData = this.setTreeData(res.data)
             }else{
@@ -932,7 +937,7 @@ export default{
             expiredTime : time ,
             ownerId :this.custinfo.userId
           }
-          api.sellDevices(data).then(res => {
+          api.sellDevices(data,this.type).then(res => {
             if(res.success){
               this.$message.success(this.$t('message.success'))
               this.multipleSelection = []
@@ -992,7 +997,7 @@ export default{
               startTime:this.hisTime != null ? this.hisTime[0] : null,
               endTime:this.hisTime != null ? this.hisTime[1] : null
             }
-            api.queryDeviceCmds(data).then(res => {
+            api.queryDeviceCmds(data,this.type).then(res => {
               this.historysendList = res.data.content
               this.page1.total = res.data.pageTotal
             }).catch(err => {

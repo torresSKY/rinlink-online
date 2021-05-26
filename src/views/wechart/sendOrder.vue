@@ -75,9 +75,11 @@
                     
                 },
                 schema: null,
+                type:null
             }
         },
         mounted(){
+            this.type = JSON.parse(sessionStorage['user']).userType
            var that = this
            window.onresize = function () {
               that.height = 80 + 'vh'
@@ -117,7 +119,7 @@
               let data = {
                 deviceCmdTemplateId:id
               }
-              api.getDeviceCmdTemplates(data).then(res => {
+              api.getDeviceCmdTemplates(data,this.type).then(res => {
                 // console.log(res)
                 if(res.data.templateContent!='{}'){
                     let item = JSON.parse(res.data.templateContent)
@@ -148,7 +150,7 @@
                     cmdData:this.formData,
                     deviceIdList:arr
                 }
-                api.createDeviceCmd(data).then(res => {
+                api.createDeviceCmd(data,this.type).then(res => {
                   if(res.success){
                     this.$message.success(this.$t('message.sendsuc'))
                     this.$emit('confrimSend', false)

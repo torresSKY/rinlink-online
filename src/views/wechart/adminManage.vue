@@ -4,7 +4,9 @@
             <el-button class="butadd" @click="addadmin">{{$t('button.addAdmin')}}</el-button>
         </el-card>
         <el-row :gutter="22" style="margin-top:10px">
-            <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
+          <el-scrollbar style="height:64vh;" ref="scrollbar">
+            <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  ></BaseTable>
+          </el-scrollbar>
         </el-row>
         <el-pagination
             @current-change='changeindex'
@@ -137,10 +139,12 @@
                   password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
                   confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
                 },
+                type:null
             }
         },
         mounted(){
-           this.getlist()
+          this.type = JSON.parse(sessionStorage['user']).userType
+          this.getlist()
         },
         methods:{
             getlist(){ // 获取系统管理员列表
@@ -149,7 +153,7 @@
                 pageSize: this.page.size,
                 page: this.page.index - 1
               }
-              api.getManagerList(data).then(res => {
+              api.getManagerList(data,this.type).then(res => {
                 this.loading = false
                 this.dataList = res.data.content
                 this.page.total = res.data.pageTotal
@@ -160,7 +164,7 @@
               })
             },
             getroles(){ // 获取角色列表
-              api.getRolesList().then(res => {
+              api.getRolesList(this.type).then(res => {
                 this.options = res.data.content
               }).catch(err => {
                 this.options = []
@@ -206,7 +210,7 @@
                       roleId:this.adminForm.roleId,
                       remark:this.adminForm.remark
                     }
-                    api.addManager(data).then(res => {
+                    api.addManager(data,this.type).then(res => {
                       if(res.success){
                         this.$message.success(this.$t('message.addsuc'))
                         this.$refs['adminForm'].resetFields()
@@ -226,8 +230,7 @@
                       roleId:this.adminForm.roleId,
                       remark:this.adminForm.remark
                     }
-                    api.editManager(data).then(res => {
-                      
+                    api.editManager(data,this.type).then(res => {
                       if(res.success){
                         this.$message.success(this.$t('message.changesuc'))
                         this.$refs['adminForm'].resetFields()
@@ -271,7 +274,7 @@
                     let id = {
                       userId:data.userId
                     }
-                    api.deleManager(id).then(res => {
+                    api.deleManager(id,this.type).then(res => {
                       if(res.success){
                         this.$message.success(this.$t('message.delesuc'))
                         this.getlist()
@@ -311,7 +314,7 @@
                     userId:this.pwdForm.userId,
                     password:this.pwdForm.password
                   }
-                  api.upsetPwd(data).then(res => {
+                  api.upsetPwd(data,this.type).then(res => {
                     // debugger
                     if(res.success){
                       this.$message.success(this.$t('message.changesuc'))
