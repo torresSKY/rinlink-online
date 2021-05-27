@@ -1414,14 +1414,20 @@ export default {
                 _this.playback_address = '';
             }
         },
-        evt_playback_address:function(lng,lat){
+        evt_playback_address:function(lng,lat,time,positionType){
             var _this = this;
             var geocoder = new BMap.Geocoder();
             var point = new BMap.Point(lng,lat);
             geocoder.getLocation(point,function(result){
                 if(result.address){
                     _this.playback_address = result.address;
-                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                    // var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                    var info = {};
+                    info['lng'] = lng;
+                    info['lat'] = lat;
+                    info['time'] = parseInt(time);
+                    info['positionType'] = positionType;
+                    console.log(info);
                     _this.evt_playback_infoWindow(point,info);
                 }
             })
