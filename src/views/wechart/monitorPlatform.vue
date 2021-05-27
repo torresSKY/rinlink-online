@@ -107,10 +107,15 @@
                         <div>{{current_device_name != '' ? current_device_name + '：' + current_device_address : ''}}</div>
                         <div class="row_item_right_top_right">
                             <el-checkbox @change="evt_show_deviceName" v-model="show_deviceName">显示设备名称</el-checkbox>
-                            <el-select @change="evt_change_refreshInterval" style="width:70px;margin-left:10px;" v-model="refresh_interval" size="mini">
-                                <el-option label="10s" value="10"></el-option>
-                                <el-option label="20s" value="20"></el-option>
-                                <el-option label="30s" value="30"></el-option>
+                            <el-select @change="evt_change_refreshInterval" style="width:100px;margin-left:10px;" v-model="refresh_interval" size="mini">
+                                <el-option label="10秒" value="10"></el-option>
+                                <el-option label="30秒" value="30"></el-option>
+                                <el-option label="1分钟" value="60"></el-option>
+                                <el-option label="10分钟" value="600"></el-option>
+                                <el-option label="30分钟" value="1800"></el-option>
+                                <el-option label="1小时" value="3600"></el-option>
+                                <el-option label="5小时" value="18000"></el-option>
+                                <el-option label="12小时" value="43200"></el-option>
                             </el-select>
                             <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
                         </div>
@@ -180,7 +185,7 @@
                     </div>
                     <div class="map_container">
                         <div id="container"></div>
-                        <div class="refresh_text" v-if="!track_detail">{{interval_num}}秒后刷新</div>
+                        <div class="refresh_text" v-if="!track_detail">{{interval_num|formatTime}}后刷新</div>
                         <div class="map_type">
                             <div @click="evt_change_mapType('moon')">
                                 <el-image style="width: 20px; height: 20px" :src="require('../../assets/img/moon.png')" fit="contain"></el-image>
@@ -452,8 +457,8 @@ export default {
                 '3': '基站'
             },
             playback_address:'',
-            refresh_interval:'20s',
-            interval_num:20,//倒计时
+            refresh_interval:'60',
+            interval_num:60,//倒计时
             refresh_time_interval:null,
             current_login_user_info:{},//当前登录用户的信息
             userType_parameter: '',//请求接口拼接的用户类型
@@ -1672,6 +1677,16 @@ export default {
             // 判断这个时间格式是否为NaN-aN-aN aN:aN:aN，
             return isNaN(date) ? " " : formatDate(date, 'yyyy-MM-dd hh:mm:ss')
         },
+        formatTime(time){
+            var hour = 0, minute = 0, second = 0; //时间默认
+            var intDiff = time;
+            if (intDiff > 0) {
+                hour = Math.floor(intDiff / (60 * 60)).toString();
+                minute = (Math.floor(intDiff / 60) - (hour * 60)).toString();
+                second = (Math.floor(intDiff) - (hour * 60 * 60) - (minute * 60)).toString();
+            }
+            return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分':'') + (second > 0 ? second + '秒':'');
+        }
 
     }
 }
