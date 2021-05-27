@@ -173,7 +173,7 @@
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider class="slider_style_2" :min="200" :step="100" :max="1000" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
-                                    <!-- <span class="speed_content_text speed_content_text_t">总里程:12.07km</span> -->
+                                    <span class="speed_content_text speed_content_text_t">总里程:--</span>
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="5">
