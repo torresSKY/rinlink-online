@@ -208,7 +208,7 @@
                             <el-table-column prop="lat" label="纬度" min-width="140"></el-table-column>
                             <!-- <el-table-column prop="zip" label="行驶里程" min-width="120"></el-table-column> -->
                             <!-- <el-table-column prop="zip" label="停留时长" min-width="120"></el-table-column> -->
-                            <el-table-column prop="positionType" label="定位类型" min-width="120"></el-table-column>
+                            <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="120"></el-table-column>
                             <el-table-column prop="address" fixed="right"  label="位置" min-width="360">
                                 <template slot-scope="scope">
                                     <el-button v-if="scope.row.address == 'address'" @click="evt_getAdress(scope.row)" type="text" size="small">点击获取定位</el-button>
@@ -1323,6 +1323,7 @@ export default {
                             item['lat'] = res.data[i].coordinate.lat;
                             item['lng'] = res.data[i].coordinate.lng;
                             item['address'] = 'address';
+                            item['positionType'] = res.data[i].positionType;
                             point_arr.push(item);
                         }
                     }
@@ -1430,10 +1431,10 @@ export default {
             _this.map.closeInfoWindow();
             var infoWindow_html = `
                 <div class="tracks_label_html">
-                    <div class="tracks_label_html_item">定位方式:--</div>
-                    <div class="tracks_label_html_item">定位时间:${this.evt_formatDate(info.time)}</div>
+                    <div class="tracks_label_html_item">定位方式: ${this.positionType[info.positionType]}</div>
+                    <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(info.time)}</div>
                     <div class="tracks_label_html_item_flex">
-                        <div>定位位置:</div>
+                        <div>定位位置: </div>
                         <div onClick="evt_playback_address('${info.lng}','${info.lat}')" class="tracks_label_html_item_click">${this.playback_address == '' ? '点击查看地址' : this.playback_address}</div>
                     </div>
                 </div>
@@ -1612,6 +1613,9 @@ export default {
         },
         evt_table_formatCommandStatus:function(row,column){
             return this.command_status[row.commandStatus];
+        },
+        evt_table_formatPositionType:function(row,column){
+            return this.positionType[row.positionType]
         },
 
 
