@@ -1160,9 +1160,9 @@ export default {
                     <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
                 </div>
                 <div class="info_window_content_btn">
-                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','panorama')">街景</div>
-                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','trace')">跟踪</div>
-                    <div onClick="evt_track('${info.deviceId}','${info.deviceName}')">轨迹</div>
+                    <div onClick="evt_trace('${info.id}','${info.deviceName}','panorama')">街景</div>
+                    <div onClick="evt_trace('${info.id}','${info.deviceName}','trace')">跟踪</div>
+                    <div onClick="evt_track('${info.id}','${info.deviceName}')">轨迹</div>
                     <div onClick="evt_nav_fence('${info.deviceName}')">电子围栏</div>
                 </div>
             </div>`

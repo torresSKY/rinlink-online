@@ -39,11 +39,13 @@ export default {
             deviceId:'',
             interval:null,//刷新间隔
             interval_num:0,
+            userType_parameter: '',//请求接口拼接的用户类型
         }
     },
     created(){
-        console.log(this.$route.query.deviceId);
-        console.log(this.$route.query.panorama);
+        // console.log(this.$route.query.deviceId);
+        // console.log(this.$route.query.panorama);
+        this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
         this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
         this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示标识
         this.deviceId = this.$route.query.deviceId;
@@ -83,7 +85,7 @@ export default {
             var _this = this;
             var request_data = {};
             request_data['deviceId'] = _this.deviceId;
-            api.getDeviceLastCoordinate(request_data).then((res) => {
+            api.getDeviceLastCoordinate(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data){
                     _this.locationInfo = res.data;
