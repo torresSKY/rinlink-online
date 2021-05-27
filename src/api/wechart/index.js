@@ -168,7 +168,7 @@ const alarmStatistic = (data,type) => (   //分页查询设备报警统计
     axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE='+type, data)
 )
 const getModelList = (data,type) => (   //分页查询设备型号
-    axios.post(url+'/paging_query_device_models?__OPERATOR_TYPE='+type, data)
+    axios.post(url+'/paging_query_device_models', data)
 )
 const getBusiness = (data,type) => (   //查询代理商
     axios.post(url+'/query_business_users?__OPERATOR_TYPE='+type, data)

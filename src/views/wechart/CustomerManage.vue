@@ -11,9 +11,11 @@
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
                     </el-row>
-                    <el-row :style="{height:70 + 'vh'}">
+                    <el-row >
+                      <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
                         <el-tree :data="businessData" :props="defaultProps" ref="tree" 
                         @node-click="handleNodeClick"></el-tree>
+                      </el-scrollbar>  
                     </el-row>
                 </el-card>
             </el-col>
@@ -264,7 +266,7 @@ export default {
       api.getBusiness(data,this.type).then(res => {
           let data = res.data
           this.businessData = this.setTreeData(data)
-          this.getBusinessUserinfo(res.data[0].userId)
+          this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
           // console.log(this.businessData)
         }).catch(err => {
           this.businessData = []

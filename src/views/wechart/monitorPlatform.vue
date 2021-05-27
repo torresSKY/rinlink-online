@@ -1039,7 +1039,7 @@ export default {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.command_data_list = res.data.content;
-                    _this.command_total = res.data.pageTotal * _this.command_pageSize;
+                    _this.command_total = res.data.totalElements * _this.command_pageSize;
                 }else if(!res.success){
                     _this.$message({message: res.msg, type:"info", offset: "200", duration:"1500"});
                 }

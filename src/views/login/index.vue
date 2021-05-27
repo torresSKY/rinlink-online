@@ -2,7 +2,8 @@
   <div class="login-container" :style="backgroundDiv">
     <!-- <h3 class="title" style="letter-spacing:3px">{{$t('navbar.title')}}</h3> -->
     <div class="dlbg" :style="dlbg">
-      <img src='@/assets/img/LOGO1.png' class="logo">
+      <img src='@/assets/img/0.png' class="logo">
+      <div class="logo-title"><span>云途在线管理平台</span></div>
     </div>
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <!-- <div class="login-img">
@@ -22,8 +23,8 @@
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-      <div style="text-align:center">
-      <el-button type="primary" style="width:200px;margin-bottom:30px;background: #289DFF;
+      <div style="text-align:center;margin-top:10%">
+      <el-button type="primary" style="width:200px;background: #289DFF;
 border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
 font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
       </div>
@@ -260,26 +261,38 @@ export default {
       border-radius: 5px;
       background: #FFFFFF;
       position: absolute;
-      top: 59%;
+      top: 58vh;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 415px;
-      padding: 50px 35px 15px 35px;
+      height: 24vh;
+      padding: 30px 35px 15px 35px;
       // margin: 40px 0 0 55.6%;
     }
     .dlbg{
       width: 520px;
-      height: 220px;
+      height: 22vh;
       position: absolute;
-      top: 36%;
+      top: 34vh;
       left: 50%;
       transform: translate(-50%, -50%);
     }
     .logo{
-      width: 226px;
-      height: 66px;
+      width: 83px;
+      height: 83px;
       position: absolute;
-      top: 50%;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .logo-title{
+      font-size: 30px;
+font-family: Microsoft YaHei;
+// font-weight: bold;
+color: #FFFFFF;
+text-shadow: 0px 2px 4px rgba(19, 149, 255, 0.35);
+position: absolute;
+      top: 70%;
       left: 50%;
       transform: translate(-50%, -50%);
     }

@@ -1,5 +1,5 @@
 <template>
-    <div :style="{height:height + 'px',overflow:'hidden'}">
+    <div class="app" :style="{height:height +'px',overflow:'hidden' }">
         <el-row  >
             <el-col :span='4'>
                 <el-row class="cust-title">
@@ -14,7 +14,8 @@
                         <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select" clearable>
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
-                        <el-tree :data="data" :props="defaultProps" :highlight-current='true' @node-click="handleNodeClick" style="margin-top:10px"></el-tree>
+                        <el-tree :data="data" :props="defaultProps" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
+                        lazy :render-content="renderContent" style="margin-top:10px" ></el-tree>
                     </el-row>
                 </el-row>
             </el-col>
@@ -66,7 +67,7 @@
                 </el-row>
                 <el-row class="list-search"  v-show="moreFlag" :gutter="22">
                   <el-col :span='3'>
-                    <el-select v-model="timeType" :placeholder="$t('table.timeType')">
+                    <el-select v-model="timeType" :placeholder="$t('table.timeType')" clearable>
                       <el-option
                         v-for="item in timeTypeOptions"
                         :key="item.value"
@@ -77,13 +78,15 @@
                   </el-col>
                   <el-col :span='6' >
                     <el-date-picker
+                      clearable
                       v-model="time"
                       style="width:99%"
                       type="datetimerange"
                       range-separator="-"
                       value-format="timestamp"
                       :start-placeholder="$t('table.startdata')"
-                      :end-placeholder="$t('table.enddata')">
+                      :end-placeholder="$t('table.enddata')"
+                      :default-time="['00:00:00', '23:59:59']">
                     </el-date-picker>
                   </el-col>
                   <!-- <el-col :span='8' >
@@ -106,7 +109,7 @@
                     </el-col>  
                 </el-row>
                 <el-row  class="list-search" >
-                  <el-scrollbar style="height:66vh;" ref="scrollbar">
+                  <el-scrollbar :style="{height:height-200 +'px',overflow:'hidden' }" ref="scrollbar">
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
                   </el-scrollbar>
                 </el-row>
@@ -134,7 +137,7 @@
               </el-row>
               <el-row style="margin:10px 0">
                 <el-input :placeholder="$t('view.inputimei')" v-model="searchImei" class="input-with-select" clearable>
-                    <el-button slot="append" icon="el-icon-search" @click="searchEqu"></el-button>
+                    <el-button slot="append" icon="el-icon-circle-plus-outline" @click="searchEqu"></el-button>
                 </el-input>
               </el-row>
               <el-row>
@@ -150,8 +153,10 @@
                 <el-input :placeholder="$t('view.searchUser')" v-model="searchName" class="input-with-select" clearable>
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
-                <el-tree :data="insiadeData" :props="defaultProps" :highlight-current='true' 
-                @node-click="handleCust" style="margin-top:10px"></el-tree>
+                <el-scrollbar style="margin-top:10px" ref="scrollbar">
+                  <el-tree :data="insiadeData" :props="defaultProps" :highlight-current='true' 
+                  @node-click="handleCust" ></el-tree>
+                </el-scrollbar>
               </el-row>
             </el-col>
           </el-row>
@@ -176,12 +181,28 @@
             <el-col :span='4'>
               <el-checkbox v-model="checked">{{$t('view.changeSalesdate')}}</el-checkbox>
             </el-col>
+            <el-col :span='8' v-if="saleTotal>0">
+              <span>共计销售：{{saleTotal}}台，成功{{saleSuc}}台，失败<el-button type="text" style="color:red" @click="viewSaleInfo">{{saleFal}}</el-button>台</span>
+            </el-col>
           </el-row>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogSale = false">{{$t('button.cancel')}}</el-button>
-            <el-button type="primary" @click="confrimgSale">{{$t('button.determine')}}</el-button>
+            <el-button type="primary" @click="confrimgSale">{{$t('button.sale')}}</el-button>
           </span>
         </el-dialog> 
+        <!-- 销售情况 -->
+        <el-dialog
+          title="提示"
+          :visible.sync="dialogSaleInfo"
+          width="40%"
+          top='30vh'
+          :close-on-click-modal='false'
+          >
+          <span>成功{{saleSuc}}台，失败{{saleFal}}台</span>
+          <el-row style="margin-top:10px">
+            <BaseTable  :dataList="saleInfoList" :tableLabel="tableSaleInfo"   ></BaseTable>
+          </el-row>
+        </el-dialog>
         <!-- 移动到其他标签 -->
         <el-dialog
           :title="$t('button.moveLable')"
@@ -418,7 +439,7 @@ export default{
             return time.getTime() > Date.now();
           }
         },
-        height:900,
+        height:800,
         activeName: 'first',
         search:null,
         moreFlag:false,
@@ -434,6 +455,14 @@ export default{
         defaultProps: {
           children: 'children',
           label: 'username'
+        },
+        renderContent:function (h,{node,data,store}) {
+            let addElement = arguments[0];
+            return addElement('span',[
+                addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
+                addElement('span',"    "),
+                addElement('span',arguments[1].node.label)
+            ]);
         },
         hisTime:null,
         commandName:null,
@@ -586,15 +615,36 @@ export default{
           }
          }
         ],
-        type:null
+        type:null,
+        saleTotal:0,
+        saleSuc:0,
+        saleFal:0,
+        dialogSaleInfo:false,
+        saleInfoList:[],
+        tableSaleInfo:[
+          {label: this.$t('table.imei'), prop: 'deviceNumber'},
+          {label: '状态', prop: 'status',
+            type: 'render',
+              formatter: (params) => {
+                params['status'] = params.sellSuccess == true ? '成功'  : params.sellSuccess == false ? '失败' : ''
+                return params
+              }
+          },
+          {label: '原因', prop: 'falRemark'},
+        ],
       }
     },
     mounted(){
       this.type = JSON.parse(sessionStorage['user']).userType
-        this.height=document.body.offsetHeight-80
+        var that =this
+        window.onresize = () => {
+             return (() => {
+                 that.height = document.body.offsetHeight-142
+             })()
+           }
         this.getlist()
         this.getModelList()
-        this.getBusiness()
+        this.getBusiness(null)
         this.getRange()
     },
     methods:{
@@ -602,12 +652,18 @@ export default{
           this.loading = true
           var startTime = null 
           var endTime = null
-          if(this.time.length>0){
+          if(this.time){
             startTime = this.time[0]
             endTime = this.time[1]
+          }else{
+            startTime = null
+            endTime = null
           }
           if(this.deviceIdList==''){
             this.deviceIdList=null
+          }
+          if(this.deviceModelId==''){
+            this.deviceModelId=null
           }
           let data = {
             pageSize: this.page.size,
@@ -630,7 +686,7 @@ export default{
             // debugger
             if(res.success){
               this.dataList = res.data.content
-              this.page.total = res.data.pageTotal
+              this.page.total = res.data.totalElements
               // console.log(this.dataList)
             }else{
               this.dataList = []
@@ -649,9 +705,9 @@ export default{
         searchCustomer(){ // 搜索客户或账号
           let data = {
             searchType : 'username',
-            searchContent:this.searchType
+            searchContent:this.search
           }
-          api.searchBusiness(data).then(res => {
+          api.searchBusiness(data,this.type).then(res => {
             if(res.success){
               this.data = this.setTreeData(res.data)
             }else{
@@ -665,10 +721,11 @@ export default{
           })
         },
         getModelList(){ // 获取设备型号
-            api.getModelList({params: {
+            let data = {
               pageSize: 100,
-              page: this.page.index - 1,
-            }},this.type).then(res => {
+              page:0
+            }
+            api.getModelList(data).then(res => {
               this.deviceModeOptions = res.data.content
             }).catch(err => {
               this.deviceModeOptions = []
@@ -685,9 +742,9 @@ export default{
             this.$message.error(err.msg)
           })
         },
-        getBusiness(){ // 获取代理商
+        getBusiness(userId){ // 获取代理商
           let data = {
-            parentId:null
+            parentId:userId
           }
           api.getBusiness(data,this.type).then(res => {
               let data = res.data
@@ -735,7 +792,7 @@ export default{
           api.queryDevices(item,this.type).then(res => {
             if(res.success){
               this.dataList = res.data
-              this.page.total = res.data.pageTotal  
+              this.page.total = res.data.totalElements  
             }else {
               this.dataList = []
               this.page.total = 0
@@ -756,11 +813,16 @@ export default{
             case 'a': //销售-删除设备
               // debugger
               for(let i = 0;i<this.saleList.length;i++){
-                if(this.saleList[i].deviceId==data.deviceId){
+                // debugger
+                if(this.saleList[i].id==data.id){
                   this.saleList.splice(i,1)
+                  i--
                 }
               }
               this.equNum = this.saleList.length
+              break
+            case '3': //电子围栏 
+              this.$router.push({path:'/electric/electric',query:{deviceName:data.deviceName}})
               break
             case '4' : // 下发指令
               this.multipleSelection = []
@@ -825,6 +887,9 @@ export default{
           this.insiadeData = this.custData 
           this.saleList = list.concat(this.multipleSelection) 
           this.equNum = this.multipleSelection.length
+          this.saleTotal = 0
+          this.saleSuc = 0
+          this.saleFal = 0
           this.dialogSale = true
         },
         restInfo(){ // 重置
@@ -850,6 +915,9 @@ export default{
           }
           api.getDevicesList(data,this.type).then(res => {
             if(res.success){
+              if(res.data.content.length<=0){
+                return this.$message.warning(this.$t('table.temporarily'))
+              }
               let item = res.data.content[0]
               if(item.deviceModel){
                 item['model'] = item.deviceModel.name
@@ -926,7 +994,7 @@ export default{
             time = Number(this.expiredTimeType)
           }
           if(this.checked){
-            time = null
+            time = 0
           }
           // debugger
           this.saleList.forEach(function(item) {
@@ -937,12 +1005,35 @@ export default{
             expiredTime : time ,
             ownerId :this.custinfo.userId
           }
+          this.saleTotal = 0
+          this.saleSuc = 0
+          this.saleFal = 0
           api.sellDevices(data,this.type).then(res => {
             if(res.success){
               this.$message.success(this.$t('message.success'))
-              this.multipleSelection = []
-              this.dialogSale = false
-              this.getlist()
+              // this.multipleSelection = []
+              // this.dialogSale = false
+              // this.getlist()
+              let suc = 0
+              let fal = 0
+              this.saleTotal = res.data.length
+              for(let i = 0;i<res.data.length;i++){
+                if(res.data[i].sellSuccess){
+                  suc++
+                }else{
+                  fal++
+                }
+              }
+              this.saleSuc = suc
+              this.saleFal = fal
+              this.saleInfoList = res.data
+              for(let a = 0;a<this.saleList.length;a++){
+                for(let b = 0;b<this.saleInfoList.length;b++){
+                  if(this.saleList[a].id==this.saleInfoList[b].deviceId){
+                    this.saleInfoList[b]['deviceNumber'] = this.saleList[a].deviceNumber
+                  }
+                }
+              }
             }else {
               time = null
               this.$message.error(res.msg)
@@ -951,6 +1042,9 @@ export default{
             time = null
             this.$message.error(err.msg)
           })
+        },
+        viewSaleInfo(){
+          this.dialogSaleInfo = true
         },
         moveLable(){ // 移动到其他标签
           this.dialogLable = true
@@ -1050,6 +1144,6 @@ export default{
     border: 1px solid #EDF3FF;
 }
 .list-search{
-  padding: 10px 0 0 15px;
+  padding: 10px 10px 0 10px;
 }
 </style>

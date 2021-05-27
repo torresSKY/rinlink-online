@@ -4,13 +4,13 @@
     <div class="content" >
       <div class="topBar" >
         <el-row >
-          <el-col :span='2'>
-            <span class="title_top">
-              {{$t('navbar.title')}}
-            </span>
+          <el-col :span='4' >
+            <div class="title_top" :style="note">
+              <img src='@/assets/img/yuntuzaixian.png' style="width: 180px;height: 30px;display: inline-block; vertical-align: middle">
+            </div>  
           </el-col>
-          <el-col :span='16' style="text-align:center;padding-top:2px">
-            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#638FFF"  background-color="#638FFF" >
+          <el-col  :span='15' style="text-align:center;padding-top:2px">
+            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#576CE5"  background-color="#576CE5" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
                   <el-col :span='3'>
@@ -32,7 +32,7 @@
               </el-radio-group>
             </div>
           </el-col>
-          <el-col :span='2' >
+          <el-col :span='1' >
             <i class="el-icon-message-solid" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i> 
           </el-col> 
           <el-col :span='2'>
@@ -134,7 +134,13 @@ export default {
              }],
       lang: 1,
       height: 0,
-      logname: this.$store.getters.userName
+      logname: this.$store.getters.userName,
+      note: {
+        backgroundImage: 'url(' + require('@/assets/img/beijing_lg.png') + ')',
+        'background-repeat':'no-repeat',
+        backgroundSize:"100% 100%",
+        overflow: "hidden",
+      },
     };
   },
   mounted() {
@@ -339,13 +345,24 @@ export default {
 }
 
   .title_top {
+    // width: 179px;
+    // height: 32px;
+// height: 60px;
+width: 100%;
+// margin-top:6px;
+// display:table-cell;
+padding-left: 5px;
+text-align:left;
+// vertical-align:middle;
+// background-image: 'url(' + require('@/assets/img/beijing_lg.png') + ')';
+// border-radius: 0px 64px 0px 0px;
       line-height: 60px;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      float: left;
-      text-align: center;
-      padding-left: 16px;
+      // font-size: 20px;
+      // font-weight: 700;
+      // color: #fff;
+      // float: left;
+      // text-align: center;
+      // padding: 0px 20px;
     }
 
 .content {
@@ -359,7 +376,7 @@ export default {
 .topBar {
   line-height: 50px;
   height: 60px;
-  background: #638FFF;
+  background: #576CE5;
 }
 
 
@@ -382,7 +399,7 @@ export default {
 }
 .routerView {
   box-sizing: border-box;
-  // overflow:hidden;
+  overflow:hidden;
   width: 100%;
 }
 .viewTag {
@@ -423,7 +440,7 @@ export default {
 /deep/.el-radio-button .el-radio-button__inner {
   color: #2688ff;
   font-size: 14px;
-  background-color: #638FFF;
+  background-color: #576CE5;
   border: none;
   border-radius: 5px 5px 5px 5px;
 }

@@ -111,7 +111,7 @@
           width="30%">
           <el-form :model="shipmentForm" :rules="rules" ref="shipmentForm" label-width="100px" class="demo-ruleForm">
               <el-form-item :label="$t('table.model')" prop="deviceModelId">
-                 <el-select v-model="shipmentForm.deviceModelId" :placeholder="$t('table.model')">
+                 <el-select v-model="shipmentForm.deviceModelId" clearable :placeholder="$t('table.model')">
                     <el-option
                       v-for="item in modelList"
                       :key="item.id"
@@ -121,7 +121,7 @@
                   </el-select>
               </el-form-item>
               <el-form-item :label="$t('table.agent')" prop="businessUserId">
-                 <el-select v-model="shipmentForm.businessUserId" :placeholder="$t('table.agent')">
+                 <el-select v-model="shipmentForm.businessUserId" filterable clearable :placeholder="$t('table.agent')">
                     <el-option
                       v-for="item in businessoptions"
                       :key="item.userId"
@@ -131,7 +131,7 @@
                   </el-select>
               </el-form-item>
               <el-form-item :label="$t('table.imei')" prop="deviceNumber" v-if="!isMore">
-                  <el-input v-model="shipmentForm.deviceNumber" :placeholder="$t('table.imei')"></el-input>
+                  <el-input v-model="shipmentForm.deviceNumber" clearable :placeholder="$t('table.imei')"></el-input>
               </el-form-item>
               <el-form-item :label="$t('view.upfile')"  v-if="isMore">
                   <el-upload class="upload-demo" ref="upload" :limit="1" accept=".xls, .xlsx" action="string" :file-list="fileList" :show-file-list="true" :auto-upload="false"  :on-remove="handleRemove" :on-change="handleChange" >
@@ -139,7 +139,7 @@
                   </el-upload>
               </el-form-item>
               <el-form-item :label="$t('table.isCard')" prop="isWithCard">
-                 <el-select v-model="shipmentForm.isWithCard" :placeholder="$t('table.isCard')">
+                 <el-select v-model="shipmentForm.isWithCard" clearable :placeholder="$t('table.isCard')">
                     <el-option
                       v-for="item in isCardoptions"
                       :key="item.value"
@@ -149,7 +149,7 @@
                   </el-select>
               </el-form-item>
               <el-form-item :label="$t('table.serviceLife')" prop="usageYears">
-                 <el-select v-model="shipmentForm.usageYears" :placeholder="$t('table.serviceLife')">
+                 <el-select v-model="shipmentForm.usageYears" clearable :placeholder="$t('table.serviceLife')">
                     <el-option
                       v-for="item in usageYearsoptions"
                       :key="item.value"
@@ -159,7 +159,7 @@
                   </el-select>
               </el-form-item>
               <el-form-item :label="$t('table.activationType')" prop="activationType">
-                 <el-select v-model="shipmentForm.activationType" :placeholder="$t('table.activationType')"
+                 <el-select v-model="shipmentForm.activationType" clearable :placeholder="$t('table.activationType')"
                   @change="changeActivationType">
                     <el-option
                       v-for="item in activationoptions"
@@ -392,7 +392,7 @@ export default{
             api.getShipmentList(data,this.type).then(res => {
               this.loading = false
               this.dataList = res.data.content
-              this.page.total = res.data.pageTotal
+              this.page.total = res.data.totalElements
             }).catch(err => {
               this.loading = false
               this.dataList = []
