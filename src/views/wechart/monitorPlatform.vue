@@ -732,7 +732,13 @@ export default {
                 this.interval_num = parseInt(this.refresh_interval);
                 this.evt_refresh_interval();
             }
-            this.evt_queryDevices();
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(this.user_id == JSON.parse(sessionStorage['user']).userId){
+                this.evt_queryDevices('currentUser');
+            }else{
+                this.evt_queryDevices();
+            }
+            // this.evt_queryDevices();
         },
         // 搜索设备
         evt_searchDevice:function(){
@@ -1824,7 +1830,7 @@ export default {
     .item_content{
         background: #D5DCED;
         padding: 5px;
-        max-height: 70vh;
+        max-height: 76vh;
         overflow-y: scroll;
         .devices_item_t{
             background: #D8E3FF !important;
