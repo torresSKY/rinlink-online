@@ -63,7 +63,7 @@
                                                 <span class="el-dropdown-link">更多</span>
                                                 <el-dropdown-menu slot="dropdown">
                                                     <el-dropdown-item :command="{type:'detail',deviceId:item.id}">设备详情</el-dropdown-item>
-                                                    <el-dropdown-item :command="{type:'command',deviceId:item.id,deviceModelId:item.deviceModel.id}">设备指令</el-dropdown-item>
+                                                    <el-dropdown-item :command="{type:'command',deviceId:item.id,deviceModelId:item.deviceModel.id,deviceInfo:item}">设备指令</el-dropdown-item>
                                                 </el-dropdown-menu>
                                             </el-dropdown>
                                         </div>
@@ -306,14 +306,14 @@
         </el-dialog>
 
         <!-- 设备指令 -->
-        <el-drawer class="device_order" modal direction="rtl" :show-close="false" :visible="device_command_visible" size="50%">
+        <el-drawer class="device_order" modal direction="rtl" :show-close="false" :visible="device_command_visible" size="60%">
             <template slot="title">
                 <i class="device_order_top_icon el-icon-back" @click="evt_close_command_content"></i>
                 <span class="device_order_top_text" @click="evt_close_command_content">返回</span>
             </template>
             <el-tabs type="border-card" v-model="tab_value" @tab-click="evt_tab_click">
                 <el-tab-pane label="指令参数" name="parameter">
-                    <el-form>
+                    <!-- <el-form>
                         <div class="order_form_item">
                             <el-form-item label="指令类型:">
                                 <el-select @change="evt_change_command" v-model="command_template_id" placeholder="请选择指令类型">
@@ -335,16 +335,16 @@
                         <div class="order_form_btn">
                             <el-button type="primary" @click="evt_sendCommand">下发指令</el-button>
                         </div>
-                        
-                    </el-form>
+                    </el-form> -->
+                    <send-order ref="sendOrder" :list = "multipleSelection" @confrimSend='confrimSend'/>
                 </el-tab-pane>
                 <el-tab-pane label="历史指令" name="history">
                     <el-table class="" :data="command_data_list" border style="width: 100%" size="small">
-                        <el-table-column fixed prop="commandId" label="指令ID" min-width="60"></el-table-column>
-                        <el-table-column prop="commandName" label="指令类型" min-width="120"></el-table-column>
-                        <el-table-column prop="commandData" label="指令数据" min-width="120"></el-table-column>
-                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="120"></el-table-column>
-                        <el-table-column prop="commandStatus" label="指令结果" min-width="100"></el-table-column>
+                        <el-table-column fixed prop="commandId" label="指令ID" min-width="160" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="commandName" label="指令类型" min-width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatCommandData" prop="commandData" label="指令数据" min-width="140" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatCommandStatus" prop="commandStatus" label="指令结果" min-width="100" show-overflow-tooltip></el-table-column>
                     </el-table>
                     <el-pagination @current-change="evt_current_change" small background layout="total,prev, pager, next,jumper" :hide-on-single-page="true" :current-page="command_page" :page-size="command_pageSize" :total="command_total" style="text-align:center;margin-top:30px;"></el-pagination>
                 </el-tab-pane>
@@ -366,9 +366,11 @@ import api from '@/api/wechart/index'
 import mixin from '@/mixins/index'
 import { formatDate } from '@/plugins/date.js'
 import {gcj02tobd09, bd09togcj02, gcj02towgs84, wgs84togcj02} from '@/utils/baidumap.js'
+import sendOrder from './sendOrder.vue'
 export default {
     name: 'electric',
     mixins:[mixin],
+    components:{sendOrder},
     data(){
         return{
             imei: this.$route.query.imei,
@@ -455,6 +457,15 @@ export default {
             refresh_time_interval:null,
             current_login_user_info:{},//当前登录用户的信息
             userType_parameter: '',//请求接口拼接的用户类型
+            command_status:{
+                0: '已受理',
+                1: '待发送',
+                2: '已发送',
+                3: '已送达',
+                4: '失败',
+                5: '过期'
+            },//指令状态
+            multipleSelection:[],//使用下发指令模板传递的设备信息
         }
     },
     created(){
@@ -875,6 +886,7 @@ export default {
                 this.need_deviceModelId = item.deviceModelId;
                 this.evt_queryDeviceCmds();
                 this.device_command_visible = true;
+                this.multipleSelection = [item.deviceInfo];
             }
         },
         // 关闭设备详情
@@ -952,6 +964,7 @@ export default {
             this.command_template_id = '';
             this.is_template_content = true;
             this.command_templates_list = {};
+            this.tab_value = 'history';
         },
         // 设备指令的tab切换
         evt_tab_click:function(){
@@ -966,7 +979,19 @@ export default {
             if(this.tab_value == 'history'){
                 this.evt_queryDeviceCmds();
             }else{
-                this.evt_queryCommandTemplate();
+                // this.evt_queryCommandTemplate();
+                this.$nextTick(() => {
+                    this.$refs.sendOrder.formData = {}
+                    this.$refs.sendOrder.schema = null
+                    this.$refs.sendOrder.deviceCmdTemplateId = null
+                    this.$refs.sendOrder.getlist()
+                })
+            }
+        },
+        confrimSend:function(data){ // 
+            //console.log(data);
+            if(!data){
+                this.evt_close_command_content();
             }
         },
         // 获取查询设备指令模板
@@ -1572,6 +1597,18 @@ export default {
             return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
 
         },
+        evt_table_formatCommandData:function(row,column){
+            // console.log(row);
+            if(Object.keys(row.commandData).length > 0){
+                return JSON.stringify(row.commandData);
+            }else{
+                return '----'
+            }
+        },
+        evt_table_formatCommandStatus:function(row,column){
+            return this.command_status[row.commandStatus];
+        },
+
 
 
       
