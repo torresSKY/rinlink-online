@@ -107,10 +107,15 @@
                         <div>{{current_device_name != '' ? current_device_name + '：' + current_device_address : ''}}</div>
                         <div class="row_item_right_top_right">
                             <el-checkbox @change="evt_show_deviceName" v-model="show_deviceName">显示设备名称</el-checkbox>
-                            <el-select @change="evt_change_refreshInterval" style="width:70px;margin-left:10px;" v-model="refresh_interval" size="mini">
-                                <el-option label="10s" value="10"></el-option>
-                                <el-option label="20s" value="20"></el-option>
-                                <el-option label="30s" value="30"></el-option>
+                            <el-select @change="evt_change_refreshInterval" style="width:100px;margin-left:10px;" v-model="refresh_interval" size="mini">
+                                <el-option label="10秒" value="10"></el-option>
+                                <el-option label="30秒" value="30"></el-option>
+                                <el-option label="1分钟" value="60"></el-option>
+                                <el-option label="10分钟" value="600"></el-option>
+                                <el-option label="30分钟" value="1800"></el-option>
+                                <el-option label="1小时" value="3600"></el-option>
+                                <el-option label="5小时" value="18000"></el-option>
+                                <el-option label="12小时" value="43200"></el-option>
                             </el-select>
                             <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
                         </div>
@@ -168,7 +173,7 @@
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider class="slider_style_2" :min="200" :step="100" :max="1000" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
-                                    <!-- <span class="speed_content_text speed_content_text_t">总里程:12.07km</span> -->
+                                    <span class="speed_content_text speed_content_text_t">总里程:--</span>
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="5">
@@ -180,7 +185,7 @@
                     </div>
                     <div class="map_container">
                         <div id="container"></div>
-                        <div class="refresh_text" v-if="!track_detail">{{interval_num}}秒后刷新</div>
+                        <div class="refresh_text" v-if="!track_detail">{{interval_num|formatTime}}后刷新</div>
                         <div class="map_type">
                             <div @click="evt_change_mapType('moon')">
                                 <el-image style="width: 20px; height: 20px" :src="require('../../assets/img/moon.png')" fit="contain"></el-image>
@@ -208,7 +213,7 @@
                             <el-table-column prop="lat" label="纬度" min-width="140"></el-table-column>
                             <!-- <el-table-column prop="zip" label="行驶里程" min-width="120"></el-table-column> -->
                             <!-- <el-table-column prop="zip" label="停留时长" min-width="120"></el-table-column> -->
-                            <el-table-column prop="positionType" label="定位类型" min-width="120"></el-table-column>
+                            <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="120"></el-table-column>
                             <el-table-column prop="address" fixed="right"  label="位置" min-width="360">
                                 <template slot-scope="scope">
                                     <el-button v-if="scope.row.address == 'address'" @click="evt_getAdress(scope.row)" type="text" size="small">点击获取定位</el-button>
@@ -385,8 +390,6 @@ export default {
             device_info_model:'',
             order_form_value:'',
             order_form_parameter:'',
-
-
             height: 0, //可视高度
             map: null,//实例化地图
             change_type:'all',//切换全部、在线、离线设备统计
@@ -452,8 +455,8 @@ export default {
                 '3': '基站'
             },
             playback_address:'',
-            refresh_interval:'20s',
-            interval_num:20,//倒计时
+            refresh_interval:'60',
+            interval_num:60,//倒计时
             refresh_time_interval:null,
             current_login_user_info:{},//当前登录用户的信息
             userType_parameter: '',//请求接口拼接的用户类型
@@ -466,7 +469,6 @@ export default {
                 5: '过期'
             },//指令状态
             multipleSelection:[],//使用下发指令模板传递的设备信息
-
         }
     },
     created(){
@@ -479,8 +481,9 @@ export default {
             this.current_select_deviceId = this.$route.query.deviceId;
             this.need_handle_deviceId = this.$route.query.deviceId;
         }
+        
         this.evt_getRangeIconList();
-
+        
         this.evt_getCurrentUserInfo();
         if(JSON.parse(sessionStorage['user']).userType == '2'){
             this.evt_getBusinessUserinfo();
@@ -490,7 +493,6 @@ export default {
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
-
         this.map = new BMap.Map("container");
         this.map.enableScrollWheelZoom(true); 
         this.map.centerAndZoom(new BMap.Point(121.3515259,31.1285691),15);
@@ -503,7 +505,6 @@ export default {
         trafficControl.setAnchor(BMAP_ANCHOR_TOP_RIGHT);
         trafficControl.setOffset(new BMap.Size(20,110));
         // this.evt_addMarker();
-
         // 在字符串模板中绑定的事件
         window.evt_track = this.evt_track;
         window.evt_trace = this.evt_trace;
@@ -557,7 +558,6 @@ export default {
                     _this.$nextTick(function(){
                         _this.$refs.userTree.setCurrentKey(_this.user_id);
                         _this.evt_queryDevices();
-
                     })
                 }else if(!res.success){
                     _this.$message({message: res.msg || '用户列表数据获取失败！',type:'error',offset:'200',duration:'1000'});
@@ -707,7 +707,6 @@ export default {
         evt_route:function(info){
             var _this = this;
             var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
-
             _this.evt_addMarker(point);
             if(_this.show_deviceName){
                 _this.evt_addLabel(point,info);
@@ -732,7 +731,13 @@ export default {
                 this.interval_num = parseInt(this.refresh_interval);
                 this.evt_refresh_interval();
             }
-            this.evt_queryDevices();
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(this.user_id == JSON.parse(sessionStorage['user']).userId){
+                this.evt_queryDevices('currentUser');
+            }else{
+                this.evt_queryDevices();
+            }
+            // this.evt_queryDevices();
         },
         // 搜索设备
         evt_searchDevice:function(){
@@ -754,7 +759,6 @@ export default {
             // }).catch((err) => {
             //     _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
             // })
-
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
@@ -840,7 +844,6 @@ export default {
                 _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
             })
         },
-
         // 选中、取消选择设备
         evt_select_devices:function(deviceId,type){
             // console.log(deviceId);
@@ -993,7 +996,7 @@ export default {
                 })
             }
         },
-         confrimSend:function(data){ // 
+        confrimSend:function(data){ // 
             //console.log(data);
             if(!data){
                 this.evt_close_command_content();
@@ -1069,7 +1072,7 @@ export default {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.command_data_list = res.data.content;
-                    _this.command_total = res.data.totalElements * _this.command_pageSize;
+                    _this.command_total = res.data.pageTotal * _this.command_pageSize;
                 }else if(!res.success){
                     _this.$message({message: res.msg, type:"info", offset: "200", duration:"1500"});
                 }
@@ -1082,7 +1085,6 @@ export default {
             this.command_page = num;
             this.evt_queryDeviceCmds();
         },
-
          // 添加覆盖物
         evt_addOverlay:function(info){
             var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
@@ -1149,9 +1151,9 @@ export default {
                     <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
                 </div>
                 <div class="info_window_content_btn">
-                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','panorama')">街景</div>
-                    <div onClick="evt_trace('${info.deviceId}','${info.deviceName}','trace')">跟踪</div>
-                    <div onClick="evt_track('${info.deviceId}','${info.deviceName}')">轨迹</div>
+                    <div onClick="evt_trace('${info.id}','${info.deviceName}','panorama')">街景</div>
+                    <div onClick="evt_trace('${info.id}','${info.deviceName}','trace')">跟踪</div>
+                    <div onClick="evt_track('${info.id}','${info.deviceName}')">轨迹</div>
                     <div onClick="evt_nav_fence('${info.deviceName}')">电子围栏</div>
                 </div>
             </div>`
@@ -1258,7 +1260,6 @@ export default {
             api.queryDeviceTracks(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
-
                     // var point_arr = res.data;
                     // 静态调试数据
                     // var point_arr = [
@@ -1323,10 +1324,10 @@ export default {
                             item['lat'] = res.data[i].coordinate.lat;
                             item['lng'] = res.data[i].coordinate.lng;
                             item['address'] = 'address';
+                            item['positionType'] = res.data[i].positionType;
                             point_arr.push(item);
                         }
                     }
-
                     // 获取轨迹明细时拿到数据
                     if(_this.tracksDetail_flag){
                         _this.current_tracksDetail_page = 1;
@@ -1397,7 +1398,6 @@ export default {
                     _this.play_flag = false;
                 }
             }, speed);
-
         },
         // 轨迹回放的marker
         evt_playback_addMarker:function(point){
@@ -1422,7 +1422,6 @@ export default {
                 marker.name = 'playFlag';
             }
             _this.map.addOverlay(marker);
-
         },
         // 轨迹回放的信息窗口
         evt_playback_infoWindow:function(point,info){
@@ -1430,11 +1429,11 @@ export default {
             _this.map.closeInfoWindow();
             var infoWindow_html = `
                 <div class="tracks_label_html">
-                    <div class="tracks_label_html_item">定位方式:--</div>
-                    <div class="tracks_label_html_item">定位时间:${this.evt_formatDate(info.time)}</div>
+                    <div class="tracks_label_html_item">定位方式: ${this.positionType[info.positionType]}</div>
+                    <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(info.time)}</div>
                     <div class="tracks_label_html_item_flex">
-                        <div>定位位置:</div>
-                        <div onClick="evt_playback_address('${info.lng}','${info.lat}')" class="tracks_label_html_item_click">${this.playback_address == '' ? '点击查看地址' : this.playback_address}</div>
+                        <div>定位位置: </div>
+                        <div onClick="evt_playback_address('${info.lng}','${info.lat}','${info.time}','${info.positionType}')" class="tracks_label_html_item_click">${this.playback_address == '' ? '点击查看地址' : this.playback_address}</div>
                     </div>
                 </div>
             `
@@ -1606,7 +1605,6 @@ export default {
             let date = row.createTime ? row.createTime : row.time;
             let date_time = new Date(date);
             return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
-
         },
         evt_table_formatCommandData:function(row,column){
             // console.log(row);
@@ -1619,8 +1617,9 @@ export default {
         evt_table_formatCommandStatus:function(row,column){
             return this.command_status[row.commandStatus];
         },
-
-
+        evt_table_formatPositionType:function(row,column){
+            return this.positionType[row.positionType]
+        },
       
         bd09togcj02(bd_lon, bd_lat) { 
     　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
@@ -1652,7 +1651,6 @@ export default {
             ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
             return ret
         },
-
         transformlng(lng, lat) { 
             var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
             ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
@@ -1667,7 +1665,16 @@ export default {
             // 判断这个时间格式是否为NaN-aN-aN aN:aN:aN，
             return isNaN(date) ? " " : formatDate(date, 'yyyy-MM-dd hh:mm:ss')
         },
-
+        formatTime(time){
+            var hour = 0, minute = 0, second = 0; //时间默认
+            var intDiff = time;
+            if (intDiff > 0) {
+                hour = Math.floor(intDiff / (60 * 60)).toString();
+                minute = (Math.floor(intDiff / 60) - (hour * 60)).toString();
+                second = (Math.floor(intDiff) - (hour * 60 * 60) - (minute * 60)).toString();
+            }
+            return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分':'') + (second > 0 ? second + '秒':'');
+        }
     }
 }
 </script>
@@ -1825,7 +1832,7 @@ export default {
     .item_content{
         background: #D5DCED;
         padding: 5px;
-        max-height: 70vh;
+        max-height: 76vh;
         overflow-y: scroll;
         .devices_item_t{
             background: #D8E3FF !important;
@@ -1917,7 +1924,6 @@ export default {
                         }
                     }
                 }
-
             }
             .devices_item_bottom{
                 display: flex;
@@ -1959,7 +1965,6 @@ export default {
             filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
         }
     }
-
     /deep/ .el-collapse{
         border: 0px !important;
     }
@@ -2222,7 +2227,6 @@ export default {
             }
         }
     }
-
     /deep/ .el-table td,.el-table th {
         text-align: center !important;
     }
@@ -2274,7 +2278,6 @@ export default {
     /deep/ .el-dialog__headerbtn{
         top: 14px;
     }
-
 }
 .device_info_left{
     .device_info_left_input_1{
@@ -2363,7 +2366,6 @@ export default {
 /deep/ .anchorBL {
     display: block; 
 }
-
 /deep/ .BMap_cpyCtrl {
     display: block; 
 }
@@ -2403,7 +2405,6 @@ export default {
     left: 50%;
     transform: translateX(-50%) rotate(-135deg);
 }
-
 /deep/ .info_window_content{
     // position: relative;
     // // top: 100px;
@@ -2456,9 +2457,7 @@ export default {
             color: #218FFF;
         }
     }
-
 }
-
 /deep/ .BMap_pop div:nth-child(1){
     border-radius:7px 0 0 0;
 }
@@ -2483,7 +2482,6 @@ export default {
 /deep/ .BMap_shadow{
     display:none;
 }
-
 /deep/ .tracks_label_html{
     cursor: pointer;
     .tracks_label_html_item{
@@ -2506,9 +2504,7 @@ export default {
             color: #4391FE;
         }
     }
-
 }
-
 </style>
 <style>
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
