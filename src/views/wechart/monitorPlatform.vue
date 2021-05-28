@@ -762,6 +762,10 @@ export default {
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
+                request_data['ownerId'] = _this.user_id;
+            }
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
