@@ -25,7 +25,7 @@ export default {
     tongji: '报警统计',
     fence: '围栏管理',
     control:'控制台',
-    statistics:'统计列表',
+    statistics:'统计报表',
     sell:'出货管理',
     setting:'系统设置',
     notice:'通知',

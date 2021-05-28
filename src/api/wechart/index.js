@@ -83,6 +83,21 @@ const deleManager = (data,type) => (   //删除系统管理员
 const upsetPwd = (data,type) => (   //重置系统管理员密码
     axios.post(url+'/reset_system_manager_user_password?__OPERATOR_TYPE='+type, data)
 )
+const getBManagerList = (data,type) => (   //分页查询B端管理员
+    axios.post(url+'/paging_business_manager_users?__OPERATOR_TYPE='+type, data)
+)
+const addBManager = (data,type) => (   //添加B端管理员
+    axios.post(url+'/create_business_manager_user?__OPERATOR_TYPE='+type, data)
+)
+const editBManager = (data,type) => (   //修改B端管理员
+    axios.post(url+'/update_business_manager_user?__OPERATOR_TYPE='+type, data)
+)
+const deleBManager = (data,type) => (   //删除B端管理员
+    axios.post(url+'/delete_business_manager_user?__OPERATOR_TYPE='+type, data)
+)
+const upsetBPwd = (data,type) => (   //重置B端管理员密码
+    axios.post(url+'/reset_business_manager_user_password?__OPERATOR_TYPE='+type, data)
+)
 const getAuthority = (data) => (   //查询权限
     axios.post(url+'/query_system_manager_user_authorities', data)
 )
@@ -351,6 +366,11 @@ export default {
     deleteCmdTemplates,
     getDeviceCmdTemplates,
     createDeviceCmd,
+    getBManagerList,
+    addBManager,
+    editBManager,
+    deleBManager,
+    upsetBPwd,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,
