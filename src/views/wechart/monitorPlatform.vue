@@ -1154,7 +1154,7 @@ export default {
                     <div onClick="evt_trace('${info.id}','${info.deviceName}','panorama')">街景</div>
                     <div onClick="evt_trace('${info.id}','${info.deviceName}','trace')">跟踪</div>
                     <div onClick="evt_track('${info.id}','${info.deviceName}')">轨迹</div>
-                    <div onClick="evt_nav_fence('${info.deviceName}')">电子围栏</div>
+                    <div onClick="evt_nav_fence('${info.deviceName}','${info.id}')">电子围栏</div>
                 </div>
             </div>`
             var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
@@ -1223,8 +1223,8 @@ export default {
             window.open(routeUrl.href, '_blank');
         },
         // 跳转电子围栏
-        evt_nav_fence:function(deviceName){
-            this.$router.push({path:'/electric/electric',query:{deviceName:deviceName}});
+        evt_nav_fence:function(deviceName,deviceId){
+            this.$router.push({path:'/electric/electric',query:{deviceName:deviceName,deviceId:deviceId}});
         },
         // 信息窗口上的轨迹
         evt_track:function(deviceId,deviceName){

@@ -9,6 +9,7 @@
                             <el-col :span="10">
                                 <el-select @change="evt_changeSearchType" v-model="select_type_name" placeholder="请选择查询类型" size="small">
                                     <el-option key="设备名称"  label="设备名称" value="deviceName"></el-option>
+                                    <el-option key="设备IMEI"  label="设备IMEI" value="deviceNumber"></el-option>
                                     <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
                             </el-col>
@@ -19,7 +20,7 @@
                                     <div v-if="fenceSearch_content_flag" class="fenceSearch_content_tab">
                                         <el-table @row-click="evt_row_click"  size="mini" :data="search_result" style="width:100%" :show-header="false">
                                             <el-table-column v-if="select_type_name == 'fenceName'" prop="fenceName" label="围栏名称"></el-table-column>
-                                            <el-table-column v-if="select_type_name == 'deviceName'" prop="deviceName" label="设备名称"></el-table-column>
+                                            <el-table-column v-if="select_type_name == 'deviceName' || select_type_name == 'deviceNumber'" prop="deviceName" label="设备名称"></el-table-column>
                                         </el-table>
                                     </div>
                                 </div>
@@ -333,6 +334,7 @@ export default {
             label_true: true,
             label_false: false,
             userType_parameter: '',//请求接口拼接的用户类型
+            nav_deviceId: '',//路由中携带的设备id 存在即是其他页面跳转就来的
         }
     },
     watch: {
@@ -352,12 +354,12 @@ export default {
     },
     created(){
         this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
-        if(this.$route.query.deviceName){
-            this.select_type_name = 'deviceName';
-            this.fenceSearchContent = this.$route.query.deviceName;
-            this.evt_fence_query();
-            return;
-        }
+
+        this.select_type_name = this.$route.query.deviceName ?  'deviceName' : '';
+        this.fenceSearchContent = this.$route.query.deviceName ? this.$route.query.deviceName : '';
+        this.nav_deviceId = this.$route.query.deviceId ? this.$route.query.deviceId : '';
+        this.fenceSearchDeviceId = this.$route.query.deviceId ? this.$route.query.deviceId : '';
+
         this.evt_queryPen();
     },
     mounted(){
@@ -511,8 +513,14 @@ export default {
             }
             if(!_this.update_pen){
                 type = 'create';
-                _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
-                _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
+                var point = bd09togcj02(_this.click_point.lng,_this.click_point.lat);
+                // console.log(point);
+                _this.pen_form.fenceArea['lat'] = point[1];
+                _this.pen_form.fenceArea['lng'] = point[0];
+                // 单设备跳转进来的
+                if(_this.nav_deviceId != ''){
+                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                }
             }
             api.createUpdateCircleFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
                 if(res.success){
@@ -545,6 +553,10 @@ export default {
             if(!_this.update_pen){
                 type = 'create';
                 _this.pen_form.fenceArea['points'] = _this.point_arr;
+                // 单设备跳转进来的
+                if(_this.nav_deviceId != ''){
+                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                }
             }
             delete _this.pen_form.fenceArea.radius;
             api.createUpdatePolygonFence(type, _this.pen_form,_this.userType_parameter).then((res) => {
@@ -581,6 +593,10 @@ export default {
                 _this.pen_form.fenceArea['areaCode'] = _this.selected_adcode;
                 _this.pen_form.fenceArea['areaName'] = _this.selected_areaName;
                 _this.pen_form.fenceArea['areaLevel'] = _this.selected_level;
+                // 单设备跳转进来的
+                if(_this.nav_deviceId != ''){
+                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                }
                 var boundary = new BMap.Boundary();
                 boundary.get(_this.selected_areaName,function(res){
                     // console.log(res);
@@ -746,6 +762,30 @@ export default {
                 });
             });
         },
+        // 模糊搜索设备
+        evt_search_device:function(){
+            var _this = this;
+            _this.search_result = [];
+            var request_data = {};
+            request_data['page'] = 0;
+            request_data['pageSize'] = 20;
+            if(_this.select_type_name == 'deviceNumber'){
+                request_data['deviceNumberKeyword'] = _this.fenceSearchContent;
+            }else{
+                request_data['deviceNameKeyword'] = _this.fenceSearchContent;
+            }
+            api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
+                if(res.success && Object.keys(res.data).length > 0){
+                    _this.search_result = res.data.content;
+                    _this.fenceSearch_content_flag = true;
+                }else if(res.success && Object.keys(res.data).length > 0 && res.data.content.length == 0){
+                    _this.search_result = [];
+                    _this.fenceSearch_content_flag = true;
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
+            })
+        },
         // 根据类型模糊搜索电子围栏
         evt_fence_query:function(){
             var _this = this;
@@ -757,36 +797,16 @@ export default {
                 _this.$message({message:'请输入搜索内容',type:'warning',offset:'200'})
                 return;
             }
-            _this.search_result = [];
-            var request_data = {};
-            request_data['searchType'] = _this.select_type_name;
-            request_data['searchContent'] = _this.fenceSearchContent;
-            api.searchFences(request_data,_this.userType_parameter).then((res) => {
-                // console.log(res);
-                if(res.success && res.data && res.data.length > 0){
-                    // 判断是否页面跳转查看电子围栏
-                    if(_this.$route.query.deviceName){
-                        _this.fenceSearchId = '';
-                        _this.fenceSearchDeviceId = res.data[0].deviceId;
-                        _this.evt_queryPen();
-                        return;
-                    }
 
-                    _this.search_result = res.data;
-                    _this.fenceSearch_content_flag = true;
-                }else if(res.success && res.data && res.data.length == 0){
-                    _this.search_result = [];
-                    _this.fenceSearch_content_flag = true;
-                }
-            }).catch((err) => {
-                _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
-            })
-            // let fence_search =  document.getElementById("fence_search");
-            // fence_search.focus();
-            // fence_search.addEventListener('blur',function(){
-            //     _this.fenceSearch_content_flag = false;
-            //     fence_search.removeEventListener('blur',function(){});
-            // },false)
+            if(_this.select_type_name == 'fenceName'){
+                 // 分页参数初始化
+                _this.queryPen_page = 0;
+                _this.queryPen_dataList = [];
+                _this.queryPen_pageTotal = 1;
+                _this.evt_queryPen();
+            }else{
+                _this.evt_search_device();
+            }
             
             let dom_element = document.getElementsByTagName('body')[0];
             dom_element.addEventListener('click',function(){
@@ -797,6 +817,8 @@ export default {
         evt_changeSearchType:function(e){
             // console.log(e);
             this.search_result = [];
+            this.fenceSearchContent = '';
+            this.fenceSearchDeviceId = '';
         },
         evt_row_click:function(row){
             // console.log(row);
@@ -804,13 +826,7 @@ export default {
             this.queryPen_page = 0;
             this.queryPen_dataList = [];
             this.queryPen_pageTotal = 1;
-            if(this.select_type_name == 'fenceName'){
-                this.fenceSearchId = row.fenceId;
-                this.fenceSearchDeviceId = ''
-            }else{
-                this.fenceSearchId = '';
-                this.fenceSearchDeviceId = row.deviceId;
-            }
+            this.fenceSearchDeviceId = row.id;
             this.fenceSearch_content_flag = false;
             this.evt_queryPen();
         },
@@ -820,11 +836,12 @@ export default {
             var query_data = {};
             query_data['pageSize'] = _this.queryPen_pageSize;
             query_data['page'] = _this.queryPen_page;
-            if(_this.fenceSearchId != ''){
-                query_data['fenceId'] = _this.fenceSearchId;
-            }
-            if(_this.fenceSearchDeviceId != ''){
+
+            if(_this.select_type_name != 'fenceName' && _this.fenceSearchDeviceId != ''){
                 query_data['deviceId'] = _this.fenceSearchDeviceId;
+            }
+            if(_this.select_type_name == 'fenceName' && _this.fenceSearchContent.trim() != ''){
+                query_data['fenceNameKeyword'] = _this.fenceSearchContent;
             }
             api.queryPen(query_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
@@ -832,6 +849,8 @@ export default {
                     var new_data = res.data.content;
                     _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
                     _this.queryPen_pageTotal = res.data.pageTotal;
+                }else if(res.success && res.data.content.length == 0){
+                    _this.$message({message: '未搜索到相关数据',type:'info',offset:'200',duration:'1500'});
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:"200",duration:"1000"});
@@ -857,7 +876,9 @@ export default {
             var _this = this;
             _this.map.clearOverlays();
             if(item.fenceType == 0){
-                var point = new BMap.Point(item.circleFence.coordinate.lng,item.circleFence.coordinate.lat);
+                var point_t = gcj02tobd09(item.circleFence.coordinate.lng,item.circleFence.coordinate.lat);
+                // console.log(point_t);
+                var point = new BMap.Point(point_t[0],point_t[1]);
                 var radius = item.circleFence.radius;
                 var circle = new BMap.Circle(point,radius,_this.opts);
                 _this.map.centerAndZoom(point,13);
@@ -1023,9 +1044,30 @@ export default {
         // 显示关联设备模块
         evt_show_relevance:function(item){
             this.relevance_fenceId = item.fenceId;
-            this.relevance_device_flag = true;
-            this.evt_getCurrentUserInfo();
+            this.evt_queryFenceDevices();
+
             // this.evt_getBusiness();
+        },
+        // 获取选择围栏已经关联的设备
+        evt_queryFenceDevices:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['fenceId'] = _this.relevance_fenceId;
+            api.queryFenceDevices(request_data,_this.userType_parameter).then((res) => {
+                // console.log(res);
+                if(res.success && res.data != null && res.data.length > 0){
+                    for(var key in res.data){
+                        res.data[key]['id'] = res.data[key].deviceId;
+                    }
+                    _this.selected_devices = res.data;
+                }
+                _this.evt_getCurrentUserInfo();
+                // 关联设备的弹框
+                _this.relevance_device_flag = true;
+            }).catch((err) => {
+                // console.log(err);
+                _this.$message({type:'error',message:err.msg || err.data,offset:'200',duration:'1500'})
+            })
         },
         // 关闭关联设备弹框
         evt_close:function(){

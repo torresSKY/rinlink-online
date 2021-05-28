@@ -315,6 +315,9 @@ const queryBusinessUserInfo = (data,type) => (//获取客户服务商信息
 const getCurrentUserInfo = (data) => (
     axios.post(url + '/get_current_user_info',data)
 )
+const queryFenceDevices = (data,type) => (
+    axios.post(url + '/query_fence_devices?__OPERATOR_TYPE=' + type,data)
+)
 export default {
     login,
     getManagerList,
@@ -404,5 +407,6 @@ export default {
     getDeviceCommand,
     sendCommand,
     queryBusinessUserInfo,
-    getCurrentUserInfo
+    getCurrentUserInfo,
+    queryFenceDevices
 }
