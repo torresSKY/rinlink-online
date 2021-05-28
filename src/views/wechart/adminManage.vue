@@ -124,9 +124,9 @@
                     username:'',
                     password:'',
                     confirmPaw:'',
-                    roleId:'',
+                    roleId:null,
                     remark:'',
-                    userId:''
+                    userId:null
                 },
                 options:[],
                 dialogPwd:false,
@@ -153,15 +153,29 @@
                 pageSize: this.page.size,
                 page: this.page.index - 1
               }
-              api.getManagerList(data,this.type).then(res => {
-                this.loading = false
-                this.dataList = res.data.content
-                this.page.total = res.data.pageTotal
-              }).catch(err => {
-                this.loading = false
-                this.dataList = []
-                this.$message.error(err.msg)
-              })
+              if(this.type==1){
+                api.getManagerList(data,this.type).then(res => {
+                  this.loading = false
+                  this.dataList = res.data.content
+                  this.page.total = res.data.totalElements
+                }).catch(err => {
+                  this.loading = false
+                  this.dataList = []
+                  this.$message.error(err.msg)
+                })
+              }else{
+                api.getBManagerList(data,this.type).then(res => {
+                  this.loading = false
+                  this.dataList = res.data.content
+                  this.page.total = res.data.totalElements
+                }).catch(err => {
+                  this.loading = false
+                  this.dataList = []
+                  this.$message.error(err.msg)
+                })
+              }
+              
+              
             },
             getroles(){ // 获取角色列表
               api.getRolesList(this.type).then(res => {
@@ -181,12 +195,12 @@
                     username:'',
                     password:'',
                     confirmPaw:'',
-                    roleId:'',
+                    roleId:null,
                     remark:'',
-                    userId:''
+                    userId:null
                 }
                 this.isEdit = false
-                this.getroles()
+                // this.getroles()
                 this.dialogAdmin = true
                 
             },
@@ -210,18 +224,34 @@
                       roleId:this.adminForm.roleId,
                       remark:this.adminForm.remark
                     }
-                    api.addManager(data,this.type).then(res => {
-                      if(res.success){
-                        this.$message.success(this.$t('message.addsuc'))
-                        this.$refs['adminForm'].resetFields()
-                        this.dialogAdmin = false
-                        this.getlist()
-                      }else {
-                        this.$message.error(res.msg)
-                      }
-                    }).catch(err => {
-                      this.$message.error(err.msg)
-                    })
+                    if(this.type==1){
+                      api.addManager(data,this.type).then(res => {
+                        if(res.success){
+                          this.$message.success(this.$t('message.addsuc'))
+                          this.$refs['adminForm'].resetFields()
+                          this.dialogAdmin = false
+                          this.getlist()
+                        }else {
+                          this.$message.error(res.msg)
+                        }
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+                    }else{
+                      api.addBManager(data,this.type).then(res => {
+                        if(res.success){
+                          this.$message.success(this.$t('message.addsuc'))
+                          this.$refs['adminForm'].resetFields()
+                          this.dialogAdmin = false
+                          this.getlist()
+                        }else {
+                          this.$message.error(res.msg)
+                        }
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+                    }
+                    
                   } else {
                     data = {
                       nickname:this.adminForm.nickname,
@@ -230,18 +260,34 @@
                       roleId:this.adminForm.roleId,
                       remark:this.adminForm.remark
                     }
-                    api.editManager(data,this.type).then(res => {
-                      if(res.success){
-                        this.$message.success(this.$t('message.changesuc'))
-                        this.$refs['adminForm'].resetFields()
-                        this.dialogAdmin = false
-                        this.getlist()
-                      }else {
-                        this.$message.error(res.msg)
-                      }
-                    }).catch(err => {
-                      this.$message.error(err.msg)
-                    })
+                    if(this.type==1){
+                      api.editManager(data,this.type).then(res => {
+                        if(res.success){
+                          this.$message.success(this.$t('message.changesuc'))
+                          this.$refs['adminForm'].resetFields()
+                          this.dialogAdmin = false
+                          this.getlist()
+                        }else {
+                          this.$message.error(res.msg)
+                        }
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+                    }else{
+                      api.editBManager(data,this.type).then(res => {
+                        if(res.success){
+                          this.$message.success(this.$t('message.changesuc'))
+                          this.$refs['adminForm'].resetFields()
+                          this.dialogAdmin = false
+                          this.getlist()
+                        }else {
+                          this.$message.error(res.msg)
+                        }
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+                    }
+                    
                   }
                   
                   
@@ -254,7 +300,7 @@
             showDialog(index, data){ // 操作
               switch (index) {
                 case '1': // 修改系统管理员
-                  this.getroles()
+                  // this.getroles()
                   this.adminForm = {
                     nickname:data.nickname,
                     username:data.username,
@@ -274,17 +320,32 @@
                     let id = {
                       userId:data.userId
                     }
-                    api.deleManager(id,this.type).then(res => {
-                      if(res.success){
-                        this.$message.success(this.$t('message.delesuc'))
-                        this.getlist()
-                      }else{
-                        this.$message.error(res.msg)
-                      }
-                      
-                    }).catch(err => {
-                      this.$message.error(err.msg)
-                    })
+                    if(this.type==1){
+                      api.deleManager(id,this.type).then(res => {
+                        if(res.success){
+                          this.$message.success(this.$t('message.delesuc'))
+                          this.getlist()
+                        }else{
+                          this.$message.error(res.msg)
+                        }
+                        
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+                    }else{
+                      api.deleBManager(id,this.type).then(res => {
+                        if(res.success){
+                          this.$message.success(this.$t('message.delesuc'))
+                          this.getlist()
+                        }else{
+                          this.$message.error(res.msg)
+                        }
+                        
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+                    }
+                    
                   }).catch(err => {
                     console.log(err)
                   })
@@ -314,19 +375,36 @@
                     userId:this.pwdForm.userId,
                     password:this.pwdForm.password
                   }
-                  api.upsetPwd(data,this.type).then(res => {
+                  if(this.type==1){
+                    api.upsetPwd(data,this.type).then(res => {
                     // debugger
-                    if(res.success){
-                      this.$message.success(this.$t('message.changesuc'))
-                      this.$refs['pwdForm'].resetFields()
-                      this.dialogPwd = false
-                      this.getlist()
-                    }else {
-                      this.$message.error(res.msg)
-                    }
-                  }).catch(err => {
-                    this.$message.error(err.msg)
-                  })
+                      if(res.success){
+                        this.$message.success(this.$t('message.changesuc'))
+                        this.$refs['pwdForm'].resetFields()
+                        this.dialogPwd = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })
+                  }else{
+                    api.upsetBPwd(data,this.type).then(res => {
+                    // debugger
+                      if(res.success){
+                        this.$message.success(this.$t('message.changesuc'))
+                        this.$refs['pwdForm'].resetFields()
+                        this.dialogPwd = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })  
+                  }
+                  
                 } else {
                   this.$message.warning(this.$t('message.checkmsg'))
                   return false

@@ -13,8 +13,8 @@
                     </el-row>
                     <el-row >
                       <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                        <el-tree :data="businessData" :props="defaultProps" ref="tree" 
-                        @node-click="handleNodeClick"></el-tree>
+                        <el-tree :data="businessData" :props="defaultProps" ref="tree"  :expand-on-click-node="false" node-key="userId"
+                        @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
                     </el-row>
                 </el-card>
@@ -211,7 +211,15 @@ export default {
         password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
         confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
       },
-      type:null
+      type:null,
+      renderContent:function (h,{node,data,store}) {
+            let addElement = arguments[0];
+            return addElement('span',[
+                addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
+                addElement('span',"    "),
+                addElement('span',arguments[1].node.label)
+            ]);
+        },
     }
   },
   mounted() {
@@ -252,7 +260,7 @@ export default {
         api.getBusinessList(data,this.type).then(res => {
           this.loading = false
           this.dataList = res.data.content
-          this.page.total = res.data.pageTotal
+          this.page.total = res.data.totalElements
         }).catch(err => {
           this.loading = false
           this.dataList = []
@@ -330,6 +338,34 @@ export default {
             }
         });
         return treeData;
+    },
+    evt_loadTree(node, resolve){ //查询客户下级
+      console.log(node)
+      var _this = this
+        if(node.level === 0){
+            return resolve(_this.businessData);
+        }
+        if(node.level != 0){
+            var request_data = {}
+            request_data['parentId'] = node.data.userId
+            api.getBusiness(request_data,_this.type).then((res) => {
+                if(res.success){
+                    if(res.data.length == 0){
+                        resolve([])
+                        return
+                    }
+                    var children_data = res.data
+                    node.data['children'] = children_data
+                    resolve(children_data)
+                }else{
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+                resolve([]);
+            })
+        }  
     },
     handleNodeClick(data) { // 选择用户节点
         // console.log(data)

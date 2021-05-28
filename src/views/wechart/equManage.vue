@@ -89,16 +89,17 @@
                       :default-time="['00:00:00', '23:59:59']">
                     </el-date-picker>
                   </el-col>
-                  <!-- <el-col :span='8' >
+                  <el-col :span='15' >
                     <el-row style="line-height:40px">
-                      <el-col :span='4'>
+                      <el-col :span='3'>
                         <span>{{$t('table.useLimit')}}：</span>
                       </el-col>
-                      <el-col :span='12' v-for="item in range" :key="item[1].name">
-                        <img :src="item[1].iconUrl" alt="">
+                      <el-col :span='21' >
+                        <!-- <img :src="item[1].iconUrl" alt=""> -->
+                        <span v-for="item in range" :key="item[0]" class='fangwei'>{{item[1].name}}&nbsp;&nbsp;</span>
                       </el-col>
                     </el-row>
-                  </el-col> -->
+                  </el-col>
                 </el-row>
                 <el-row class="list-search" >
                     <el-col :span='8'>
@@ -109,7 +110,7 @@
                     </el-col>  
                 </el-row>
                 <el-row  class="list-search" >
-                  <el-scrollbar :style="{height:height-200 +'px',overflow:'hidden' }" ref="scrollbar">
+                  <el-scrollbar style="height:62vh;" ref="scrollbar">
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
                   </el-scrollbar>
                 </el-row>
@@ -154,8 +155,8 @@
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
                 <el-scrollbar style="margin-top:10px" ref="scrollbar">
-                  <el-tree :data="insiadeData" :props="defaultProps" :highlight-current='true' 
-                  @node-click="handleCust" ></el-tree>
+                  <el-tree :data="insiadeData" ref="tree" :props="defaultProps" :highlight-current='true' :expand-on-click-node="false" 
+                  node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust" ></el-tree>
                 </el-scrollbar>
               </el-row>
             </el-col>
@@ -439,7 +440,7 @@ export default{
             return time.getTime() > Date.now();
           }
         },
-        height:800,
+        height:1000,
         activeName: 'first',
         search:null,
         moreFlag:false,
@@ -781,7 +782,7 @@ export default{
             });
             return treeData;
         },
-        evt_loadTree(node, resolve){
+        evt_loadTree(node, resolve){ //查询客户下级
           console.log(node)
           var _this = this
             if(node.level === 0){
@@ -797,13 +798,34 @@ export default{
                             return
                         }
                         var children_data = res.data
-                        // for(let i = 0, len = res.data.length; i < len; i++){
-                        //     var user_data = {};
-                        //     user_data['label'] = res.data[i].username + '(' + res.data[i].sellDevices +'/'+ res.data[i].devices +')';
-                        //     user_data['info'] = res.data[i];
-                        //     user_data['user_id'] = res.data[i].userId;
-                        //     children_data.push(user_data);
-                        // }
+                        node.data['children'] = children_data
+                        resolve(children_data)
+                    }else{
+                        _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                        resolve([]);
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                })
+            }  
+        },
+        evt_loadTree2(node, resolve){ //查询客户下级
+          console.log(node)
+          var _this = this
+            if(node.level === 0){
+                return resolve(_this.insiadeData);
+            }
+            if(node.level != 0){
+                var request_data = {}
+                request_data['parentId'] = node.data.userId
+                api.getBusiness(request_data,_this.type).then((res) => {
+                    if(res.success){
+                        if(res.data.length == 0){
+                            resolve([])
+                            return
+                        }
+                        var children_data = res.data
                         node.data['children'] = children_data
                         resolve(children_data)
                     }else{
@@ -1029,7 +1051,7 @@ export default{
             time = Number(this.expiredTimeType)
           }
           if(this.checked){
-            time = 0
+            time = null
           }
           // debugger
           this.saleList.forEach(function(item) {
@@ -1180,5 +1202,8 @@ export default{
 }
 .list-search{
   padding: 10px 10px 0 10px;
+}
+.fangwei{
+  cursor: pointer;
 }
 </style>
