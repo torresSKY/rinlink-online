@@ -14,8 +14,8 @@
                         <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select" clearable>
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
-                        <el-tree :data="data" :props="defaultProps" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
-                        lazy :render-content="renderContent" style="margin-top:10px" ></el-tree>
+                        <el-tree :data="data" :props="defaultProps" :expand-on-click-node="false" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
+                        lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
                     </el-row>
                 </el-row>
             </el-col>
@@ -780,6 +780,41 @@ export default{
                 }
             });
             return treeData;
+        },
+        evt_loadTree(node, resolve){
+          console.log(node)
+          var _this = this
+            if(node.level === 0){
+                return resolve(_this.data);
+            }
+            if(node.level != 0){
+                var request_data = {}
+                request_data['parentId'] = node.data.userId
+                api.getBusiness(request_data,_this.type).then((res) => {
+                    if(res.success){
+                        if(res.data.length == 0){
+                            resolve([])
+                            return
+                        }
+                        var children_data = res.data
+                        // for(let i = 0, len = res.data.length; i < len; i++){
+                        //     var user_data = {};
+                        //     user_data['label'] = res.data[i].username + '(' + res.data[i].sellDevices +'/'+ res.data[i].devices +')';
+                        //     user_data['info'] = res.data[i];
+                        //     user_data['user_id'] = res.data[i].userId;
+                        //     children_data.push(user_data);
+                        // }
+                        node.data['children'] = children_data
+                        resolve(children_data)
+                    }else{
+                        _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                        resolve([]);
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                })
+            }  
         },
         handleClick(tab, event) { // 全部客户，到期客户
           console.log(tab, event);
