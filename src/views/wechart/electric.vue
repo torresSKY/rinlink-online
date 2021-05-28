@@ -511,9 +511,12 @@ export default {
             }
             if(!_this.update_pen){
                 type = 'create';
-                _this.pen_form.fenceArea['lat'] = _this.click_point.lat;
-                _this.pen_form.fenceArea['lng'] = _this.click_point.lng;
+                var point = bd09togcj02(_this.click_point.lng,_this.click_point.lat);
+                // console.log(point);
+                _this.pen_form.fenceArea['lat'] = point[1];
+                _this.pen_form.fenceArea['lng'] = point[0];
             }
+            return;
             api.createUpdateCircleFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
                 if(res.success){
                     if(!_this.update_pen){
@@ -857,7 +860,9 @@ export default {
             var _this = this;
             _this.map.clearOverlays();
             if(item.fenceType == 0){
-                var point = new BMap.Point(item.circleFence.coordinate.lng,item.circleFence.coordinate.lat);
+                var point_t = gcj02tobd09(item.circleFence.coordinate.lng,item.circleFence.coordinate.lat);
+                // console.log(point_t);
+                var point = new BMap.Point(point_t[0],point_t[1]);
                 var radius = item.circleFence.radius;
                 var circle = new BMap.Circle(point,radius,_this.opts);
                 _this.map.centerAndZoom(point,13);
@@ -1023,9 +1028,30 @@ export default {
         // 显示关联设备模块
         evt_show_relevance:function(item){
             this.relevance_fenceId = item.fenceId;
-            this.relevance_device_flag = true;
-            this.evt_getCurrentUserInfo();
+            this.evt_queryFenceDevices();
+
             // this.evt_getBusiness();
+        },
+        // 获取选择围栏已经关联的设备
+        evt_queryFenceDevices:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['fenceId'] = _this.relevance_fenceId;
+            api.queryFenceDevices(request_data,_this.userType_parameter).then((res) => {
+                // console.log(res);
+                if(res.success && res.data != null && res.data.length > 0){
+                    for(var key in res.data){
+                        res.data[key]['id'] = res.data[key].deviceId;
+                    }
+                    _this.selected_devices = res.data;
+                }
+                _this.evt_getCurrentUserInfo();
+                // 关联设备的弹框
+                _this.relevance_device_flag = true;
+            }).catch((err) => {
+                // console.log(err);
+                _this.$message({type:'error',message:err.msg || err.data,offset:'200',duration:'1500'})
+            })
         },
         // 关闭关联设备弹框
         evt_close:function(){
