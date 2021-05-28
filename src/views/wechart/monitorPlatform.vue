@@ -4,7 +4,7 @@
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <div class="row_item_left">
                     <div class="row_item_top_left">
-                        <div>{{current_login_user_info.username}}(库存{{current_login_user_info.devices - current_login_user_info.sellDevices}}/总数{{current_login_user_info.devices}})</div>
+                        <div>{{current_login_user_info.username}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
@@ -479,10 +479,14 @@ export default {
             this.current_select_deviceId = this.$route.query.deviceId;
             this.need_handle_deviceId = this.$route.query.deviceId;
         }
-        
         this.evt_getRangeIconList();
-        this.evt_getBusinessUserinfo();
+
         this.evt_getCurrentUserInfo();
+        if(JSON.parse(sessionStorage['user']).userType == '2'){
+            this.evt_getBusinessUserinfo();
+        }else if(JSON.parse(sessionStorage['user']).userType == '3'){
+            this.current_login_user_info = JSON.parse(sessionStorage['user']);
+        }
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
@@ -523,7 +527,7 @@ export default {
                 this.map.setMapType(BMAP_NORMAL_MAP);
             }
         },
-        // 获取当前登录用户的信息
+        // 获取当前登录用户的信息 b端用户
         evt_getBusinessUserinfo:function(){
             var _this = this;
             api.getBusinessUserinfo({},_this.userType_parameter).then((res) =>{
