@@ -4,12 +4,12 @@
     <div class="content" >
       <div class="topBar" >
         <el-row >
-          <el-col :span='4' >
+          <el-col :span='3' >
             <div class="title_top" :style="note">
               <img src='@/assets/img/yuntuzaixian.png' style="width: 180px;height: 30px;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
-          <el-col  :span='15' style="text-align:center;padding-top:2px">
+          <el-col  :span='18' style="text-align:center;padding-top:2px">
             <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#576CE5"  background-color="#576CE5" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
@@ -23,15 +23,15 @@
               </template>
             </el-menu> 
           </el-col>
-          <el-col :span='2' style="line-height:40px">
+          <!-- <el-col :span='2' style="line-height:40px">
             <div class="lang" >
-              <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()">
+              <el-radio-group v-model="lang" size="small" text-color="#fff" fill="#2688FF" @change="changeLangEvent()"> -->
                 <!-- <el-radio-button class="lang_btn" :label="1">{{$t('button.ch')}}</el-radio-button> -->
                 <!-- <el-radio-button class="lang_btn" :label="2">{{$t('button.en')}}</el-radio-button>
                 <el-radio-button class="lang_btn" :label="3">{{$t('button.jpn')}}</el-radio-button> -->
-              </el-radio-group>
+              <!-- </el-radio-group>
             </div>
-          </el-col>
+          </el-col> -->
           <el-col :span='1' >
             <i class="el-icon-message-solid" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i> 
           </el-col> 
@@ -463,5 +463,11 @@ text-align:left;
 .el-menu.el-menu--horizontal{
     border-bottom: 0!important;
  
+}
+.el-menu-item i{
+  color: #fff!important;
+}
+.el-menu-item.is-active i{
+  color: #576CE5!important;
 }
 </style>

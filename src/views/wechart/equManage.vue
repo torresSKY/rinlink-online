@@ -96,7 +96,8 @@
                       </el-col>
                       <el-col :span='21' >
                         <!-- <img :src="item[1].iconUrl" alt=""> -->
-                        <span v-for="item in range" :key="item[0]" class='fangwei'>{{item[1].name}}&nbsp;&nbsp;</span>
+                        <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
+                        @click="addClass(index,item)" :class="{ ischeck:index==current}">{{item[1].name}}&nbsp;&nbsp;</span>
                       </el-col>
                     </el-row>
                   </el-col>
@@ -231,67 +232,81 @@
           :visible.sync="dialogEquinfo"
           width="40%">
           <el-form :model="equinfoForm" ref="equinfoForm"  label-width="140px">
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.Device')+'：'"  >
-                <el-input  v-model="equinfoForm.deviceName" :placeholder="$t('table.Device')" ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.imei')+'：'"  >
-                <span>{{equinfoForm.deviceNumber}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.model')+'：'"  >
-                <span>{{equinfoForm.deviceModel.name}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.status')+'：'"  >
-                <span>{{equinfoForm.networkStatus == 1 ? '在线'  : '离线'}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.activationTime')+'：'"  >
-                <span>{{equinfoForm.activationTime | formatDate}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.salesTime')+'：'"  >
-                <span>{{equinfoForm.sellTime | formatDate}}</span>
-              </el-form-item>
-            </el-col>
+            <el-row>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.Device')+'：'"  >
+                  <el-input  v-model="equinfoForm.deviceName" :placeholder="$t('table.Device')" ></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.imei')+'：'"  >
+                  <span>{{equinfoForm.deviceNumber}}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.model')+'：'"  >
+                  <span>{{equinfoForm.deviceModel.name}}</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.status')+'：'"  >
+                  <span>{{equinfoForm.networkStatus == 1 ? '在线'  : '离线'}}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.activationTime')+'：'"  >
+                  <span>{{equinfoForm.activationTime | formatDate}}</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.salesTime')+'：'"  >
+                  <span>{{equinfoForm.sellTime | formatDate}}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
             <el-col :span='12'>
               <el-form-item :label="$t('table.expire')+'：'"  >
                 <span>{{equinfoForm.serviceExpireTime | formatDate}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.importtime')+'：'"  >
-                <span>{{equinfoForm.createTime | formatDate}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.useLimit')+'：'"  >
-                <span>{{equinfoForm.useRangeCode}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span='12'>
-              <el-form-item :label="$t('table.iccid')+'：'"  >
-                <span>{{equinfoForm.iccid}}</span>
-                <!-- <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input> -->
-              </el-form-item>
-            </el-col>
-            <el-col :span='23'>
-              <el-form-item :label="$t('table.note')+'：'"  >
-                <el-input type='textarea' :rows="2" v-model="equinfoForm.remark" :placeholder="$t('table.note')" ></el-input>
-              </el-form-item>
-            </el-col>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.importtime')+'：'"  >
+                  <span>{{equinfoForm.createTime | formatDate}}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.useLimit')+'：'"  >
+                  <!-- <span>{{equinfoForm.useRangeCode}}</span> -->
+                  <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
+                  @click="addClass1(index,item)" :class="{ ischeck:index==current1}">{{item[1].name}}&nbsp;&nbsp;</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='12'>
+                <el-form-item :label="$t('table.iccid')+'：'"  >
+                  <span>{{equinfoForm.iccid}}</span>
+                  <!-- <el-input  v-model="equinfoForm.value" :placeholder="$t('table.iccid')" ></el-input> -->
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span='22'>
+                <el-form-item :label="$t('table.note')+'：'"  >
+                  <el-input type='textarea' :rows="2" v-model="equinfoForm.remark" :placeholder="$t('table.note')" ></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
-          <span slot="footer" class="dialog-footer">
+          <div slot="footer" class="dialog-footer" style="margin-top:10px">
             <el-button @click="dialogEquinfo = false">{{$t('button.cancel')}}</el-button>
             <el-button type="primary" @click="confrimEquinfo">{{$t('button.determine')}}</el-button>
-          </span>
+          </div>
         </el-dialog>
         <!-- 下发指令 -->
         <el-dialog
@@ -477,6 +492,7 @@ export default{
         searchName:'',
         deviceIdList:null,
         deviceModelId:null,
+        useRangeCode:null,
         deviceModeOptions:[],
         networkStatus:'',
         networkStatusOptions:[
@@ -633,6 +649,8 @@ export default{
           },
           {label: '原因', prop: 'falRemark'},
         ],
+        current:-1,
+        current1:-1
       }
     },
     mounted(){
@@ -649,6 +667,15 @@ export default{
         this.getRange()
     },
     methods:{
+        addClass(index,item){
+          // console.log(item)
+          this.current=index
+          this.useRangeCode = item[0]
+        },
+        addClass1(index,item){
+          this.current1=index
+          this.equinfoForm.useRangeCode = item[0]
+        },
         getlist(type){ // 获取设备型号列表
           this.loading = true
           var startTime = null 
@@ -673,6 +700,7 @@ export default{
             deviceModelId:this.deviceModelId,
             networkStatus:this.networkStatus,
             useStatus:this.useStatus,
+            useRangeCode:this.useRangeCode,
             containsChildren:this.containsChildren,
             startTime:startTime,
             endTime:endTime,
@@ -864,7 +892,13 @@ export default{
         showDialog(index, data){ // 操作
           switch (index) {
             case '1': // 设备详情
+              this.current1 = -1
               this.equinfoForm = Object.assign({},data)
+              for(let i=0;i<this.range.length;i++){
+                if(this.range[i][0]==this.equinfoForm.useRangeCode){
+                  this.current1 = i
+                }
+              }
               this.dialogEquinfo = true
               break
             case 'a': //销售-删除设备
@@ -1206,4 +1240,12 @@ export default{
 .fangwei{
   cursor: pointer;
 }
+.ischeck  {
+  color: rgb(52, 105, 219);
+}
+</style>
+<style >
+ .el-tree-node__expand-icon {
+   color: #353638!important;
+ }
 </style>
