@@ -286,7 +286,7 @@ export default {
         searchType : 'username',
         searchContent:this.searchType
       }
-     api.searchBusiness(data).then(res => {
+     api.searchBusiness(data,this.type).then(res => {
         if(res.success){
           this.businessData = this.setTreeData(res.data)
           this.getlist(2,res.data[0].parentId)
