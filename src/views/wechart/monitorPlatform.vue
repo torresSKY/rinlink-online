@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="devices_item_bottom">
                                         <div>
-                                            <el-button @click="evt_trace(item.id,item.deviceName,'trace')" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
+                                            <el-button @click="evt_trace(item.id,item.deviceName,item.deviceNumber,'trace')" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
                                         </div>
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
@@ -1164,8 +1164,8 @@ export default {
                     <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
                 </div>
                 <div class="info_window_content_btn">
-                    <div onClick="evt_trace('${info.id}','${info.deviceName}','panorama')">街景</div>
-                    <div onClick="evt_trace('${info.id}','${info.deviceName}','trace')">跟踪</div>
+                    <div onClick="evt_trace('${info.id}','${info.deviceName}','${info.deviceNumber}','panorama')">街景</div>
+                    <div onClick="evt_trace('${info.id}','${info.deviceName}','${info.deviceNumber}','trace')">跟踪</div>
                     <div onClick="evt_track('${info.id}','${info.deviceName}')">轨迹</div>
                     <div onClick="evt_nav_fence('${info.deviceName}','${info.id}')">电子围栏</div>
                 </div>
@@ -1228,10 +1228,10 @@ export default {
             })
         },
         // 追踪
-        evt_trace:function(deviceId,deviceName,panorama){
+        evt_trace:function(deviceId,deviceName,deviceNumber,panorama){
             let routeUrl = this.$router.resolve({
                 path: "/trace",
-                query: {deviceId:deviceId,deviceName:deviceName,panorama:panorama == 'panorama' ? 'panorama':'trace'}
+                query: {deviceId:deviceId,deviceName:deviceName,deviceNumber:deviceNumber,panorama:panorama == 'panorama' ? 'panorama':'trace'}
             });
             window.open(routeUrl.href, '_blank');
         },

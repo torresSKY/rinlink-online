@@ -25,6 +25,7 @@
 var geocoder = new BMap.Geocoder();
 import api from '@/api/wechart/index'
 import { formatDate } from '@/plugins/date.js'
+import {gcj02tobd09, bd09togcj02, gcj02towgs84, wgs84togcj02} from '@/utils/baidumap.js'
 export default {
     name:'trace',
     data(){
@@ -40,6 +41,7 @@ export default {
             interval:null,//刷新间隔
             interval_num:0,
             userType_parameter: '',//请求接口拼接的用户类型
+            deviceNumber:'',
         }
     },
     created(){
@@ -49,6 +51,7 @@ export default {
         this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
         this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示标识
         this.deviceId = this.$route.query.deviceId;
+        this.deviceNumber = this.$route.query.deviceNumber;
         this.evt_getDeviceLastCoordinate();
     },
     mounted(){
@@ -88,6 +91,11 @@ export default {
             api.getDeviceLastCoordinate(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data){
+                    // gcj02转bd09
+                    if(Object.keys(res.data.coordinate).length == 0) return;
+                    var point_t = gcj02tobd09(res.data.coordinate.lng,res.data.coordinate.lat);
+                    res.data.coordinate.lng = point_t[0];
+                    res.data.coordinate.lat = point_t[1];
                     _this.locationInfo = res.data;
                     _this.locationArr = _this.locationArr.concat(res.data);
                     if(_this.Panorama_flag){
@@ -132,7 +140,7 @@ export default {
                     <span>定位方式：--</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：${this.deviceId}</span>
+                    <span>设备号：${this.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.time)}</span>
