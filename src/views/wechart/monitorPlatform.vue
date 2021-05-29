@@ -11,7 +11,7 @@
                         <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name">
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
-                        <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                        <el-tree style="width:100%" ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                     </div>
                 </div>
             </el-col>
@@ -762,6 +762,10 @@ export default {
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
+                request_data['ownerId'] = _this.user_id;
+            }
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
@@ -1738,6 +1742,9 @@ export default {
     /deep/  .el-tree-node.is-current > .el-tree-node__content {
         background-color: #D8E3FF !important;
         border: 1px solid #4391FE;
+    }
+    /deep/ .el-tree-node>.el-tree-node__children{
+        overflow:scroll;
     }
 }
 .row_item_middle{
