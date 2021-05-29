@@ -570,7 +570,7 @@ export default {
         evt_getCurrentUserInfo:function(){
             var _this = this;
             api.getCurrentUserInfo({}).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && Object.keys(res.data).length > 0){
                     var user_data = {};
                     user_data['label'] = res.data.username;
@@ -689,6 +689,14 @@ export default {
                 // console.log(res);
                 if(res.success && res.data){
                     _this.devices_list = [];
+                    // 把设备返回的gdj02坐标转换成bd09
+                    for(var key in res.data){
+                        if(Object.keys(res.data[key].positionInfo).length > 0 &&  Object.keys(res.data[key].positionInfo.coordinate).length > 0){
+                            var point_t = gcj02tobd09(res.data[key].positionInfo.coordinate.lng,res.data[key].positionInfo.coordinate.lat);
+                            res.data[key].positionInfo.coordinate.lng = point_t[0];
+                            res.data[key].positionInfo.coordinate.lat = point_t[1];
+                        }
+                    }
                     _this.devices_list = res.data;
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         // 遍历增加一个区分是否选中的标识
@@ -745,20 +753,6 @@ export default {
             if(_this.searchDevice_name.trim() == '') return;
             _this.change_type = 'all';
             var request_data = {};
-            // request_data['searchType'] = 'deviceName';
-            // request_data['searchContent'] = _this.searchDevice_name;
-            // request_data['ownerId'] = _this.user_id;
-            // api.searchDevices(request_data).then((res) =>{
-            //     // console.log(res);
-            //     if(res.success && res.data && res.data.length > 0){
-            //         _this.devices_list = res.data;
-            //         for(let i = 0, len = _this.devices_list.length; i < len; i++){
-            //             _this.$set(_this.devices_list[i],'checked',false);
-            //         }
-            //     }
-            // }).catch((err) => {
-            //     _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
-            // })
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
@@ -816,6 +810,14 @@ export default {
             api.queryDevices(request_data,_this.userType_parameter).then((res) => {
                 if(res.success && res.data && res.data.length > 0){
                     _this.evt_clearOverlays();
+                    // 把设备返回的gdj02坐标转换成bd09
+                    for(var key in res.data){
+                        if(Object.keys(res.data[key].positionInfo).length > 0 &&  Object.keys(res.data[key].positionInfo.coordinate).length > 0){
+                            var point_t = gcj02tobd09(res.data[key].positionInfo.coordinate.lng,res.data[key].positionInfo.coordinate.lat);
+                            res.data[key].positionInfo.coordinate.lng = point_t[0];
+                            res.data[key].positionInfo.coordinate.lat = point_t[1];
+                        }
+                    }
                     var refresh_devices_list = res.data;
                     var infoWindow_info = {};
                     for(let i in refresh_devices_list){
@@ -852,6 +854,7 @@ export default {
         evt_select_devices:function(deviceId,type){
             // console.log(deviceId);
             var allOverlays = this.map.getOverlays();
+            // console.log(allOverlays);
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
             this.device_tracks_step = 0;
@@ -875,6 +878,12 @@ export default {
                         this.need_handle_deviceId = this.devices_list[i].id;
                         this.current_select_deviceId = this.devices_list[i].id;
                         if(this.devices_list[i].positionInfo && this.devices_list[i].positionInfo.coordinate && this.devices_list[i].positionInfo.coordinate.lng){
+                            // 删除如果已存在的覆盖层 重新添加
+                            for(var key in allOverlays){
+                                if(allOverlays[key].point && allOverlays[key].point.lng == this.devices_list[i].positionInfo.coordinate.lng && allOverlays[key].point.lat == this.devices_list[i].positionInfo.coordinate.lat){
+                                    this.map.removeOverlay(allOverlays[key]); 
+                                }
+                            }
                             this.evt_addOverlay(this.devices_list[i]);
                             var point = new BMap.Point(this.devices_list[i].positionInfo.coordinate.lng,this.devices_list[i].positionInfo.coordinate.lat);
                             this.evt_getLocation(point);
@@ -1264,35 +1273,6 @@ export default {
             api.queryDeviceTracks(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
-                    // var point_arr = res.data;
-                    // 静态调试数据
-                    // var point_arr = [
-                    //     {lat: 31.128352571190476,lng: 121.37138743482554,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.128650098565206,lng: 121.37240701157936,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.129422892538635,lng: 121.37333675778218,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.130620710633398,lng: 121.37463930077166,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.13159054570692,lng: 121.37480997881855,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.13313221511309,lng: 121.37374997831678,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.13557796954707,lng: 121.37237107935896,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.13890842055603,lng: 121.37054302764615,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.13986271595277,lng: 121.37004895961567,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.142675319651374,lng: 121.36861616232726,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.146870887807264,lng: 121.3663344663319,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.147315158907368,lng: 121.36558887275862,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.146944289264447,lng: 121.36451090614665,positionType:'GPS定位',time:1234444,address:'address'},
-                    //     {lat: 31.14678975981412,lng: 121.3647309909966,positionType:'GPS定位',time:1234444,address:'address'}
-                    // ]
-                    // 动态返回数据格式
-                    // [
-                    //     {
-                    //     "time": 1111,
-                    //     "coordinate": {
-                    //         "lng": "1.1",
-                    //         "lat": "1.2"
-                    //     }
-                    //     }
-                    // ]
-                    
                     clearInterval(_this.device_tracks_interval);
                     _this.device_tracks_step = 0;
                     _this.device_tracks = [];
@@ -1304,22 +1284,6 @@ export default {
                         _this.play_flag = false;
                         return;
                     }
-                    // var arr = [
-                    //     {'time': 1234564332,'coordinate': {'lat':31.128352571190476,'lng':121.37138743482554}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.128650098565206,'lng':121.37240701157936}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.129422892538635,'lng':121.37333675778218}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.130620710633398,'lng':121.37463930077166}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.13159054570692,'lng':121.37480997881855}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.13313221511309,'lng':121.37374997831678}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.13557796954707,'lng':121.37237107935896}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.13890842055603,'lng':121.37054302764615}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.13986271595277,'lng':121.37004895961567}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.142675319651374,'lng':121.36861616232726}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.146870887807264,'lng':121.3663344663319}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.147315158907368,'lng':121.36558887275862}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.146944289264447,'lng':121.36451090614665}},
-                    //     {'time': 1234564332,'coordinate': {'lat':31.14678975981412,'lng':121.3647309909966}}
-                    // ]
                     var point_arr = [];
                     for(let i = 0, len = res.data.length; i < len; i++){
                         if(res.data[i].coordinate && Object.keys(res.data[i].coordinate).length > 0){
