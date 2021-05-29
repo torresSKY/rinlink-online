@@ -111,12 +111,22 @@
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-row>
-            <el-col :span="24">
+            <!-- <el-col :span="24">
               <div
                 id="myChart1"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
-            </el-col>
+            </el-col> -->
+              <el-col :span="18">
+                <div id="myChart1" :style="{ height: '26vh', margin: '10px' }"></div>
+              </el-col>
+              <el-col :span="6">
+                <div class="myChart_text_content myChart1_text_content">
+                  <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
+                  <div>库存：{{Inventory_deviceCount}}</div>
+                  <div>已销售：{{Sold_deviceCount}}</div>
+                </div>
+              </el-col>
           </el-row>
         </el-card>
       </el-col>
@@ -363,6 +373,7 @@ export default {
                 data[1].value = _this.Inventory_deviceCount;
                 option.series[0]['data'] = data;
                 option.color = ["#F14864", "#C4C6D1"];
+                option.legend = {show:false};
                 function formatter(name){
                   for (var i = 0; i < option.series[0].data.length; i++) {
                     if (option.series[0].data[i].name == name) {
@@ -712,6 +723,48 @@ export default {
     width: 18px;
     height: 18px;
     cursor: pointer;
+  }
+}
+.myChart_text_content {
+  height: 26vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  font-size: 12px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  color: #666666;
+  line-height: 24px;
+}
+.myChart1_text_content {
+  > div {
+    position: relative;
+  }
+  > div:nth-of-type(1) {
+    top: 0px;
+    left: -26px;
+  }
+  > div:nth-of-type(2)::before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 14px;
+    background: #c4c6d1;
+    border-radius: 4px;
+    position: absolute;
+    top: 4px;
+    left: -26px;
+  }
+  > div:nth-of-type(3)::before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 14px;
+    background: #f14864;
+    border-radius: 4px;
+    position: absolute;
+    top: 4px;
+    left: -26px;
   }
 }
 .track_info {
