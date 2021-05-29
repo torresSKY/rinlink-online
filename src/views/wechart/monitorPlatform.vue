@@ -11,7 +11,7 @@
                         <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name">
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
-                        <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                        <el-tree style="width:100%" ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                     </div>
                 </div>
             </el-col>
@@ -1742,6 +1742,9 @@ export default {
     /deep/  .el-tree-node.is-current > .el-tree-node__content {
         background-color: #D8E3FF !important;
         border: 1px solid #4391FE;
+    }
+    /deep/ .el-tree-node>.el-tree-node__children{
+        overflow:scroll;
     }
 }
 .row_item_middle{
