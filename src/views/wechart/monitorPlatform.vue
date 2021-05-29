@@ -36,18 +36,18 @@
                                 <div class="devices_item" :class="item.id == current_select_deviceId ? 'devices_item_t':''" v-for="item in devices_list" :key="item.id">
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
                                         <!-- <el-checkbox ></el-checkbox> -->
-                                        <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
-                                        <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
+                                        <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
+                                        <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrl : ''"></el-avatar>
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
-                                                <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.networkStatus == '1' ? '在线' : '离线'}}</div>
+                                                <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus)}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom">
                                                 <!-- 电池辅助元素 -->
-                                                <div><div style="background:#02C602;" :style="{width: item.battery + '%'}"></div></div>
-                                                <div>{{item.battery}}%</div>
+                                                <div><div style="background:#02C602;" :style="{width: item.battery ? item.battery : 0 + '%'}"></div></div>
+                                                <div>{{item.battery ? item.battery : 0}}%</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1116,7 +1116,7 @@ export default {
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
-                console.log(e);
+                // console.log(e);
                 for(let i = 0, len = _this.devices_list.length; i < len; i++){
                     if(e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
                         _this.map.closeInfoWindow();
@@ -1176,7 +1176,7 @@ export default {
         // 删除指定的覆盖物
         evt_deleteOverlay:function(lng,lat){
             var allOverlays = this.map.getOverlays();
-            console.log(allOverlays);
+            // console.log(allOverlays);
             for(var key in allOverlays){
                 // console.log(allOverlays[key].point);
                 // console.log(allOverlays[key].name);
@@ -1642,6 +1642,22 @@ export default {
                 second = (Math.floor(intDiff) - (hour * 60 * 60) - (minute * 60)).toString();
             }
             return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分':'') + (second > 0 ? second + '秒':'');
+        },
+        formatStatus(time,status){
+            if(status == '1'){
+                return '在线';
+            }
+            var currentTime = new Date().getTime();
+            var diffTime = currentTime - time;
+            if(diffTime < 24 * 60 * 60 * 1000){
+                return '离线';
+            }
+            var day = diffTime / (24 * 60 * 60 * 1000);
+            var y = Math.floor(day / 365);
+            var m = Math.floor(day / 30);
+            var d = Math.floor(day / 1);
+            var str = y > 0 ? '离线>' + y + '年' : m > 0 ? '离线>' + m + '个月' : '离线>' + d + '天';
+            return str;
         }
     }
 }
