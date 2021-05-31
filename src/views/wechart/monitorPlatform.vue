@@ -38,7 +38,7 @@
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrl : ''"></el-avatar>
+                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''"></el-avatar>
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
@@ -261,10 +261,12 @@
                             <el-tag type="info" closable size="small">标签三</el-tag>
                         </el-form-item> -->
                         <el-form-item label="激活时间:">
-                            <span>{{device_detail_info.activationTime|formatDate}}</span>
+                            <span v-if="device_detail_info.activationTime">{{device_detail_info.activationTime|formatDate}}</span>
+                            <span v-else>--</span>
                         </el-form-item>
                         <el-form-item label="服务到期时间:">
-                            <span>{{device_detail_info.serviceExpireTime|formatDate}}</span>
+                            <span v-if="device_detail_info.serviceExpireTime">{{device_detail_info.serviceExpireTime|formatDate}}</span>
+                            <span v-else>--</span>
                         </el-form-item>
                         <!-- <el-form-item label="适用范围:">
                             <el-image @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="item.iconUrl" class="icon_img_class"  fit="contain"></el-image>
@@ -272,7 +274,7 @@
                         <div style="display:flex;align-items: flex-start;">
                             <span style="flex-shrink: 0;font-size: 14px;color: #606266;margin-right:5px;line-height:18px;">适用范围:</span>
                             <div style="display:flex;flex-wrap: wrap;">
-                                <img @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="item.iconUrl" class="icon_img_class"  fit="contain" />
+                                <img @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="range_code == item.code ? item.iconUrlActive : item.iconUrlInactive" class="icon_img_class"  fit="contain" />
                             </div>
                         </div>
                     </el-form>
@@ -286,14 +288,16 @@
                             <span>{{device_detail_info.networkStatus == '1' ? '在线' : '离线'}}</span>
                         </el-form-item>
                         <el-form-item label="销售时间:">
-                            <span>{{device_detail_info.sellTime|formatDate}}</span>
+                            <span v-if="device_detail_info.sellTime">{{device_detail_info.sellTime|formatDate}}</span>
+                            <span v-else>--</span>
                         </el-form-item>
                         <el-form-item label="导入时间:">
-                            <span>2020</span>
+                            <span v-if="device_detail_info.createTime">{{device_detail_info.createTime|formatDate}}</span>
+                            <span v-else>--</span>
                         </el-form-item>
                         <el-form-item label="ICCID:">
                             <!-- <el-input class="device_info_right_input_1" size="small" value="887887788789"></el-input> -->
-                            <span>{{device_detail_info.iccid}}</span>
+                            <span>{{device_detail_info.iccid ? device_detail_info.iccid : '--'}}</span>
                         </el-form-item>
                     </el-form>
                 </el-col>
@@ -1886,6 +1890,7 @@ export default {
                 justify-content: flex-start;
                 align-items: center;
                 .devices_item_top_avatar{
+                    flex-shrink: 0;
                     margin: 0px 6px;
                 }
                 .devices_item_top_right{
@@ -2317,6 +2322,7 @@ export default {
         margin-right: 5px;
         margin-bottom: 5px;
         width: 18px;
+        cursor: pointer;
     }
 }
 .device_info_right{
