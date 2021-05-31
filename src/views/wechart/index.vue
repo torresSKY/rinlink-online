@@ -110,23 +110,23 @@
             <div>库存统计</div>
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row>
+          <el-row style="position: relative;">
             <!-- <el-col :span="24">
               <div
                 id="myChart1"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
             </el-col> -->
-              <el-col :span="18">
+              <el-col :span="24">
                 <div id="myChart1" :style="{ height: '26vh', margin: '10px' }"></div>
               </el-col>
-              <el-col :span="6">
+              <!-- <el-col :span="6"> -->
                 <div class="myChart_text_content myChart1_text_content">
                   <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
                   <div>库存：{{Inventory_deviceCount}}</div>
                   <div>已销售：{{Sold_deviceCount}}</div>
                 </div>
-              </el-col>
+              <!-- </el-col> -->
           </el-row>
         </el-card>
       </el-col>
@@ -726,7 +726,10 @@ export default {
   }
 }
 .myChart_text_content {
-  height: 26vh;
+  // height: 26vh;
+  position: absolute;
+  bottom: 5%;
+  right: 2%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -735,6 +738,7 @@ export default {
   font-weight: 400;
   color: #666666;
   line-height: 24px;
+  cursor: pointer;
 }
 .myChart1_text_content {
   > div {
