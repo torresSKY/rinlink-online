@@ -19,9 +19,9 @@
                 <div class="row_item_middle">
                      <div class="row_item_middle_top">
                         <div>
-                            <div @click="evt_change_type('all')" :class="change_type == 'all' ? 'select_item' :''">全部</div>
-                            <div @click="evt_change_type('on')" :class="change_type == 'on' ? 'select_item' :''">在线</div>
-                            <div @click="evt_change_type('off')" :class="change_type == 'off' ? 'select_item' :''">离线</div>
+                            <div @click="evt_change_type('all')" :class="change_type == 'all' ? 'select_item' :''">全部{{'('+ (OnlineDvice + OfflineDvice) + ')'}}</div>
+                            <div @click="evt_change_type('on')" :class="change_type == 'on' ? 'select_item' :''">在线{{'('+ OnlineDvice + ')'}}</div>
+                            <div @click="evt_change_type('off')" :class="change_type == 'off' ? 'select_item' :''">离线{{'('+ OfflineDvice + ')'}}</div>
                         </div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
@@ -469,6 +469,8 @@ export default {
                 5: '过期'
             },//指令状态
             multipleSelection:[],//使用下发指令模板传递的设备信息
+            OnlineDvice:0,//在线设备数量
+            OfflineDvice:0,//离线设备数量
         }
     },
     created(){
@@ -490,6 +492,9 @@ export default {
         }else if(JSON.parse(sessionStorage['user']).userType == '3'){
             this.current_login_user_info = JSON.parse(sessionStorage['user']);
         }
+        // 获取用户的在线离线设备数量
+        this.evt_getOnlineDvice();
+        this.evt_getOfflineDevice();
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
@@ -644,6 +649,9 @@ export default {
             }else{
                 this.evt_queryDevices();
             }
+            // 获取用户的在线离线设备数量
+            this.evt_getOnlineDvice();
+            this.evt_getOfflineDevice();
             // 
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
@@ -666,6 +674,10 @@ export default {
                     _this.user_id = res.data[0].userId;
                     _this.change_type = 'all';
                     _this.evt_queryDevices();
+                    _this.$refs.userTree.setCurrentKey(_this.user_id);
+                    // 获取用户的在线离线设备数量
+                    _this.evt_getOnlineDvice();
+                    _this.evt_getOfflineDevice();
                 }else{
                     _this.$message({message:'暂未搜索到指定用户',type:'warning',offset:'200'})
                 }
@@ -1588,6 +1600,34 @@ export default {
         evt_table_formatPositionType:function(row,column){
             return this.positionType[row.positionType]
         },
+        // 获取设备在线、离线数据
+        evt_getOnlineDvice:function(){
+            var _this = this;
+            var request_data = {};
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
+                request_data['ownerId'] = _this.user_id;
+            }
+            api.getOnlineDvice(request_data,_this.userType_parameter).then((res) => {
+                if(res.success){
+                    _this.OnlineDvice = res.data.devices;
+                }
+            })
+        },
+        evt_getOfflineDevice:function(){
+            var _this = this;
+            var request_data = {};
+            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
+            if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
+                request_data['ownerId'] = _this.user_id;
+            }
+            api.getOfflineDevice(request_data,_this.userType_parameter).then((res) => {
+                if(res.success){
+                    _this.OfflineDvice = res.data.devices;
+                }
+            })
+        },
+
       
         bd09togcj02(bd_lon, bd_lat) { 
     　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
