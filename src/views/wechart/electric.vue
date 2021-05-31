@@ -1131,6 +1131,10 @@ export default {
         // el-tree 懒加载数组
         evt_loadTree:function(node, resolve){
             // console.log(node)
+            if(JSON.parse(sessionStorage['user']).userType == '3'){
+                resolve([]);
+                return;
+            }
             var _this = this;
             if(node.level === 0){
                 return resolve(_this.user_list);

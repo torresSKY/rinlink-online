@@ -602,6 +602,10 @@ export default {
         evt_loadTree:function(node, resolve){
             // console.log(node)
             var _this = this;
+            if(JSON.parse(sessionStorage['user']).userType == '3'){
+                resolve([]);
+                return;
+            }
             if(node.level === 0){
                 return resolve(_this.user_list);
             }

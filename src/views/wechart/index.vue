@@ -296,9 +296,8 @@ export default {
     _this.getEchartsData_four();
     _this.user_type = JSON.parse(sessionStorage['user']).userType;
     _this.user_id = JSON.parse(sessionStorage['user']).userId;
-    if(_this.user_type == '2'){
-      _this.evt_queryBusinessUserInfo();
-    }
+
+    _this.evt_queryBusinessUserInfo();
   },
   mounted() {
     this.height = document.body.offsetHeight - 150;

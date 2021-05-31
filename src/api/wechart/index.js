@@ -309,9 +309,13 @@ const getDeviceCommand = (data,type) => (
 const sendCommand = (data,type) => (
     axios.post(url + '/create_device_cmd?__OPERATOR_TYPE=' + type,data)
 )
-const queryBusinessUserInfo = (data,type) => (//获取客户服务商信息
-    axios.post(url + '/get_business_user_info?__OPERATOR_TYPE=' + type, data)
-)
+const queryBusinessUserInfo = (data,type) => {//获取客户服务商信息
+    if(type == '2'){
+        return axios.post(url + '/get_business_user_info?__OPERATOR_TYPE=' + type, data)
+    }else if(type == '3'){
+        return axios.post(url + '/get_current_consumer_user_info?__OPERATOR_TYPE=' + type,data)
+    }
+}
 const getCurrentUserInfo = (data) => (
     axios.post(url + '/get_current_user_info',data)
 )
