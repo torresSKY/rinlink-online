@@ -11,11 +11,17 @@
                         <!-- <el-tab-pane name="second"><span slot="label">&nbsp;{{$t('view.expire')}}</span></el-tab-pane> -->
                     </el-tabs>
                     <el-row style="padding:0 10px">
-                        <el-input :placeholder="$t('view.searchUser')" v-model="search" class="input-with-select" clearable>
+                        <el-input :placeholder="$t('view.inputtext')" v-model="search" class="input-with-select" clearable>
+                            <el-select v-model="selectType" slot="prepend" >
+                              <el-option label="账号" value="username"></el-option>
+                              <el-option label="客户" value="nickname"></el-option>
+                            </el-select>
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
-                        <el-tree :data="data" :props="defaultProps" :expand-on-click-node="false" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
-                        lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
+                        <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
+                          <el-tree :data="data" :props="defaultProps" :expand-on-click-node="false" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
+                          lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
+                        </el-scrollbar>
                     </el-row>
                 </el-row>
             </el-col>
@@ -60,9 +66,10 @@
                   <el-col :span='2' style="line-height:40px">
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
-                  <el-col :span='4'>
+                  <el-col :span='5'>
                     <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="moreSearch">{{$t('button.more')}}</el-button>
+                    <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                   </el-col>
                 </el-row>
                 <el-row class="list-search"  v-show="moreFlag" :gutter="22">
@@ -111,7 +118,7 @@
                     </el-col>  
                 </el-row>
                 <el-row  class="list-search" >
-                  <el-scrollbar style="height:62vh;" ref="scrollbar">
+                  <el-scrollbar style="height:66vh;" ref="scrollbar">
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
                   </el-scrollbar>
                 </el-row>
@@ -152,7 +159,11 @@
                 <span>{{custinfo.username}}</span>
               </el-row>
               <el-row style="margin:10px 0">
-                <el-input :placeholder="$t('view.searchUser')" v-model="searchName" class="input-with-select" clearable>
+                <el-input :placeholder="$t('view.inputtext')" v-model="searchName" class="input-with-select" clearable>
+                    <el-select v-model="selectType1" slot="prepend" >
+                      <el-option label="账号" value="username"></el-option>
+                      <el-option label="客户" value="nickname"></el-option>
+                    </el-select>
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
                 <el-scrollbar style="margin-top:10px" ref="scrollbar">
@@ -459,6 +470,8 @@ export default{
         activeName: 'first',
         search:null,
         moreFlag:false,
+        selectType:'username',
+        selectType1:'username',
         data: [],
         insiadeData:[],
         equNum:0,
@@ -475,7 +488,7 @@ export default{
         renderContent:function (h,{node,data,store}) {
             let addElement = arguments[0];
             return addElement('span',[
-                addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
+                // addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
                 addElement('span',"    "),
                 addElement('span',arguments[1].node.label)
             ]);
@@ -484,6 +497,7 @@ export default{
         commandName:null,
         cmdOptions:[],
         deviceId:null,
+        ownerId:null,
         value1:null,
         value:null,
         options: [],
@@ -503,7 +517,7 @@ export default{
           { value: '1', label: '未激活'},{ value: '2', label: '已激活'},{ value: '3', label: '已过期'}
         ],
         containsChildren:true,
-        timeType:'',
+        timeType:null,
         timeTypeOptions:[
           { value: '1', label: this.$t('table.activationTime')},{ value: '2', label: this.$t('table.salesTime')},
           { value: '3', label: this.$t('table.expire')}
@@ -539,6 +553,16 @@ export default{
             params['username'] = params.owner.username
             return params
           }},
+          {label: '绑定客户', prop: 'bindname',type: 'render',
+          formatter: (params) => {
+            // console.log(params)
+            if(params.binders){
+              params['bindname'] = params.binders.username 
+            }else{
+              params['bindname'] = '--'
+            }
+            return params
+          }},
           {label: this.$t('table.activeTime'), prop: 'activationTime', type: 'Timestamp'},
           {label: this.$t('table.expire'), prop: 'serviceExpireTime', type: 'Timestamp'},
           {label: this.$t('table.salesTime'), prop: 'sellTime', type: 'Timestamp'},
@@ -563,7 +587,7 @@ export default{
         dialogSend:false,
         dialogHistorysend:false,
         equinfoForm:{
-          deviceId:'',
+          id:'',
           deviceName:'',
           deviceNumber:'',
           deviceModel:'',
@@ -576,7 +600,7 @@ export default{
           iccid:'',
           remark:''
         },
-        expiredTimeType:'',
+        expiredTimeType:null,
         timeOptions:[
           { value: '-1', label: '无限制'},{ value: '31', label: '一个月'},
           { value: '62', label: '二个月'},{ value: '93', label: '三个月'},
@@ -663,7 +687,8 @@ export default{
            }
         this.getlist()
         this.getModelList()
-        this.getBusiness(null)
+        // this.getBusiness(null)
+        this.evt_getBusinessUserinfo()
         this.getRange()
     },
     methods:{
@@ -675,6 +700,18 @@ export default{
         addClass1(index,item){
           this.current1=index
           this.equinfoForm.useRangeCode = item[0]
+        },
+        refresh(){
+          this.time = null 
+          this.deviceIdList=null
+          this.deviceModelId=null
+          this.networkStatus=null
+          this.useStatus =null
+          this.useRangeCode = null
+          this.containsChildren = true
+          // this.ownerId = null 
+          this.timeType = null
+          this.getlist()
         },
         getlist(type){ // 获取设备型号列表
           this.loading = true
@@ -704,6 +741,8 @@ export default{
             containsChildren:this.containsChildren,
             startTime:startTime,
             endTime:endTime,
+            ownerId:this.ownerId,
+            timeType:this.timeType,
             deviceNumberKeyword:this.deviceIdList
           }
           if(type==1){
@@ -733,14 +772,20 @@ export default{
         },
         searchCustomer(){ // 搜索客户或账号
           let data = {
-            searchType : 'username',
+            searchType : this.selectType,
             searchContent:this.search
+          }
+          if(this.search.trim() == '') {
+            this.evt_getBusinessUserinfo()
+            return
           }
           api.searchBusiness(data,this.type).then(res => {
             if(res.success){
-              this.data = this.setTreeData(res.data)
+              if(res.data){
+                this.data = this.setTreeData(res.data)
+              }
             }else{
-              this.data = []
+              // this.data = []
               this.$message.error(res.msg)
             }
             
@@ -771,18 +816,35 @@ export default{
             this.$message.error(err.msg)
           })
         },
+        // 获取当前登录用户的信息 b端用户
+        evt_getBusinessUserinfo(){
+            var _this = this;
+            this.data = []
+            this.insiadeData = []
+            this.custData = []
+            api.getBusinessUserinfo({},_this.type).then((res) =>{
+                // console.log(res);
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    _this.data.push(res.data)
+                    _this.insiadeData.push(res.data)
+                    _this.custData.push(res.data)
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
+            })
+        },
         getBusiness(userId){ // 获取代理商
           let data = {
             parentId:userId
           }
+          
           api.getBusiness(data,this.type).then(res => {
               let data = res.data
-              this.insiadeData = this.data = this.setTreeData(data)
+              this.insiadeData = this.setTreeData(data)
               this.custData = this.setTreeData(data)
             }).catch(err => {
               this.custData = []
               this.insiadeData = []
-              this.data = []
               this.$message.error(err.msg)
             })
         },
@@ -871,13 +933,19 @@ export default{
         },
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
-            let item = {
-              ownerId : data.userId
-            }
+          this.ownerId = data.userId
+          let item = {
+            ownerId : data.userId
+          }
+          if(JSON.parse(sessionStorage['user']).userId==this.ownerId){
+            this.ownerId = null
+            this.getlist()
+            return
+          }
           api.queryDevices(item,this.type).then(res => {
             if(res.success){
               this.dataList = res.data
-              this.page.total = res.data.totalElements  
+              this.page.total = res.data.length  
             }else {
               this.dataList = []
               this.page.total = 0
@@ -912,8 +980,11 @@ export default{
               }
               this.equNum = this.saleList.length
               break
+            case '2': //轨迹回放 
+              this.$router.push({path:'/control/control',query:{deviceId:data.id}})
+              break  
             case '3': //电子围栏 
-              this.$router.push({path:'/electric/electric',query:{deviceName:data.deviceName}})
+              this.$router.push({path:'/electric/electric',query:{deviceName:data.deviceName,deviceId:data.id}})
               break
             case '4' : // 下发指令
               this.multipleSelection = []
@@ -941,7 +1012,7 @@ export default{
         },
         confrimEquinfo(){ //确认更新设备
           let data = {
-            deviceId:this.equinfoForm.deviceId,
+            deviceId:this.equinfoForm.id,
             deviceName:this.equinfoForm.deviceName,
             remark:this.equinfoForm.remark,
             useRangeCode:this.equinfoForm.useRangeCode
@@ -973,7 +1044,7 @@ export default{
           let list =[]
           this.searchImei = ''
           this.searchName = ''
-          this.expiredTimeType = ''
+          this.expiredTimeType = null
           this.checked = false
           this.insiadeData = this.custData 
           this.saleList = list.concat(this.multipleSelection) 
@@ -990,7 +1061,7 @@ export default{
           }
           let list =[]
           this.checked = false
-          this.expiredTimeType = ''
+          this.expiredTimeType = null
           this.searchImei = ''
           this.searchName = ''
           this.insiadeData = this.custData 
@@ -1046,8 +1117,12 @@ export default{
         },
         searchCust(){ //销售-搜索客户或账号
           let data = {
-            searchType : 'username',
+            searchType : this.selectType1,
             searchContent:this.searchName
+          }
+          if(this.searchName.trim() == '') {
+            this.evt_getBusinessUserinfo()
+            return
           }
           api.searchBusiness(data,this.type).then(res => {
             if(res.success){
@@ -1064,7 +1139,12 @@ export default{
         },
         changeTimeType(val){ // 销售-选择到期时间
           console.log(val)
-          this.expiredTimeType = val
+          if(val){
+            this.expiredTimeType = val
+          }else{
+            this.expiredTimeType = null
+          }
+          
         }, 
         handleCust(data){ // 选择当前客户节点
           console.log(data)
@@ -1081,6 +1161,8 @@ export default{
           var time = null
           if(Number(this.expiredTimeType)>0){
             time = new Date().getTime() + Number(this.expiredTimeType)*24*60*60*1000
+          }else if(this.expiredTimeType==null){
+            time = this.expiredTimeType
           }else{
             time = Number(this.expiredTimeType)
           }
@@ -1104,7 +1186,7 @@ export default{
               this.$message.success(this.$t('message.success'))
               // this.multipleSelection = []
               // this.dialogSale = false
-              // this.getlist()
+              this.getlist()
               let suc = 0
               let fal = 0
               this.saleTotal = res.data.length
@@ -1245,7 +1327,18 @@ export default{
 }
 </style>
 <style >
- .el-tree-node__expand-icon {
+ /* .el-tree-node__expand-icon {
    color: #353638!important;
- }
+ } */
+.el-input-group__prepend .el-select{
+  margin: -10px -10px;
+}
+  .input-with-select .el-input-group__prepend {
+    width: 80px;
+    padding: 0 0 0 20px;
+    background-color: #fff;
+  }
+  .el-input-group__append{
+    padding: 0 10px;
+  }
 </style>

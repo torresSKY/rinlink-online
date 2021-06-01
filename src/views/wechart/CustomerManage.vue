@@ -1,13 +1,17 @@
 <template>
     <div id="customerManage" >
-        <el-row :gutter="22">
+        <el-row >
             <el-col :span='4'>
                 <el-card>
                     <el-row>
                         <span>{{$t('view.customerList')}}</span>
                     </el-row>
                     <el-row style="margin:10px 0">
-                        <el-input :placeholder="$t('view.searchUser')" v-model="searchType" clearable class="input-with-select">
+                        <el-input :placeholder="$t('view.inputtext')" v-model="searchType" clearable class="input-with-select">
+                            <el-select v-model="selectType" slot="prepend" >
+                              <el-option label="账号" value="username"></el-option>
+                              <el-option label="客户" value="nickname"></el-option>
+                            </el-select>
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
                     </el-row>
@@ -25,9 +29,14 @@
                     {{$t('table.count')}}：<span>{{username}}</span>&nbsp;
                     {{$t('table.phone')}}：<span>{{phone}}</span>
                 </el-card>
-                <el-row :gutter="22" style="margin-top:10px">
+                <el-row :gutter="22" style="margin:10px 0 0 5px">
                     <el-col :span='4'>
-                        <el-input v-model="input3" :placeholder="$t('view.searchUser')" clearable></el-input>
+                        <el-input v-model="input3" :placeholder="$t('view.inputtext')" clearable class="input-with-select">
+                          <el-select v-model="selectType1" slot="prepend" >
+                              <el-option label="账号" value="username"></el-option>
+                              <el-option label="客户" value="nickname"></el-option>
+                            </el-select>
+                        </el-input>
                     </el-col>
                     <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
@@ -37,7 +46,7 @@
                       <el-button class="butadd" @click="addCustomer">{{$t('button.addCustomer')}}</el-button>
                     </el-col>
                 </el-row>
-                <el-row style="margin-top:10px">
+                <el-row style="margin-top:10px" >
                   <el-scrollbar style="height:64vh;" ref="scrollbar">
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
                   </el-scrollbar>
@@ -144,6 +153,8 @@ export default {
         children: 'children',
         label: 'username'
       },
+      selectType:'username',
+      selectType1:'username',
       value:'',
       options:[],
       company:'',
@@ -234,7 +245,7 @@ export default {
         if(type==1){
           this.page.index = 1
           data = {
-            searchType :'username',
+            searchType :this.selectType1,
             searchContent:this.input3,
             containsChildren :this.checked,
             pageSize: this.page.size,
@@ -283,8 +294,12 @@ export default {
     },
     searchCustomer(){ // 搜索客户或账号
       let data = {
-        searchType : 'username',
+        searchType : this.selectType,
         searchContent:this.searchType
+      }
+      if(this.searchType.trim() == '') {
+        this.getBusiness()
+        return
       }
      api.searchBusiness(data,this.type).then(res => {
         if(res.success){
@@ -302,9 +317,10 @@ export default {
       })
     },
     getBusinessUserinfo(userId){ // 获取客户信息
-      api.getBusinessUserinfo({params: {
-          userId: userId,
-        }},this.type).then(res => {
+      let data = {
+        userId: userId
+      }
+      api.getBusinessUserinfo(data,this.type).then(res => {
           let data = res.data
           this.company = data.nickname
           this.username = data.username
@@ -368,8 +384,8 @@ export default {
         }  
     },
     handleNodeClick(data) { // 选择用户节点
-        // console.log(data)
-        this.getlist(2,data.parentId)
+        console.log(data)
+        this.getlist(2,data.userId)
         this.getBusinessUserinfo(data.userId)
     },
     addCustomer(){ // 添加客户
@@ -538,4 +554,20 @@ export default {
 }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
+</style>
+<style >
+ /* .el-tree-node__expand-icon {
+   color: #353638!important;
+ } */
+.el-input-group__prepend .el-select{
+  margin: -10px -10px;
+}
+.input-with-select .el-input-group__prepend {
+    width: 80px;
+    padding: 0 0 0 20px;
+    background-color: #fff;
+  }
+  .el-input-group__append{
+    padding: 0 10px;
+  }
 </style>

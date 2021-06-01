@@ -6,7 +6,7 @@
         <el-row >
           <el-col :span='3' >
             <div class="title_top" :style="note">
-              <img src='@/assets/img/yuntuzaixian.png' style="width: 180px;height: 30px;display: inline-block; vertical-align: middle">
+              <img src='@/assets/img/yuntuzaixian.png' style="width: 70%;height: 30px;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
           <el-col  :span='18' style="text-align:center;padding-top:2px">

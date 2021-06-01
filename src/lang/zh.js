@@ -202,7 +202,7 @@ export default {
     salesTime:'销售时间',
     expire:'平台服务到期时间',
     activeTime:'激活时间',
-    customers:'所属客户',
+    customers:'授权客户',
     iccid:'设备ICCID',
     status: '设备状态',
     usestatus: '使用状态',
