@@ -92,7 +92,7 @@ export default {
                 // console.log(res);
                 if(res.success && res.data){
                     // gcj02转bd09
-                    if(Object.keys(res.data.coordinate).length == 0) return;
+                    if(res.data.coordinate && Object.keys(res.data.coordinate).length == 0) return;
                     var point_t = gcj02tobd09(res.data.coordinate.lng,res.data.coordinate.lat);
                     res.data.coordinate.lng = point_t[0];
                     res.data.coordinate.lat = point_t[1];

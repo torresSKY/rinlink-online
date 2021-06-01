@@ -580,7 +580,7 @@ export default {
             var _this = this;
             api.getCurrentUserInfo({}).then((res) => {
                 // console.log(res);
-                if(res.success && Object.keys(res.data).length > 0){
+                if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
                     user_data['label'] = res.data.username;
                     user_data['info'] = res.data
@@ -706,12 +706,12 @@ export default {
                 request_data['networkStatus'] = '2';
             }
             api.queryDevices(request_data,_this.userType_parameter).then((res) => {
-                // console.log(res);
+                console.log(res);
                 if(res.success && res.data){
                     _this.devices_list = [];
                     // 把设备返回的gdj02坐标转换成bd09
                     for(var key in res.data){
-                        if(Object.keys(res.data[key].positionInfo).length > 0 &&  Object.keys(res.data[key].positionInfo.coordinate).length > 0){
+                        if(res.data[key].positionInfo && Object.keys(res.data[key].positionInfo).length > 0 &&  Object.keys(res.data[key].positionInfo.coordinate).length > 0){
                             var point_t = gcj02tobd09(res.data[key].positionInfo.coordinate.lng,res.data[key].positionInfo.coordinate.lat);
                             res.data[key].positionInfo.coordinate.lng = point_t[0];
                             res.data[key].positionInfo.coordinate.lat = point_t[1];
@@ -832,7 +832,7 @@ export default {
                     _this.evt_clearOverlays();
                     // 把设备返回的gdj02坐标转换成bd09
                     for(var key in res.data){
-                        if(Object.keys(res.data[key].positionInfo).length > 0 &&  Object.keys(res.data[key].positionInfo.coordinate).length > 0){
+                        if(res.data[key].positionInfo && Object.keys(res.data[key].positionInfo).length > 0 &&  Object.keys(res.data[key].positionInfo.coordinate).length > 0){
                             var point_t = gcj02tobd09(res.data[key].positionInfo.coordinate.lng,res.data[key].positionInfo.coordinate.lat);
                             res.data[key].positionInfo.coordinate.lng = point_t[0];
                             res.data[key].positionInfo.coordinate.lat = point_t[1];
