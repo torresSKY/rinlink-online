@@ -70,6 +70,9 @@
             <el-row :gutter="22">
                 <el-col :span='24'>
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
+                        <el-form-item v-if="type==2" label="上级用户" prop="parentId">
+                           <el-input v-model="customerForm.parentId" disabled></el-input>
+                        </el-form-item>
                         <el-form-item :label="$t('view.username')" prop="nickname">
                            <el-input v-model="customerForm.nickname"></el-input>
                         </el-form-item>
@@ -196,7 +199,8 @@ export default {
           phoneNumber:'',
           email:'',
           remark:'',
-          userId:''
+          userId:'',
+          parentId:''
       },
       rules:{
         nickname: [
@@ -393,6 +397,7 @@ export default {
           this.$refs['customerForm'].resetFields()
         }
         this.customerForm = {
+            parentId:'',
             userId:'',
             nickname:'',
             username:'',

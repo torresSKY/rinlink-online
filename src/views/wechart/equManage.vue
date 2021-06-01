@@ -66,7 +66,7 @@
                   <el-col :span='2' style="line-height:40px">
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
-                  <el-col :span='5'>
+                  <el-col :span='6'>
                     <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="moreSearch">{{$t('button.more')}}</el-button>
                     <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
