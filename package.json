@@ -16,7 +16,7 @@
     "axios": "^0.18.0",
     "babel-runtime": "^6.26.0",
     "echarts": "^4.8.0",
-    "element-ui": "^2.4.6",
+    "element-ui": "^2.15.2",
     "js-cookie": "^2.2.1",
     "moment": "^2.24.0",
     "node-sass": "^4.9.3",

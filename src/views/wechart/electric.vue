@@ -768,10 +768,10 @@ export default {
                 request_data['deviceNameKeyword'] = _this.fenceSearchContent;
             }
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
-                if(res.success && Object.keys(res.data).length > 0){
+                if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.search_result = res.data.content;
                     _this.fenceSearch_content_flag = true;
-                }else if(res.success && Object.keys(res.data).length > 0 && res.data.content.length == 0){
+                }else if(res.success && res.data && Object.keys(res.data).length > 0 && res.data.content.length == 0){
                     _this.search_result = [];
                     _this.fenceSearch_content_flag = true;
                 }
@@ -1080,7 +1080,7 @@ export default {
             var _this = this;
             api.getCurrentUserInfo({}).then((res) => {
                 console.log(res);
-                if(res.success && Object.keys(res.data).length > 0){
+                if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
                     user_data['label'] = res.data.username;
                     user_data['info'] = res.data
