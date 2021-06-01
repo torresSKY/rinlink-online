@@ -143,7 +143,7 @@
                                     range-separator="至"
                                     start-placeholder="开始日期"
                                     end-placeholder="结束日期"
-                                    align="right" size="small" value-format="timestamp">
+                                    align="right" size="small" value-format="timestamp" :default-time="['00:00:00', '23:59:59']">
                                 </el-date-picker>
                             </el-col>
                             <el-col :span="8" class="playback_top_select_2">
@@ -153,7 +153,6 @@
                                         <el-option label="GPS定位"  value="1"></el-option>
                                         <el-option label="WIFI定位"  value="2"></el-option>
                                         <el-option label="基站定位" value="3"></el-option>
-                                        
                                     </el-select>
                                 </div>
                             </el-col>
@@ -1461,7 +1460,6 @@ export default {
                 this.select_date_time = [new Date().getTime() - 3600 * 24 * 1000 * 7,new Date().getTime()];
             }
         },
-        
         // 播放与暂停
         evt_play_pause:function(){
             this.play_flag = !this.play_flag;
