@@ -19,7 +19,7 @@
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
                         <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                          <el-tree :data="data" :props="defaultProps" :expand-on-click-node="false" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
+                          <el-tree :data="data" :props="defaultProps"  node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
                           lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
                         </el-scrollbar>
                     </el-row>
@@ -112,7 +112,7 @@
                 <el-row class="list-search" >
                     <el-col :span='8'>
                       <el-button size="mini" @click="sale">{{$t('button.sale')}}</el-button>
-                      <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
+                      <!-- <el-button size="mini" @click="download">{{$t('button.download')}}</el-button> -->
                       <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
                       <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
@@ -167,7 +167,7 @@
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
                 <el-scrollbar style="margin-top:10px" ref="scrollbar">
-                  <el-tree :data="insiadeData" ref="tree" :props="defaultProps" :highlight-current='true' :expand-on-click-node="false" 
+                  <el-tree :data="insiadeData" ref="tree" :props="defaultProps" :highlight-current='true' 
                   node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust" ></el-tree>
                 </el-scrollbar>
               </el-row>
@@ -1262,11 +1262,13 @@ export default{
               commandName:this.commandName,
               deviceId:this.deviceId,
               startTime:this.hisTime != null ? this.hisTime[0] : null,
-              endTime:this.hisTime != null ? this.hisTime[1] : null
+              endTime:this.hisTime != null ? this.hisTime[1] : null,
+              page:this.page1.index-1,
+              pageSize:this.page1.size
             }
             api.queryDeviceCmds(data,this.type).then(res => {
               this.historysendList = res.data.content
-              this.page1.total = res.data.pageTotal
+              this.page1.total = res.data.totalElements
             }).catch(err => {
               this.historysendList = []
               this.page1.total = 0
