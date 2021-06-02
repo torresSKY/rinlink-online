@@ -9,7 +9,7 @@
               <img src='@/assets/img/logo_00.png' style="width: 70%;height: 48px;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
-          <el-col  :span='18' style="text-align:center;padding-top:2px">
+          <el-col :offset='1' :span='17' style="text-align:center;margin-top:10px">
             <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#446AEA"  background-color="#446AEA" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
@@ -376,7 +376,7 @@ text-align:center;
 }
 
 .topBar {
-  line-height: 50px;
+  // line-height: 50px;
   height: 60px;
   background: #446AEA;
 }
@@ -445,6 +445,12 @@ text-align:center;
   background-color: #446AEA;
   border: none;
   border-radius: 5px 5px 5px 5px;
+}
+/deep/.el-menu-item, .el-submenu__title{
+  width: 120px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 8px;
 }
 </style>
 <style >

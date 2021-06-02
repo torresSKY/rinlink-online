@@ -84,7 +84,7 @@
                     :page-size="page.size"
                     :total="page.total"
                     background
-                    style="text-align:center">
+                    style="text-align:center;margin-top:10px">
                 </el-pagination>
             </el-col>
         </el-row>

@@ -58,7 +58,7 @@
                     :page-size="page.size"
                     :total="page.total"
                     background
-                    style="text-align:center">
+                    style="text-align:center;margin-top:10px">
                 </el-pagination>
             </el-col>
         </el-row>
@@ -68,7 +68,7 @@
             :visible.sync="dialogCustomer"
             width="40%">
             <el-row :gutter="22">
-                <el-col :span='type==2?12:24'>
+                <el-col :span='(type==2&&!isEdit)?12:24'>
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
                         <el-form-item v-if="type==2" label="上级用户" prop="parentName">
                            <el-input v-model="customerForm.parentName" disabled></el-input>
@@ -99,7 +99,7 @@
                         </el-form-item>
                     </el-form>    
                 </el-col>
-                <el-col :span='12' v-if="type==2">
+                <el-col :span='12' v-if="type==2&&!isEdit">
                   <el-row :gutter="22">
                     <el-input :placeholder="$t('view.inputtext')" v-model="selParentId" class="input-with-select">
                       <el-select v-model="selectType2" slot="prepend" >
@@ -110,7 +110,7 @@
                     </el-input>
                   </el-row>
                   <el-row :gutter="22" style="margin-top:10px">
-                    <el-scrollbar style="height:50vh;" ref="scrollbar">
+                    <el-scrollbar style="min-height:30vh;overflow-x:hidden" ref="scrollbar">
                       <el-tree :data="busData" ref="tree" :props="defaultProps" :highlight-current='true'
                   node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust"></el-tree>
                     </el-scrollbar>
@@ -669,20 +669,21 @@ export default {
 }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
+/deep/ .el-input-group__prepend .el-select{
+  margin: -10px 0px;
+}
+/deep/ .input-with-select .el-input-group__prepend {
+  width: 80px;
+  padding: 0 0 0 10px;
+  background-color: #fff;
+}
+/deep/ .el-input-group__append{
+  padding: 0 10px;
+}  
 </style>
 <style >
- /* .el-tree-node__expand-icon {
-   color: #353638!important;
- } */
-.el-input-group__prepend .el-select{
-  margin: -10px -10px;
-}
-.input-with-select .el-input-group__prepend {
-    width: 80px;
-    padding: 0 0 0 20px;
-    background-color: #fff;
-  }
-  .el-input-group__append{
-    padding: 0 10px;
-  }
+
+
+
+  
 </style>

@@ -490,9 +490,9 @@ export default {
     font-size: 15px;
   }
 }
-.el-icon-caret-right:before {
-  display: none;
-}
+// .el-icon-caret-right:before {
+//   display: none;
+// }
 .text{
   line-height: 28px;
 }
