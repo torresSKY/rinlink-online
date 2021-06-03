@@ -515,7 +515,7 @@ export default{
         ],
         useStatus:'',
         usestatusOptions:[
-          { value: '1', label: '未激活'},{ value: '2', label: '已激活'},{ value: '3', label: '已过期'}
+          { value: '1', label: '未使用'},{ value: '2', label: '已使用'},{ value: '3', label: '已过期'}
         ],
         containsChildren:true,
         timeType:null,
@@ -549,8 +549,8 @@ export default{
           {label: this.$t('table.usestatus'), prop: 'useStatus',
             type: 'render',
               formatter: (params) => {
-                params['useStatus'] = params.activationTime == null ? '未激活'  : (params.serviceExpireTime -new Date().getTime())<0 ? '已过期'
-                  : '已激活'
+                params['useStatus'] = params.activationTime == null ? '未使用'  : params.serviceExpireTime == -1 ? '已使用'
+                : (params.serviceExpireTime -new Date().getTime())<0 ? '已过期' : '已使用'
                 return params
               }
           },
