@@ -1695,6 +1695,9 @@ export default {
             if(status == '1'){
                 return '在线';
             }
+            if(time == null){
+                return '离线';
+            }
             var currentTime = new Date().getTime();
             var diffTime = currentTime - time;
             if(diffTime < 24 * 60 * 60 * 1000){
