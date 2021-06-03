@@ -279,7 +279,7 @@ export default {
           }
         }else{
           data = {
-            searchType :'username',
+            searchType :this.selectType1,
             searchContent:this.input3,
             containsChildren :this.checked,
             pageSize: this.page.size,
@@ -680,10 +680,7 @@ export default {
 /deep/ .el-input-group__append{
   padding: 0 10px;
 }  
-</style>
-<style >
-
-
-
-  
+/deep/ .el-scrollbar__wrap {
+overflow-x: hidden;
+}
 </style>

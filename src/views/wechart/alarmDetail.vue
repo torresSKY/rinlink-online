@@ -317,4 +317,7 @@ export default {
 }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
+/deep/ .el-scrollbar__wrap {
+overflow-x: hidden;
+}
 </style>

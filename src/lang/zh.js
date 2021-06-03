@@ -610,7 +610,7 @@ export default {
     weilanpath:'围栏半径需大于0',
     selGuanLian:'请选择需要关联的设备',
     grouperror:'设备分组不能为空',
-    selOne:'请选择一条处理数据',
+    selOne:'请选择设备',
     selUnprocessed:'请选择未处理数据',
     handleAll:'确定统一处理所有未处理的报警信息吗?',
     selCust:'请选择销售客户',

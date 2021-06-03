@@ -31,6 +31,9 @@
                               <span v-else-if="selectItem.status===2&&scope.row.handleStatus==1">
                                 {{selectItem.text}}
                               </span>
+                              <span v-if="selectItem.status===1&&((scope.row.serviceExpireTime - new Date().getTime())>0)">
+                                {{selectItem.text}}
+                              </span>
                               <span v-else-if='!selectItem.status'>{{selectItem.text}}</span>
                             </el-dropdown-item>
                         </el-dropdown-menu>

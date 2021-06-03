@@ -176,7 +176,7 @@ export default {
             let data = Object.entries(res.data)
             // debugger
             for(let i =0;i<data.length;i++){
-              this.tableLabel.push({label:data[i][0],prop:data[i][0]})
+              this.tableLabel.push({label:data[i][1].name,prop:data[i][0]})
             }
           }else{
 
@@ -233,4 +233,7 @@ export default {
 }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
+/deep/ .el-scrollbar__wrap {
+overflow-x: hidden;
+}
 </style>

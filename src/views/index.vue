@@ -447,16 +447,16 @@ text-align:center;
   border-radius: 5px 5px 5px 5px;
 }
 /deep/.el-menu-item, .el-submenu__title{
-  width: 110px;
+  width: 100px;
   height: 40px;
   line-height: 40px;
   border-radius: 8px;
 }
 /deep/ .el-menu-item{
-  padding:0 10px;
+  padding:0 5px;
 }
 /deep/ .el-menu{
-  width:98%;
+  width:90%;
 }
 </style>
 <style >

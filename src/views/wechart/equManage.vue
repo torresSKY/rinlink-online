@@ -104,7 +104,7 @@
                       <el-col :span='21' >
                         <!-- <img :src="item[1].iconUrl" alt=""> -->
                         <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
-                        @click="addClass(index,item)" :class="{ ischeck:index==current}">{{item[1].name}}&nbsp;&nbsp;</span>
+                        @click="addClass(index,item)" ><img :src="index==current?item[1].iconUrlActive:item[1].iconUrlInactive" alt="" >&nbsp;&nbsp;</span>
                       </el-col>
                     </el-row>
                   </el-col>
@@ -296,7 +296,7 @@
                 <el-form-item :label="$t('table.useLimit')+'：'"  >
                   <!-- <span>{{equinfoForm.useRangeCode}}</span> -->
                   <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
-                  @click="addClass1(index,item)" :class="{ ischeck:index==current1}">{{item[1].name}}&nbsp;&nbsp;</span>
+                  @click="addClass1(index,item)" ><img :src="index==current1?item[1].iconUrlActive:item[1].iconUrlInactive" alt="" >&nbsp;&nbsp;</span>
                 </el-form-item>
               </el-col>
               <el-col :span='12'>
@@ -582,11 +582,11 @@ export default{
               this.showDialog(index, row)
             },
             selectText: [{command: '1', text: this.$t('table.equinfo'), index: 1},
-            {command: '2', text: this.$t('button.playback'), index: 2},
-            {command: '3', text: this.$t('button.shewei'), index: 3},
-            {command: '4', text: this.$t('button.send'), index: 4},
-            {command: '5', text: this.$t('button.historysend'), index: 5},
-            {command: '6', text: this.$t('button.viewAlarm'), index: 6},
+            {command: '2', text: this.$t('button.playback'), index: 2,status : 1},
+            {command: '3', text: this.$t('button.shewei'), index: 3,status : 1},
+            {command: '4', text: this.$t('button.send'), index: 4,status : 1},
+            {command: '5', text: this.$t('button.historysend'), index: 5,status : 1},
+            {command: '6', text: this.$t('button.viewAlarm'), index: 6,status : 1},
             // {command: '7', text: this.$t('button.commLog'), index: 7},
             // {command: '8', text: this.$t('button.SIM'), index: 8} 
             ]
@@ -721,6 +721,7 @@ export default{
           this.containsChildren = true
           // this.ownerId = null 
           this.timeType = null
+          this.current = -1
           this.getlist()
         },
         getlist(type){ // 获取设备型号列表
@@ -1336,7 +1337,7 @@ export default{
 }
 .cust-subtitle{
     margin-top: 10px;
-    border: 1px solid #EDF3FF;
+    border: 1px solid #CCCCCC;
 }
 .list-search{
   padding: 10px 10px 0 10px;
