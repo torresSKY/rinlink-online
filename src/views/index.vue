@@ -6,11 +6,11 @@
         <el-row >
           <el-col :span='3' >
             <div class="title_top" :style="note">
-              <img src='@/assets/img/yuntuzaixian.png' style="width: 70%;height: 30px;display: inline-block; vertical-align: middle">
+              <img src='@/assets/img/logo_00.png' style="width: 70%;height: 48px;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
-          <el-col  :span='18' style="text-align:center;padding-top:2px">
-            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#576CE5"  background-color="#576CE5" >
+          <el-col :offset='1' :span='17' style="text-align:center;margin-top:10px">
+            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#446AEA"  background-color="#446AEA" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
                   <el-col :span='3'>
@@ -32,13 +32,14 @@
               <!-- </el-radio-group>
             </div>
           </el-col> -->
-          <el-col :span='1' >
-            <i class="el-icon-message-solid" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i> 
-          </el-col> 
-          <el-col :span='2'>
+          <!-- <el-col :span='1' >
+            
+          </el-col>  -->
+          <el-col :span='3'>
+            
             <el-dropdown class="fr" @command="handleCommand">
               <el-button class="fr btn-loading" size="medium">
-                <i class="el-icon-user-solid" style="color:#ccc;font-size:30px;margin-right:5px;"></i>
+                <!-- <i class="el-icon-user-solid" style="color:#ccc;font-size:30px;margin-right:5px;"></i> -->
                 {{logname}}
                 <i class="el-icon-caret-bottom" style="color:#ccc;font-size:18px;margin-right:5px;"></i>
               </el-button>
@@ -47,6 +48,7 @@
                 <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
+            <i class="el-icon-message-solid fr" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i> 
           </el-col>
         </el-row>
       </div>
@@ -352,7 +354,7 @@ width: 100%;
 // margin-top:6px;
 // display:table-cell;
 padding-left: 5px;
-text-align:left;
+text-align:center;
 // vertical-align:middle;
 // background-image: 'url(' + require('@/assets/img/beijing_lg.png') + ')';
 // border-radius: 0px 64px 0px 0px;
@@ -374,9 +376,9 @@ text-align:left;
 }
 
 .topBar {
-  line-height: 50px;
+  // line-height: 50px;
   height: 60px;
-  background: #576CE5;
+  background: #446AEA;
 }
 
 
@@ -440,9 +442,15 @@ text-align:left;
 /deep/.el-radio-button .el-radio-button__inner {
   color: #2688ff;
   font-size: 14px;
-  background-color: #576CE5;
+  background-color: #446AEA;
   border: none;
   border-radius: 5px 5px 5px 5px;
+}
+/deep/.el-menu-item, .el-submenu__title{
+  width: 120px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 8px;
 }
 </style>
 <style >
@@ -468,6 +476,6 @@ text-align:left;
   color: #fff!important;
 }
 .el-menu-item.is-active i{
-  color: #576CE5!important;
+  color: #446AEA!important;
 }
 </style>

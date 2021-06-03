@@ -48,7 +48,7 @@ const list={
         name: 'route.control',
         radius:true,
         component: _import('index'),
-        icon: 'chuweilan',
+        icon: 'jiankong',
         roles:[2,3],
         children: [{path: 'control',name: 'button.control',component: () =>import('@/views/wechart/monitorPlatform'),hidden: true,meta: { keep: 'equs'},radius:true,roles:[0,1,88,99],}]
       },
@@ -58,7 +58,7 @@ const list={
         radius:true,
         roles:[2,3],
         component: _import('index'),
-        icon: 'tongzhi',
+        icon: 'liebiao',
         redirect: '/Statistics/list',
         children: [
           {path: 'list',name: 'route.statistics',component: () =>import('@/views/wechart/statisticsList'),hidden: true,radius:true,roles:[0,1,88,99],},
@@ -82,7 +82,7 @@ const list={
         radius:true,
         roles:[1],
         component: _import('index'),
-        icon: 'yonghuguanli1',
+        icon: 'shebeiguanli',
         redirect: '/sellManage/sell',
         children: [
           {path: 'sell',name: 'route.sell',component: () =>import('@/views/wechart/sellManage'),hidden: true,meta: { keep: 'wechartUser'},radius:true,roles:[1],},
@@ -94,7 +94,7 @@ const list={
         radius:true,
         roles:[1],
         component: _import('index'),
-        icon: 'tongzhi',
+        icon: 'xitongguanli',
         redirect: '/setting/modelManage',
         children: [
           {path: 'modelManage',name: 'route.setting',component: () =>import('@/views/wechart/setting'),hidden: true,radius:true,roles:[1],},

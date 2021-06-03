@@ -19,7 +19,7 @@
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
                         <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                          <el-tree :data="data" :props="defaultProps" :expand-on-click-node="false" node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
+                          <el-tree :data="data" :props="defaultProps"  node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
                           lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
                         </el-scrollbar>
                     </el-row>
@@ -29,7 +29,7 @@
                 <el-row class="cust-title">
                     <span>{{$t('route.List')}}</span>
                 </el-row>
-                <el-row class="list-search" :gutter="22">
+                <el-row class="list-search" :gutter="22" >
                   <el-col :span='4'>
                     <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
                   </el-col>
@@ -66,13 +66,13 @@
                   <el-col :span='2' style="line-height:40px">
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
-                  <el-col :span='5'>
+                  <el-col :span='6'>
                     <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="moreSearch">{{$t('button.more')}}</el-button>
                     <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                   </el-col>
                 </el-row>
-                <el-row class="list-search"  v-show="moreFlag" :gutter="22">
+                <el-row class="list-search"  v-show="moreFlag" :gutter="22" ref="header">
                   <el-col :span='3'>
                     <el-select v-model="timeType" :placeholder="$t('table.timeType')" clearable>
                       <el-option
@@ -112,13 +112,13 @@
                 <el-row class="list-search" >
                     <el-col :span='8'>
                       <el-button size="mini" @click="sale">{{$t('button.sale')}}</el-button>
-                      <el-button size="mini" @click="download">{{$t('button.download')}}</el-button>
+                      <!-- <el-button size="mini" @click="download">{{$t('button.download')}}</el-button> -->
                       <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
                       <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
                 </el-row>
                 <el-row  class="list-search" >
-                  <el-scrollbar style="height:66vh;" ref="scrollbar">
+                  <el-scrollbar :style="{height:tableHeight}" ref="scrollbar" >
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
                   </el-scrollbar>
                 </el-row>
@@ -129,7 +129,7 @@
                     :page-size="page.size"
                     :total="page.total"
                     background
-                    style="text-align:center">
+                    style="text-align:center;margin-top:10px">
                 </el-pagination>
             </el-col>
         </el-row>
@@ -166,8 +166,8 @@
                     </el-select>
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
-                <el-scrollbar style="margin-top:10px" ref="scrollbar">
-                  <el-tree :data="insiadeData" ref="tree" :props="defaultProps" :highlight-current='true' :expand-on-click-node="false" 
+                <el-scrollbar style="margin-top:10px" ref="scrollbar" :style="{height:50 + 'vh'}">
+                  <el-tree :data="insiadeData" ref="tree" :props="defaultProps" :highlight-current='true' 
                   node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust" ></el-tree>
                 </el-scrollbar>
               </el-row>
@@ -467,6 +467,7 @@ export default{
           }
         },
         height:1000,
+        tableHeight:this.tableHeight,
         activeName: 'first',
         search:null,
         moreFlag:false,
@@ -545,7 +546,14 @@ export default{
                 return params
               }
           },
-          {label: this.$t('table.usestatus'), prop: 'useStatus'},
+          {label: this.$t('table.usestatus'), prop: 'useStatus',
+            type: 'render',
+              formatter: (params) => {
+                params['useStatus'] = params.activationTime == null ? '未激活'  : (params.serviceExpireTime -new Date().getTime())<0 ? '已过期'
+                  : '已激活'
+                return params
+              }
+          },
           {label: this.$t('table.iccid'), prop: 'iccid'},
           {label: this.$t('table.customers'), prop: 'username',type: 'render',
           formatter: (params) => {
@@ -678,11 +686,13 @@ export default{
       }
     },
     mounted(){
+      this.tableHeight = document.body.offsetHeight-252 +"px"
       this.type = JSON.parse(sessionStorage['user']).userType
         var that =this
         window.onresize = () => {
              return (() => {
                  that.height = document.body.offsetHeight-142
+                 that.tableHeight = document.body.offsetHeight-252 +"px"
              })()
            }
         this.getlist()
@@ -769,6 +779,11 @@ export default{
         },
         moreSearch(){ // 更多搜索条件
           this.moreFlag = !this.moreFlag
+          if(this.moreFlag){
+            this.tableHeight = document.body.offsetHeight-252 - 50 +"px"
+          }else{
+            this.tableHeight = document.body.offsetHeight-252 +"px"
+          }
         },
         searchCustomer(){ // 搜索客户或账号
           let data = {
@@ -934,28 +949,30 @@ export default{
         handleNodeClick(data) { // 选择用户节点
           console.log(data)
           this.ownerId = data.userId
-          let item = {
-            ownerId : data.userId
-          }
+          // let item = {
+          //   ownerId : data.userId,
+          //   containsChildren:true
+          // }
           if(JSON.parse(sessionStorage['user']).userId==this.ownerId){
             this.ownerId = null
             this.getlist()
             return
           }
-          api.queryDevices(item,this.type).then(res => {
-            if(res.success){
-              this.dataList = res.data
-              this.page.total = res.data.length  
-            }else {
-              this.dataList = []
-              this.page.total = 0
-              this.$message.error(res.msg)
-            }
-          }).catch(err => {
-            this.dataList = []
-            this.page.total = 0
-            this.$message.error(err.msg)
-          })
+          this.getlist()
+          // api.queryDevices(item,this.type).then(res => {
+          //   if(res.success){
+          //     this.dataList = res.data
+          //     this.page.total = res.data.length  
+          //   }else {
+          //     this.dataList = []
+          //     this.page.total = 0
+          //     this.$message.error(res.msg)
+          //   }
+          // }).catch(err => {
+          //   this.dataList = []
+          //   this.page.total = 0
+          //   this.$message.error(err.msg)
+          // })
         }, 
         showDialog(index, data){ // 操作
           switch (index) {
@@ -1158,6 +1175,9 @@ export default{
           if(!this.custinfo.username){
             return this.$message.warning(this.$t('message.selCust'))
           }
+          if(this.custinfo.username==JSON.parse(sessionStorage['user']).username){
+            return this.$message.warning('设备不可销售给自己')
+          }
           var time = null
           if(Number(this.expiredTimeType)>0){
             time = new Date().getTime() + Number(this.expiredTimeType)*24*60*60*1000
@@ -1262,11 +1282,13 @@ export default{
               commandName:this.commandName,
               deviceId:this.deviceId,
               startTime:this.hisTime != null ? this.hisTime[0] : null,
-              endTime:this.hisTime != null ? this.hisTime[1] : null
+              endTime:this.hisTime != null ? this.hisTime[1] : null,
+              page:this.page1.index-1,
+              pageSize:this.page1.size
             }
             api.queryDeviceCmds(data,this.type).then(res => {
               this.historysendList = res.data.content
-              this.page1.total = res.data.pageTotal
+              this.page1.total = res.data.totalElements
             }).catch(err => {
               this.historysendList = []
               this.page1.total = 0
@@ -1325,20 +1347,22 @@ export default{
 .ischeck  {
   color: rgb(52, 105, 219);
 }
+
+/deep/ .el-scrollbar__wrap {
+overflow-x: hidden;
+}
+/deep/ .el-input-group__prepend .el-select{
+  margin: -10px 0px;
+}
+/deep/ .input-with-select .el-input-group__prepend {
+  width: 80px;
+  padding: 0 0 0 10px;
+  background-color: #fff;
+}
+/deep/ .el-input-group__append{
+  padding: 0 10px;
+} 
 </style>
 <style >
- /* .el-tree-node__expand-icon {
-   color: #353638!important;
- } */
-.el-input-group__prepend .el-select{
-  margin: -10px -10px;
-}
-  .input-with-select .el-input-group__prepend {
-    width: 80px;
-    padding: 0 0 0 20px;
-    background-color: #fff;
-  }
-  .el-input-group__append{
-    padding: 0 10px;
-  }
+
 </style>

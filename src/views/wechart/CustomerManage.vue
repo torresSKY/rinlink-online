@@ -17,7 +17,7 @@
                     </el-row>
                     <el-row >
                       <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                        <el-tree :data="businessData" :props="defaultProps" ref="tree"  :expand-on-click-node="false" node-key="userId"
+                        <el-tree :data="businessData" :props="defaultProps" ref="tree"   node-key="userId"
                         @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
                     </el-row>
@@ -58,7 +58,7 @@
                     :page-size="page.size"
                     :total="page.total"
                     background
-                    style="text-align:center">
+                    style="text-align:center;margin-top:10px">
                 </el-pagination>
             </el-col>
         </el-row>
@@ -66,10 +66,13 @@
         <el-dialog
             :title="isEdit? $t('button.editCustomer'): $t('button.addCustomer')"
             :visible.sync="dialogCustomer"
-            width="30%">
+            width="40%">
             <el-row :gutter="22">
-                <el-col :span='24'>
+                <el-col :span='(type==2&&!isEdit)?12:24'>
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
+                        <el-form-item v-if="type==2" label="上级用户" prop="parentName">
+                           <el-input v-model="customerForm.parentName" disabled></el-input>
+                        </el-form-item>
                         <el-form-item :label="$t('view.username')" prop="nickname">
                            <el-input v-model="customerForm.nickname"></el-input>
                         </el-form-item>
@@ -96,16 +99,23 @@
                         </el-form-item>
                     </el-form>    
                 </el-col>
-                <!-- <el-col :span='12'>
+                <el-col :span='12' v-if="type==2&&!isEdit">
                   <el-row :gutter="22">
-                    <el-input :placeholder="$t('view.searchUser')" v-model="input3" class="input-with-select">
-                      <el-button slot="append" icon="el-icon-search"></el-button>
+                    <el-input :placeholder="$t('view.inputtext')" v-model="selParentId" class="input-with-select">
+                      <el-select v-model="selectType2" slot="prepend" >
+                        <el-option label="账号" value="username"></el-option>
+                        <el-option label="客户" value="nickname"></el-option>
+                      </el-select>
+                      <el-button slot="append" icon="el-icon-search" @click="searchCustomer2"></el-button>
                     </el-input>
                   </el-row>
                   <el-row :gutter="22" style="margin-top:10px">
-                    <el-tree :data="businessData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                    <el-scrollbar style="min-height:30vh;overflow-x:hidden" ref="scrollbar">
+                      <el-tree :data="busData" ref="tree" :props="defaultProps" :highlight-current='true'
+                  node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust"></el-tree>
+                    </el-scrollbar>
                   </el-row>
-                </el-col> -->
+                </el-col>
             </el-row>
             <span slot="footer" class="dialog-footer">
               <el-button @click="dialogCustomer = false">{{$t('button.cancel')}}</el-button>
@@ -147,14 +157,17 @@ export default {
   data() {
     return {
       searchType:null,
+      selParentId:null,
       input3:null,
       businessData: [],
+      busData:[],
       defaultProps: {
         children: 'children',
         label: 'username'
       },
       selectType:'username',
       selectType1:'username',
+      selectType2:'username',
       value:'',
       options:[],
       company:'',
@@ -196,9 +209,14 @@ export default {
           phoneNumber:'',
           email:'',
           remark:'',
-          userId:''
+          userId:'',
+          parentName:'',
+          parentId:''
       },
       rules:{
+        parentName: [
+          { required: true, message: '请选择上级用户', trigger: 'blur' },
+        ],
         nickname: [
           { required: true, message: this.$t('view.username'), trigger: 'blur' },
         ],
@@ -292,6 +310,52 @@ export default {
           this.$message.error(err.msg)
         })
     },
+    // 获取当前登录用户的信息 b端用户
+    evt_getBusinessUserinfo(){
+        var _this = this;
+        this.busData = []
+        api.getBusinessUserinfo({},_this.type).then((res) =>{
+            // console.log(res);
+            if(res.success && res.data && Object.keys(res.data).length > 0){
+                _this.busData.push(res.data)
+            }
+        }).catch((err) => {
+            _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
+        })
+    },
+    evt_loadTree2(node, resolve){ //查询客户下级
+          // console.log(node)
+          var _this = this
+            if(node.level === 0){
+                return resolve(_this.busData);
+            }
+            if(node.level != 0){
+                var request_data = {}
+                request_data['parentId'] = node.data.userId
+                api.getBusiness(request_data,_this.type).then((res) => {
+                    if(res.success){
+                        if(res.data.length == 0){
+                            resolve([])
+                            return
+                        }
+                        var children_data = res.data
+                        node.data['children'] = children_data
+                        resolve(children_data)
+                    }else{
+                        _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                        resolve([]);
+                    }
+                }).catch((err) => {
+                    _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+                    resolve([]);
+                })
+            }  
+        },
+    handleCust(data){
+      console.log(data)
+      this.customerForm.parentName = data.username
+      this.customerForm.parentId = data.userId
+    },
     searchCustomer(){ // 搜索客户或账号
       let data = {
         searchType : this.selectType,
@@ -316,15 +380,53 @@ export default {
         this.$message.error(err.msg)
       })
     },
+    searchCustomer2(){
+      let data = {
+        searchType : this.selectType2,
+        searchContent:this.selParentId
+      }
+      if(this.selParentId.trim() == '') {
+        return
+      }
+     api.searchBusiness(data,this.type).then(res => {
+        if(res.success){
+          this.businessData = this.setTreeData(res.data)
+          this.getlist(2,res.data[0].parentId)
+          this.getBusinessUserinfo(res.data[0].userId)
+        }else{
+          this.businessData = []
+          this.$message.error(res.msg)
+        }
+      }).catch(err => {
+        this.businessData = []
+        this.$message.error(err.msg)
+      })
+    },
+    searchInfo(userId){
+      let data = {
+        userId: userId
+      }
+ 
+      api.getBusinessUserinfo(data,this.type).then(res => {
+          let data = res.data
+          this.customerForm.parentName = data.parentInfo.username
+          this.customerForm.parentId = data.parentInfo.userId
+        }).catch(err => {
+
+          this.$message.error(err.msg)
+        })
+    },
     getBusinessUserinfo(userId){ // 获取客户信息
       let data = {
         userId: userId
       }
+ 
       api.getBusinessUserinfo(data,this.type).then(res => {
           let data = res.data
           this.company = data.nickname
           this.username = data.username
           this.phone = data.phoneNumber
+ 
         }).catch(err => {
 
           this.$message.error(err.msg)
@@ -393,6 +495,8 @@ export default {
           this.$refs['customerForm'].resetFields()
         }
         this.customerForm = {
+            parentId:'',
+            parentName:'',
             userId:'',
             nickname:'',
             username:'',
@@ -403,6 +507,7 @@ export default {
             email:'',
             remark:''
         }
+        this.evt_getBusinessUserinfo()
         this.dialogCustomer = true 
         this.isEdit = false
 
@@ -421,6 +526,7 @@ export default {
           var data = null
           if(!this.isEdit){
             data = {
+              parentId:this.customerForm.parentId,
               nickname:this.customerForm.nickname,
               username:this.customerForm.username,
               password:this.customerForm.password,
@@ -435,6 +541,7 @@ export default {
                 this.$refs['customerForm'].resetFields()
                 this.dialogCustomer = false
                 this.getlist()
+                this.getBusiness()
               }else {
                 this.$message.error(res.msg)
               }
@@ -456,6 +563,7 @@ export default {
                 this.$refs['customerForm'].resetFields()
                 this.dialogCustomer = false
                 this.getlist()
+                this.getBusiness()
               }else {
                 this.$message.error(res.msg)
               }
@@ -474,12 +582,19 @@ export default {
         case '1': // 修改客户
           this.customerForm = {
             userId:data.userId,
+            parentId:null,
+            parentName:null,
             nickname:data.nickname,
+            username:data.username,
             personToContact:data.personToContact,
             phoneNumber:data.phoneNumber,
             email:data.email,
             remark:data.remark
           }
+          
+          this.evt_getBusinessUserinfo()
+          this.searchInfo(data.userId)
+          console.log(this.customerForm)
           this.dialogCustomer = true 
           this.isEdit = true
           break
@@ -554,20 +669,21 @@ export default {
 }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
+/deep/ .el-input-group__prepend .el-select{
+  margin: -10px 0px;
+}
+/deep/ .input-with-select .el-input-group__prepend {
+  width: 80px;
+  padding: 0 0 0 10px;
+  background-color: #fff;
+}
+/deep/ .el-input-group__append{
+  padding: 0 10px;
+}  
 </style>
 <style >
- /* .el-tree-node__expand-icon {
-   color: #353638!important;
- } */
-.el-input-group__prepend .el-select{
-  margin: -10px -10px;
-}
-.input-with-select .el-input-group__prepend {
-    width: 80px;
-    padding: 0 0 0 20px;
-    background-color: #fff;
-  }
-  .el-input-group__append{
-    padding: 0 10px;
-  }
+
+
+
+  
 </style>
