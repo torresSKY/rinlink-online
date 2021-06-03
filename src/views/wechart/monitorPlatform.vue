@@ -41,6 +41,9 @@
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''"></el-avatar>
+                                        <!-- <div class="devices_item_top_avatar_container">
+                                            <img class="devices_item_top_avatar"  :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''" alt="">
+                                        </div> -->
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
@@ -275,7 +278,7 @@
                         <div style="display:flex;align-items: flex-start;">
                             <span style="flex-shrink: 0;font-size: 14px;color: #606266;margin-right:5px;line-height:18px;">适用范围:</span>
                             <div style="display:flex;flex-wrap: wrap;">
-                                <img @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="range_code == item.code ? item.iconUrlActive : item.iconUrlInactive" class="icon_img_class"  fit="contain" />
+                                <img @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="range_code == item.code ? item.iconUrlActive : item.iconUrlInactive" class="icon_img_class"  />
                             </div>
                         </div>
                     </el-form>
@@ -1908,9 +1911,32 @@ export default {
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
+                // .devices_item_top_avatar_container{
+                //     width: 30px;
+                //     height: 30px;
+                //     background: #4D9E0C;
+                //     border-radius: 50%;
+                //     flex-shrink: 0;
+                //     margin: 0px 6px;
+                //     display: flex;
+                //     justify-content: center;
+                //     align-items: center;
+                //     .devices_item_top_avatar{
+                //         // flex-shrink: 0;
+                //         // margin: 0px 6px;
+                //     }
+                // }
                 .devices_item_top_avatar{
                     flex-shrink: 0;
                     margin: 0px 6px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                /deep/ .el-avatar>img {
+                    display: inline-block;
+                    height: auto;
+                    vertical-align: initial;
                 }
                 .devices_item_top_right{
                     flex:1;
@@ -2340,7 +2366,7 @@ export default {
     .icon_img_class{
         margin-right: 5px;
         margin-bottom: 5px;
-        width: 18px;
+        // width: 18px;
         cursor: pointer;
     }
 }
