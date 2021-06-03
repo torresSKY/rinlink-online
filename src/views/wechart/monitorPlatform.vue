@@ -787,6 +787,14 @@ export default {
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
                 console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
+                    // 把设备返回的gdj02坐标转换成bd09
+                    for(var key in res.data.content){
+                        if(res.data.content[key].positionInfo && Object.keys(res.data.content[key].positionInfo).length > 0 &&  Object.keys(res.data.content[key].positionInfo.coordinate).length > 0){
+                            var point_t = gcj02tobd09(res.data.content[key].positionInfo.coordinate.lng,res.data.content[key].positionInfo.coordinate.lat);
+                            res.data.content[key].positionInfo.coordinate.lng = point_t[0];
+                            res.data.content[key].positionInfo.coordinate.lat = point_t[1];
+                        }
+                    }
                     _this.devices_list = res.data.content;
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         _this.$set(_this.devices_list[i],'checked',false);
