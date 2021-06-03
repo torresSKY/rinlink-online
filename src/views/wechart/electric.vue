@@ -181,7 +181,7 @@
             </div>
         </el-dialog>
 
-        <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" title="添加电子围栏" class="add_pen_round" :visible="add_pen_flag" width="40%" @close="evt_close_addPen">
+        <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :title="update_pen ? '编辑电子围栏' : '添加电子围栏'" class="add_pen_round" :visible="add_pen_flag" width="40%" @close="evt_close_addPen">
             <el-form ref="form" :model="pen_form" :rules="pen_round_rules" size="small" label-width="100px">
                 <el-form-item label="围栏名称:"  required>
                     <el-input v-model="pen_form.fenceName" style="width:80%"></el-input>
