@@ -44,9 +44,9 @@
                                         <div class="elecard_item_right" :class="item.fenceType != '0' ? 'elecard_item_right_t':''">
                                             <div v-if="item.fenceType == '0'">半径：{{item.circleFence.radius}}米</div>
                                             <div>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
                                             </div>
                                         </div>
                                     </div>
