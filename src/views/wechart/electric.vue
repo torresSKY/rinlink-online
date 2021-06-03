@@ -44,9 +44,9 @@
                                         <div class="elecard_item_right" :class="item.fenceType != '0' ? 'elecard_item_right_t':''">
                                             <div v-if="item.fenceType == '0'">半径：{{item.circleFence.radius}}米</div>
                                             <div>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
-                                                <el-image style="width: 16px; height: 16px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
                                             </div>
                                         </div>
                                     </div>
@@ -181,7 +181,7 @@
             </div>
         </el-dialog>
 
-        <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" title="添加电子围栏" class="add_pen_round" :visible="add_pen_flag" width="40%" @close="evt_close_addPen">
+        <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :title="update_pen ? '编辑电子围栏' : '添加电子围栏'" class="add_pen_round" :visible="add_pen_flag" width="40%" @close="evt_close_addPen">
             <el-form ref="form" :model="pen_form" :rules="pen_round_rules" size="small" label-width="100px">
                 <el-form-item label="围栏名称:"  required>
                     <el-input v-model="pen_form.fenceName" style="width:80%"></el-input>
