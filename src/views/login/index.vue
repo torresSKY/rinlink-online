@@ -23,7 +23,7 @@
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-      <div style="text-align:center;margin-top:10%">
+      <div style="text-align:center;margin-top:2vh">
       <el-button type="primary" style="width:200px;background: #289DFF;
 border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
 font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
@@ -265,7 +265,7 @@ export default {
       left: 50%;
       transform: translate(-50%, -50%);
       width: 415px;
-      height: 24vh;
+      height: 25vh;
       padding: 30px 35px 15px 35px;
       // margin: 40px 0 0 55.6%;
     }
@@ -281,7 +281,7 @@ export default {
       width: 83px;
       height: 83px;
       position: absolute;
-      top: 40%;
+      top: 8vh;
       left: 50%;
       transform: translate(-50%, -50%);
     }
@@ -292,7 +292,7 @@ font-family: Microsoft YaHei;
 color: #FFFFFF;
 text-shadow: 0px 2px 4px rgba(19, 149, 255, 0.35);
 position: absolute;
-      top: 70%;
+      top: 16vh;
       left: 50%;
       transform: translate(-50%, -50%);
     }

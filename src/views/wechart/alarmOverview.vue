@@ -89,7 +89,7 @@ export default {
       data: [],
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'nickname'
       },
       value:null,
       businessoptions:[],
@@ -134,6 +134,10 @@ export default {
       if(type==1){
         this.page.index = 1
         data.page = 0
+      }
+      if(this.time&&(this.time[1]-this.time[0]>60*60*24*31*1000)){
+        
+        return this.$message.warning('只允许查询31天的数据')
       }
       if(this.time.length>0){
         data.startTime = this.time[0]

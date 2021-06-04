@@ -174,10 +174,10 @@
             </el-col>
           </el-row>
           <el-row :gutter="22" style="margin:10px 0;line-height:40px">
-            <el-col :span='3'>
+            <!-- <el-col :span='3'>
               <span>{{$t('table.expire2')}}：</span>
-            </el-col>
-            <el-col :span='4'>
+            </el-col> -->
+            <!-- <el-col :span='4'>
               <el-select v-model="expiredTimeType" :placeholder="$t('view.select2')" 
               clearable :disabled="checked" @change='changeTimeType'>
                 <el-option
@@ -187,13 +187,13 @@
                   :value="item.value">
                 </el-option>
               </el-select>
-            </el-col>
-            <el-col :span='3'>
+            </el-col> -->
+            <!-- <el-col :span='3'>
               <el-button class="butresh" @click="restInfo">{{$t('button.refresh')}}</el-button>
             </el-col>
             <el-col :span='4'>
               <el-checkbox v-model="checked">{{$t('view.changeSalesdate')}}</el-checkbox>
-            </el-col>
+            </el-col> -->
             <el-col :span='8' v-if="saleTotal>0">
               <span>共计销售：{{saleTotal}}台，成功{{saleSuc}}台，失败<el-button type="text" style="color:red" @click="viewSaleInfo">{{saleFal}}</el-button>台</span>
             </el-col>
@@ -484,12 +484,13 @@ export default{
         },
         defaultProps: {
           children: 'children',
-          label: 'username'
+          label: 'nickname',
+          isLeaf:'leaf'
         },
         renderContent:function (h,{node,data,store}) {
             let addElement = arguments[0];
             return addElement('span',[
-                // addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
+                addElement('i',{class:"el-icon-s-custom row_item_bottom_left_userIcon"}),
                 addElement('span',"    "),
                 addElement('span',arguments[1].node.label)
             ]);
@@ -904,6 +905,11 @@ export default{
                             return
                         }
                         var children_data = res.data
+                        for(let i = 0;i<children_data.length;i++){
+                          if(children_data[i].children == 0){
+                            children_data[i]['leaf'] = true
+                          }
+                        }
                         node.data['children'] = children_data
                         resolve(children_data)
                     }else{
@@ -932,6 +938,11 @@ export default{
                             return
                         }
                         var children_data = res.data
+                        for(let i = 0;i<children_data.length;i++){
+                          if(children_data[i].children == 0){
+                            children_data[i]['leaf'] = true
+                          }
+                        }
                         node.data['children'] = children_data
                         resolve(children_data)
                     }else{

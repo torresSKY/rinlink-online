@@ -163,7 +163,8 @@ export default {
       busData:[],
       defaultProps: {
         children: 'children',
-        label: 'username'
+        label: 'nickname',
+        isLeaf: 'leaf'
       },
       selectType:'username',
       selectType1:'username',
@@ -302,6 +303,11 @@ export default {
       }
       api.getBusiness(data,this.type).then(res => {
           let data = res.data
+          for(let i = 0;i<data.length;i++){
+            if(data[i].children == 0){
+              data[i]['leaf'] = true
+            }
+          }
           this.businessData = this.setTreeData(data)
           this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
           // console.log(this.businessData)
@@ -339,6 +345,11 @@ export default {
                             return
                         }
                         var children_data = res.data
+                        for(let i = 0;i<children_data.length;i++){
+                          if(children_data[i].children == 0){
+                            children_data[i]['leaf'] = true
+                          }
+                        }
                         node.data['children'] = children_data
                         resolve(children_data)
                     }else{
@@ -473,6 +484,11 @@ export default {
                         return
                     }
                     var children_data = res.data
+                    for(let i = 0;i<children_data.length;i++){
+                          if(children_data[i].children == 0){
+                            children_data[i]['leaf'] = true
+                          }
+                        }
                     node.data['children'] = children_data
                     resolve(children_data)
                 }else{
