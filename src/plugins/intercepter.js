@@ -72,7 +72,7 @@ export default (Vue) => {
     // }
   }, function (error) {
     store.dispatch('setLoading', false) 
-    if (error.response.data.message == 'token 无效或过期') {
+    if (error.response.data.msg == 'TOKEN_TOKEN_NOT_EXISTS'||error.response.data.msg == 'TOKEN_INVALID_TOKEN_ERROR') {
       // Message.error('Token过期，请重新登录')
       sessionStorage.clear();
       store.commit('isLogin', null);   

@@ -9,11 +9,11 @@
               <img src='@/assets/img/logo_00.png' style="width: 70%;height: 48px;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
-          <el-col :offset='1' :span='17' style="text-align:center;margin-top:10px">
+          <el-col :offset='1' :span='15'   style="text-align:center;margin-top:10px;overflow: hidden;">
             <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#446AEA"  background-color="#446AEA" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
-                  <el-col :span='3'>
+                  <el-col :span='3' >
                     <el-menu-item :index="item.path+'/'+item.children[0].path" >
                       <i :class="'icon iconfont icon-'+item.icon"></i>
                       <span slot="title">{{$t(item.children[0].name)}}</span>
@@ -35,7 +35,7 @@
           <!-- <el-col :span='1' >
             
           </el-col>  -->
-          <el-col :span='3'>
+          <el-col :span='3' :offset='2'>
             
             <el-dropdown class="fr" @command="handleCommand">
               <el-button class="fr btn-loading" size="medium">
@@ -447,10 +447,16 @@ text-align:center;
   border-radius: 5px 5px 5px 5px;
 }
 /deep/.el-menu-item, .el-submenu__title{
-  width: 120px;
+  width: 100px;
   height: 40px;
   line-height: 40px;
   border-radius: 8px;
+}
+/deep/ .el-menu-item{
+  padding:0 5px;
+}
+/deep/ .el-menu{
+  width:90%;
 }
 </style>
 <style >
