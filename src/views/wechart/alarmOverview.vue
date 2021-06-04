@@ -93,7 +93,7 @@ export default {
       },
       value:null,
       businessoptions:[],
-      checked:true,
+      checked:false,
       loading:false,
       dataList: [],
       tableLabel: [
@@ -127,7 +127,7 @@ export default {
         page: this.page.index - 1,
         deviceIdList:this.deviceIdList!==null?[this.deviceIdList]:[],
         childUserId:this.value,
-        containsChildren:false,
+        containsChildren:this.checked,
         startTime:null,
         endTime:null
       }
@@ -159,6 +159,7 @@ export default {
         this.$message.error(err.msg)
       })
     },
+   
     getBusiness(){ // 获取代理商
       let data = {
         parentId:null

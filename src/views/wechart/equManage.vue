@@ -1363,6 +1363,9 @@ overflow-x: hidden;
 /deep/ .el-input-group__append{
   padding: 0 10px;
 } 
+/deep/ .el-table::before{
+  border-bottom: 1px solid #CCCCCC;
+}
 </style>
 <style >
 
