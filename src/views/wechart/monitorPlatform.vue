@@ -1801,10 +1801,10 @@ export default {
     //     overflow: scroll; 
     //     position: relative;
     // }
-    /deep/ .el-tree {
-        width: 100%;
-        overflow: scroll;
-    }
+    // /deep/ .el-tree {
+    //     width: 100%;
+    //     overflow: scroll;
+    // }
     /deep/ .el-tree>.el-tree-node {
         display: inline-block;
         min-width: 100%;
