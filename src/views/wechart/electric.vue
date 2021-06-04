@@ -257,21 +257,12 @@ export default {
             pen_form:{
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm:'',
-                outAlarm:'',
+                inAlarm: true,
+                outAlarm: true,
                 fenceArea:{
                     radius:'',
                 }
             },//提交围栏的数据
-            regress_pen_form:{
-                fenceName:'',
-                fenceRemark:'',
-                inAlarm:'',
-                outAlarm:'',
-                fenceArea:{
-                    radius:'',
-                }
-            },
             pen_round_rules: {
                 name: [
                     { required: true, message: '请输入围栏名称', trigger: 'blur' }
@@ -454,15 +445,11 @@ export default {
                 this.map.removeOverlay(this.current_circle);
                 this.current_circle = '';
             }
-            // if(this.update_pen){
-            //     this.pen_form = this.regress_pen_form;
-            //     this.update_pen = false;
-            // }
             this.pen_form = {
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm:'',
-                outAlarm:'',
+                inAlarm: true,
+                outAlarm: true,
                 fenceArea:{
                     radius:'',
                 }
@@ -488,8 +475,8 @@ export default {
             _this.pen_form = {
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm:'',
-                outAlarm:'',
+                inAlarm: true,
+                outAlarm: true,
                 fenceArea:{
                     radius:'',
                 }
@@ -1528,7 +1515,7 @@ export default {
         >div:nth-of-type(2){
             cursor: pointer;
             color: #FFF;
-            background-color: #409EFF;
+            background-color: #00A327;
             padding: 4px 10px;
             border-radius: 4px;
         }
