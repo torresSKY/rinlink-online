@@ -175,7 +175,7 @@
                             <el-col :span="7">
                                 <div class="speed_content">
                                     <span class="speed_content_text">速度：慢</span>
-                                    <el-slider class="slider_style_2" :min="200" :step="100" :max="1000" v-model="speed" :show-tooltip="false"></el-slider>
+                                    <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
                                     <span class="speed_content_text speed_content_text_t">总里程:--</span>
                                 </div>
@@ -450,7 +450,7 @@ export default {
             device_tracks_step:0,//轨迹播放步数
             device_tracks_max:0,//轨迹回放最大数
             device_tracks_interval:null,//轨迹回放定时器
-            speed:400,
+            speed:300,
             tracksDetail_flag:false,//显示轨迹明细
             tracksDetail_list:[],//轨迹明细信息
             table_row_info:{},//单选中的轨迹明细信息
@@ -1361,7 +1361,7 @@ export default {
             // console.log(arr_point)
             var _this = this;
             var Polyline_points = arr_point || [];
-            var speed =  1200 - _this.speed;
+            var speed =  600 - _this.speed;
             _this.device_tracks_interval = setInterval(() => {
                 if(_this.device_tracks.length > 0){
                     var raw_point = _this.device_tracks.shift();
@@ -1511,6 +1511,15 @@ export default {
                 var delete_index = this.device_tracks_shift.length - interval;
                 this.device_tracks = this.device_tracks_shift.splice(delete_index,interval).concat(this.device_tracks);
             }
+            var arr_point = [];
+            for(let i = 0, len = this.device_tracks_shift.length; i < len; i++){
+                arr_point.push(new BMap.Point(this.device_tracks_shift[i].lng,this.device_tracks_shift[i].lat))
+            }
+            this.evt_LuShu(arr_point);
+        },
+        // 改变播放速度
+        evt_change_speed:function(){
+            clearInterval(this.device_tracks_interval);
             var arr_point = [];
             for(let i = 0, len = this.device_tracks_shift.length; i < len; i++){
                 arr_point.push(new BMap.Point(this.device_tracks_shift[i].lng,this.device_tracks_shift[i].lat))
@@ -1799,6 +1808,9 @@ export default {
     /deep/ .el-tree>.el-tree-node {
         display: inline-block;
         min-width: 100%;
+    }
+    /deep/ .el-scrollbar__wrap {
+        overflow-x: hidden;
     }
 }
 .row_item_middle{

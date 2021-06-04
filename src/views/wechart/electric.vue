@@ -1527,6 +1527,10 @@ export default {
         position: relative;
         >div:nth-of-type(2){
             cursor: pointer;
+            color: #FFF;
+            background-color: #409EFF;
+            padding: 4px 10px;
+            border-radius: 4px;
         }
         .add_pen_hint{
             width: 80px;
