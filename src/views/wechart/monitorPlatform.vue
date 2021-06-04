@@ -35,7 +35,8 @@
                     <div class="row_item_middle_bottom">
                         <div class="item_content">
                             <template v-if="devices_list.length > 0">
-                                <div class="devices_item" :class="item.id == current_select_deviceId ? 'devices_item_t':''" v-for="item in devices_list" :key="item.id">
+                                <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', (!item.activationTime || current_time > item.serviceExpireTime) ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
+                                    <div class="devices_item_mask" v-if="!item.activationTime || current_time > item.serviceExpireTime"></div>
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
@@ -47,11 +48,11 @@
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
-                                                <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus)}}</div>
+                                                <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime)}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom">
                                                 <!-- 电池辅助元素 -->
-                                                <div><div style="background:#02C602;" :style="{width: item.battery ? item.battery : 0 + '%'}"></div></div>
+                                                <div><div style="background:#02C602;" :style="{width: (item.battery ? item.battery : 0) + '%'}"></div></div>
                                                 <div>{{item.battery ? item.battery : 0}}%</div>
                                             </div>
                                         </div>
@@ -479,6 +480,7 @@ export default {
             multipleSelection:[],//使用下发指令模板传递的设备信息
             OnlineDvice:0,//在线设备数量
             OfflineDvice:0,//离线设备数量
+            current_time:0,//当前时间戳
         }
     },
     created(){
@@ -503,6 +505,8 @@ export default {
         // 获取用户的在线离线设备数量
         this.evt_getOnlineDvice();
         this.evt_getOfflineDevice();
+        // 当前时间戳
+        this.current_time = new Date().getTime();
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
@@ -1711,14 +1715,20 @@ export default {
             }
             return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分':'') + (second > 0 ? second + '秒':'');
         },
-        formatStatus(time,status){
+        formatStatus(time,status,activationTime,serviceExpireTime){
+            var currentTime = new Date().getTime();
+            if(!activationTime){
+                return '未激活';
+            }
+            if(currentTime > serviceExpireTime){
+                return '已到期';
+            }
             if(status == '1'){
                 return '在线';
             }
             if(time == null){
                 return '离线';
             }
-            var currentTime = new Date().getTime();
             var diffTime = currentTime - time;
             if(diffTime < 24 * 60 * 60 * 1000){
                 return '离线';
@@ -1925,6 +1935,15 @@ export default {
             border-radius: 4px;
             cursor: pointer;
             margin-bottom: 5px;
+            position: relative;
+            .devices_item_mask{
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                bottom: 0px;
+                z-index: 99;
+            }
             .devices_item_top{
                 border-bottom: 1px solid #EEEEEE;
                 padding-bottom: 10px;
@@ -2602,6 +2621,10 @@ export default {
             color: #4391FE;
         }
     }
+}
+.item_opacity{
+  opacity:0.7;
+  -webkit-filter:grayscale(100%);
 }
 </style>
 <style>
