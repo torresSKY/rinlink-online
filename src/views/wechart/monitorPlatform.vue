@@ -1809,6 +1809,9 @@ export default {
         display: inline-block;
         min-width: 100%;
     }
+    /deep/ .el-scrollbar__wrap {
+        overflow-x: hidden;
+    }
 }
 .row_item_middle{
     display: flex;
