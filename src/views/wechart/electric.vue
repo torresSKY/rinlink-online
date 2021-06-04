@@ -416,23 +416,36 @@ export default {
             var _this = this;
             if(_this.pen_type_value == value) return;
             _this.pen_type_value = value;
+            // if(_this.pen_type_value == '1' && _this.add_pen_hint_flag){
+            //     // _this.drawingManager.open();
+            //     _this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+            // }else if(_this.pen_type_value == '2' && _this.add_pen_hint_flag){
+            //     // _this.drawingManager.open();
+            //     _this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON); 
+            // }else if(_this.pen_type_value == '3' && _this.add_pen_hint_flag){
+            //     _this.drawingManager.close();
+            //     _this.add_pen_flag = true;
+            // }
+        },
+        // 显示添加围栏的提示
+        evt_add_pen:function(){
+            // this.add_pen_hint_flag = true;
+            // this.pen_type_value = '1';
+            // this.drawingManager.open();
+            // this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+
+            var _this = this;
+            _this.add_pen_hint_flag = true;
             if(_this.pen_type_value == '1' && _this.add_pen_hint_flag){
-                // _this.drawingManager.open();
+                _this.drawingManager.open();
                 _this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
             }else if(_this.pen_type_value == '2' && _this.add_pen_hint_flag){
-                // _this.drawingManager.open();
+                _this.drawingManager.open();
                 _this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON); 
             }else if(_this.pen_type_value == '3' && _this.add_pen_hint_flag){
                 _this.drawingManager.close();
                 _this.add_pen_flag = true;
             }
-        },
-        // 显示添加围栏的提示
-        evt_add_pen:function(){
-            this.add_pen_hint_flag = true;
-            this.pen_type_value = '1';
-            this.drawingManager.open();
-            this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
         },
         // 关闭取消添加围栏弹框
         evt_close_addPen:function(){
@@ -455,6 +468,7 @@ export default {
                 }
             };
             this.update_pen = false;
+            this.pen_type_value = '1';
         },
         // 添加围栏
         evt_submit_addPen:function(){
@@ -485,6 +499,7 @@ export default {
             _this.add_pen_flag = false;
             _this.$message({message: _this.update_pen? '更新成功':'添加成功',type:'success',offset:'200',duration:'1000'});
             _this.update_pen = false;
+            this.pen_type_value = '1';
         },
         // 添加、更新圆形围栏
         evt_CircleFence:function(){

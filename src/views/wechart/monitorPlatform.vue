@@ -1375,7 +1375,7 @@ export default {
                     Polyline_points.push(point);
                     _this.map.panTo(point);
                     // 添加线型覆盖物
-                    var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
+                    var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
                     Polyline.name = _this.device_tracks_step;
                     _this.map.addOverlay(Polyline);
                     // marker
