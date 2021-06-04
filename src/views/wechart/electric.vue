@@ -1515,7 +1515,7 @@ export default {
         >div:nth-of-type(2){
             cursor: pointer;
             color: #FFF;
-            background-color: #409EFF;
+            background-color: #00A327;
             padding: 4px 10px;
             border-radius: 4px;
         }
