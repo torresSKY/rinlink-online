@@ -44,9 +44,12 @@
                                         <div class="elecard_item_right" :class="item.fenceType != '0' ? 'elecard_item_right_t':''">
                                             <div v-if="item.fenceType == '0'">半径：{{item.circleFence.radius}}米</div>
                                             <div>
-                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
+                                                <!-- <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
                                                 <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
-                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image> -->
+                                                <div class="fence_icon" @click.stop="evt_show_relevance(item)"></div>
+                                                <div class="fence_icon" @click.stop="evt_edit(item)"></div>
+                                                <div class="fence_icon" @click.stop="evt_delete(item)"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -257,7 +260,7 @@ export default {
             pen_form:{
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm: true,
+                inAlarm: false,
                 outAlarm: true,
                 fenceArea:{
                     radius:'',
@@ -461,7 +464,7 @@ export default {
             this.pen_form = {
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm: true,
+                inAlarm: false,
                 outAlarm: true,
                 fenceArea:{
                     radius:'',
@@ -489,7 +492,7 @@ export default {
             _this.pen_form = {
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm: true,
+                inAlarm: false,
                 outAlarm: true,
                 fenceArea:{
                     radius:'',
@@ -521,7 +524,7 @@ export default {
                 _this.pen_form.fenceArea['lng'] = point[0];
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
-                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                    _this.pen_form['deviceIdList'] = [_this.nav_deviceId];
                 }
             }
             api.createUpdateCircleFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
@@ -561,7 +564,7 @@ export default {
                 _this.pen_form.fenceArea['points'] = _this.point_arr;
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
-                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                    _this.pen_form['deviceIdList'] = [_this.nav_deviceId];
                 }
             }
             delete _this.pen_form.fenceArea.radius;
@@ -628,7 +631,7 @@ export default {
                         type = 'create';
                         // 单设备跳转进来的
                         if(_this.nav_deviceId != ''){
-                            _this.pen_form['deviceId'] = _this.nav_deviceId;
+                            _this.pen_form['deviceIdList'] = [_this.nav_deviceId];
                         }
                     }
                     api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
@@ -845,7 +848,7 @@ export default {
                     _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
                     _this.queryPen_pageTotal = res.data.pageTotal;
                 }else if(res.success && res.data.content.length == 0){
-                    _this.$message({message: '未搜索到相关数据',type:'info',offset:'200',duration:'1500'});
+                    _this.$message({message: '未搜索到相关围栏数据',type:'info',offset:'200',duration:'1500'});
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:"200",duration:"1000"});
@@ -1084,7 +1087,7 @@ export default {
                 console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
-                    user_data['label'] = res.data.username;
+                    user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
                     _this.user_list.push(user_data);
@@ -1112,7 +1115,7 @@ export default {
                     } 
                     for(let i = 0, len = res.data.length; i < len; i++){
                         var user_data = {};
-                        user_data['label'] = res.data[i].username;
+                        user_data['label'] = res.data[i].nickname;
                         user_data['info'] = res.data[i]
                         user_data['user_id'] = res.data[i].userId;
                         _this.user_list.push(user_data);
@@ -1153,7 +1156,7 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].username;
+                            user_data['label'] = res.data[i].nickname;
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
                             children_data.push(user_data);
@@ -1614,6 +1617,37 @@ export default {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+            }
+            >div:nth-of-type(2){
+                display: flex;
+                align-items: center;
+                >div{
+                    width: 20px;
+                    height: 20px;
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                }
+                >div:nth-of-type(1){
+                    width: 18px;
+                    height: 18px;
+                    background-image: url(../../assets/img/fence_icon_4.png);
+                }
+                >div:nth-of-type(2){
+                    background-image: url(../../assets/img/fence_icon_6.png);
+                    margin: 0px 6px;
+                }
+                >div:nth-of-type(3){
+                    background-image: url(../../assets/img/fence_icon_8.png);
+                }
+                >div:nth-of-type(1):hover{
+                   background-image: url(../../assets/img/fence_icon_5.png);
+                }
+                >div:nth-of-type(2):hover{
+                   background-image: url(../../assets/img/fence_icon_7.png);
+                }
+                >div:nth-of-type(3):hover{
+                   background-image: url(../../assets/img/fence_icon_9.png);
+                }
             }
         }
         .elecard_item_right_t{
