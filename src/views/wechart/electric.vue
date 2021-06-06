@@ -108,7 +108,7 @@
                             <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="users_bottom">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree :props="props" ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" :lazy="true" :render-content="renderContent"></el-tree>
                         </div>
                     </div>
                 </el-col>
@@ -329,6 +329,9 @@ export default {
             label_false: false,
             userType_parameter: '',//请求接口拼接的用户类型
             nav_deviceId: '',//路由中携带的设备id 存在即是其他页面跳转就来的
+            props:{
+                isLeaf: 'isLeaf'
+            }
         }
     },
     watch: {
@@ -1084,7 +1087,7 @@ export default {
         evt_getCurrentUserInfo:function(){
             var _this = this;
             api.getCurrentUserInfo({}).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
                     user_data['label'] = res.data.nickname;
@@ -1156,9 +1159,14 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].nickname;
+                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices + '/总数:' + (res.data[i].sellDevices + res.data[i].devices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
+                            if(res.data[i].children == 0){
+                                user_data['isLeaf'] = true;
+                            }else{
+                                user_data['isLeaf'] = false;
+                            }
                             children_data.push(user_data);
                         }
                         node.data['children'] = children_data;
