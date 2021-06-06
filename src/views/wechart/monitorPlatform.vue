@@ -4,7 +4,7 @@
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <div class="row_item_left">
                     <div class="row_item_top_left">
-                        <div>{{current_login_user_info.username}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
+                        <div>{{current_login_user_info.nickname}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
@@ -12,7 +12,7 @@
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </el-scrollbar>
                     </div>
                 </div>
@@ -481,6 +481,9 @@ export default {
             OnlineDvice:0,//在线设备数量
             OfflineDvice:0,//离线设备数量
             current_time:0,//当前时间戳
+            props:{
+                isLeaf: 'isLeaf'
+            }
         }
     },
     created(){
@@ -590,7 +593,7 @@ export default {
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
-                    user_data['label'] = res.data.username;
+                    user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
                     _this.user_list.push(user_data);
@@ -629,9 +632,14 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].username + '(' + res.data[i].devices +'/'+ (res.data[i].devices + res.data[i].sellDevices) +')';
+                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices +'/总数:'+ (res.data[i].devices + res.data[i].sellDevices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
+                            if(res.data[i].children == 0){
+                                user_data['isLeaf'] = true;
+                            }else{
+                                user_data['isLeaf'] = false;
+                            }
                             children_data.push(user_data);
                         }
                         node.data['children'] = children_data;
