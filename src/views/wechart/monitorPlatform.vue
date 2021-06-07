@@ -41,7 +41,7 @@
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''"></el-avatar>
+                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t[Other].iconUrlForConsoleActive :item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t[Other].iconUrlForConsoleInactive"></el-avatar>
                                         <!-- <div class="devices_item_top_avatar_container">
                                             <img class="devices_item_top_avatar"  :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''" alt="">
                                         </div> -->
