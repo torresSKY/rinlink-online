@@ -117,11 +117,11 @@
                                 <el-option label="10秒" value="10"></el-option>
                                 <el-option label="30秒" value="30"></el-option>
                                 <el-option label="1分钟" value="60"></el-option>
-                                <el-option label="10分钟" value="600"></el-option>
+                                <!-- <el-option label="10分钟" value="600"></el-option>
                                 <el-option label="30分钟" value="1800"></el-option>
                                 <el-option label="1小时" value="3600"></el-option>
                                 <el-option label="5小时" value="18000"></el-option>
-                                <el-option label="12小时" value="43200"></el-option>
+                                <el-option label="12小时" value="43200"></el-option> -->
                             </el-select>
                             <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
                         </div>
