@@ -1130,11 +1130,11 @@ export default {
         evt_queryDeviceCmds:function(){
             var _this = this;
             var request_data = {};
-            request_data['page'] = _this.command_page;
+            request_data['page'] = _this.command_page - 1;
             request_data['pageSize'] = _this.command_pageSize;
             request_data['deviceId'] = _this.need_handle_deviceId;
             api.queryDeviceCmds(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.command_data_list = res.data.content;
                     _this.command_total = res.data.pageTotal * _this.command_pageSize;
