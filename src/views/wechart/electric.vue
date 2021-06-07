@@ -441,6 +441,8 @@ export default {
             // this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
 
             var _this = this;
+            _this.map.clearOverlays();
+            _this.active = -1;
             _this.add_pen_hint_flag = true;
             if(_this.pen_type_value == '1' && _this.add_pen_hint_flag){
                 _this.drawingManager.open();
@@ -527,7 +529,7 @@ export default {
                 _this.pen_form.fenceArea['lng'] = point[0];
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
-                    _this.pen_form['deviceIdList'] = [_this.nav_deviceId];
+                    _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                 }
             }
             api.createUpdateCircleFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
@@ -567,7 +569,7 @@ export default {
                 _this.pen_form.fenceArea['points'] = _this.point_arr;
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
-                    _this.pen_form['deviceIdList'] = [_this.nav_deviceId];
+                    _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                 }
             }
             delete _this.pen_form.fenceArea.radius;
@@ -634,7 +636,7 @@ export default {
                         type = 'create';
                         // 单设备跳转进来的
                         if(_this.nav_deviceId != ''){
-                            _this.pen_form['deviceIdList'] = [_this.nav_deviceId];
+                            _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                         }
                     }
                     api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
@@ -871,6 +873,8 @@ export default {
             this.active = index;
             // console.log(index);
             // console.log(item);
+            this.add_pen_hint_flag = false;
+            this.drawingManager.close();
             this.evt_draw(item);
         },
         evt_draw:function(item){
