@@ -7,10 +7,32 @@
                 </el-row>
                 <el-row class="cust-subtitle" :style="{height:(height-40) + 'px'}">
                     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-                        <el-tab-pane name="first"><span slot="label">&nbsp;{{$t('view.allCust')}}</span></el-tab-pane>
-                        <!-- <el-tab-pane name="second"><span slot="label">&nbsp;{{$t('view.expire')}}</span></el-tab-pane> -->
+                        <el-tab-pane name="first"><span slot="label">{{$t('view.allCust')}}</span></el-tab-pane>
+                        <el-tab-pane name="second"><span slot="label">{{$t('view.expire')}}</span></el-tab-pane>
                     </el-tabs>
-                    <el-row style="padding:0 10px">
+                    <el-row style="margin:0 0 10px 0" :gutter="22" v-if="activeName=='second'">
+                      <el-col :span='12'>
+                        <el-select v-model="timeType2" placeholder="请选择" @change="getlist(1)">
+                          <el-option
+                            v-for="item in expOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-select>
+                      </el-col>
+                      <el-col :span='12'>
+                        <el-select v-model="timeRange" placeholder="请选择" @change="getlist(1)">
+                          <el-option
+                            v-for="item in rangeOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-select>
+                      </el-col>
+                    </el-row>
+                    <el-row style="padding:0 10px" v-else>
                         <el-input :placeholder="$t('view.inputtext')" v-model="search" class="input-with-select" clearable>
                             <el-select v-model="selectType" slot="prepend" >
                               <el-option label="账号" value="username"></el-option>
@@ -524,6 +546,14 @@ export default{
           { value: '1', label: this.$t('table.activationTime')},{ value: '2', label: this.$t('table.salesTime')},
           { value: '3', label: this.$t('table.expire')}
         ],
+        timeType2:4,
+        expOptions:[
+          { value: 4, label: '即将到期'},{ value: 5, label: '已到期'},
+        ],
+        timeRange:1,
+        rangeOptions:[
+          { value: 1, label: '7天内'},{ value: 2, label: '30天内'},{ value: 3, label: '60天内'}
+        ],
         time:[],
         loading:false,
         dataList:[],
@@ -729,9 +759,31 @@ export default{
           this.loading = true
           var startTime = null 
           var endTime = null
-          if(this.time){
+          if(this.time&&this.activeName=='first'){
             startTime = this.time[0]
             endTime = this.time[1]
+          }else if(this.activeName=='second'){
+            if(this.timeRange==1&&this.timeType2==4){
+              startTime = new Date().getTime() 
+              endTime = new Date().getTime() + 7*60*60*24*1000
+            }else if(this.timeRange==2&&this.timeType2==4){
+              startTime = new Date().getTime() 
+              endTime = new Date().getTime() + 30*60*60*24*1000
+            }else if(this.timeRange==3&&this.timeType2==4){
+              startTime = new Date().getTime() 
+              endTime = new Date().getTime() + 60*60*60*24*1000
+            }else if(this.timeRange==1&&this.timeType2==5){
+              startTime = new Date().getTime() - 7*60*60*24*1000 
+              endTime = new Date().getTime() 
+            }else if(this.timeRange==2&&this.timeType2==5){
+              startTime = new Date().getTime() - 30*60*60*24*1000 
+              endTime = new Date().getTime() 
+            }else if(this.timeRange==3&&this.timeType2==5){
+              startTime = new Date().getTime() - 60*60*60*24*1000 
+              endTime = new Date().getTime() 
+            }
+            
+            this.timeType = '3'
           }else{
             startTime = null
             endTime = null
@@ -956,7 +1008,13 @@ export default{
             }  
         },
         handleClick(tab, event) { // 全部客户，到期客户
-          console.log(tab, event);
+          console.log(tab, event)
+          if(tab.name == '到期'){
+            this.ownerId = null
+            this.getlist(1)
+          }else{
+            this.refresh()
+          }
         },
         handleNodeClick(data) { // 选择用户节点
           console.log(data)

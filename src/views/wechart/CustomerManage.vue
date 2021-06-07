@@ -699,4 +699,7 @@ export default {
 /deep/ .el-scrollbar__wrap {
 overflow-x: hidden;
 }
+/deep/ .el-table::before{
+  border-bottom: 1px solid #CCCCCC;
+}
 </style>

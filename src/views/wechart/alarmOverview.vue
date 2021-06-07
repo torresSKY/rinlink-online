@@ -181,15 +181,15 @@ export default {
             let data = Object.entries(res.data)
             // debugger
             for(let i =0;i<data.length;i++){
-              this.tableLabel.push({label:data[i][1].name,prop:data[i][0]})
+              this.tableLabel.push({label:data[i][1].name,prop:data[i][0],type:'clickPush',
+                tableClick: (val) => {
+                  this.showDialog('a', val)
+                }})
             }
           }else{
-
             this.$message.error(res.msg)
           }
-          
         }).catch(err => {
- 
           this.$message.error(err.msg)
         })
     },
@@ -233,12 +233,22 @@ export default {
     handleNodeClick(data) { // 选择用户节点
         console.log(data)
     },
-
+    showDialog(index, data){ // 操作
+      console.log(index, data)
+      switch (index) {
+        case 'a' : // 跳转指令信息
+          this.$emit('itemclick',data)
+          break
+      }
+    }
   }
 }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
 /deep/ .el-scrollbar__wrap {
 overflow-x: hidden;
+}
+/deep/ .el-table::before{
+  border-bottom: 1px solid #CCCCCC;
 }
 </style>

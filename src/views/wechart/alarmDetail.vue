@@ -128,6 +128,9 @@ export default {
   computed: {
     ...mapState({ user: "user", adminRoles: "roles" })
   },
+  props: {
+    itemData: { type: Object },
+  },
   data() {
     return {
       input3:null,
@@ -141,7 +144,16 @@ export default {
         {label: this.$t('table.Device'), prop: 'deviceName'},
         {label: this.$t('table.imei'), prop: 'deviceNumber'},
         {label: this.$t('table.model'), prop: 'deviceModelName'},
-        {label: this.$t('table.alatype'), prop: 'alarmTypeCode'},
+        {label: this.$t('table.alatype'), prop: 'alarmTypeStatus',type: 'render',
+          formatter: (params) => {
+            // console.log(params)
+            for(let i = 0;i<this.alarmTypeList.length;i++){
+              if(params['alarmTypeCode']==this.alarmTypeList[i][0]){
+                params['alarmTypeStatus'] = this.alarmTypeList[i][1].name
+              }
+            }
+            return params
+          }},
         {label: this.$t('table.alartime'), prop: 'alarmTime', type: 'Timestamp'},
         {label: this.$t('table.alarmAddress'), prop: 'alarmAddress'},
         {label: this.$t('table.handler'), prop: 'handleName'},
@@ -172,6 +184,7 @@ export default {
     }
   },
   mounted() {
+    // debugger
     this.type = JSON.parse(sessionStorage['user']).userType
     if(this.$route.params.data){
         this.deviceId = this.$route.params.data.id
@@ -181,6 +194,19 @@ export default {
     this.getlist()
     this.getBusiness()
     this.getAlarmType()
+  },
+  watch: {
+    itemData: {
+      immediate: true, //绑定值就开始执行监听，而不是等值改变。
+      handler(newValue, oldValue) {
+        console.log(newValue, oldValue)
+        if(newValue){
+          this.input3 = newValue.deviceNumber
+          this.alarmTypeId = newValue.statistic[0].alarmTypeCode
+        }
+        
+      },
+    },
   },
   methods: {
     getlist(type){ // 获取报警详情列表

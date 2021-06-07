@@ -452,7 +452,8 @@ export default{
               if(this.shipmentForm.usageYears==-1){
                 time = -1
               }else{
-                time = new Date().getTime() + Number(this.shipmentForm.usageYears)*365*24*60*60*1000
+                // time = new Date().getTime() + Number(this.shipmentForm.usageYears)*365*24*60*60*1000
+                time =Number(this.shipmentForm.usageYears)*365*24*60*60*1000
               }
               if(!this.isMore){
                 data = {

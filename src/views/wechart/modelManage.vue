@@ -205,7 +205,7 @@ export default{
           })
         },
         showDialog(index, data){ // 操作
-          console.log(index, data)
+          // console.log(index, data)
           switch (index) {
             case '2': // 删除设备型号
               this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {

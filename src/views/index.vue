@@ -48,7 +48,10 @@
                 <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <i class="el-icon-message-solid fr" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i> 
+            <!-- <i class="el-icon-message-solid fr" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i>  -->
+            <el-badge is-dot style="color:#fff;margin:15px 5px 0 0;font-size:20px;cursor: pointer;" class="fr">
+              <i class="el-icon-message-solid"  @click="jump('/notice')"></i>
+            </el-badge>
           </el-col>
         </el-row>
       </div>
