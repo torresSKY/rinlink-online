@@ -4,7 +4,7 @@
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <div class="row_item_left">
                     <div class="row_item_top_left">
-                        <div>{{current_login_user_info.username}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
+                        <div>{{current_login_user_info.nickname}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
@@ -12,7 +12,7 @@
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </el-scrollbar>
                     </div>
                 </div>
@@ -481,17 +481,22 @@ export default {
             OnlineDvice:0,//在线设备数量
             OfflineDvice:0,//离线设备数量
             current_time:0,//当前时间戳
+            props:{
+                isLeaf: 'isLeaf'
+            }
         }
     },
     created(){
         this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
         // 判断是否从首页搜索查看轨迹进入
         if(this.$route.query.deviceId){
-            this.track_detail = true;
+            // this.track_detail = true;
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
             this.play_flag = false;
             this.current_select_deviceId = this.$route.query.deviceId;
             this.need_handle_deviceId = this.$route.query.deviceId;
+            // 获取设备详情信息
+            this.evt_getDeviceInfo();
         }
         
         this.evt_getRangeIconList();
@@ -590,7 +595,7 @@ export default {
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
-                    user_data['label'] = res.data.username;
+                    user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
                     _this.user_list.push(user_data);
@@ -629,9 +634,14 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].username + '(' + res.data[i].devices +'/'+ (res.data[i].devices + res.data[i].sellDevices) +')';
+                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices +'/总数:'+ (res.data[i].devices + res.data[i].sellDevices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
+                            if(res.data[i].children == 0){
+                                user_data['isLeaf'] = true;
+                            }else{
+                                user_data['isLeaf'] = false;
+                            }
                             children_data.push(user_data);
                         }
                         node.data['children'] = children_data;
@@ -714,7 +724,7 @@ export default {
                 request_data['networkStatus'] = '2';
             }
             api.queryDevices(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data){
                     _this.devices_list = [];
                     // 把设备返回的gdj02坐标转换成bd09
@@ -743,7 +753,7 @@ export default {
         evt_route:function(info){
             var _this = this;
             var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
-            _this.evt_addMarker(point);
+            _this.evt_addMarker(point,info);
             if(_this.show_deviceName){
                 _this.evt_addLabel(point,info);
             }
@@ -865,7 +875,7 @@ export default {
                                 _this.$set(refresh_devices_list[i],'checked',true);
                                 if(refresh_devices_list[i].positionInfo && refresh_devices_list[i].positionInfo.coordinate && refresh_devices_list[i].positionInfo.coordinate.lng){
                                     var point = new BMap.Point(refresh_devices_list[i].positionInfo.coordinate.lng,refresh_devices_list[i].positionInfo.coordinate.lat);
-                                    _this.evt_addMarker(point);
+                                    _this.evt_addMarker(point,refresh_devices_list[i]);
                                     if(_this.show_deviceName){
                                         _this.evt_addLabel(point,refresh_devices_list[i]);
                                     }
@@ -959,6 +969,10 @@ export default {
                 console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.device_detail_info = res.data;
+                    if(_this.$route.query.deviceId){
+                        _this.track_detail = true;
+                        _this.current_device_name = res.data.deviceName;
+                    }
                     _this.device_name = res.data.deviceName;
                     _this.remark_text = res.data.remark;
                     _this.range_code = res.data.useRangeCode;
@@ -1137,7 +1151,7 @@ export default {
          // 添加覆盖物
         evt_addOverlay:function(info){
             var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
-            this.evt_addMarker(point);
+            this.evt_addMarker(point,info);
             if(this.show_deviceName){
                 this.evt_addLabel(point,info);
             }
@@ -1145,10 +1159,11 @@ export default {
             this.map.panTo(point);
         },
         // 添加标记
-        evt_addMarker:function(point){
+        evt_addMarker:function(point,info){
             var _this = this;
-            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
-                imageSize: new BMap.Size(25,25),
+            var icon_url = info.networkStatus == '1' ? info.useRangeCode ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t[Other].iconUrlForMapActive : info.useRangeCode ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t[Other].iconUrlForMapInactive;
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
+                imageSize: new BMap.Size(40,40),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
@@ -1167,7 +1182,7 @@ export default {
         // 添加label
         evt_addLabel:function(point,info){
             var html_content = `<div class="map_label"><span>${info.deviceName}</span></div>`
-            var label = new BMap.Label(html_content,{position:point,offset:new BMap.Size(-65,-52)});
+            var label = new BMap.Label(html_content,{position:point,offset:new BMap.Size(-66,-58)});
             label.setStyle({
                 border:'0px',
                 padding:'0px',
@@ -1289,6 +1304,8 @@ export default {
         },
         // 轨迹回放
         evt_playback:function(item){
+            // console.log(item);
+            this.device_detail_info = item;
             this.evt_clearOverlays();
             this.need_handle_deviceId = item.id;
             this.track_detail = true;
@@ -1375,7 +1392,7 @@ export default {
                     Polyline_points.push(point);
                     _this.map.panTo(point);
                     // 添加线型覆盖物
-                    var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
+                    var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
                     Polyline.name = _this.device_tracks_step;
                     _this.map.addOverlay(Polyline);
                     // marker
@@ -1406,17 +1423,24 @@ export default {
         // 轨迹回放的marker
         evt_playback_addMarker:function(point){
             var _this = this;
-            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
-                imageSize: new BMap.Size(25,25),
+            var device_info = _this.device_detail_info;
+            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t[Other].iconUrlForMapActive : device_info.useRangeCode ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t[Other].iconUrlForMapInactive;
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
+                imageSize: new BMap.Size(40,40),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
                 console.log(e);
                 var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
-                if(_this.play_flag){
-                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
-                }else{
+                // if(!_this.play_flag){
+                //     var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                // }else{
+                //     var info = _this.table_row_info;
+                // }
+                if(e.target.name == 'playFlag'){
                     var info = _this.table_row_info;
+                }else{
+                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
                 }
                 _this.evt_playback_infoWindow(point,info);
             })
@@ -1713,7 +1737,7 @@ export default {
                 minute = (Math.floor(intDiff / 60) - (hour * 60)).toString();
                 second = (Math.floor(intDiff) - (hour * 60 * 60) - (minute * 60)).toString();
             }
-            return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分':'') + (second > 0 ? second + '秒':'');
+            return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分钟':'') + (second > 0 ? second + '秒':'');
         },
         formatStatus(time,status,activationTime,serviceExpireTime){
             var currentTime = new Date().getTime();

@@ -44,9 +44,12 @@
                                         <div class="elecard_item_right" :class="item.fenceType != '0' ? 'elecard_item_right_t':''">
                                             <div v-if="item.fenceType == '0'">半径：{{item.circleFence.radius}}米</div>
                                             <div>
-                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
+                                                <!-- <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
                                                 <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
-                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image>
+                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image> -->
+                                                <div class="fence_icon" @click.stop="evt_show_relevance(item)"></div>
+                                                <div class="fence_icon" @click.stop="evt_edit(item)"></div>
+                                                <div class="fence_icon" @click.stop="evt_delete(item)"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -105,7 +108,7 @@
                             <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="users_bottom">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree :props="props" ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" :lazy="true" :render-content="renderContent"></el-tree>
                         </div>
                     </div>
                 </el-col>
@@ -257,7 +260,7 @@ export default {
             pen_form:{
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm: true,
+                inAlarm: false,
                 outAlarm: true,
                 fenceArea:{
                     radius:'',
@@ -326,6 +329,9 @@ export default {
             label_false: false,
             userType_parameter: '',//请求接口拼接的用户类型
             nav_deviceId: '',//路由中携带的设备id 存在即是其他页面跳转就来的
+            props:{
+                isLeaf: 'isLeaf'
+            }
         }
     },
     watch: {
@@ -416,23 +422,38 @@ export default {
             var _this = this;
             if(_this.pen_type_value == value) return;
             _this.pen_type_value = value;
+            // if(_this.pen_type_value == '1' && _this.add_pen_hint_flag){
+            //     // _this.drawingManager.open();
+            //     _this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+            // }else if(_this.pen_type_value == '2' && _this.add_pen_hint_flag){
+            //     // _this.drawingManager.open();
+            //     _this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON); 
+            // }else if(_this.pen_type_value == '3' && _this.add_pen_hint_flag){
+            //     _this.drawingManager.close();
+            //     _this.add_pen_flag = true;
+            // }
+        },
+        // 显示添加围栏的提示
+        evt_add_pen:function(){
+            // this.add_pen_hint_flag = true;
+            // this.pen_type_value = '1';
+            // this.drawingManager.open();
+            // this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+
+            var _this = this;
+            _this.map.clearOverlays();
+            _this.active = -1;
+            _this.add_pen_hint_flag = true;
             if(_this.pen_type_value == '1' && _this.add_pen_hint_flag){
-                // _this.drawingManager.open();
+                _this.drawingManager.open();
                 _this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
             }else if(_this.pen_type_value == '2' && _this.add_pen_hint_flag){
-                // _this.drawingManager.open();
+                _this.drawingManager.open();
                 _this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON); 
             }else if(_this.pen_type_value == '3' && _this.add_pen_hint_flag){
                 _this.drawingManager.close();
                 _this.add_pen_flag = true;
             }
-        },
-        // 显示添加围栏的提示
-        evt_add_pen:function(){
-            this.add_pen_hint_flag = true;
-            this.pen_type_value = '1';
-            this.drawingManager.open();
-            this.drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
         },
         // 关闭取消添加围栏弹框
         evt_close_addPen:function(){
@@ -448,13 +469,14 @@ export default {
             this.pen_form = {
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm: true,
+                inAlarm: false,
                 outAlarm: true,
                 fenceArea:{
                     radius:'',
                 }
             };
             this.update_pen = false;
+            this.pen_type_value = '1';
         },
         // 添加围栏
         evt_submit_addPen:function(){
@@ -475,7 +497,7 @@ export default {
             _this.pen_form = {
                 fenceName:'',
                 fenceRemark:'',
-                inAlarm: true,
+                inAlarm: false,
                 outAlarm: true,
                 fenceArea:{
                     radius:'',
@@ -485,6 +507,7 @@ export default {
             _this.add_pen_flag = false;
             _this.$message({message: _this.update_pen? '更新成功':'添加成功',type:'success',offset:'200',duration:'1000'});
             _this.update_pen = false;
+            this.pen_type_value = '1';
         },
         // 添加、更新圆形围栏
         evt_CircleFence:function(){
@@ -506,7 +529,7 @@ export default {
                 _this.pen_form.fenceArea['lng'] = point[0];
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
-                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                    _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                 }
             }
             api.createUpdateCircleFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
@@ -546,7 +569,7 @@ export default {
                 _this.pen_form.fenceArea['points'] = _this.point_arr;
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
-                    _this.pen_form['deviceId'] = _this.nav_deviceId;
+                    _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                 }
             }
             delete _this.pen_form.fenceArea.radius;
@@ -613,7 +636,7 @@ export default {
                         type = 'create';
                         // 单设备跳转进来的
                         if(_this.nav_deviceId != ''){
-                            _this.pen_form['deviceId'] = _this.nav_deviceId;
+                            _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                         }
                     }
                     api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
@@ -830,7 +853,7 @@ export default {
                     _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
                     _this.queryPen_pageTotal = res.data.pageTotal;
                 }else if(res.success && res.data.content.length == 0){
-                    _this.$message({message: '未搜索到相关数据',type:'info',offset:'200',duration:'1500'});
+                    _this.$message({message: '未搜索到相关围栏数据',type:'info',offset:'200',duration:'1500'});
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:"200",duration:"1000"});
@@ -850,6 +873,8 @@ export default {
             this.active = index;
             // console.log(index);
             // console.log(item);
+            this.add_pen_hint_flag = false;
+            this.drawingManager.close();
             this.evt_draw(item);
         },
         evt_draw:function(item){
@@ -1066,10 +1091,10 @@ export default {
         evt_getCurrentUserInfo:function(){
             var _this = this;
             api.getCurrentUserInfo({}).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     var user_data = {};
-                    user_data['label'] = res.data.username;
+                    user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
                     _this.user_list.push(user_data);
@@ -1097,7 +1122,7 @@ export default {
                     } 
                     for(let i = 0, len = res.data.length; i < len; i++){
                         var user_data = {};
-                        user_data['label'] = res.data[i].username;
+                        user_data['label'] = res.data[i].nickname;
                         user_data['info'] = res.data[i]
                         user_data['user_id'] = res.data[i].userId;
                         _this.user_list.push(user_data);
@@ -1138,9 +1163,14 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].username;
+                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices + '/总数:' + (res.data[i].sellDevices + res.data[i].devices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
+                            if(res.data[i].children == 0){
+                                user_data['isLeaf'] = true;
+                            }else{
+                                user_data['isLeaf'] = false;
+                            }
                             children_data.push(user_data);
                         }
                         node.data['children'] = children_data;
@@ -1599,6 +1629,37 @@ export default {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+            }
+            >div:nth-of-type(2){
+                display: flex;
+                align-items: center;
+                >div{
+                    width: 20px;
+                    height: 20px;
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                }
+                >div:nth-of-type(1){
+                    width: 18px;
+                    height: 18px;
+                    background-image: url(../../assets/img/fence_icon_4.png);
+                }
+                >div:nth-of-type(2){
+                    background-image: url(../../assets/img/fence_icon_6.png);
+                    margin: 0px 6px;
+                }
+                >div:nth-of-type(3){
+                    background-image: url(../../assets/img/fence_icon_8.png);
+                }
+                >div:nth-of-type(1):hover{
+                   background-image: url(../../assets/img/fence_icon_5.png);
+                }
+                >div:nth-of-type(2):hover{
+                   background-image: url(../../assets/img/fence_icon_7.png);
+                }
+                >div:nth-of-type(3):hover{
+                   background-image: url(../../assets/img/fence_icon_9.png);
+                }
             }
         }
         .elecard_item_right_t{
