@@ -1432,10 +1432,15 @@ export default {
             marker.addEventListener('click',function(e){
                 console.log(e);
                 var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
-                if(_this.play_flag){
-                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
-                }else{
+                // if(!_this.play_flag){
+                //     var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
+                // }else{
+                //     var info = _this.table_row_info;
+                // }
+                if(e.target.name == 'playFlag'){
                     var info = _this.table_row_info;
+                }else{
+                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
                 }
                 _this.evt_playback_infoWindow(point,info);
             })
