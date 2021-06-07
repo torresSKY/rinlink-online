@@ -758,7 +758,8 @@ export default {
                 _this.evt_addLabel(point,info);
             }
             _this.evt_addInfoWindow(point,info);
-            _this.map.panTo(point);
+            // _this.map.panTo(point);
+            _this.map.setCenter(point);
         },
         // 切换在线、离线
         evt_change_type:function(value){
@@ -887,8 +888,9 @@ export default {
                     }
                     if(_this.current_select_deviceId.trim() != '' && infoWindow_info.id && infoWindow_info.positionInfo && infoWindow_info.positionInfo.coordinate && infoWindow_info.positionInfo.coordinate.lng){
                         var point_t = new BMap.Point(infoWindow_info.positionInfo.coordinate.lng,infoWindow_info.positionInfo.coordinate.lat);
-                        this.evt_addInfoWindow(point_t,infoWindow_info);
-                        this.map.panTo(point_t);
+                        _this.evt_addInfoWindow(point_t,infoWindow_info);
+                        // _this.map.panTo(point_t);
+                        _this.map.setCenter(point_t);
                     }
                     _this.devices_list = refresh_devices_list;
                 }
@@ -1156,7 +1158,8 @@ export default {
                 this.evt_addLabel(point,info);
             }
             this.evt_addInfoWindow(point,info);
-            this.map.panTo(point);
+            // this.map.panTo(point);
+            this.map.setCenter(point);
         },
         // 添加标记
         evt_addMarker:function(point,info){
@@ -1294,13 +1297,24 @@ export default {
         evt_track:function(deviceId,deviceName){
             // console.log(deviceId,deviceName);
             // this.evt_clearOverlays();
-            this.need_handle_deviceId = deviceId;
-            this.track_detail = true;
-            this.play_flag = false;
-            this.current_device_name = deviceName;
-            this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            var _this = this;
+            _this.need_handle_deviceId = deviceId;
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
-            clearInterval(this.refresh_time_interval);
+            var request_data = {};
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
+                console.log(res);
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    clearInterval(_this.refresh_time_interval);
+                    _this.device_detail_info = res.data;
+                    _this.track_detail = true;
+                    _this.play_flag = false;
+                    _this.current_device_name = deviceName;
+                    _this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
+            })
         },
         // 轨迹回放
         evt_playback:function(item){
@@ -1368,7 +1382,8 @@ export default {
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
                     _this.play_flag = true;
-                    _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    // _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    _this.map.setCenter(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
                     _this.evt_LuShu();
                 }else{
                     _this.$message({message:res.msg,type:"info",offset:"200",duration:"1500"});
@@ -1390,7 +1405,8 @@ export default {
                     // console.log(raw_point);
                     var point = new BMap.Point(raw_point.lng,raw_point.lat);
                     Polyline_points.push(point);
-                    _this.map.panTo(point);
+                    // _this.map.panTo(point);
+                    _this.map.setCenter(point);
                     // 添加线型覆盖物
                     var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
                     Polyline.name = _this.device_tracks_step;
@@ -1430,7 +1446,7 @@ export default {
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
-                console.log(e);
+                // console.log(e);
                 var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
                 // if(!_this.play_flag){
                 //     var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
@@ -1466,6 +1482,8 @@ export default {
                 </div>
             `
             var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
+            // console.log(point);
+            // console.log(info);
             _this.map.openInfoWindow(infoWindow,point);
             if(infoWindow.isOpen()){
                 _this.playback_address = '';
@@ -1580,7 +1598,8 @@ export default {
                 }
                 this.table_row_info = row;
                 var point = new BMap.Point(row.lng,row.lat);
-                this.map.panTo(point);
+                // this.map.panTo(point);
+                this.map.setCenter(point);
                 this.evt_playback_addMarker(point);
                 this.evt_playback_infoWindow(point,row);
             }
