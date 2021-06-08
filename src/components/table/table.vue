@@ -21,6 +21,12 @@
                         <el-button @click.native.prevent='item.tableClick(scope.row)' type="text">{{scope.row[item.prop]}}</el-button>
                     </template>
                 </el-table-column>
+                <el-table-column  v-if="item.type == 'clickChuli'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                    <template slot-scope="scope">
+                        <el-button v-if="scope.row.handleStatus==0" @click.native.prevent='item.selectOperation(1,scope.row)' type="text">处理</el-button>
+                        <el-button v-else-if="scope.row.handleStatus==1" @click.native.prevent='item.selectOperation(2,scope.row)' type="text">查看处理</el-button>
+                    </template>
+                </el-table-column>
                 <el-table-column v-else-if="item.type == 'selection'" align='center' type="selection" width="50" :label="item.label"></el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickSelect'"  align='center' min-width="60px"   :label='item.label' :prop='item.prop' :key="item.index">
                     <template class="scope" slot-scope="scope">
@@ -30,12 +36,12 @@
                         </el-button>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item v-for="selectItem in item.selectText" :key="selectItem.index" :command="selectItem.command">
-                              <span v-if="selectItem.status===1&&scope.row.handleStatus==0">
+                              <!-- <span v-if="selectItem.status===1&&scope.row.handleStatus==0">
                                 {{selectItem.text}}
                               </span>
                               <span v-else-if="selectItem.status===2&&scope.row.handleStatus==1">
                                 {{selectItem.text}}
-                              </span>
+                              </span> -->
                               <span v-if="selectItem.status===1&&((scope.row.serviceExpireTime - new Date().getTime())>0)">
                                 {{selectItem.text}}
                               </span>

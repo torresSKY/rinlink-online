@@ -8,7 +8,7 @@
                 <el-col :span='3'>
                     <el-button class="butresh" @click="allHandle">{{$t('button.allHandle')}}</el-button>
                 </el-col>
-                <el-col :span='3' style="line-height:40px">
+                <el-col :span='2' style="line-height:40px">
                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                 </el-col>    
                 <el-col :span='3'>
@@ -87,18 +87,46 @@
                 height:800,
                 dataList:[],
                 tableLabel: [
-                  {label: this.$t('table.noticeContent'), prop: 'deviceNumber'},
+                  // {label: this.$t('table.noticeContent'), prop: 'detail',
+                  //   type: 'render',
+                  //   formatter: (params) => {
+                  //    for(let i = 0;i<this.alarmTypeList.length;i++){
+                  //      if(params['alarmTypeCode']==this.alarmTypeList[i][0]){
+                  //        params['alarmTypeStatus'] = this.alarmTypeList[i][1].name
+                  //      }
+                  //    }
+                  //     params['detail'] = '设备 ' + params['deviceNumber'] + '(' + params['deviceName'] + ') 发生 '+ params['alarmTypeStatus'] +
+                  //     '，定位地点为：' + params['alarmAddress']
+                  //     return params
+                  //   }
+                  // },
+                  {label: this.$t('table.Device'), prop: 'deviceName'},
+                  {label: this.$t('table.imei'), prop: 'deviceNumber'},
+                  {label: this.$t('table.alatype'), prop: 'alarmTypeStatus',type: 'render',
+                    formatter: (params) => {
+                      // console.log(params)
+                      for(let i = 0;i<this.alarmTypeList.length;i++){
+                        if(params['alarmTypeCode']==this.alarmTypeList[i][0]){
+                          params['alarmTypeStatus'] = this.alarmTypeList[i][1].name
+                        }
+                      }
+                      return params
+                    }
+                  },
+                  {label: this.$t('table.alartime'), prop: 'alarmTime', type: 'Timestamp'},
+                  {label: this.$t('table.alarmAddress'), prop: 'alarmAddress'},
                   {label: this.$t('table.count'), prop: 'handleName'},
-                  {label: this.$t('table.noticeTime'), prop: 'alarmTime', type: 'Timestamp'},
+                  // {label: this.$t('table.noticeTime'), prop: 'alarmTime', type: 'Timestamp'},
                   {label: this.$t('table.operation'),
-                    type: 'clickSelect',
+                    type: 'clickChuli',
                     selectOperation: (index, row) => {
+                      console.log(index, row)
                       this.showDialog(index, row)
                     },
-                    selectText: [
-                      {command: '1', text: this.$t('table.chuli'), index: 1 ,status : 1},
-                      {command: '2', text: this.$t('table.checkchuli'), index: 2 ,status : 2}
-                    ]  
+                    // selectText: [
+                    //   {command: '1', text: this.$t('table.chuli'), index: 1 ,status : 3},
+                    //   {command: '2', text: this.$t('table.checkchuli'), index: 2 ,status : 3}
+                    // ]  
                   }
                 ],
                 containsChildren:true,
@@ -116,6 +144,7 @@
         mounted(){
           var that =this
           this.type = JSON.parse(sessionStorage['user']).userType
+          this.getAlarmType()
           this.getlist()
           window.onresize = () => {
              return (() => {
@@ -176,13 +205,13 @@
             },
             showDialog(index, data){ // 操作
                 switch (index) {
-                    case '1': // 处理
+                    case 1: // 处理
                       this.remark = ''
                       this.messageId = data.id
                       this.flag = false
                       this.dialogHandle = true
                       break
-                    case '2': // 查看处理 
+                    case 2: // 查看处理 
                       this.remark = data.handleRemark
                       this.flag = true
                       this.dialogHandle = true
