@@ -516,7 +516,7 @@ export default {
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
-        this.map = new BMap.Map("container");
+        this.map = new BMap.Map("container",{enableMapClick:false});
         this.map.enableScrollWheelZoom(true); 
         this.map.centerAndZoom(new BMap.Point(121.3515259,31.1285691),15);
         this.map.addControl(new BMap.NavigationControl());    
@@ -1178,6 +1178,7 @@ export default {
                         var current_point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                         _this.evt_addInfoWindow(current_point,_this.devices_list[i]);
                     }
+                    break;
                 }
             })
             marker.name = 'marker_device';

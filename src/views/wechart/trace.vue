@@ -59,7 +59,7 @@ export default {
     },
     mounted(){
         var _this = this;
-        _this.map = new BMap.Map("container");
+        _this.map = new BMap.Map("container",{enableMapClick:false});
         _this.map.enableScrollWheelZoom(true); 
         _this.map.disableDoubleClickZoom();
         _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),15);

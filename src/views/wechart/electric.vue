@@ -363,7 +363,7 @@ export default {
         var _this = this;
         _this.height = document.body.offsetHeight - 60;
     
-        _this.map = new BMap.Map("container");
+        _this.map = new BMap.Map("container",{enableMapClick:false});
         _this.map.enableScrollWheelZoom(true); 
         _this.map.disableDoubleClickZoom();
         _this.map.centerAndZoom(new BMap.Point(116.2529,39.5420),6);
