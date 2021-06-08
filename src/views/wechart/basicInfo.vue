@@ -69,7 +69,7 @@
             }
         },
         mounted(){
-            this.type = JSON.parse(sessionStorage['user']).userType
+           this.type = JSON.parse(sessionStorage['user']).userType
            this.height = document.body.offsetHeight-152
            this.getlist()
         },
