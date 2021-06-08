@@ -16,12 +16,12 @@
                         <el-button @click.native.prevent='item.tableClick(scope.row)' type="text">{{item.label}}</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column  v-if="item.type == 'clickPush'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column  v-else-if="item.type == 'clickPush'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scope">
                         <el-button @click.native.prevent='item.tableClick(scope.row)' type="text">{{scope.row[item.prop]}}</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column  v-if="item.type == 'clickChuli'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column  v-else-if="item.type == 'clickChuli'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scope">
                         <el-button v-if="scope.row.handleStatus==0" @click.native.prevent='item.selectOperation(1,scope.row)' type="text">处理</el-button>
                         <el-button v-else-if="scope.row.handleStatus==1" @click.native.prevent='item.selectOperation(2,scope.row)' type="text">查看处理</el-button>

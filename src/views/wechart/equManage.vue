@@ -433,23 +433,23 @@
             width="40%">
             <el-form :model="SIMForm" ref="SIMForm"  label-width="120px" style="height:200px">
               <el-col :span='12'>
-                <el-form-item :label="$t('table.SIMcardnum')"  >
-                  <span>{{SIMForm.value}}</span>
+                <el-form-item :label="$t('table.SIMcardnum')+'：'"  >
+                  <span>{{SIMForm.iccid}}</span>
                 </el-form-item>
               </el-col>
               <el-col :span='12'>
-                <el-form-item :label="$t('table.SIMcardtype')"  >
-                  <span>{{SIMForm.value}}</span>
+                <el-form-item :label="$t('table.SIMcardtype')+'：'"  >
+                  <span>{{SIMForm.useStatus}}</span>
                 </el-form-item>
               </el-col>
               <el-col :span='12'>
-                <el-form-item :label="$t('table.activationTime')"  >
-                  <span>{{SIMForm.value}}</span>
+                <el-form-item :label="$t('table.activationTime')+'：'"  >
+                  <span>{{SIMForm.activationTime | formatDate}}</span>
                 </el-form-item>
               </el-col>
               <el-col :span='12'>
-                <el-form-item :label="$t('table.expire2')"  >
-                  <span>{{SIMForm.value}}</span>
+                <el-form-item :label="$t('table.expire2')+'：'"  >
+                  <span>{{SIMForm.serviceExpireTime | formatDate}}</span>
                 </el-form-item>
               </el-col>
             </el-form> 
@@ -543,7 +543,7 @@ export default{
         containsChildren:true,
         timeType:null,
         timeTypeOptions:[
-          { value: '1', label: this.$t('table.activationTime')},{ value: '2', label: this.$t('table.salesTime')},
+          { value: '2', label: this.$t('table.activationTime')},{ value: '1', label: this.$t('table.salesTime')},
           { value: '3', label: this.$t('table.expire')}
         ],
         timeType2:4,
@@ -618,8 +618,8 @@ export default{
             {command: '4', text: this.$t('button.send'), index: 4,status : 1},
             {command: '5', text: this.$t('button.historysend'), index: 5,status : 1},
             {command: '6', text: this.$t('button.viewAlarm'), index: 6,status : 1},
-            // {command: '7', text: this.$t('button.commLog'), index: 7},
-            // {command: '8', text: this.$t('button.SIM'), index: 8} 
+            {command: '7', text: this.$t('button.commLog'), index: 7,status : 1},
+            {command: '8', text: this.$t('button.SIM'), index: 8} 
             ]
         }],
         dialogEquinfo:false,
@@ -677,7 +677,10 @@ export default{
         ],
         dialogSIM:false,
         SIMForm:{
-          value:''
+          iccid:'',
+          useStatus:'',
+          activationTime:'',
+          serviceExpireTime:''
         },
         dialogLable:false,
         checkList:[],
@@ -1047,7 +1050,7 @@ export default{
         showDialog(index, data){ // 操作
           switch (index) {
             case '1': // 设备详情
-              this.current1 = -1
+              this.current1 = this.range.length-1
               this.equinfoForm = Object.assign({},data)
               for(let i=0;i<this.range.length;i++){
                 if(this.range[i][0]==this.equinfoForm.useRangeCode){
@@ -1094,6 +1097,14 @@ export default{
               break
             case '6' : // 查看报警  
               this.$router.push({name:"route.statistics",params:{data:data}})
+              break
+            case '7' : // 通讯日志
+              let url = 'http://rinlink-log-viewer.beijing-cn-k8s-test.rinlink.com/?projectName=k8s-log-ca07b6d6a7f6b46aabdd1a128384d3fff&logName=ack-test&queryString=content:%20jt808-gateway%20and%20(response_device_success%20or%20response_device_failed%20or%20device_request_message) and ' + data.deviceNumber
+              window.open(url)
+              break  
+            case '8' : // SIM卡信息
+              this.SIMForm = data
+              this.dialogSIM = true
               break
           }
         },
@@ -1160,6 +1171,7 @@ export default{
             return this.$message.warning(this.$t('table.searchimei'))
           }
           let data = {
+            containsChildren: true,
             deviceNumberKeyword : this.searchImei
           }
           api.getDevicesList(data,this.type).then(res => {
@@ -1313,7 +1325,7 @@ export default{
           this.dialogLable = true
         },
         download(){ // 导出
-          this.dialogSIM = true
+          
         },
         send(){ // 下发指令
           if(this.multipleSelection.length<=0){

@@ -36,7 +36,7 @@
                         </el-select>
                     </el-col>
                     <el-col :span='3'>
-                        <el-input v-model="input3" :placeholder="$t('view.inputimei')" clearable></el-input>
+                        <el-input v-model="input3" :placeholder="$t('view.inputimei')" clearable @blur="getdeviceId(input3)"></el-input>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')" clearable>
@@ -49,7 +49,7 @@
                         </el-select>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="handleStatus" :placeholder="$t('table.proStatus')">
+                        <el-select v-model="handleStatus" :placeholder="$t('table.proStatus')" clearable>
                           <el-option
                             v-for="item in handleStatusOptions"
                             :key="item.value"
@@ -61,9 +61,10 @@
                     <!-- <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col> -->
-                    <el-col :span='3'>
+                    <el-col :span='4'>
                       <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
-                      <el-button class="butadd" >{{$t('button.download')}}</el-button>
+                      <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
+                      <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                     </el-col>
                 </el-row>
                 <el-row style="margin-top:10px">
@@ -203,6 +204,10 @@ export default {
         if(newValue){
           this.input3 = newValue.deviceNumber
           this.alarmTypeId = newValue.statistic[0].alarmTypeCode
+          this.getdeviceId(this.input3)
+          this.$nextTick(() => {
+            this.getlist(1)
+          })
         }
         
       },
@@ -210,9 +215,9 @@ export default {
   },
   methods: {
     getlist(type){ // 获取报警详情列表
-      if(this.input3){
-        this.getdeviceId(this.input3)
-      }
+      // if(this.input3){
+      //   this.getdeviceId(this.input3)
+      // }
       let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
@@ -243,14 +248,26 @@ export default {
         this.$message.error(err.msg)
       })
     },
+    refresh(){
+      this.time = []
+      this.value = null
+      this.input3 = null
+      this.alarmTypeId = null
+      this.handleStatus = null 
+      this.getlist(1)
+    },
     getdeviceId(deviceNumber){ // 获取设备id
       let data = {
         deviceNumberKeyword: deviceNumber,
+        containsChildren:true
       }
       api.getDevicesList(data,this.type).then(res => {
         // debugger
         if(res.success){
           console.log(res)
+          if(res.data.content.length>0){
+            this.deviceId = res.data.content[0].id
+          }
         }else{
           this.$message.error(res.msg)
         }
@@ -323,8 +340,13 @@ export default {
       }).then(() => {
         let id = {
           // userId:data.userId
+          startTime:this.time[0] || null,
+          endTime:this.time[1] || null,
+          deviceOwnerId:this.value,
+          deviceIdList:this.deviceId==''?[]:this.deviceId!=null?[this.deviceId]:[],
+          alarmTypeId:this.alarmTypeId
         }
-        api.handleDeviceAlarms(this.type).then(res => {
+        api.handleDeviceAlarms(this.type,id).then(res => {
           if(res.success){
             this.$message.success(this.$t('message.alaedit'))
             this.getlist()

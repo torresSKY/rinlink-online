@@ -112,8 +112,9 @@ export default {
   },
   mounted() {
     this.type = JSON.parse(sessionStorage['user']).userType
-    this.getAlarmType()
+    
     this.getlist()
+    this.getAlarmType()
     this.getBusiness()
     
   },
@@ -176,16 +177,19 @@ export default {
         })
     },
     getAlarmType(){ // 查询报警类型
+        let data = []
         api.getAlarmType({headers: { 'Content-Type': 'application/json,charset=utf-8' }}).then(res => {
           if(res.success){
-            let data = Object.entries(res.data)
             // debugger
+            data = Object.entries(res.data)
             for(let i =0;i<data.length;i++){
               this.tableLabel.push({label:data[i][1].name,prop:data[i][0],type:'clickPush',
                 tableClick: (val) => {
                   this.showDialog('a', val)
                 }})
+                
             }
+            console.log(this.tableLabel)
           }else{
             this.$message.error(res.msg)
           }

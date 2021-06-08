@@ -244,7 +244,7 @@
                   let id = {
                     // userId:data.userId
                   }
-                  api.handleDeviceAlarms(this.type).then(res => {
+                  api.handleDeviceAlarms(this.type,id).then(res => {
                     if(res.success){
                       this.$message.success(this.$t('message.alaedit'))
                       this.getlist()
