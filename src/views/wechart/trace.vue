@@ -1,6 +1,6 @@
 <template>
     <div class="page">
-        <div class="page_top">{{deviceName}}：{{device_address}}</div>
+        <div class="page_top">{{device_detail_info.deviceName}}：{{device_address}}</div>
         <div class="map_container">
             <div id="container"></div>
             <div class="map_type">
@@ -42,21 +42,24 @@ export default {
             interval_num:0,
             userType_parameter: '',//请求接口拼接的用户类型
             deviceNumber:'',
+            device_detail_info:'',
+            icon_list:{},
         }
     },
     created(){
         // console.log(this.$route.query.deviceId);
         // console.log(this.$route.query.panorama);
         this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
-        this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
+        // this.deviceName = this.$route.query.deviceName ? this.$route.query.deviceName : '----';
         this.Panorama_flag = this.$route.query.panorama == 'panorama' ? true : false;//街景显示标识
         this.deviceId = this.$route.query.deviceId;
-        this.deviceNumber = this.$route.query.deviceNumber;
-        this.evt_getDeviceLastCoordinate();
+        // this.deviceNumber = this.$route.query.deviceNumber;
+        // this.evt_getDeviceLastCoordinate();
+        this.evt_getRangeIconList();
     },
     mounted(){
         var _this = this;
-        _this.map = new BMap.Map("container");
+        _this.map = new BMap.Map("container",{enableMapClick:false});
         _this.map.enableScrollWheelZoom(true); 
         _this.map.disableDoubleClickZoom();
         _this.map.centerAndZoom(new BMap.Point(121.3715259,31.1285691),15);
@@ -82,6 +85,32 @@ export default {
             }else{
                 this.map.setMapType(BMAP_NORMAL_MAP);
             }
+        },
+         // 获取适用范围的icon信息
+        evt_getRangeIconList:function(){
+            var _this = this;
+            api.getRangeIconList({},_this.userType_parameter).then((res) => {
+                if(res.success && Object.keys(res.data).length > 0){
+                    _this.icon_list = res.data;
+                    _this.evt_getDeviceInfo();
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg || '设备适用icon数据请求错误',type:'error',offset:'260',duration:'1500'})
+            })
+        },
+        // 获取设备详情信息
+        evt_getDeviceInfo:function(){
+            var _this = this;
+            var request_data = {};
+            request_data['deviceId'] = _this.deviceId;
+            api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    _this.device_detail_info = res.data;
+                    _this.evt_getDeviceLastCoordinate();
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
+            })
         },
         // 获取设备最新位置
         evt_getDeviceLastCoordinate:function(){
@@ -128,19 +157,31 @@ export default {
         },
          // 添加展示信息窗口
         evt_addInfoWindow:function(point,info){
+            var position_type;
+            for(var key in info.coordinateFrom){
+                if(info.coordinateFrom[key] != null){
+                    if(key == 'baseStations'){
+                        position_type = '基站';
+                    }else if(key == 'gps'){
+                        position_type = 'GPS';
+                    }else if(key == 'wifiMacs'){
+                        position_type = 'WIFI'
+                    }
+                }
+            }
             var infoWindow_html = `<div class="info_window_content">
                 <div class="info_window_content_title">
-                    <span>设备名称:${this.deviceName}</span>
+                    <span>设备名称:${this.device_detail_info.deviceName}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>网络状态：</span>
-                    <span>--</span>
+                    <span>${info.networkStatus == '1' ? '在线' : '离线'}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>定位方式：--</span>
+                    <span>定位方式：${position_type != undefined ? position_type : '----'}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：${this.deviceNumber}</span>
+                    <span>设备号：${this.device_detail_info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.time)}</span>
@@ -156,8 +197,9 @@ export default {
         // 添加标记
         evt_addMarker:function(point){
             var _this = this;
-            var marker_icon = new BMap.Icon(require('../../assets/img/car_online.png'),new BMap.Size(25,25),{
-                imageSize: new BMap.Size(25,25),
+            var icon_url = _this.locationInfo.networkStatus == '1' ? _this.device_detail_info.useRangeCode != null ? _this.icon_list[_this.device_detail_info.useRangeCode].iconUrlForMapActive : _this.icon_list['Other'].iconUrlForMapActive : _this.device_detail_info.useRangeCode != null ? _this.icon_list[_this.device_detail_info.useRangeCode].iconUrlForMapInactive : _this.icon_list['Other'].iconUrlForMapInactive;
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
+                imageSize: new BMap.Size(40,40),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
@@ -179,7 +221,7 @@ export default {
             }
             var point = new BMap.Point(_this.locationArr[_this.locationArr.length - 1].coordinate.lng,_this.locationArr[_this.locationArr.length - 1].coordinate.lat);
             _this.map.panTo(point);
-            var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#FF6673'});
+            var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
             Polyline.name = _this.locationArr.length;
             _this.map.addOverlay(Polyline);
 

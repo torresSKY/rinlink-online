@@ -8,7 +8,7 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name">
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称" v-model="searchBusiness_name">
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
@@ -59,7 +59,7 @@
                                     </div>
                                     <div class="devices_item_bottom">
                                         <div>
-                                            <el-button @click="evt_trace(item.id,item.deviceName,item.deviceNumber,'trace')" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
+                                            <el-button @click="evt_trace(item.id,'trace')" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
                                         </div>
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
@@ -354,11 +354,12 @@
                 </el-tab-pane>
                 <el-tab-pane label="历史指令" name="history">
                     <el-table class="" :data="command_data_list" border style="width: 100%" size="small">
-                        <el-table-column fixed prop="commandId" label="指令ID" min-width="160" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="commandName" label="指令类型" min-width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatCommandData" prop="commandData" label="指令数据" min-width="140" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatCommandStatus" prop="commandStatus" label="指令结果" min-width="100" show-overflow-tooltip></el-table-column>
+                        <!-- <el-table-column fixed prop="commandId" label="指令ID" min-width="160" show-overflow-tooltip></el-table-column> -->
+                        <el-table-column fixed label="序号" type="index" min-width="50" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="commandName" label="指令类型" min-width="100" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatCommandData" prop="commandData" label="指令数据" min-width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="100" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatCommandStatus" prop="commandStatus" label="指令结果" min-width="80" show-overflow-tooltip></el-table-column>
                     </el-table>
                     <el-pagination @current-change="evt_current_change" small background layout="total,prev, pager, next,jumper" :hide-on-single-page="true" :current-page="command_page" :page-size="command_pageSize" :total="command_total" style="text-align:center;margin-top:30px;"></el-pagination>
                 </el-tab-pane>
@@ -515,7 +516,7 @@ export default {
     },
     mounted(){
         this.height = document.body.offsetHeight - 60;
-        this.map = new BMap.Map("container");
+        this.map = new BMap.Map("container",{enableMapClick:false});
         this.map.enableScrollWheelZoom(true); 
         this.map.centerAndZoom(new BMap.Point(121.3515259,31.1285691),15);
         this.map.addControl(new BMap.NavigationControl());    
@@ -693,7 +694,7 @@ export default {
             if(_this.searchBusiness_name.trim() == '') return;
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
-            request_data['searchType'] = 'username';
+            request_data['searchType'] = 'nickname';
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
@@ -1177,6 +1178,7 @@ export default {
                         var current_point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                         _this.evt_addInfoWindow(current_point,_this.devices_list[i]);
                     }
+                    break;
                 }
             })
             marker.name = 'marker_device';
@@ -1218,8 +1220,8 @@ export default {
                     <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
                 </div>
                 <div class="info_window_content_btn">
-                    <div onClick="evt_trace('${info.id}','${info.deviceName}','${info.deviceNumber}','panorama')">街景</div>
-                    <div onClick="evt_trace('${info.id}','${info.deviceName}','${info.deviceNumber}','trace')">跟踪</div>
+                    <div onClick="evt_trace('${info.id}','panorama')">街景</div>
+                    <div onClick="evt_trace('${info.id}','trace')">跟踪</div>
                     <div onClick="evt_track('${info.id}','${info.deviceName}')">轨迹</div>
                     <div onClick="evt_nav_fence('${info.deviceName}','${info.id}')">电子围栏</div>
                 </div>
@@ -1282,10 +1284,10 @@ export default {
             })
         },
         // 追踪
-        evt_trace:function(deviceId,deviceName,deviceNumber,panorama){
+        evt_trace:function(deviceId,panorama){
             let routeUrl = this.$router.resolve({
                 path: "/trace",
-                query: {deviceId:deviceId,deviceName:deviceName,deviceNumber:deviceNumber,panorama:panorama == 'panorama' ? 'panorama':'trace'}
+                query: {deviceId:deviceId,panorama:panorama == 'panorama' ? 'panorama':'trace'}
             });
             window.open(routeUrl.href, '_blank');
         },
