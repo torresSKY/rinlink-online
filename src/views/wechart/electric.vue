@@ -888,8 +888,9 @@ export default {
                 var point = new BMap.Point(point_t[0],point_t[1]);
                 var radius = item.circleFence.radius;
                 var circle = new BMap.Circle(point,radius,_this.opts);
-                _this.map.centerAndZoom(point,13);
                 _this.map.addOverlay(circle);
+                var points = circle.getPath();
+                _this.map.setViewport(points);
             }else if(item.fenceType == 1){
                 var point_arr = item.polygonFence.points;
                 var points = [];
@@ -897,22 +898,19 @@ export default {
                     points.push(new BMap.Point(point_arr[i].lng,point_arr[i].lat))
                 }
                 var polygon = new BMap.Polygon(points,_this.opts);
-                _this.map.centerAndZoom(points[points.length - 1],13);
-                _this.map.addOverlay(polygon)
+                _this.map.addOverlay(polygon);
+                _this.map.setViewport(points);
             }else if(item.fenceType == 2){
                 var areaName = item.districtFence.areaName;
                 var boundary = new BMap.Boundary();
                 boundary.get(areaName,function(res){
-                    // console.log(res);
                     if(res){
-                        var point_arr = res.boundaries[0].split(';');
                         var points = [];
-                        for(let i = 0,len = point_arr.length; i < len; i++){
-                            points.push(new BMap.Point(point_arr[i].split(',')[0],point_arr[i].split(',')[1]));
+                        for(var j = 0, len = res.boundaries.length; j < len; j++){
+                            var ply = new BMap.Polygon(res.boundaries[j],_this.opts);
+                            _this.map.addOverlay(ply);
+                            points = points.concat(ply.getPath());
                         }
-                        // console.log(point_arr);
-                        var polygon = new BMap.Polygon(points,_this.opts);
-                        _this.map.addOverlay(polygon);
                         _this.map.setViewport(points);
                     }
                 })
