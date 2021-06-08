@@ -47,7 +47,7 @@
                                         </div> -->
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
-                                                <div class="devices_item_top_right_top_left">{{item.deviceName}}</div>
+                                                <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
                                                 <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime)}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom">
@@ -484,7 +484,8 @@ export default {
             current_time:0,//当前时间戳
             props:{
                 isLeaf: 'isLeaf'
-            }
+            },
+            zIndex: 1,//marker,label层级
         }
     },
     created(){
@@ -1165,7 +1166,7 @@ export default {
         // 添加标记
         evt_addMarker:function(point,info){
             var _this = this;
-            var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
+            var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForConsoleActive :  _this.icon_list_t['Other'].iconUrlForConsoleActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForConsoleInactive :  _this.icon_list_t['Other'].iconUrlForConsoleInactive;
             var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
                 imageSize: new BMap.Size(40,40),
             });
@@ -1182,6 +1183,7 @@ export default {
                 }
             })
             marker.name = 'marker_device';
+            marker.setZIndex(_this.zIndex + 1);
             this.map.addOverlay(marker);
         },
         // 添加label
@@ -1194,6 +1196,7 @@ export default {
                 borderRadius: '4px'
             });
             label.name = 'show_deviceName';
+            label.setZIndex(this.zIndex + 1);
             this.map.addOverlay(label);
         },
         // 添加展示信息窗口
@@ -1442,7 +1445,7 @@ export default {
         evt_playback_addMarker:function(point){
             var _this = this;
             var device_info = _this.device_detail_info;
-            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
+            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForConsoleActive :  _this.icon_list_t['Other'].iconUrlForConsoleActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForConsoleInactive :  _this.icon_list_t['Other'].iconUrlForConsoleInactive;
             var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
                 imageSize: new BMap.Size(40,40),
             });
@@ -2037,6 +2040,9 @@ export default {
                             overflow: hidden;
                             text-overflow: ellipsis;
                             white-space: nowrap;
+                        }
+                        .devices_item_top_right_top_left_t{
+                            color: #018C0E;
                         }
                         .devices_item_top_right_top_right{
                             flex-shrink: 0;

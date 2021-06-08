@@ -773,6 +773,7 @@ export default {
             var request_data = {};
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
+            request_data['containsChildren'] = true;
             if(_this.select_type_name == 'deviceNumber'){
                 request_data['deviceNumberKeyword'] = _this.fenceSearchContent;
             }else{
