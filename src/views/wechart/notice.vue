@@ -3,7 +3,7 @@
        <el-row >
            <el-col :span='5'>
                <el-menu
-                 style="height:90vh"
+                 style="height:90vh;width:100%"
                  default-active="alarm"
                  :default-openeds="['1','alarm','2','platform','3','system']"
                  @select='selPath'
@@ -40,7 +40,7 @@
            <el-col :span='19'>
                <exp-notice v-if="pathName=='platform'" ref="expNotice" />
                <sys-notice v-else-if="pathName=='system'" ref="sysNotice" />
-               <alarm-notice v-else ref="sysNotice" />
+               <alarm-notice v-else ref="alarmNotice" />
            </el-col>
        </el-row>
     </div>
