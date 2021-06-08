@@ -8,7 +8,7 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name">
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称" v-model="searchBusiness_name">
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
@@ -693,7 +693,7 @@ export default {
             if(_this.searchBusiness_name.trim() == '') return;
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
-            request_data['searchType'] = 'username';
+            request_data['searchType'] = 'nickname';
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
