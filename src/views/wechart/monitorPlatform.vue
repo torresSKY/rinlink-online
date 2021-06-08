@@ -354,11 +354,12 @@
                 </el-tab-pane>
                 <el-tab-pane label="历史指令" name="history">
                     <el-table class="" :data="command_data_list" border style="width: 100%" size="small">
-                        <el-table-column fixed prop="commandId" label="指令ID" min-width="160" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="commandName" label="指令类型" min-width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatCommandData" prop="commandData" label="指令数据" min-width="140" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatCommandStatus" prop="commandStatus" label="指令结果" min-width="100" show-overflow-tooltip></el-table-column>
+                        <!-- <el-table-column fixed prop="commandId" label="指令ID" min-width="160" show-overflow-tooltip></el-table-column> -->
+                        <el-table-column fixed label="序号" type="index" min-width="50" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="commandName" label="指令类型" min-width="100" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatCommandData" prop="commandData" label="指令数据" min-width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="100" show-overflow-tooltip></el-table-column>
+                        <el-table-column :formatter="evt_table_formatCommandStatus" prop="commandStatus" label="指令结果" min-width="80" show-overflow-tooltip></el-table-column>
                     </el-table>
                     <el-pagination @current-change="evt_current_change" small background layout="total,prev, pager, next,jumper" :hide-on-single-page="true" :current-page="command_page" :page-size="command_pageSize" :total="command_total" style="text-align:center;margin-top:30px;"></el-pagination>
                 </el-tab-pane>
