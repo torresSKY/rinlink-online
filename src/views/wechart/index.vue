@@ -575,7 +575,7 @@ export default {
       if(this.btn_type == 'trace'){
         let routeUrl = this.$router.resolve({
             path: "/trace",
-            query: {deviceId:row.id,deviceName:row.deviceName,deviceNumber:row.deviceNumber,panorama:'trace'}
+            query: {deviceId:row.id,panorama:'trace'}
         });
         window.open(routeUrl.href, '_blank');
       }else if(this.btn_type == 'track'){
