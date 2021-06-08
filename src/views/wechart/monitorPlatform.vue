@@ -41,7 +41,7 @@
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''"></el-avatar>
+                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t[Other].iconUrlForConsoleActive :item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t[Other].iconUrlForConsoleInactive"></el-avatar>
                                         <!-- <div class="devices_item_top_avatar_container">
                                             <img class="devices_item_top_avatar"  :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''" alt="">
                                         </div> -->
@@ -117,11 +117,11 @@
                                 <el-option label="10秒" value="10"></el-option>
                                 <el-option label="30秒" value="30"></el-option>
                                 <el-option label="1分钟" value="60"></el-option>
-                                <el-option label="10分钟" value="600"></el-option>
+                                <!-- <el-option label="10分钟" value="600"></el-option>
                                 <el-option label="30分钟" value="1800"></el-option>
                                 <el-option label="1小时" value="3600"></el-option>
                                 <el-option label="5小时" value="18000"></el-option>
-                                <el-option label="12小时" value="43200"></el-option>
+                                <el-option label="12小时" value="43200"></el-option> -->
                             </el-select>
                             <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
                         </div>
@@ -758,7 +758,8 @@ export default {
                 _this.evt_addLabel(point,info);
             }
             _this.evt_addInfoWindow(point,info);
-            _this.map.panTo(point);
+            // _this.map.panTo(point);
+            _this.map.setCenter(point);
         },
         // 切换在线、离线
         evt_change_type:function(value){
@@ -887,8 +888,9 @@ export default {
                     }
                     if(_this.current_select_deviceId.trim() != '' && infoWindow_info.id && infoWindow_info.positionInfo && infoWindow_info.positionInfo.coordinate && infoWindow_info.positionInfo.coordinate.lng){
                         var point_t = new BMap.Point(infoWindow_info.positionInfo.coordinate.lng,infoWindow_info.positionInfo.coordinate.lat);
-                        this.evt_addInfoWindow(point_t,infoWindow_info);
-                        this.map.panTo(point_t);
+                        _this.evt_addInfoWindow(point_t,infoWindow_info);
+                        // _this.map.panTo(point_t);
+                        _this.map.setCenter(point_t);
                     }
                     _this.devices_list = refresh_devices_list;
                 }
@@ -1128,11 +1130,11 @@ export default {
         evt_queryDeviceCmds:function(){
             var _this = this;
             var request_data = {};
-            request_data['page'] = _this.command_page;
+            request_data['page'] = _this.command_page - 1;
             request_data['pageSize'] = _this.command_pageSize;
             request_data['deviceId'] = _this.need_handle_deviceId;
             api.queryDeviceCmds(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     _this.command_data_list = res.data.content;
                     _this.command_total = res.data.pageTotal * _this.command_pageSize;
@@ -1156,7 +1158,8 @@ export default {
                 this.evt_addLabel(point,info);
             }
             this.evt_addInfoWindow(point,info);
-            this.map.panTo(point);
+            // this.map.panTo(point);
+            this.map.setCenter(point);
         },
         // 添加标记
         evt_addMarker:function(point,info){
@@ -1294,13 +1297,24 @@ export default {
         evt_track:function(deviceId,deviceName){
             // console.log(deviceId,deviceName);
             // this.evt_clearOverlays();
-            this.need_handle_deviceId = deviceId;
-            this.track_detail = true;
-            this.play_flag = false;
-            this.current_device_name = deviceName;
-            this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            var _this = this;
+            _this.need_handle_deviceId = deviceId;
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
-            clearInterval(this.refresh_time_interval);
+            var request_data = {};
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
+                console.log(res);
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    clearInterval(_this.refresh_time_interval);
+                    _this.device_detail_info = res.data;
+                    _this.track_detail = true;
+                    _this.play_flag = false;
+                    _this.current_device_name = deviceName;
+                    _this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+                }
+            }).catch((err) => {
+                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
+            })
         },
         // 轨迹回放
         evt_playback:function(item){
@@ -1368,7 +1382,8 @@ export default {
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
                     _this.play_flag = true;
-                    _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    // _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    _this.map.setCenter(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
                     _this.evt_LuShu();
                 }else{
                     _this.$message({message:res.msg,type:"info",offset:"200",duration:"1500"});
@@ -1390,7 +1405,8 @@ export default {
                     // console.log(raw_point);
                     var point = new BMap.Point(raw_point.lng,raw_point.lat);
                     Polyline_points.push(point);
-                    _this.map.panTo(point);
+                    // _this.map.panTo(point);
+                    _this.map.setCenter(point);
                     // 添加线型覆盖物
                     var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
                     Polyline.name = _this.device_tracks_step;
@@ -1430,7 +1446,7 @@ export default {
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
-                console.log(e);
+                // console.log(e);
                 var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
                 // if(!_this.play_flag){
                 //     var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
@@ -1466,6 +1482,8 @@ export default {
                 </div>
             `
             var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
+            // console.log(point);
+            // console.log(info);
             _this.map.openInfoWindow(infoWindow,point);
             if(infoWindow.isOpen()){
                 _this.playback_address = '';
@@ -1580,7 +1598,8 @@ export default {
                 }
                 this.table_row_info = row;
                 var point = new BMap.Point(row.lng,row.lat);
-                this.map.panTo(point);
+                // this.map.panTo(point);
+                this.map.setCenter(point);
                 this.evt_playback_addMarker(point);
                 this.evt_playback_infoWindow(point,row);
             }
