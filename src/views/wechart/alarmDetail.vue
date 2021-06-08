@@ -36,7 +36,8 @@
                         </el-select>
                     </el-col>
                     <el-col :span='3'>
-                        <el-input v-model="input3" :placeholder="$t('view.inputimei')" clearable @blur="getdeviceId(input3)"></el-input>
+                        <el-autocomplete v-model="input3" :placeholder="$t('view.inputimei')"  
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect"></el-autocomplete>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')" clearable>
@@ -181,7 +182,9 @@ export default {
       remark:'',
       alarmTypeList:[],
       deviceId:null,
-      type:null
+      type:null,
+      deviceIdList:[],
+      timeout: null
     }
   },
   mounted() {
@@ -205,9 +208,12 @@ export default {
           this.input3 = newValue.deviceNumber
           this.alarmTypeId = newValue.statistic[0].alarmTypeCode
           this.getdeviceId(this.input3)
-          this.$nextTick(() => {
+          // this.$setTimeout(() => {
+          //   this.getlist(1)
+          // })
+          setTimeout(() => {
             this.getlist(1)
-          })
+          },500)
         }
         
       },
@@ -255,6 +261,47 @@ export default {
       this.alarmTypeId = null
       this.handleStatus = null 
       this.getlist(1)
+    },
+    querySearchAsync(queryString, cb) {
+      console.log(queryString, cb)
+      let data = {
+        deviceNumberKeyword: queryString,
+        containsChildren:true
+      }
+      var that = this
+      api.getDevicesList(data,this.type).then(res => {
+        // debugger
+        if(res.success){
+          // console.log(res)
+          if(res.data.content.length>0){
+            that.deviceIdList = res.data.content
+            for(let i = 0;i<that.deviceIdList.length;i++){
+              that.deviceIdList[i]['value'] = that.deviceIdList[i].deviceNumber
+            }
+            var results = queryString ? that.deviceIdList.filter(that.createStateFilter(queryString)) : that.deviceIdList
+            // console.log(results,'results')
+            clearTimeout(that.timeout);
+            that.timeout = setTimeout(() => {
+              cb(results)
+            }, 1000 * Math.random())
+          }
+        }else{
+          this.$message.error(res.msg)
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
+        
+    },
+    createStateFilter(queryString) {
+      return (state) => {
+        // console.log(state)
+        return (state.deviceNumber.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    handleSelect(item){
+      // console.log(item)
+      this.deviceId = item.deviceNumber
     },
     getdeviceId(deviceNumber){ // 获取设备id
       let data = {
