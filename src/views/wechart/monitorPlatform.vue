@@ -41,7 +41,7 @@
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t[Other].iconUrlForConsoleActive :item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t[Other].iconUrlForConsoleInactive"></el-avatar>
+                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
                                         <!-- <div class="devices_item_top_avatar_container">
                                             <img class="devices_item_top_avatar"  :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''" alt="">
                                         </div> -->
@@ -1164,7 +1164,7 @@ export default {
         // 添加标记
         evt_addMarker:function(point,info){
             var _this = this;
-            var icon_url = info.networkStatus == '1' ? info.useRangeCode ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t[Other].iconUrlForMapActive : info.useRangeCode ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t[Other].iconUrlForMapInactive;
+            var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
             var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
                 imageSize: new BMap.Size(40,40),
             });
@@ -1440,7 +1440,7 @@ export default {
         evt_playback_addMarker:function(point){
             var _this = this;
             var device_info = _this.device_detail_info;
-            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t[Other].iconUrlForMapActive : device_info.useRangeCode ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t[Other].iconUrlForMapInactive;
+            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
             var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
                 imageSize: new BMap.Size(40,40),
             });
