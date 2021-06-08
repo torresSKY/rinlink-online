@@ -553,6 +553,7 @@ export default {
       request_data['deviceNumberKeyword'] = _this.search_word;
       request_data['page'] = 0;
       request_data['pageSize'] = 20;
+      request_data['containsChildren'] = true;
       api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
         // console.log(res);
         _this.search_result = [];
