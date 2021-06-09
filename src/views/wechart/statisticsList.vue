@@ -50,9 +50,10 @@
            },
            itemclick(data){
                console.log(data)
+               this.itemData = null
                if(data.statistic[0].count>0){
                    this.activeName = 'second'
-                   this.itemData = data
+                   this.itemData = Object.assign({},data)
                }
            }
         }

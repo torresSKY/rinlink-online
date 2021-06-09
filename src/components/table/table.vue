@@ -18,7 +18,7 @@
                 </el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickPush'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scope">
-                        <el-button @click.native.prevent='item.tableClick(scope.row)' type="text">{{scope.row[item.prop]}}</el-button>
+                        <el-button @click.native.prevent='item.tableClick(scope.row,item.label)' type="text">{{scope.row[item.prop]}}</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickChuli'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">

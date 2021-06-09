@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@lljj/vue-json-schema-form": "^1.5.0",
+    "@riophae/vue-treeselect": "^0.4.0",
     "axios": "^0.18.0",
     "babel-runtime": "^6.26.0",
     "echarts": "^4.8.0",
