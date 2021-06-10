@@ -1456,7 +1456,7 @@ export default {
         },
         evt_sure_select_time:function(e){
             if(e instanceof Array && (e[1] - e[0]) > (60 * 24 * 60 * 60 * 1000)){
-                this.$message({message: '轨迹查询区间不得大于60天', type:'warning',offset:'400',duration:'3000'})
+                this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
             }
         },
         // 播放与暂停
@@ -1521,7 +1521,7 @@ export default {
                 return;
             }
             if((this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
-                this.$message({message: '轨迹查询区间不得大于60天', type:'warning',offset:'400',duration:'3000'})
+                this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
                 return;
             }
             this.evt_clearOverlays();
@@ -1561,7 +1561,7 @@ export default {
                 return;
             }
             if((this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
-                this.$message({message: '轨迹查询区间不得大于60天', type:'warning',offset:'400',duration:'3000'})
+                this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
                 return;
             }
             if(this.tracksDetail_flag) return;
