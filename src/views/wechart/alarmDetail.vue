@@ -25,18 +25,33 @@
                           :default-time="['00:00:00', '23:59:59']">
                         </el-date-picker>
                     </el-col>
-                    <el-col :span='3' style="line-height:40px">
-                        <el-select v-model="value" :placeholder="$t('view.customerList')" clearable>
+                    <el-col :span='3' style="line-height:38px">
+                        <!-- <el-select v-model="value" :placeholder="$t('view.customerList')" clearable>
                           <el-option
                             v-for="item in businessoptions"
                             :key="item.userId"
                             :label="item.username"
                             :value="item.userId">
                           </el-option>
-                        </el-select>
+                        </el-select> -->
+                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
+                        :load-options="loadOptions"/>
                     </el-col>
-                    <el-col :span='3'>
-                        <el-input v-model="input3" :placeholder="$t('view.inputimei')" clearable @blur="getdeviceId(input3)"></el-input>
+                    <el-col :span='5'>
+                      <el-col :span='10'>
+                        <el-select v-model="selStatus" >
+                          <el-option
+                            v-for="item in selOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-select>
+                      </el-col>
+                      <el-col :span='14'>
+                        <el-autocomplete v-model="input3" placeholder="请选择"  
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect"></el-autocomplete>
+                      </el-col>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')" clearable>
@@ -122,9 +137,11 @@ import api from "@/api/wechart/index"
 import mixin from "@/mixins/index"
 import { mapState } from "vuex"
 import BaseTable from '@/components/table'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
   name: "alarmDetail",
-  components:{ BaseTable },
+  components:{ BaseTable,Treeselect },
   mixins: [mixin],
   computed: {
     ...mapState({ user: "user", adminRoles: "roles" })
@@ -135,7 +152,7 @@ export default {
   data() {
     return {
       input3:null,
-      value:'',
+      value:null,
       businessoptions:[],
       checked:true,
       loading:false,
@@ -181,7 +198,14 @@ export default {
       remark:'',
       alarmTypeList:[],
       deviceId:null,
-      type:null
+      type:null,
+      deviceIdList:[],
+      timeout: null,
+      selStatus:1,
+      selOptions:[
+        { value: 1, label: '设备IMEI'}, 
+        { value: 2, label: '设备名称'}
+      ]
     }
   },
   mounted() {
@@ -203,11 +227,21 @@ export default {
         console.log(newValue, oldValue)
         if(newValue){
           this.input3 = newValue.deviceNumber
-          this.alarmTypeId = newValue.statistic[0].alarmTypeCode
+          // debugger
+          this.alarmTypeId = null
+          for(let i = 0;i<this.alarmTypeList.length;i++){
+            if(newValue.name == this.alarmTypeList[i][1].name){
+              this.alarmTypeId = this.alarmTypeList[i][0]
+            }
+          }
+          // this.alarmTypeId = newValue.statistic[0].alarmTypeCode
           this.getdeviceId(this.input3)
-          this.$nextTick(() => {
+          // this.$setTimeout(() => {
+          //   this.getlist(1)
+          // })
+          setTimeout(() => {
             this.getlist(1)
-          })
+          },500)
         }
         
       },
@@ -241,7 +275,7 @@ export default {
       api.getAlarmsDetail(data,this.type).then(res => {
         this.loading = false
         this.dataList = res.data.content
-        this.page.total = res.data.pageTotal
+        this.page.total = res.data.totalElements
       }).catch(err => {
         this.loading = false
         this.dataList = []
@@ -254,7 +288,73 @@ export default {
       this.input3 = null
       this.alarmTypeId = null
       this.handleStatus = null 
+      this.selStatus = 1
       this.getlist(1)
+    },
+    querySearchAsync(queryString, cb) {
+      console.log(queryString, cb)
+      let data = null
+      if(this.selStatus==1){
+        data = {
+          deviceNumberKeyword: queryString,
+          containsChildren:true
+        }
+      }else{
+        data = {
+          deviceNameKeyword: queryString,
+          containsChildren:true
+        }
+      }
+      
+      var that = this
+      this.deviceIdList = []
+      api.getDevicesList(data,this.type).then(res => {
+        // debugger
+        if(res.success){
+          // console.log(res)
+          if(res.data.content.length>0){
+            that.deviceIdList = res.data.content
+            for(let i = 0;i<that.deviceIdList.length;i++){
+              if(this.selStatus==1){
+                that.deviceIdList[i]['value'] = that.deviceIdList[i].deviceNumber
+              }else{
+                that.deviceIdList[i]['value'] = that.deviceIdList[i].deviceName
+              }
+            }
+            var results = queryString ? that.deviceIdList.filter(that.createStateFilter(queryString)) : that.deviceIdList
+            // console.log(results,'results')
+            clearTimeout(that.timeout);
+            that.timeout = setTimeout(() => {
+              cb(results)
+            }, 1000 )
+          }else{
+            clearTimeout(that.timeout);
+            that.timeout = setTimeout(() => {
+              cb([])
+            }, 1000 )
+          }
+        }else{
+          this.$message.error(res.msg)
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
+        
+    },
+    createStateFilter(queryString) {
+      return (state) => {
+        // console.log(state)
+        if(this.selStatus==1){
+          return (state.deviceNumber.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
+        }else{
+          return (state.deviceName.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
+        }
+        
+      };
+    },
+    handleSelect(item){
+      // console.log(item)
+      this.deviceId = item.id
     },
     getdeviceId(deviceNumber){ // 获取设备id
       let data = {
@@ -281,10 +381,54 @@ export default {
       }
       api.getBusiness(data,this.type).then(res => {
           this.businessoptions = res.data
+          for(let i =0;i<this.businessoptions.length;i++){
+            this.businessoptions[i]['id'] = this.businessoptions[i].userId
+            this.businessoptions[i]['label'] = this.businessoptions[i].nickname
+            if(this.businessoptions[i].children==1){
+              this.businessoptions[i].children = null
+            }
+          }
         }).catch(err => {
           this.businessoptions = []
           this.$message.error(err.msg)
         })
+    },
+    loadOptions({ action, parentNode, callback }) {
+      console.log(action, parentNode)
+      var _this = this
+      if (action == 'LOAD_CHILDREN_OPTIONS') {
+        var request_data = {}
+        request_data['parentId'] = parentNode.userId
+        api.getBusiness(request_data,_this.type).then((res) => {
+            if(res.success){
+                if(res.data.length == 0){
+                    parentNode.children = []
+                    callback()
+                    return
+                }
+                var children_data = res.data
+                for(let i = 0;i<children_data.length;i++){
+                  children_data[i]['id'] = children_data[i].userId
+                  children_data[i]['label'] = children_data[i].nickname
+                  if(children_data[i].children == 1){
+                    children_data[i].children = null
+                  }
+                }
+                // debugger
+                parentNode.children = children_data
+                callback()
+            }else{
+                parentNode.children = []
+                _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                callback()
+            }
+        }).catch((err) => {
+            parentNode.children = []
+            _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+            callback();
+        })
+      }
+
     },
     getAlarmType(){ // 查询报警类型
         api.getAlarmType({headers: { 'Content-Type': 'application/json,charset=utf-8' }}).then(res => {
@@ -367,5 +511,8 @@ export default {
 <style type="stylesheet/scss" lang="scss" scoped>
 /deep/ .el-scrollbar__wrap {
 overflow-x: hidden;
+}
+/deep/ .vue-treeselect__placeholder{
+  line-height: 38px;
 }
 </style>
