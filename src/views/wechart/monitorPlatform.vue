@@ -38,13 +38,9 @@
                                 <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', item.lastReportDataTime == null ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
                                     <div class="devices_item_mask" v-if="item.lastReportDataTime == null"></div>
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
-                                        <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
-                                        <!-- <div class="devices_item_top_avatar_container">
-                                            <img class="devices_item_top_avatar"  :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''" alt="">
-                                        </div> -->
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
@@ -79,30 +75,6 @@
                             </template>
                             <div v-if="devices_list.length == 0" style="font-size:14px;text-align:center;">暂无设备数据</div>
                         </div>
-                        <!-- <div class="row_item_middle_bottom_add_tag">添加标签</div>
-                        <el-collapse accordion v-model="collapse_value">
-                            <el-collapse-item name="1">
-                                <template slot="title">
-                                    <div class="row_item_middle_bottom_title">
-                                        <el-checkbox v-model="checked"></el-checkbox>
-                                        <i class="el-icon-caret-right"></i>
-                                        <span>莘庄中心(12)</span>
-                                    </div>
-                                </template>
-                                <div class="item_content">
-                                    
-                                </div>
-                            </el-collapse-item>
-                            <el-collapse-item name="2">
-                                <template slot="title">
-                                    <div class="row_item_middle_bottom_title">
-                                        <el-checkbox v-model="checked"></el-checkbox>
-                                        <i class="el-icon-caret-bottom"></i>
-                                        <span>诺德国际(788)</span>
-                                    </div>
-                                </template>
-                            </el-collapse-item>
-                        </el-collapse> -->
                     </div>
                 </div>
             </el-col>
@@ -117,11 +89,6 @@
                                 <el-option label="10秒" value="10"></el-option>
                                 <el-option label="30秒" value="30"></el-option>
                                 <el-option label="1分钟" value="60"></el-option>
-                                <!-- <el-option label="10分钟" value="600"></el-option>
-                                <el-option label="30分钟" value="1800"></el-option>
-                                <el-option label="1小时" value="3600"></el-option>
-                                <el-option label="5小时" value="18000"></el-option>
-                                <el-option label="12小时" value="43200"></el-option> -->
                             </el-select>
                             <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
                         </div>
@@ -250,21 +217,11 @@
                 <el-col :span="12" class="device_info_left">
                     <el-form>
                         <el-form-item label="设备名称:">
-                            <el-input class="device_info_left_input_1" size="small" v-model="device_name"></el-input>
+                            <el-input class="device_info_left_input_1" maxlength="15" size="small" v-model="device_name"></el-input>
                         </el-form-item>
                         <el-form-item label="设备型号:">
-                            <!-- <el-select class="device_info_left_select" size="small" v-model="device_info_model"  placeholder="请选择">
-                                <el-option key="选项1" label="选项1" value="选项1"></el-option>
-                                <el-option key="选项2" label="选项2" value="选项2"></el-option>
-                            </el-select> -->
                             <span v-if="device_detail_info.deviceModel">{{device_detail_info.deviceModel.name}}</span>
                         </el-form-item>
-                        <!-- <el-form-item label="标签:">
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                        </el-form-item> -->
                         <el-form-item label="激活时间:">
                             <span v-if="device_detail_info.activationTime">{{device_detail_info.activationTime|formatDate}}</span>
                             <span v-else>--</span>
@@ -273,9 +230,6 @@
                             <span v-if="device_detail_info.serviceExpireTime">{{device_detail_info.serviceExpireTime|formatDate}}</span>
                             <span v-else>--</span>
                         </el-form-item>
-                        <!-- <el-form-item label="适用范围:">
-                            <el-image @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="item.iconUrl" class="icon_img_class"  fit="contain"></el-image>
-                        </el-form-item> -->
                         <div style="display:flex;align-items: flex-start;">
                             <span style="flex-shrink: 0;font-size: 14px;color: #606266;margin-right:5px;line-height:18px;">适用范围:</span>
                             <div style="display:flex;flex-wrap: wrap;">
@@ -327,29 +281,6 @@
             </template>
             <el-tabs type="border-card" v-model="tab_value" @tab-click="evt_tab_click">
                 <el-tab-pane label="指令参数" name="parameter">
-                    <!-- <el-form>
-                        <div class="order_form_item">
-                            <el-form-item label="指令类型:">
-                                <el-select @change="evt_change_command" v-model="command_template_id" placeholder="请选择指令类型">
-                                    <el-option v-for="(item,index) in command_templates_list" :key="index" :label="item.templateName" :value="item.deviceCmdTemplateId"> </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item v-if="is_template_content" label="指令参数:">
-                                <el-input v-model="order_form_parameter"></el-input>
-                            </el-form-item>
-                        </div>
-                        <el-form-item v-if="is_template_content" label="缓存时长:">
-                            <el-select v-model="order_form_value" placeholder="请选择指令缓存时长">
-                                <el-option key="选项1" label="选项1" value="选项1"> </el-option>
-                                <el-option key="选项2" label="选项2" value="选项2"> </el-option>
-                                <el-option key="选项3" label="选项3" value="选项3"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <div class="order_time_text" v-if="template_content.templateRemark">提示：{{template_content.templateRemark}}</div>
-                        <div class="order_form_btn">
-                            <el-button type="primary" @click="evt_sendCommand">下发指令</el-button>
-                        </div>
-                    </el-form> -->
                     <send-order ref="sendOrder" :list = "multipleSelection" @confrimSend='confrimSend'/>
                 </el-tab-pane>
                 <el-tab-pane label="历史指令" name="history">
@@ -1706,45 +1637,6 @@ export default {
                     _this.OfflineDvice = res.data.devices;
                 }
             })
-        },
-
-      
-        bd09togcj02(bd_lon, bd_lat) { 
-    　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
-    　      let x = bd_lon - 0.0065;
-    　      let y = bd_lat - 0.006;
-    　      let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
-    　      let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
-    　      let gg_lng = z * Math.cos(theta);
-    　      let gg_lat = z * Math.sin(theta);
-    　      return [gg_lng, gg_lat]
-　      },
-        gcj02towgs84(lng, lat) { 
-            var dlat = this.transformlat(lng - 105.0, lat - 35.0);
-            var dlng = this.transformlng(lng - 105.0, lat - 35.0);
-            var radlat = lat / 180.0 * this.PI;
-            var magic = Math.sin(radlat);
-            magic = 1 - this.ee * magic * magic;
-            var sqrtmagic = Math.sqrt(magic);
-            dlat = (dlat * 180.0) / ((this.a * (1 - this.ee)) / (magic * sqrtmagic) * this.PI);
-            dlng = (dlng * 180.0) / (this.a / sqrtmagic * Math.cos(radlat) * this.PI);
-            var mglat = lat + dlat;
-            var mglng = lng + dlng;
-            return [lng * 2 - mglng, lat * 2 - mglat]
-        },
-        transformlat(lng, lat) { 
-            var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
-            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-            ret += (20.0 * Math.sin(lat * this.PI) + 40.0 * Math.sin(lat / 3.0 * this.PI)) * 2.0 / 3.0;
-            ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
-            return ret
-        },
-        transformlng(lng, lat) { 
-            var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
-            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-            ret += (20.0 * Math.sin(lng * this.PI) + 40.0 * Math.sin(lng / 3.0 * this.PI)) * 2.0 / 3.0;
-            ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
-            return ret
         },
     },
     filters:{
