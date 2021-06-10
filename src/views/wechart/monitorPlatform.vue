@@ -50,10 +50,10 @@
                                                 <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
                                                 <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime)}}</div>
                                             </div>
-                                            <div class="devices_item_top_right_bottom">
+                                            <div class="devices_item_top_right_bottom" v-if="item.battery != null">
                                                 <!-- 电池辅助元素 -->
-                                                <div><div style="background:#02C602;" :style="{width: (item.battery ? item.battery : 0) + '%'}"></div></div>
-                                                <div>{{item.battery ? item.battery : 0}}%</div>
+                                                <div><div style="background:#02C602;" :style="{width: item.battery + '%'}"></div></div>
+                                                <div>{{item.battery}}%</div>
                                             </div>
                                         </div>
                                     </div>
