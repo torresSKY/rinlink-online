@@ -109,6 +109,7 @@
                             </el-col>
                             <el-col :span="8" class="playback_top_date_picker">
                                 <el-date-picker
+                                    @change="evt_sure_select_time"
                                     v-model="select_date_time"
                                     type="datetimerange"
                                     range-separator="至"
@@ -1453,6 +1454,11 @@ export default {
                 this.select_date_time = [new Date().getTime() - 3600 * 24 * 1000 * 7,new Date().getTime()];
             }
         },
+        evt_sure_select_time:function(e){
+            if(e instanceof Array && (e[1] - e[0]) > (60 * 24 * 60 * 60 * 1000)){
+                this.$message({message: '轨迹查询区间不得大于60天', type:'warning',offset:'400',duration:'3000'})
+            }
+        },
         // 播放与暂停
         evt_play_pause:function(){
             this.play_flag = !this.play_flag;
@@ -1510,6 +1516,14 @@ export default {
         },
         // 选择不同时间确定查询轨迹
         evt_query_tracks:function(){
+            if(this.select_date_time == null){
+                this.$message({message: '请选择轨迹查询时间', type:'warning',offset:'400',duration:'2000'})
+                return;
+            }
+            if((this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
+                this.$message({message: '轨迹查询区间不得大于60天', type:'warning',offset:'400',duration:'3000'})
+                return;
+            }
             this.evt_clearOverlays();
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
         },
@@ -1542,6 +1556,14 @@ export default {
         },
         // 轨迹明细
         evt_show_tracksDetail:function(){
+            if(this.select_date_time == null){
+                this.$message({message: '请选择轨迹查询时间', type:'warning',offset:'400',duration:'2000'})
+                return;
+            }
+            if((this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
+                this.$message({message: '轨迹查询区间不得大于60天', type:'warning',offset:'400',duration:'3000'})
+                return;
+            }
             if(this.tracksDetail_flag) return;
             this.tracksDetail_flag = true;
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
