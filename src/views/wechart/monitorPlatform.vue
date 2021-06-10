@@ -35,8 +35,8 @@
                     <div class="row_item_middle_bottom">
                         <div class="item_content">
                             <template v-if="devices_list.length > 0">
-                                <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', (!item.activationTime || current_time > item.serviceExpireTime) ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
-                                    <div class="devices_item_mask" v-if="!item.activationTime || current_time > item.serviceExpireTime"></div>
+                                <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', item.lastReportDataTime == null ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
+                                    <div class="devices_item_mask" v-if="item.lastReportDataTime == null"></div>
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
                                         <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
@@ -1763,30 +1763,23 @@ export default {
             }
             return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分钟':'') + (second > 0 ? second + '秒':'');
         },
-        formatStatus(time,status,activationTime,serviceExpireTime){
+        formatStatus(lastReportDataTime,networkStatus,activationTime,serviceExpireTime){
             var currentTime = new Date().getTime();
-            if(!activationTime){
+            if(!activationTime || activationTime == null){
                 return '未激活';
-            }
-            if(currentTime > serviceExpireTime){
-                return '已到期';
-            }
-            if(status == '1'){
+            }else if(activationTime && lastReportDataTime == null && serviceExpireTime > currentTime){
+                return '已激活未上线';
+            }else if(activationTime && (lastReportDataTime != null || lastReportDataTime)  && networkStatus == '1' && serviceExpireTime != null && serviceExpireTime > currentTime){
                 return '在线';
+            }else if(activationTime && (lastReportDataTime != null || lastReportDataTime)  && networkStatus == '2' && serviceExpireTime != null && serviceExpireTime > currentTime){
+                var diffTime = currentTime - lastReportDataTime;
+                var d = Math.floor(diffTime / (24 * 60 * 60 * 1000));
+                var h = Math.floor(diffTime / (60 * 60 * 1000));
+                var m = Math.floor(diffTime / (60 * 1000));
+                return '离线>' + (d > 0 ? d + '天': h > 0 ? h + '小时' : m + '分钟');
+            }else if(activationTime && serviceExpireTime < currentTime){
+                return '已过期';
             }
-            if(time == null){
-                return '离线';
-            }
-            var diffTime = currentTime - time;
-            if(diffTime < 24 * 60 * 60 * 1000){
-                return '离线';
-            }
-            var day = diffTime / (24 * 60 * 60 * 1000);
-            var y = Math.floor(day / 365);
-            var m = Math.floor(day / 30);
-            var d = Math.floor(day / 1);
-            var str = y > 0 ? '离线>' + y + '年' : m > 0 ? '离线>' + m + '个月' : '离线>' + d + '天';
-            return str;
         }
     }
 }
