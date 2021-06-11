@@ -170,6 +170,7 @@
                 <div class="select_collect_top">
                     <span>已选列表({{selected_devices.length}})</span>
                     <span @click="evt_cancel_all_selected">清空</span>
+                    <span v-if="selected_devices.length > 0">（该围栏中可能包含下级用户的设备）</span>
                 </div>
                 <div v-if="selected_devices.length > 0" class="select_collect_content">
                     <div v-for="(item,index) in selected_devices" :key="index" class="select_collect_content_item" @click="evt_cancel_selected(item)">
