@@ -292,7 +292,13 @@ export default{
                 return params
               }
             },
-          {label: this.$t('table.iccid'), prop: 'iccid'},
+          {label: this.$t('table.iccid'), prop: 'iccid',type: 'render',
+          formatter: (params) => {
+            if(params['iccid']==null){
+              params['iccid'] = '--'
+            }
+            return params
+          }},
           {label: this.$t('table.batch'), prop: 'batchNumber'},
           // {label: this.$t('table.serviceLife'), prop: 'usageYears'},
           {label: this.$t('table.deliveryTime'), prop: 'createTime', type: 'Timestamp'},

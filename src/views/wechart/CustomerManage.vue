@@ -298,22 +298,36 @@ export default {
         })
     },
     getBusiness(){ // 获取代理商
-      let data = {
-        parentId: null
-      }
-      api.getBusiness(data,this.type).then(res => {
-          let data = res.data
-          for(let i = 0;i<data.length;i++){
-            if(data[i].children == 0){
-              data[i]['leaf'] = true
+      // let data = {
+      //   parentId: null
+      // }
+      // api.getBusiness(data,this.type).then(res => {
+      //     let data = res.data
+      //     for(let i = 0;i<data.length;i++){
+      //       if(data[i].children == 0){
+      //         data[i]['leaf'] = true
+      //       }
+      //     }
+      //     this.businessData = this.setTreeData(data)
+      //     this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
+      //     // console.log(this.businessData)
+      //   }).catch(err => {
+      //     this.businessData = []
+      //     this.$message.error(err.msg)
+      //   })
+      var _this = this;
+        this.businessData = []
+        api.getBusinessUserinfo({},_this.type).then((res) =>{
+            // console.log(res);
+            if(res.success && res.data && Object.keys(res.data).length > 0){
+                if(res.data.children == 0){
+                  res.data['leaf'] = true
+                }
+                _this.businessData.push(res.data)
             }
-          }
-          this.businessData = this.setTreeData(data)
-          this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
-          // console.log(this.businessData)
-        }).catch(err => {
-          this.businessData = []
-          this.$message.error(err.msg)
+            _this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
+        }).catch((err) => {
+            _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
         })
     },
     // 获取当前登录用户的信息 b端用户

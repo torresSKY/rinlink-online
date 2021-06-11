@@ -91,8 +91,8 @@ export default {
         password: ''
       },
       loginRules: {
-        username: [{ required: true, min: 3, message: this.$t('message.loginuser') }],
-        password: [{ required: true, min: 3, message: this.$t('message.pawuser') }]
+        username: [{ required: true, min: 3, message: this.$t('message.loginuser'), trigger: 'blur'}],
+        password: [{ required: true, min: 3, message: this.$t('message.pawuser') , trigger: 'blur'}]
       },
       pwdType: 'password',
       // loading: false,

@@ -5,8 +5,8 @@
       <div class="topBar" >
         <el-row >
           <el-col :span='3' >
-            <div class="title_top" :style="note">
-              <img src='@/assets/img/logo_00.png' style="width: 70%;height: 48px;display: inline-block; vertical-align: middle">
+            <div class="title_top" >
+              <img src='@/assets/img/toubu.png' style="width: 100%;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
           <el-col :offset='1' :span='15'   style="text-align:center;margin-top:10px;overflow: hidden;">
@@ -356,7 +356,7 @@ export default {
 width: 100%;
 // margin-top:6px;
 // display:table-cell;
-padding-left: 5px;
+padding-left: 15px;
 text-align:center;
 // vertical-align:middle;
 // background-image: 'url(' + require('@/assets/img/beijing_lg.png') + ')';
