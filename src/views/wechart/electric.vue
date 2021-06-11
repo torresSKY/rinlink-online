@@ -612,56 +612,57 @@ export default {
             _this.pen_form.fenceArea['areaCode'] = _this.selected_adcode;
             _this.pen_form.fenceArea['areaName'] = _this.selected_areaName;
             _this.pen_form.fenceArea['areaLevel'] = _this.selected_level;
-            var boundary = new BMap.Boundary();
-            boundary.get(_this.selected_areaName,function(res){
-                // console.log(res);
-                if(res){
-                    var points = [];
-                    for(var i = 0, len = res.boundaries.length; i < len; i++){
-                        var point_arr = res.boundaries[i].split(';')
-                        var arr = [];
-                        for(var j = 0, le = point_arr.length; j < le; j++){
-                            var arr_item = [];
-                            var point = point_arr[j].split(',');
-                            var lng = point[0].slice(0,point[0].indexOf('.')+7);
-                            arr_item.push(lng);
-                            var lat = point[1].trim().slice(0,point[1].trim().indexOf('.')+7);
-                            arr_item.push(lat);
-                            arr.push(arr_item.join(','));
-                        }
-                        points = points.concat(arr);
-                    }
-                    var points_str = points.join(";");
-                    // console.log(points_str);
-                    _this.pen_form.fenceArea['points'] = points_str;
-                    if(!_this.update_pen){
-                        type = 'create';
-                        // 单设备跳转进来的
-                        if(_this.nav_deviceId != ''){
-                            _this.pen_form['deviceIds'] = [_this.nav_deviceId];
-                        }
-                    }
-                    api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
-                        // console.log(res);
-                        if(res.success){
-                            // 重新查询围栏数据
-                            _this.queryPen_page = 0;
-                            _this.queryPen_dataList = [];
-                            _this.queryPen_pageTotal = 1;
-                            _this.evt_queryPen();
-                            if(type == 'update'){
-                                _this.map.clearOverlays();
-                                _this.active = -1;
-                            }
-                            _this.submit_result();
-                        }else{
-                            _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
-                        }
-                    }).catch((err) => {
-                        _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
-                    })
+            if(!_this.update_pen){
+                type = 'create';
+                // 单设备跳转进来的
+                if(_this.nav_deviceId != ''){
+                    _this.pen_form['deviceIds'] = [_this.nav_deviceId];
                 }
+            }
+            api.createUpdateDistrictFence(type,_this.pen_form,_this.userType_parameter).then((res) => {
+                // console.log(res);
+                if(res.success){
+                    // 重新查询围栏数据
+                    _this.queryPen_page = 0;
+                    _this.queryPen_dataList = [];
+                    _this.queryPen_pageTotal = 1;
+                    _this.evt_queryPen();
+                    if(type == 'update'){
+                        _this.map.clearOverlays();
+                        _this.active = -1;
+                    }
+                    _this.submit_result();
+                }else{
+                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                }
+            }).catch((err) => {
+                 _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
             })
+            // var boundary = new BMap.Boundary();
+            // boundary.get(_this.selected_areaName,function(res){
+            //     // console.log(res);
+            //     if(res){
+            //         var points = [];
+            //         for(var i = 0, len = res.boundaries.length; i < len; i++){
+            //             var point_arr = res.boundaries[i].split(';')
+            //             var arr = [];
+            //             for(var j = 0, le = point_arr.length; j < le; j++){
+            //                 var arr_item = [];
+            //                 var point = point_arr[j].split(',');
+            //                 var lng = point[0].slice(0,point[0].indexOf('.')+7);
+            //                 arr_item.push(lng);
+            //                 var lat = point[1].trim().slice(0,point[1].trim().indexOf('.')+7);
+            //                 arr_item.push(lat);
+            //                 arr.push(arr_item.join(','));
+            //             }
+            //             points = points.concat(arr);
+            //         }
+            //         var points_str = points.join(";");
+            //         // console.log(points_str);
+            //         _this.pen_form.fenceArea['points'] = points_str;
+                    
+            //     }
+            // })
         },
          // 选择更新围栏
         evt_edit:function(item){
