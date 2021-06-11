@@ -1,7 +1,7 @@
 <template>
     <div class="app" :style="{height:height +'px',overflow:'hidden' }">
         <el-row  >
-            <el-col :span='4'>
+            <el-col :span='4' v-if="type!=3">
                 <el-row class="cust-title">
                     <span>{{$t('view.customerList')}}</span>
                 </el-row>
@@ -133,13 +133,14 @@
                 </el-row>
                 <el-row class="list-search" >
                     <el-col :span='8'>
-                      <el-button size="mini" @click="sale">{{$t('button.sale')}}</el-button>
+                      <el-button size="mini" @click="sale" v-if="type==2">{{$t('button.sale')}}</el-button>
                       <!-- <el-button size="mini" @click="download">{{$t('button.download')}}</el-button> -->
-                      <el-button size="mini" @click="send">{{$t('button.send')}}</el-button>
+                      <el-button size="mini" @click="send" >{{$t('button.send')}}</el-button>
                       <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
                 </el-row>
-                <el-row  class="list-search" >
+                <el-row  style="margin-top:10px" >
+                  <!-- :style="{height:tableHeight}" -->
                   <el-scrollbar :style="{height:tableHeight}" ref="scrollbar" >
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
                   </el-scrollbar>
@@ -488,8 +489,8 @@ export default{
             return time.getTime() > Date.now();
           }
         },
-        height:1000,
-        tableHeight:this.tableHeight,
+        height:900,
+        tableHeight:document.body.offsetHeight-262 +"px",
         activeName: 'first',
         search:null,
         moreFlag:false,
@@ -585,7 +586,13 @@ export default{
                 return params
               }
           },
-          {label: this.$t('table.iccid'), prop: 'iccid'},
+          {label: this.$t('table.iccid'), prop: 'iccid',type: 'render',
+          formatter: (params) => {
+            if(params['iccid']==null){
+              params['iccid'] = '--'
+            }
+            return params
+          }},
           {label: this.$t('table.customers'), prop: 'username',type: 'render',
           formatter: (params) => {
             // console.log(params)
@@ -716,23 +723,46 @@ export default{
           {label: '原因', prop: 'falRemark'},
         ],
         current:-1,
-        current1:-1
+        current1:-1,
+        timer:null
+      }
+    },
+    watch: {
+      tableHeight (val) {
+        // console.log(val)
+        // 为了避免频繁触发resize函数导致页面卡顿，使用定时器
+        if (!this.timer) {
+          
+          var str = val.substring(0,val.length-2)
+          // 一旦监听到的screenWidth值改变，就将其重新赋给data里的screenWidth
+          this.tableHeight = (str - 60) + 'px'
+          this.timer = true
+          let that = this
+          // that.height = document.body.clientHeight-242
+          setTimeout(function () {
+            // 打印screenWidth变化的值
+            that.timer = false
+          }, 400)
+        }
       }
     },
     mounted(){
-      this.tableHeight = document.body.offsetHeight-252 +"px"
+      // this.tableHeight = document.body.offsetHeight-262 +"px"
       this.type = JSON.parse(sessionStorage['user']).userType
         var that =this
         window.onresize = () => {
-             return (() => {
-                 that.height = document.body.offsetHeight-142
-                 that.tableHeight = document.body.offsetHeight-252 +"px"
-             })()
-           }
+          return (() => {
+              that.height = document.body.offsetHeight-142
+              that.tableHeight = document.body.offsetHeight-262 +"px"
+          })()
+        }
         this.getlist()
         this.getModelList()
         // this.getBusiness(null)
-        this.evt_getBusinessUserinfo()
+        if(this.type!=3){
+          this.evt_getBusinessUserinfo()
+        }
+        
         this.getRange()
     },
     methods:{
@@ -837,9 +867,9 @@ export default{
         moreSearch(){ // 更多搜索条件
           this.moreFlag = !this.moreFlag
           if(this.moreFlag){
-            this.tableHeight = document.body.offsetHeight-252 - 50 +"px"
+            this.tableHeight = document.body.offsetHeight-262 - 50 +"px"
           }else{
-            this.tableHeight = document.body.offsetHeight-252 +"px"
+            this.tableHeight = document.body.offsetHeight-262 +"px"
           }
         },
         searchCustomer(){ // 搜索客户或账号

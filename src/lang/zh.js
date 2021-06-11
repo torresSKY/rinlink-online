@@ -106,7 +106,7 @@ export default {
     permission:'权限配置',
     user:'角色',
     admin:'登录账号',
-    username:'用户名称',
+    username:'客户名称',
     superiorUser:'上级用户',
     customerList:'客户列表',
     customerManage:'客户管理',

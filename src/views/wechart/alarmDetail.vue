@@ -25,7 +25,7 @@
                           :default-time="['00:00:00', '23:59:59']">
                         </el-date-picker>
                     </el-col>
-                    <el-col :span='3' style="line-height:38px">
+                    <el-col :span='3' style="line-height:38px" v-if="type!=3">
                         <!-- <el-select v-model="value" :placeholder="$t('view.customerList')" clearable>
                           <el-option
                             v-for="item in businessoptions"
@@ -48,7 +48,7 @@
                           </el-option>
                         </el-select>
                       </el-col>
-                      <el-col :span='14'>
+                      <el-col :span='14' >
                         <el-autocomplete v-model="input3" placeholder="请选择"  
                         :fetch-suggestions="querySearchAsync" @select="handleSelect"></el-autocomplete>
                       </el-col>
@@ -217,7 +217,10 @@ export default {
         this.deviceId = null
     }
     this.getlist()
-    this.getBusiness()
+    if(this.type!=3){
+      this.getBusiness()
+    }
+    
     this.getAlarmType()
   },
   watch: {
