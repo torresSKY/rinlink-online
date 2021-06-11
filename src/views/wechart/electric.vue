@@ -568,7 +568,15 @@ export default {
             }
             if(!_this.update_pen){
                 type = 'create';
-                _this.pen_form.fenceArea['points'] = _this.point_arr;
+                var points = [];
+                for(var i = 0; i < _this.point_arr.length; i++){
+                    var point_item = {};
+                    var point_poly = bd09togcj02(_this.point_arr[i].lng,_this.point_arr[i].lat);
+                    point_item['lat'] = point_poly[1];
+                    point_item['lng'] = point_poly[0];
+                    points.push(point_item);
+                }
+                _this.pen_form.fenceArea['points'] = points;
                 // 单设备跳转进来的
                 if(_this.nav_deviceId != ''){
                     _this.pen_form['deviceIds'] = [_this.nav_deviceId];
@@ -897,7 +905,8 @@ export default {
                 var point_arr = item.polygonFence.points;
                 var points = [];
                 for(let i = 0, len = point_arr.length; i < len; i++){
-                    points.push(new BMap.Point(point_arr[i].lng,point_arr[i].lat))
+                    var point = gcj02tobd09(point_arr[i].lng,point_arr[i].lat);
+                    points.push(new BMap.Point(point[0],point[1]))
                 }
                 var polygon = new BMap.Polygon(points,_this.opts);
                 _this.map.addOverlay(polygon);
