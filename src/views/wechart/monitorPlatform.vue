@@ -4,7 +4,8 @@
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <div class="row_item_left">
                     <div class="row_item_top_left">
-                        <div>{{current_login_user_info.nickname}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
+                        <!-- <div>{{current_login_user_info.nickname}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div> -->
+                        <div>客户列表</div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
@@ -12,7 +13,7 @@
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </el-scrollbar>
                     </div>
                 </div>
@@ -435,11 +436,11 @@ export default {
         
         this.evt_getRangeIconList();
         
-        this.evt_getCurrentUserInfo();
         if(JSON.parse(sessionStorage['user']).userType == '2'){
             this.evt_getBusinessUserinfo();
         }else if(JSON.parse(sessionStorage['user']).userType == '3'){
-            this.current_login_user_info = JSON.parse(sessionStorage['user']);
+            // this.current_login_user_info = JSON.parse(sessionStorage['user']);
+            this.evt_getCurrentUserInfo();
         }
         // 获取用户的在线离线设备数量
         this.evt_getOnlineDvice();
@@ -490,36 +491,55 @@ export default {
             api.getBusinessUserinfo({},_this.userType_parameter).then((res) =>{
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
-                    _this.current_login_user_info = res.data;
+                    // _this.current_login_user_info = res.data;
+                    _this.user_id = res.data.userId;
+                    var user_data = {};
+                    user_data['label'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')';
+                    user_data['info'] = res.data
+                    user_data['user_id'] = res.data.userId;
+                    if(res.data.children != null && res.data.children > 0){
+                        user_data['isLeaf'] = false;
+                        var request_data = {};
+                        request_data['parentId'] = _this.user_id;
+                        api.getBusiness(request_data,_this.userType_parameter).then((_res) => {
+                            if(_res.success){
+                                var children_data = [];
+                                for(let i = 0, len = _res.data.length; i < len; i++){
+                                    var children_data_item = {};
+                                    children_data_item['label'] = _res.data[i].nickname + '(' + _res.data[i].devices +'/'+ (_res.data[i].devices + _res.data[i].sellDevices) +')';
+                                    children_data_item['info'] = _res.data[i];
+                                    children_data_item['user_id'] = _res.data[i].userId;
+                                    if(_res.data.children != null && _res.data.children == 0){
+                                        children_data_item['isLeaf'] = true;
+                                    }else{
+                                        children_data_item['isLeaf'] = false;
+                                    }
+                                    children_data.push(children_data_item);
+                                }
+                                user_data['children'] = children_data;
+                                _this.user_list.push(user_data);
+                                _this.$nextTick(function(){
+                                    _this.$refs.userTree.setCurrentKey(_this.user_id);
+                                    _this.evt_queryDevices('currentUser');
+                                })
+                            }else{
+                                _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                            }
+                        }).catch((err) => {
+                            _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+                        })
+                    }else{
+                        user_data['isLeaf'] = true;
+                        _this.user_list.push(user_data);
+                        _this.$nextTick(function(){
+                            _this.$refs.userTree.setCurrentKey(_this.user_id);
+                            _this.evt_queryDevices('currentUser');
+                        })
+                    }
+                   
                 }
             }).catch((err) => {
                 _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
-            })
-        },
-        //获取代理商
-        evt_getBusiness:function(){
-            var _this = this;
-            api.getBusiness({},_this.userType_parameter).then((res) => {
-                // console.log(res);
-                if(res.success && res.data && res.data.length > 0){
-                    for(let i = 0, len = res.data.length; i < len; i++){
-                        var user_data = {};
-                        // user_data['label'] = res.data[i].username + '(' + res.data[i].sellDevices +'/'+ res.data[i].devices +')';
-                        user_data['label'] = res.data[i].username;
-                        user_data['info'] = res.data[i]
-                        user_data['user_id'] = res.data[i].userId;
-                        _this.user_list.push(user_data);
-                        _this.user_id = res.data[0].userId;
-                    }
-                    _this.$nextTick(function(){
-                        _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices();
-                    })
-                }else if(!res.success){
-                    _this.$message({message: res.msg || '用户列表数据获取失败！',type:'error',offset:'200',duration:'1000'});
-                }
-            }).catch((err) => {
-                _this.$message({message: err.msg || '请求失败！',type:'error',offset:'200',duration:'1000'});
             })
         },
         // 获取当前用户的信息
@@ -532,6 +552,7 @@ export default {
                     user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
+                    user_data['isLeaf'] = true;
                     _this.user_list.push(user_data);
                     _this.user_id = res.data.userId;
                     _this.$nextTick(function(){
@@ -568,7 +589,7 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices +'/总数:'+ (res.data[i].devices + res.data[i].sellDevices) +')';
+                            user_data['label'] = res.data[i].nickname + '(' + res.data[i].devices +'/'+ (res.data[i].devices + res.data[i].sellDevices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
                             if(res.data[i].children == 0){
