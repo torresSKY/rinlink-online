@@ -4,7 +4,8 @@
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <div class="row_item_left">
                     <div class="row_item_top_left">
-                        <div>{{current_login_user_info.nickname}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div>
+                        <!-- <div>{{current_login_user_info.nickname}}{{current_login_user_info.devices ?  '(库存' + current_login_user_info.devices + '/总数' + (current_login_user_info.devices + current_login_user_info.sellDevices) + ')' : '' }}</div> -->
+                        <div>客户列表</div>
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
@@ -12,7 +13,7 @@
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </el-scrollbar>
                     </div>
                 </div>
@@ -38,13 +39,9 @@
                                 <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', item.lastReportDataTime == null ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
                                     <div class="devices_item_mask" v-if="item.lastReportDataTime == null"></div>
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
-                                        <!-- <el-checkbox ></el-checkbox> -->
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
-                                        <!-- <div class="devices_item_top_avatar_container">
-                                            <img class="devices_item_top_avatar"  :src="item.useRangeCode ? icon_list_t[item.useRangeCode].iconUrlActive : ''" alt="">
-                                        </div> -->
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
@@ -55,16 +52,17 @@
                                                 <div><div style="background:#02C602;" :style="{width: item.battery + '%'}"></div></div>
                                                 <div>{{item.battery}}%</div>
                                             </div>
+                                            <div v-if="item.battery == null && item.batteryVoltage != null" class="batteryVoltage_class">电压: {{item.batteryVoltage}}V</div>
                                         </div>
                                     </div>
-                                    <div class="devices_item_bottom">
+                                    <div v-if="item.activationTime == null || (item.activationTime != null && current_time < item.serviceExpireTime)" class="devices_item_bottom">
                                         <div>
                                             <el-button @click="evt_trace(item.id,'trace')" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
                                         </div>
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
                                         </div>
-                                        <div>
+                                        <div :class="item.activationTime != null ? 'devices_item_bottom_more':''">
                                             <el-dropdown @command="evt_more_command" size="mini">
                                                 <span class="el-dropdown-link">更多</span>
                                                 <el-dropdown-menu slot="dropdown">
@@ -73,36 +71,15 @@
                                                 </el-dropdown-menu>
                                             </el-dropdown>
                                         </div>
-                                       
+                                    </div>
+                                    <div v-if="item.activationTime != null && current_time > item.serviceExpireTime" class="devices_item_bottom_two">
+                                        <div><span class="span_hover">充值缴费</span></div>
+                                        <div><span class="span_hover" @click="evt_more_command({type:'detail',deviceId:item.id})">设备详情</span></div>
                                     </div>
                                 </div>
                             </template>
                             <div v-if="devices_list.length == 0" style="font-size:14px;text-align:center;">暂无设备数据</div>
                         </div>
-                        <!-- <div class="row_item_middle_bottom_add_tag">添加标签</div>
-                        <el-collapse accordion v-model="collapse_value">
-                            <el-collapse-item name="1">
-                                <template slot="title">
-                                    <div class="row_item_middle_bottom_title">
-                                        <el-checkbox v-model="checked"></el-checkbox>
-                                        <i class="el-icon-caret-right"></i>
-                                        <span>莘庄中心(12)</span>
-                                    </div>
-                                </template>
-                                <div class="item_content">
-                                    
-                                </div>
-                            </el-collapse-item>
-                            <el-collapse-item name="2">
-                                <template slot="title">
-                                    <div class="row_item_middle_bottom_title">
-                                        <el-checkbox v-model="checked"></el-checkbox>
-                                        <i class="el-icon-caret-bottom"></i>
-                                        <span>诺德国际(788)</span>
-                                    </div>
-                                </template>
-                            </el-collapse-item>
-                        </el-collapse> -->
                     </div>
                 </div>
             </el-col>
@@ -117,11 +94,6 @@
                                 <el-option label="10秒" value="10"></el-option>
                                 <el-option label="30秒" value="30"></el-option>
                                 <el-option label="1分钟" value="60"></el-option>
-                                <!-- <el-option label="10分钟" value="600"></el-option>
-                                <el-option label="30分钟" value="1800"></el-option>
-                                <el-option label="1小时" value="3600"></el-option>
-                                <el-option label="5小时" value="18000"></el-option>
-                                <el-option label="12小时" value="43200"></el-option> -->
                             </el-select>
                             <div style="width:80px;font-size:12px;margin-left:5px;">刷新</div>
                         </div>
@@ -142,6 +114,7 @@
                             </el-col>
                             <el-col :span="8" class="playback_top_date_picker">
                                 <el-date-picker
+                                    @change="evt_sure_select_time"
                                     v-model="select_date_time"
                                     type="datetimerange"
                                     range-separator="至"
@@ -250,21 +223,11 @@
                 <el-col :span="12" class="device_info_left">
                     <el-form>
                         <el-form-item label="设备名称:">
-                            <el-input class="device_info_left_input_1" size="small" v-model="device_name"></el-input>
+                            <el-input class="device_info_left_input_1" maxlength="15" size="small" v-model="device_name"></el-input>
                         </el-form-item>
                         <el-form-item label="设备型号:">
-                            <!-- <el-select class="device_info_left_select" size="small" v-model="device_info_model"  placeholder="请选择">
-                                <el-option key="选项1" label="选项1" value="选项1"></el-option>
-                                <el-option key="选项2" label="选项2" value="选项2"></el-option>
-                            </el-select> -->
                             <span v-if="device_detail_info.deviceModel">{{device_detail_info.deviceModel.name}}</span>
                         </el-form-item>
-                        <!-- <el-form-item label="标签:">
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                            <el-tag type="info" closable size="small">标签三</el-tag>
-                        </el-form-item> -->
                         <el-form-item label="激活时间:">
                             <span v-if="device_detail_info.activationTime">{{device_detail_info.activationTime|formatDate}}</span>
                             <span v-else>--</span>
@@ -273,9 +236,6 @@
                             <span v-if="device_detail_info.serviceExpireTime">{{device_detail_info.serviceExpireTime|formatDate}}</span>
                             <span v-else>--</span>
                         </el-form-item>
-                        <!-- <el-form-item label="适用范围:">
-                            <el-image @click="evt_change_icon(item.code)" v-for="(item,index) in icon_list" :key="index" :src="item.iconUrl" class="icon_img_class"  fit="contain"></el-image>
-                        </el-form-item> -->
                         <div style="display:flex;align-items: flex-start;">
                             <span style="flex-shrink: 0;font-size: 14px;color: #606266;margin-right:5px;line-height:18px;">适用范围:</span>
                             <div style="display:flex;flex-wrap: wrap;">
@@ -327,29 +287,6 @@
             </template>
             <el-tabs type="border-card" v-model="tab_value" @tab-click="evt_tab_click">
                 <el-tab-pane label="指令参数" name="parameter">
-                    <!-- <el-form>
-                        <div class="order_form_item">
-                            <el-form-item label="指令类型:">
-                                <el-select @change="evt_change_command" v-model="command_template_id" placeholder="请选择指令类型">
-                                    <el-option v-for="(item,index) in command_templates_list" :key="index" :label="item.templateName" :value="item.deviceCmdTemplateId"> </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item v-if="is_template_content" label="指令参数:">
-                                <el-input v-model="order_form_parameter"></el-input>
-                            </el-form-item>
-                        </div>
-                        <el-form-item v-if="is_template_content" label="缓存时长:">
-                            <el-select v-model="order_form_value" placeholder="请选择指令缓存时长">
-                                <el-option key="选项1" label="选项1" value="选项1"> </el-option>
-                                <el-option key="选项2" label="选项2" value="选项2"> </el-option>
-                                <el-option key="选项3" label="选项3" value="选项3"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <div class="order_time_text" v-if="template_content.templateRemark">提示：{{template_content.templateRemark}}</div>
-                        <div class="order_form_btn">
-                            <el-button type="primary" @click="evt_sendCommand">下发指令</el-button>
-                        </div>
-                    </el-form> -->
                     <send-order ref="sendOrder" :list = "multipleSelection" @confrimSend='confrimSend'/>
                 </el-tab-pane>
                 <el-tab-pane label="历史指令" name="history">
@@ -503,11 +440,11 @@ export default {
         
         this.evt_getRangeIconList();
         
-        this.evt_getCurrentUserInfo();
         if(JSON.parse(sessionStorage['user']).userType == '2'){
             this.evt_getBusinessUserinfo();
         }else if(JSON.parse(sessionStorage['user']).userType == '3'){
-            this.current_login_user_info = JSON.parse(sessionStorage['user']);
+            // this.current_login_user_info = JSON.parse(sessionStorage['user']);
+            this.evt_getCurrentUserInfo();
         }
         // 获取用户的在线离线设备数量
         this.evt_getOnlineDvice();
@@ -558,36 +495,25 @@ export default {
             api.getBusinessUserinfo({},_this.userType_parameter).then((res) =>{
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
-                    _this.current_login_user_info = res.data;
+                    // _this.current_login_user_info = res.data;
+                    _this.user_id = res.data.userId;
+                    var user_data = {};
+                    user_data['label'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')';
+                    user_data['info'] = res.data
+                    user_data['user_id'] = res.data.userId;
+                    if(res.data.children != null && res.data.children > 0){
+                        user_data['isLeaf'] = false;
+                    }else{
+                        user_data['isLeaf'] = true;
+                    }
+                    _this.user_list.push(user_data);
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices('currentUser');
+                    })
                 }
             }).catch((err) => {
                 _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
-            })
-        },
-        //获取代理商
-        evt_getBusiness:function(){
-            var _this = this;
-            api.getBusiness({},_this.userType_parameter).then((res) => {
-                // console.log(res);
-                if(res.success && res.data && res.data.length > 0){
-                    for(let i = 0, len = res.data.length; i < len; i++){
-                        var user_data = {};
-                        // user_data['label'] = res.data[i].username + '(' + res.data[i].sellDevices +'/'+ res.data[i].devices +')';
-                        user_data['label'] = res.data[i].username;
-                        user_data['info'] = res.data[i]
-                        user_data['user_id'] = res.data[i].userId;
-                        _this.user_list.push(user_data);
-                        _this.user_id = res.data[0].userId;
-                    }
-                    _this.$nextTick(function(){
-                        _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices();
-                    })
-                }else if(!res.success){
-                    _this.$message({message: res.msg || '用户列表数据获取失败！',type:'error',offset:'200',duration:'1000'});
-                }
-            }).catch((err) => {
-                _this.$message({message: err.msg || '请求失败！',type:'error',offset:'200',duration:'1000'});
             })
         },
         // 获取当前用户的信息
@@ -600,6 +526,7 @@ export default {
                     user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
+                    user_data['isLeaf'] = true;
                     _this.user_list.push(user_data);
                     _this.user_id = res.data.userId;
                     _this.$nextTick(function(){
@@ -636,7 +563,7 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices +'/总数:'+ (res.data[i].devices + res.data[i].sellDevices) +')';
+                            user_data['label'] = res.data[i].nickname + '(' + res.data[i].devices +'/'+ (res.data[i].devices + res.data[i].sellDevices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
                             if(res.data[i].children == 0){
@@ -1206,21 +1133,33 @@ export default {
                     <span>${info.deviceName}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>网络状态：</span>
-                    <span>${info.networkStatus == '1' ? '在线' : '离线'}</span>
+                    <span>设备号：${info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
+                    <span>网络状态：${info.networkStatus == '1' ? '在线' : '离线'}</span>
                     <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：${info.deviceNumber}</span>
+                    <span>ACC：--</span>
+                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '外接电压：'+ info.batteryVoltage + 'V'}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>油电状态：--</span>
+                    <span>信号：--</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>防盗状态：--</span>
+                    <span>总里程：--</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>离线原因：--</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>经度：${info.positionInfo.coordinate.lng}</span>
-                    <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
+                    <span>经度：${this.evt_formatLatLng(info.positionInfo.coordinate.lng)}</span>
+                    <span class="info_window_content_item_right">纬度：${this.evt_formatLatLng(info.positionInfo.coordinate.lat)}</span>
                 </div>
                 <div class="info_window_content_btn">
                     <div onClick="evt_trace('${info.id}','panorama')">街景</div>
@@ -1522,6 +1461,11 @@ export default {
                 this.select_date_time = [new Date().getTime() - 3600 * 24 * 1000 * 7,new Date().getTime()];
             }
         },
+        evt_sure_select_time:function(e){
+            if(e instanceof Array && (e[1] - e[0]) > (60 * 24 * 60 * 60 * 1000)){
+                this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
+            }
+        },
         // 播放与暂停
         evt_play_pause:function(){
             this.play_flag = !this.play_flag;
@@ -1579,6 +1523,14 @@ export default {
         },
         // 选择不同时间确定查询轨迹
         evt_query_tracks:function(){
+            if(this.select_date_time == null){
+                this.$message({message: '请选择轨迹查询时间', type:'warning',offset:'400',duration:'2000'})
+                return;
+            }
+            if((this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
+                this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
+                return;
+            }
             this.evt_clearOverlays();
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
         },
@@ -1611,6 +1563,14 @@ export default {
         },
         // 轨迹明细
         evt_show_tracksDetail:function(){
+            if(this.select_date_time == null){
+                this.$message({message: '请选择轨迹查询时间', type:'warning',offset:'400',duration:'2000'})
+                return;
+            }
+            if((this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
+                this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
+                return;
+            }
             if(this.tracksDetail_flag) return;
             this.tracksDetail_flag = true;
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
@@ -1659,6 +1619,10 @@ export default {
             let date_time = new Date(time);
             return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
         },
+        evt_formatLatLng:function(info){
+            var info = info.toString();
+            return info.slice(0,info.indexOf('.')+7);
+        },
         // table格式化时间格式
         evt_table_formatDate:function(row,column){
             // console.log(row.createTime);
@@ -1706,45 +1670,6 @@ export default {
                     _this.OfflineDvice = res.data.devices;
                 }
             })
-        },
-
-      
-        bd09togcj02(bd_lon, bd_lat) { 
-    　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
-    　      let x = bd_lon - 0.0065;
-    　      let y = bd_lat - 0.006;
-    　      let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
-    　      let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
-    　      let gg_lng = z * Math.cos(theta);
-    　      let gg_lat = z * Math.sin(theta);
-    　      return [gg_lng, gg_lat]
-　      },
-        gcj02towgs84(lng, lat) { 
-            var dlat = this.transformlat(lng - 105.0, lat - 35.0);
-            var dlng = this.transformlng(lng - 105.0, lat - 35.0);
-            var radlat = lat / 180.0 * this.PI;
-            var magic = Math.sin(radlat);
-            magic = 1 - this.ee * magic * magic;
-            var sqrtmagic = Math.sqrt(magic);
-            dlat = (dlat * 180.0) / ((this.a * (1 - this.ee)) / (magic * sqrtmagic) * this.PI);
-            dlng = (dlng * 180.0) / (this.a / sqrtmagic * Math.cos(radlat) * this.PI);
-            var mglat = lat + dlat;
-            var mglng = lng + dlng;
-            return [lng * 2 - mglng, lat * 2 - mglat]
-        },
-        transformlat(lng, lat) { 
-            var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
-            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-            ret += (20.0 * Math.sin(lat * this.PI) + 40.0 * Math.sin(lat / 3.0 * this.PI)) * 2.0 / 3.0;
-            ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
-            return ret
-        },
-        transformlng(lng, lat) { 
-            var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
-            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-            ret += (20.0 * Math.sin(lng * this.PI) + 40.0 * Math.sin(lng / 3.0 * this.PI)) * 2.0 / 3.0;
-            ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
-            return ret
         },
     },
     filters:{
@@ -1971,7 +1896,7 @@ export default {
         .devices_item{
             width: 100%;
             box-sizing: border-box;
-            padding: 10px 5px 0px 5px;
+            // padding: 10px 5px 0px 5px;
             background: #FFFFFF;
             border-radius: 4px;
             cursor: pointer;
@@ -1987,25 +1912,11 @@ export default {
             }
             .devices_item_top{
                 border-bottom: 1px solid #EEEEEE;
+                padding: 10px 5px 10px 5px;
                 padding-bottom: 10px;
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
-                // .devices_item_top_avatar_container{
-                //     width: 30px;
-                //     height: 30px;
-                //     background: #4D9E0C;
-                //     border-radius: 50%;
-                //     flex-shrink: 0;
-                //     margin: 0px 6px;
-                //     display: flex;
-                //     justify-content: center;
-                //     align-items: center;
-                //     .devices_item_top_avatar{
-                //         // flex-shrink: 0;
-                //         // margin: 0px 6px;
-                //     }
-                // }
                 .devices_item_top_avatar{
                     flex-shrink: 0;
                     margin: 0px 6px;
@@ -2083,11 +1994,18 @@ export default {
                             color: #666666;
                         }
                     }
+                    .batteryVoltage_class{
+                        font-size: 12px;
+                        font-family: Microsoft YaHei;
+                        font-weight: 400;
+                        color: #666666;
+                    }
                 }
             }
             .devices_item_bottom{
                 display: flex;
                 justify-items: center;
+                position: relative;
                 >div{
                     width: 33%;
                     height: 28px;
@@ -2095,6 +2013,14 @@ export default {
                 }
                 >div:nth-of-type(3){
                     border-right: 0px;
+                }
+                .devices_item_bottom_more{
+                    opacity:1;
+                    -webkit-filter: none;
+                    position: absolute;
+                    bottom: 0px;
+                    right: 0px;
+                    z-index: 999;
                 }
                 /deep/ .el-button--mini{
                     // padding: 7px 15px;
@@ -2113,6 +2039,23 @@ export default {
                     font-weight: 500;
                 }
                 .el-dropdown-link:hover{
+                    color: #4D97FE;
+                }
+            }
+            .devices_item_bottom_two{
+                position: relative;
+                z-index: 9999;
+                height: 28px;
+                display: flex;
+                cursor: pointer;
+                >div{
+                    width: 50%;
+                    font-size: 12px;
+                    text-align: center;
+                    line-height: 28px;
+                    
+                }
+                .span_hover:hover{
                     color: #4D97FE;
                 }
             }
@@ -2595,6 +2538,8 @@ export default {
     }
     .info_window_content_item{
         margin-top: 5px;
+        display: flex;
+        justify-content: space-between;
         >span{
             font-size: 12px;
             font-family: Source Han Sans CN;
