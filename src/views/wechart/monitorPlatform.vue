@@ -499,44 +499,14 @@ export default {
                     user_data['user_id'] = res.data.userId;
                     if(res.data.children != null && res.data.children > 0){
                         user_data['isLeaf'] = false;
-                        var request_data = {};
-                        request_data['parentId'] = _this.user_id;
-                        api.getBusiness(request_data,_this.userType_parameter).then((_res) => {
-                            if(_res.success){
-                                var children_data = [];
-                                for(let i = 0, len = _res.data.length; i < len; i++){
-                                    var children_data_item = {};
-                                    children_data_item['label'] = _res.data[i].nickname + '(' + _res.data[i].devices +'/'+ (_res.data[i].devices + _res.data[i].sellDevices) +')';
-                                    children_data_item['info'] = _res.data[i];
-                                    children_data_item['user_id'] = _res.data[i].userId;
-                                    if(_res.data.children != null && _res.data.children == 0){
-                                        children_data_item['isLeaf'] = true;
-                                    }else{
-                                        children_data_item['isLeaf'] = false;
-                                    }
-                                    children_data.push(children_data_item);
-                                }
-                                user_data['children'] = children_data;
-                                _this.user_list.push(user_data);
-                                _this.$nextTick(function(){
-                                    _this.$refs.userTree.setCurrentKey(_this.user_id);
-                                    _this.evt_queryDevices('currentUser');
-                                })
-                            }else{
-                                _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
-                            }
-                        }).catch((err) => {
-                            _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
-                        })
                     }else{
                         user_data['isLeaf'] = true;
-                        _this.user_list.push(user_data);
-                        _this.$nextTick(function(){
-                            _this.$refs.userTree.setCurrentKey(_this.user_id);
-                            _this.evt_queryDevices('currentUser');
-                        })
                     }
-                   
+                    _this.user_list.push(user_data);
+                    _this.$nextTick(function(){
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                        _this.evt_queryDevices('currentUser');
+                    })
                 }
             }).catch((err) => {
                 _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
