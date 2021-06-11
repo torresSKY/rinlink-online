@@ -52,16 +52,17 @@
                                                 <div><div style="background:#02C602;" :style="{width: item.battery + '%'}"></div></div>
                                                 <div>{{item.battery}}%</div>
                                             </div>
+                                            <div v-if="item.battery == null && item.batteryVoltage != null" class="batteryVoltage_class">电压: {{item.batteryVoltage}}</div>
                                         </div>
                                     </div>
-                                    <div class="devices_item_bottom">
+                                    <div v-if="item.activationTime == null || (item.activationTime != null && current_time < item.serviceExpireTime)" class="devices_item_bottom">
                                         <div>
                                             <el-button @click="evt_trace(item.id,'trace')" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">跟踪</el-button>
                                         </div>
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
                                         </div>
-                                        <div>
+                                        <div :class="item.activationTime != null ? 'devices_item_bottom_more':''">
                                             <el-dropdown @command="evt_more_command" size="mini">
                                                 <span class="el-dropdown-link">更多</span>
                                                 <el-dropdown-menu slot="dropdown">
@@ -70,7 +71,10 @@
                                                 </el-dropdown-menu>
                                             </el-dropdown>
                                         </div>
-                                       
+                                    </div>
+                                    <div v-if="item.activationTime != null && current_time > item.serviceExpireTime" class="devices_item_bottom_two">
+                                        <div><span class="span_hover">充值缴费</span></div>
+                                        <div><span class="span_hover" @click="evt_more_command({type:'detail',deviceId:item.id})">设备详情</span></div>
                                     </div>
                                 </div>
                             </template>
@@ -1876,7 +1880,7 @@ export default {
         .devices_item{
             width: 100%;
             box-sizing: border-box;
-            padding: 10px 5px 0px 5px;
+            // padding: 10px 5px 0px 5px;
             background: #FFFFFF;
             border-radius: 4px;
             cursor: pointer;
@@ -1892,25 +1896,11 @@ export default {
             }
             .devices_item_top{
                 border-bottom: 1px solid #EEEEEE;
+                padding: 10px 5px 10px 5px;
                 padding-bottom: 10px;
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
-                // .devices_item_top_avatar_container{
-                //     width: 30px;
-                //     height: 30px;
-                //     background: #4D9E0C;
-                //     border-radius: 50%;
-                //     flex-shrink: 0;
-                //     margin: 0px 6px;
-                //     display: flex;
-                //     justify-content: center;
-                //     align-items: center;
-                //     .devices_item_top_avatar{
-                //         // flex-shrink: 0;
-                //         // margin: 0px 6px;
-                //     }
-                // }
                 .devices_item_top_avatar{
                     flex-shrink: 0;
                     margin: 0px 6px;
@@ -1988,11 +1978,18 @@ export default {
                             color: #666666;
                         }
                     }
+                    .batteryVoltage_class{
+                        font-size: 12px;
+                        font-family: Microsoft YaHei;
+                        font-weight: 400;
+                        color: #666666;
+                    }
                 }
             }
             .devices_item_bottom{
                 display: flex;
                 justify-items: center;
+                position: relative;
                 >div{
                     width: 33%;
                     height: 28px;
@@ -2000,6 +1997,14 @@ export default {
                 }
                 >div:nth-of-type(3){
                     border-right: 0px;
+                }
+                .devices_item_bottom_more{
+                    opacity:1;
+                    -webkit-filter: none;
+                    position: absolute;
+                    bottom: 0px;
+                    right: 0px;
+                    z-index: 999;
                 }
                 /deep/ .el-button--mini{
                     // padding: 7px 15px;
@@ -2018,6 +2023,23 @@ export default {
                     font-weight: 500;
                 }
                 .el-dropdown-link:hover{
+                    color: #4D97FE;
+                }
+            }
+            .devices_item_bottom_two{
+                position: relative;
+                z-index: 9999;
+                height: 28px;
+                display: flex;
+                cursor: pointer;
+                >div{
+                    width: 50%;
+                    font-size: 12px;
+                    text-align: center;
+                    line-height: 28px;
+                    
+                }
+                .span_hover:hover{
                     color: #4D97FE;
                 }
             }
