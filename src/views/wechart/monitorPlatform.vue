@@ -52,7 +52,7 @@
                                                 <div><div style="background:#02C602;" :style="{width: item.battery + '%'}"></div></div>
                                                 <div>{{item.battery}}%</div>
                                             </div>
-                                            <div v-if="item.battery == null && item.batteryVoltage != null" class="batteryVoltage_class">电压: {{item.batteryVoltage}}</div>
+                                            <div v-if="item.battery == null && item.batteryVoltage != null" class="batteryVoltage_class">电压: {{item.batteryVoltage}}V</div>
                                         </div>
                                     </div>
                                     <div v-if="item.activationTime == null || (item.activationTime != null && current_time < item.serviceExpireTime)" class="devices_item_bottom">
@@ -1133,21 +1133,33 @@ export default {
                     <span>${info.deviceName}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>网络状态：</span>
-                    <span>${info.networkStatus == '1' ? '在线' : '离线'}</span>
+                    <span>设备号：${info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
+                    <span>网络状态：${info.networkStatus == '1' ? '在线' : '离线'}</span>
                     <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：${info.deviceNumber}</span>
+                    <span>ACC：--</span>
+                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '外接电压：'+ info.batteryVoltage + 'V'}</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>油电状态：--</span>
+                    <span>信号：--</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>防盗状态：--</span>
+                    <span>总里程：--</span>
+                </div>
+                <div class="info_window_content_item">
+                    <span>离线原因：--</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>经度：${info.positionInfo.coordinate.lng}</span>
-                    <span class="info_window_content_item_right">纬度：${info.positionInfo.coordinate.lat}</span>
+                    <span>经度：${this.evt_formatLatLng(info.positionInfo.coordinate.lng)}</span>
+                    <span class="info_window_content_item_right">纬度：${this.evt_formatLatLng(info.positionInfo.coordinate.lat)}</span>
                 </div>
                 <div class="info_window_content_btn">
                     <div onClick="evt_trace('${info.id}','panorama')">街景</div>
@@ -1606,6 +1618,10 @@ export default {
         evt_formatDate:function(time){
             let date_time = new Date(time);
             return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+        },
+        evt_formatLatLng:function(info){
+            var info = info.toString();
+            return info.slice(0,info.indexOf('.')+7);
         },
         // table格式化时间格式
         evt_table_formatDate:function(row,column){
@@ -2522,6 +2538,8 @@ export default {
     }
     .info_window_content_item{
         margin-top: 5px;
+        display: flex;
+        justify-content: space-between;
         >span{
             font-size: 12px;
             font-family: Source Han Sans CN;
