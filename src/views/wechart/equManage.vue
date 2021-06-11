@@ -927,6 +927,9 @@ export default{
             api.getBusinessUserinfo({},_this.type).then((res) =>{
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
+                    if(res.data.children == 0){
+                      res.data['leaf'] = true
+                    }
                     _this.data.push(res.data)
                     _this.insiadeData.push(res.data)
                     _this.custData.push(res.data)
