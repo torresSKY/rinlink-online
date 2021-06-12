@@ -269,7 +269,7 @@
             <el-row>
               <el-col :span='12'>
                 <el-form-item :label="$t('table.Device')+'：'"  >
-                  <el-input  v-model="equinfoForm.deviceName" :placeholder="$t('table.Device')" ></el-input>
+                  <el-input  v-model="equinfoForm.deviceName" :placeholder="$t('table.Device')" maxlength="15"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span='12'>
