@@ -108,7 +108,7 @@
                             <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="users_bottom">
-                            <el-tree :props="props" ref="userTree" @node-click="evt_node_click" node-key="user_id"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" :lazy="true" :render-content="renderContent"></el-tree>
+                            <el-tree :props="props" ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" :lazy="true" :render-content="renderContent"></el-tree>
                         </div>
                     </div>
                 </el-col>
@@ -414,6 +414,7 @@ export default {
                         _this.point_arr.push(point_arr[i]);
                     } 
                 }
+                _this.drawingManager.close();
                 _this.add_pen_flag = true;
                 _this.drawingManager.removeEventListener('overlaycomplete');
             })
@@ -474,11 +475,7 @@ export default {
                 }
             };
             this.update_pen = false;
-            // this.pen_type_value = '1';
-            if(this.pen_type_value == '2'){
-                this.drawingManager.close();
-                this.drawingManager.open();
-            }
+            this.drawingManager.close();
         },
         // 添加围栏
         evt_submit_addPen:function(){
@@ -544,7 +541,7 @@ export default {
                     _this.queryPen_page = 0;
                     _this.queryPen_dataList = [];
                     _this.queryPen_pageTotal = 1;
-                    _this.evt_queryPen();
+                    _this.evt_queryPen(type);
                     if(type == 'update'){
                         _this.map.clearOverlays();
                         _this.active = -1;
@@ -593,7 +590,7 @@ export default {
                     _this.queryPen_page = 0;
                     _this.queryPen_dataList = [];
                     _this.queryPen_pageTotal = 1;
-                    _this.evt_queryPen();
+                    _this.evt_queryPen(type);
                     if(type == 'update'){
                         _this.map.clearOverlays();
                         _this.active = -1;
@@ -634,7 +631,7 @@ export default {
                     _this.queryPen_page = 0;
                     _this.queryPen_dataList = [];
                     _this.queryPen_pageTotal = 1;
-                    _this.evt_queryPen();
+                    _this.evt_queryPen(type);
                     if(type == 'update'){
                         _this.map.clearOverlays();
                         _this.active = -1;
@@ -750,7 +747,7 @@ export default {
                 center: true
             }).then(() => {
                 api.deleteFence(request_data,_this.userType_parameter).then((res) => {
-                    console.log(res);
+                    // console.log(res);
                     if(res.success){
                         _this.$message({
                             type: 'success',
@@ -846,7 +843,7 @@ export default {
             this.evt_queryPen();
         },
         // 查询电子围栏
-        evt_queryPen:function(){
+        evt_queryPen:function(type){
             var _this = this;
             var query_data = {};
             query_data['pageSize'] = _this.queryPen_pageSize;
@@ -864,6 +861,11 @@ export default {
                     var new_data = res.data.content;
                     _this.queryPen_dataList = _this.queryPen_dataList.concat(new_data);
                     _this.queryPen_pageTotal = res.data.pageTotal;
+                    // 添加围栏重新查询
+                    if(type == 'create'){
+                        _this.active = 0;
+                        _this.evt_draw(res.data.content[0]);
+                    }
                 }else if(res.success && res.data.content.length == 0){
                     _this.$message({message: '未搜索到相关围栏数据',type:'info',offset:'200',duration:'1500'});
                 }
@@ -1061,8 +1063,6 @@ export default {
         evt_show_relevance:function(item){
             this.relevance_fenceId = item.fenceId;
             this.evt_queryFenceDevices();
-
-            // this.evt_getBusiness();
         },
         // 获取选择围栏已经关联的设备
         evt_queryFenceDevices:function(){
@@ -1077,7 +1077,12 @@ export default {
                     }
                     _this.selected_devices = res.data;
                 }
-                _this.evt_getCurrentUserInfo();
+                if(_this.userType_parameter == '3'){
+                    _this.evt_getCurrentUserInfo();
+                }else{
+                    _this.evt_getBusiness();
+                }
+                
                 // 关联设备的弹框
                 _this.relevance_device_flag = true;
             }).catch((err) => {
@@ -1098,7 +1103,7 @@ export default {
             this.searchBusiness_name = '';
             this.searchDevice_name = '';
         },
-        // 获取当前用户的信息
+        // 获取当前用户的信息 C端
         evt_getCurrentUserInfo:function(){
             var _this = this;
             api.getCurrentUserInfo({}).then((res) => {
@@ -1108,6 +1113,7 @@ export default {
                     user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
                     user_data['user_id'] = res.data.userId;
+                    user_data['isLeaf'] = true;
                     _this.user_list.push(user_data);
                     _this.user_id = res.data.userId;
                     _this.$nextTick(function(){
@@ -1121,34 +1127,31 @@ export default {
                 _this.$message({message: err.msg || '请求失败',type:'error',offset:'200',duration:'1000'});
             })
         },
-        //获取代理商
+        //获取代理商 b端
         evt_getBusiness:function(){
             var _this = this;
-            api.getBusiness({},_this.userType_parameter).then((res) => {
+            api.getBusinessUserinfo({},_this.userType_parameter).then((res) =>{
                 // console.log(res);
-                if(res.success){
-                    if(res.data && res.data.length == 0){
-                        _this.$message({message: '暂无用户列表数据',type:'info',offset:'200',duration:'1000'});
-                        // return;
-                    } 
-                    for(let i = 0, len = res.data.length; i < len; i++){
-                        var user_data = {};
-                        user_data['label'] = res.data[i].nickname;
-                        user_data['info'] = res.data[i]
-                        user_data['user_id'] = res.data[i].userId;
-                        _this.user_list.push(user_data);
-                        _this.user_id = res.data[0].userId;
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    // _this.current_login_user_info = res.data;
+                    _this.user_id = res.data.userId;
+                    var user_data = {};
+                    user_data['label'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')';
+                    user_data['info'] = res.data
+                    user_data['user_id'] = res.data.userId;
+                    if(res.data.children != null && res.data.children > 0){
+                        user_data['isLeaf'] = false;
+                    }else{
+                        user_data['isLeaf'] = true;
                     }
+                    _this.user_list.push(user_data);
                     _this.$nextTick(function(){
                         _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices();
-
+                        _this.evt_queryDevices('currentUser');
                     })
-                }else{
-                    _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: err.msg || '请求失败',type:'error',offset:'200',duration:'1000'});
+                _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
             })
         },
         // el-tree 懒加载数组
@@ -1174,7 +1177,7 @@ export default {
                         var children_data = [];
                         for(let i = 0, len = res.data.length; i < len; i++){
                             var user_data = {};
-                            user_data['label'] = res.data[i].nickname + '(库存:' + res.data[i].devices + '/总数:' + (res.data[i].sellDevices + res.data[i].devices) +')';
+                            user_data['label'] = res.data[i].nickname + '(' + res.data[i].devices + '/' + (res.data[i].sellDevices + res.data[i].devices) +')';
                             user_data['info'] = res.data[i];
                             user_data['user_id'] = res.data[i].userId;
                             if(res.data[i].children == 0){
@@ -1743,7 +1746,7 @@ export default {
     flex-direction: column;
     .users_bottom{
         flex: 1;
-        width: 70%;
+        // width: 100%;
         margin-top: 6px;
         overflow-y: scroll;
         /deep/ .row_item_bottom_left_userIcon{
