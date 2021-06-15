@@ -62,7 +62,8 @@
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
                                         </div>
-                                        <div :class="item.activationTime != null ? 'devices_item_bottom_more':''">
+                                        <!-- :class="item.activationTime != null ? 'devices_item_bottom_more':''" -->
+                                        <div class="devices_item_bottom_more">
                                             <el-dropdown @command="evt_more_command" size="mini">
                                                 <span class="el-dropdown-link">更多</span>
                                                 <el-dropdown-menu slot="dropdown">
