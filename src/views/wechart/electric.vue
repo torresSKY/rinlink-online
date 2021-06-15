@@ -168,7 +168,7 @@
             <el-pagination @current-change="evt_current_change" :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination> -->
             <div class="select_collect">
                 <div class="select_collect_top">
-                    <span>已选列表({{selected_devices.length}})</span>
+                    <span>已选设备({{selected_devices.length}})</span>
                     <span @click="evt_cancel_all_selected">清空</span>
                     <span v-if="selected_devices.length > 0">（该围栏中可能包含下级用户的设备）</span>
                 </div>

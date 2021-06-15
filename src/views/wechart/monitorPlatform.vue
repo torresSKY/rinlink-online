@@ -9,11 +9,16 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_bottom_left">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入客户名称" v-model="searchBusiness_name">
+                        <div class="row_item_bottom_left_search" v-show="search_user_list.length > 0">
+                            <div v-for="(item,index) in search_user_list" :key="index" @click="evt_select_user(item)">{{item.nickname}}</div>
+                        </div>
+                        <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入客户名称" v-model="searchBusiness_name">
                             <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
+                            
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
-                            <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree v-show="!default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree v-show="default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </el-scrollbar>
                     </div>
                 </div>
@@ -62,7 +67,8 @@
                                         <div>
                                             <el-button @click="evt_playback(item)" :class="item.id == current_select_deviceId ? 'devices_item_bottom_btn' : ''" plain size="mini">回放</el-button>
                                         </div>
-                                        <div :class="item.activationTime != null ? 'devices_item_bottom_more':''">
+                                        <!-- :class="item.activationTime != null ? 'devices_item_bottom_more':''" -->
+                                        <div class="devices_item_bottom_more">
                                             <el-dropdown @command="evt_more_command" size="mini">
                                                 <span class="el-dropdown-link">更多</span>
                                                 <el-dropdown-menu slot="dropdown">
@@ -423,6 +429,8 @@ export default {
                 isLeaf: 'isLeaf'
             },
             zIndex: 1,//marker,label层级
+            default_expand_all_flag: false,
+            search_user_list:[],//模糊搜索的用户信息集合
         }
     },
     created(){
@@ -620,25 +628,35 @@ export default {
         evt_searchBusiness:function(){
             var _this = this;
             if(_this.searchBusiness_name.trim() == '') return;
+            if(_this.userType_parameter != '3' && !_this.default_expand_all_flag){
+                _this.default_expand_all_flag = true;
+                _this.user_list = [];
+                _this.evt_getBusinessUserinfo();
+            }
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
             request_data['searchType'] = 'nickname';
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
-                    _this.user_id = res.data[0].userId;
-                    _this.change_type = 'all';
-                    _this.evt_queryDevices();
-                    _this.$refs.userTree.setCurrentKey(_this.user_id);
-                    // 获取用户的在线离线设备数量
-                    _this.evt_getOnlineDvice();
-                    _this.evt_getOfflineDevice();
+                    _this.search_user_list = res.data;
                 }else{
                     _this.$message({message:'暂未搜索到指定用户',type:'warning',offset:'200'})
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
             })
+        },
+        evt_select_user:function(item){
+            console.log(item);
+            this.search_user_list = [];
+            this.user_id = item.userId;
+            this.change_type = 'all';
+            this.evt_queryDevices();
+            this.$refs.userTree.setCurrentKey(this.user_id);
+            // 获取用户的在线离线设备数量
+            this.evt_getOnlineDvice();
+            this.evt_getOfflineDevice();
         },
         // 查询设备
         evt_queryDevices:function(type){
@@ -1763,6 +1781,7 @@ export default {
     background: #FFFFFF;
     box-sizing: border-box;
     padding: 10px;
+    position: relative;
     /deep/ .row_item_bottom_left_userIcon{
         color: #F19B04 !important;
     }
@@ -1787,6 +1806,23 @@ export default {
     }
     /deep/ .el-scrollbar__wrap {
         overflow-x: hidden;
+    }
+    .row_item_bottom_left_search{
+        width: 80%;
+        max-height: 200px;
+        background: #ffffff;
+        box-sizing: border-box;
+        border: 1px solid #AAAAAA;
+        padding: 6px;
+        cursor: pointer;
+        overflow-y: scroll;
+        position: absolute;
+        top: 38px;
+        left: 10px;
+        z-index: 9999;
+    }
+    .row_item_bottom_left_search>div:hover{
+        color: #018C0E;
     }
 }
 .row_item_middle{
