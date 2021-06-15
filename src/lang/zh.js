@@ -162,7 +162,7 @@ export default {
     select2: '请选择',
     userLogin:'用户登录',
     sel: '请选择设备',
-    selList:'已选列表',
+    selList:'已选设备',
     parmas:'指令参数'
   },
   table: {

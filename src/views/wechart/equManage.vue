@@ -930,6 +930,7 @@ export default{
                     if(res.data.children == 0){
                       res.data['leaf'] = true
                     }
+                    res.data['nickname'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')'
                     _this.data.push(res.data)
                     _this.insiadeData.push(res.data)
                     _this.custData.push(res.data)
@@ -994,6 +995,7 @@ export default{
                         }
                         var children_data = res.data
                         for(let i = 0;i<children_data.length;i++){
+                          children_data[i]['nickname'] = children_data[i].nickname + '(' + children_data[i].devices +'/'+ (children_data[i].devices + children_data[i].sellDevices) +')'
                           if(children_data[i].children == 0){
                             children_data[i]['leaf'] = true
                           }
@@ -1027,6 +1029,7 @@ export default{
                         }
                         var children_data = res.data
                         for(let i = 0;i<children_data.length;i++){
+                          children_data[i]['nickname'] = children_data[i].nickname + '(' + children_data[i].devices +'/'+ (children_data[i].devices + children_data[i].sellDevices) +')'
                           if(children_data[i].children == 0){
                             children_data[i]['leaf'] = true
                           }
