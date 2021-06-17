@@ -1155,23 +1155,19 @@ export default {
                 </div>
                 <div class="info_window_content_item">
                     <span>网络状态：${info.networkStatus == '1' ? '在线' : '离线'}</span>
+                </div>
+                <div class="info_window_content_item">
                     <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
                 </div>
+                ${info.accStatus != null ? `<div class="info_window_content_item"><span>ACC：${info.accStatus == 0 ? '关':'开'}</span></div>` : ''}
                 <div class="info_window_content_item">
-                    <span>ACC：--</span>
                     <span>${info.battery != null ? '电量：' + info.battery + '%' : '外接电压：'+ info.batteryVoltage + 'V'}</span>
                 </div>
-                <div class="info_window_content_item">
-                    <span>油电状态：--</span>
-                    <span>信号：--</span>
-                </div>
-                <div class="info_window_content_item">
-                    <span>防盗状态：--</span>
-                    <span>总里程：--</span>
-                </div>
-                <div class="info_window_content_item">
-                    <span>离线原因：--</span>
-                </div>
+                ${info.oilWay != null ? `<div class="info_window_content_item"><span>油电状态：${info.oilWay == 0 ? '正常':'断开'}</span></div>`:''}
+                ${info.csq != null ? `<div class="info_window_content_item"><span>信号：${info.csq}</span></div>`:''}
+                ${info.alertStatus != null ? `<div class="info_window_content_item"><span>防盗状态：${info.alertStatus == 0 ? '撤防' : '设防'}</span></div>`:''}
+                ${info.mileageKm && info.mileageKm != null ? `<div class="info_window_content_item"><span>总里程：${info.mileageKm}km</span></div>`:''}
+                ${info.workStatus != null ? `<div class="info_window_content_item"><span>离线原因：${info.workStatus == 1 ? '休眠':''}</span></div>`:''}
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
                 </div>
