@@ -157,7 +157,7 @@
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
-                                    <span class="speed_content_text speed_content_text_t">总里程:--</span>
+                                    <span class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="5">
@@ -182,27 +182,27 @@
                         </div>
                     </div>
                     <!-- 轨迹明细 -->
-                    <div class="track_detail" v-show="tracksDetail_flag">
+                    <div class="track_detail" v-if="tracksDetail_flag">
                         <div class="track_detail_top">
                             <span>轨迹明细</span>
                             <div>
-                                <el-button @click="evt_getAllAdress" type="primary" size="mini">一键解析定位</el-button>
+                                <!-- <el-button @click="evt_getAllAdress" type="primary" size="mini">一键解析定位</el-button> -->
                                 <i @click="evt_close_tracksDetail" class="el-icon-circle-close"></i>
                             </div>
                         </div>
                         <el-table ref="singleTable" :data="tracksDetail_list" highlight-current-row @current-change="evt_handleCurrentChange" height="220" border style="width: 100%" size="small">
-                            <!-- <el-table-column fixed prop="date" label="序号" min-width="100"></el-table-column> -->
-                            <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="150"></el-table-column>
-                            <el-table-column prop="lng" label="经度" min-width="140"></el-table-column>
-                            <el-table-column prop="lat" label="纬度" min-width="140"></el-table-column>
-                            <!-- <el-table-column prop="zip" label="行驶里程" min-width="120"></el-table-column> -->
-                            <!-- <el-table-column prop="zip" label="停留时长" min-width="120"></el-table-column> -->
-                            <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="120"></el-table-column>
-                            <el-table-column prop="address" fixed="right"  label="位置" min-width="360">
-                                <template slot-scope="scope">
+                            <el-table-column type="index" label="序号" min-width="100" show-overflow-tooltip></el-table-column>
+                            <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="100" show-overflow-tooltip></el-table-column>
+                            <el-table-column :formatter="evt_table_formatLng" prop="lng" label="经度" min-width="80" show-overflow-tooltip></el-table-column>
+                            <el-table-column :formatter="evt_table_formatLat" prop="lat" label="纬度" min-width="80" show-overflow-tooltip></el-table-column>
+                            <el-table-column :formatter="evt_table_formatMileage" prop="mileageKmRelative" label="行驶里程(km)" min-width="60" show-overflow-tooltip></el-table-column>
+                            <el-table-column :formatter="evt_table_formatSpeed" prop="speed" label="速度(km/h)" min-width="60" show-overflow-tooltip></el-table-column>
+                            <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="80" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="address" fixed="right"  label="位置" min-width="200" show-overflow-tooltip>
+                                <!-- <template slot-scope="scope">
                                     <el-button v-if="scope.row.address == 'address'" @click="evt_getAdress(scope.row)" type="text" size="small">点击获取定位</el-button>
                                     <el-button v-if="scope.row.address != 'address'" type="text" size="small">{{scope.row.address}}</el-button>
-                                </template>
+                                </template> -->
                             </el-table-column>
                         </el-table>
                         <!-- <el-pagination small background layout="total,prev, pager, next,jumper" @current-change="evt_change_current" :hide-on-single-page="true" :current-page="current_tracksDetail_page" :page-size="5" :total="tracksDetail_list.length" style="text-align:center;margin-top:10px;"></el-pagination> -->
@@ -210,18 +210,6 @@
                 </div>
             </el-col>
         </el-row>
-
-        <!-- 添加标签 -->
-        <el-dialog title="新建标签" width="30%" top="20vh" :visible="tag_visible" center :show-close="false">
-            <div class="add_tag_dialog">
-                <span>标签名称:</span>
-                <el-input class="add_tag_dialog_input" v-model="input_1" placeholder="请输入内容"></el-input>
-            </div>
-            <div class="add_tag_dialog_btn">
-                <el-button type="primary" size="small">确认</el-button>
-                <el-button type="info" size="small">取消</el-button>
-            </div>
-        </el-dialog>
 
         <!-- 设备信息 -->
         <el-dialog class="device_info" lock-scroll title="设备信息" :visible="device_info_visible" @close="evt_close_deviceInfo">
@@ -338,8 +326,6 @@ export default {
             PI: 3.1415926535897932384626,
             a: 6378245.0,
             ee: 0.00669342162296594323,
-            tag_visible:false,
-            input_1:'',
             device_info_model:'',
             order_form_value:'',
             order_form_parameter:'',
@@ -431,6 +417,7 @@ export default {
             zIndex: 1,//marker,label层级
             default_expand_all_flag: false,
             search_user_list:[],//模糊搜索的用户信息集合
+            total_distance: 0,//总里程
         }
     },
     created(){
@@ -999,7 +986,6 @@ export default {
             if(this.tab_value == 'history'){
                 this.evt_queryDeviceCmds();
             }else{
-                // this.evt_queryCommandTemplate();
                 this.$nextTick(() => {
                     this.$refs.sendOrder.formData = {}
                     this.$refs.sendOrder.schema = null
@@ -1013,65 +999,6 @@ export default {
             if(!data){
                 this.evt_close_command_content();
             }
-        },
-        // 获取查询设备指令模板
-        evt_queryCommandTemplate:function(){
-            var _this = this;
-            var request_data = {};
-            request_data['deviceModelId'] = _this.need_deviceModelId;
-            api.queryCommandTemplate(request_data,_this.userType_parameter).then((res) => {
-                // console.log(res);
-                if(res.success && res.data && res.data.length > 0){
-                    _this.command_templates_list = res.data;
-                }else{
-                    _this.$message({message:res.msg, type:"info", offset:"200",duration:"1500"});
-                }
-            }).catch((err) => {
-                _this.$message({message:err.msg,type:"error",offset:"200",duration:"1500"});
-            })
-        },
-        // 获取设备指令模板内容
-        evt_getDeviceCommand:function(deviceCmdTemplateId){
-            var _this = this;
-            var request_data = {};
-            request_data['deviceCmdTemplateId'] = deviceCmdTemplateId;
-            api.getDeviceCommand(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
-                if(res.success && res.data && Object.keys(res.data).length > 0){
-                    _this.template_content = res.data;
-                    if(Object.keys(JSON.parse(res.data.templateContent)).length == 0){
-                        _this.is_template_content = false;
-                    }else{
-                        _this.is_template_content = true;
-                    }
-                }
-            }).catch((err) => {
-                _this.$message({message: err.msg,type:"error",offset:"200",duration:"1500"});
-            })
-        },
-        // 选择改变模板指令
-        evt_change_command:function(e){
-            this.evt_getDeviceCommand(e);
-        },
-        // 下发指令
-        evt_sendCommand:function(){
-            var _this = this;
-            if(_this.command_template_id.trim() == '' || _this.need_handle_deviceId.trim() == '') return;
-            var request_data = {};
-            request_data['cmdTemplateId'] = _this.command_template_id;
-            request_data['deviceIdList'] = [_this.need_handle_deviceId];
-            if(Object.keys(JSON.parse(_this.template_content.templateContent)).length > 0){
-                request_data['cmdData'] = 'cmdData';
-            }
-            api.sendCommand(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
-                if(res.success){
-                    _this.$message({message:"下发成功",type:"success",offset:"200",duration:"1500"});
-                    _this.evt_close_command_content();
-                }
-            }).catch((err) => {
-                _this.$message({message:err.msg,type:"error",offset:"200",duration:"1500"});
-            })
         },
         // 获取设备历史指令
         evt_queryDeviceCmds:function(){
@@ -1305,18 +1232,20 @@ export default {
                     _this.map.clearOverlays();
                     // 若无轨迹信息 提示 return
                     if(res.data && res.data.length == 0) {
+                        _this.total_distance = 0;
                         _this.$message({message:'无轨迹信息',type:'warning',offset:'200',duration:'1500'});
                         _this.play_flag = false;
                         return;
                     }
+                    _this.total_distance = (res.data[res.data.length - 1].mileageKm - res.data[0].mileageKm) > 0.001 ? (res.data[res.data.length - 1].mileageKm - res.data[0].mileageKm).toFixed(3) : 0;//总里程
                     var point_arr = [];
                     for(let i = 0, len = res.data.length; i < len; i++){
                         if(res.data[i].coordinate && Object.keys(res.data[i].coordinate).length > 0){
-                            var item = {};
-                            item['time'] = res.data[i].time;
+                            var item = JSON.parse(JSON.stringify(res.data[i]));
+                            // item['time'] = res.data[i].time;
                             item['lat'] = res.data[i].coordinate.lat;
                             item['lng'] = res.data[i].coordinate.lng;
-                            item['address'] = 'address';
+                            // item['address'] = 'address';
                             item['positionType'] = res.data[i].positionType;
                             point_arr.push(item);
                         }
@@ -1329,13 +1258,6 @@ export default {
                             tracksDetail_list.push(point_arr[i]);
                         }
                         _this.tracksDetail_list = tracksDetail_list;
-                        // 分页展示时处理分页
-                        // if(_this.tracksDetail_list.length > 4){
-                        //     _this.current_tracksDetail_list = _this.tracksDetail_list.slice(0,5);
-                        // }else if(_this.tracksDetail_list.length <= 4){
-                        //     _this.current_tracksDetail_list = _this.tracksDetail_list;
-                        // }
-                        // return;
                     }
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
@@ -1639,10 +1561,31 @@ export default {
         },
         // table格式化时间格式
         evt_table_formatDate:function(row,column){
-            // console.log(row.createTime);
             let date = row.createTime ? row.createTime : row.time;
             let date_time = new Date(date);
             return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+        },
+        evt_table_formatLng:function(row,column){
+            var str = row.lng.toString();
+            return str.slice(0,str.indexOf('.')+7);
+        },
+        evt_table_formatLat:function(row,column){
+            var str = row.lat.toString();
+            return str.slice(0,str.indexOf('.')+7);
+        },
+        evt_table_formatMileage:function(row,column){
+            if(row.mileageKmRelative < 0.001){
+                return 0
+            }else{
+                return row.mileageKmRelative.toFixed(3);
+            }
+        },
+        evt_table_formatSpeed:function(row,column){
+            if(row.speed == null){
+                return 0;
+            }else{
+                return row.speed
+            }
         },
         evt_table_formatCommandData:function(row,column){
             // console.log(row);
@@ -1704,7 +1647,7 @@ export default {
         },
         formatStatus(lastReportDataTime,networkStatus,activationTime,serviceExpireTime){
             var currentTime = new Date().getTime();
-            if(!activationTime || activationTime == null){
+            if(!activationTime || activationTime == null || activationTime > currentTime){
                 return '未激活';
             }else if(activationTime && lastReportDataTime == null && serviceExpireTime > currentTime){
                 return '已激活未上线';
@@ -2375,10 +2318,10 @@ export default {
         padding: 0px !important;
     }
     /deep/ .el-table--small th{
-        padding: 5px !important;
+        // padding: 5px !important;
     }
     /deep/ .el-table th {
-        padding: 5px !important;
+        // padding: 5px !important;
         background: #F2F2F2 !important;
     }
  
