@@ -200,7 +200,7 @@ export default {
     importtime:'导入时间',
     mileage:'总里程',
     salesTime:'销售时间',
-    expire:'平台服务到期时间',
+    expire:'平台到期时间',
     activeTime:'激活时间',
     customers:'授权客户',
     iccid:'设备ICCID',

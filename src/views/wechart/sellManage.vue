@@ -95,7 +95,7 @@
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
-                    layout="prev, pager, next"
+                    layout="total,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"

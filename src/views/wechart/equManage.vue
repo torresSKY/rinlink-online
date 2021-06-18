@@ -148,7 +148,7 @@
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
-                    layout="prev, pager, next"
+                    layout="total,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"
@@ -387,7 +387,7 @@
             </el-row>
             <el-pagination
                     @current-change='changeindex1'
-                    layout="prev, pager, next"
+                    layout="total,prev, pager, next"
                     :current-page.sync="page1.index"
                     :page-size="page1.size"
                     :total="page1.total"
@@ -540,7 +540,7 @@ export default{
         ],
         useStatus:'',
         usestatusOptions:[
-          { value: '1', label: '未使用'},{ value: '2', label: '已使用'},{ value: '3', label: '已过期'}
+          { value: '1', label: '未激活'},{ value: '2', label: '已激活'},{ value: '3', label: '已过期'},{ value: '4', label: '已激活未上线'}
         ],
         containsChildren:true,
         timeType:null,
@@ -582,8 +582,10 @@ export default{
           {label: this.$t('table.usestatus'), prop: 'useStatus',
             type: 'render',
               formatter: (params) => {
-                params['useStatus'] = params.activationTime == null ? '未使用'  : params.serviceExpireTime == -1 ? '已使用'
-                : (params.serviceExpireTime -new Date().getTime())<0 ? '已过期' : '已使用'
+                params['useStatus'] = params.activationTime == null ? '未激活'  
+                : (params.serviceExpireTime -new Date().getTime())<0 ? '已过期'
+                : (params.activationTime && params.lastReportDataTime == null) ? '已激活未上线' 
+                : '已激活'
                 return params
               }
           },

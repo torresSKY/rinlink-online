@@ -53,7 +53,7 @@
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
-                    layout="prev, pager, next"
+                    layout="total,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"
@@ -110,7 +110,7 @@
                     </el-input>
                   </el-row>
                   <el-row :gutter="22" style="margin-top:10px">
-                    <el-scrollbar style="min-height:30vh;overflow-x:hidden" ref="scrollbar">
+                    <el-scrollbar style="height:60vh;overflow-x:hidden" ref="scrollbar">
                       <el-tree :data="busData" ref="busData" :props="defaultProps" :highlight-current='true'
                   node-key="userId" :default-expanded-keys="[inUserId]" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust"></el-tree>
                     </el-scrollbar>
@@ -319,7 +319,15 @@ export default {
       //   })
       var _this = this;
         this.businessData = []
-        api.getBusinessUserinfo({},_this.type).then((res) =>{
+        let data = null
+        if(_this.type==1){
+          data = {
+            userId : JSON.parse(sessionStorage['user']).userId
+          }
+        }else{
+          data = {}
+        }
+        api.getBusinessUserinfo(data,_this.type).then((res) =>{
             // console.log(res);
             if(res.success && res.data && Object.keys(res.data).length > 0){
                 _this.outUserId = res.data.userId
@@ -337,7 +345,15 @@ export default {
     evt_getBusinessUserinfo(){
         var _this = this;
         this.busData = []
-        api.getBusinessUserinfo({},_this.type).then((res) =>{
+        let data = null
+        if(_this.type==1){
+          data = {
+            userId : JSON.parse(sessionStorage['user']).userId
+          }
+        }else{
+          data = {}
+        }
+        api.getBusinessUserinfo(data,_this.type).then((res) =>{
             // console.log(res);
             if(res.success && res.data && Object.keys(res.data).length > 0){
                 _this.inUserId = res.data.userId
