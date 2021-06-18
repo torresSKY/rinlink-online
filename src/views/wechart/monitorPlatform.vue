@@ -1038,9 +1038,9 @@ export default {
         // 添加标记
         evt_addMarker:function(point,info){
             var _this = this;
-            var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForConsoleActive :  _this.icon_list_t['Other'].iconUrlForConsoleActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForConsoleInactive :  _this.icon_list_t['Other'].iconUrlForConsoleInactive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
-                imageSize: new BMap.Size(40,40),
+            var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,60),{
+                imageSize: new BMap.Size(30,60),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
@@ -1320,9 +1320,9 @@ export default {
         evt_playback_addMarker:function(point){
             var _this = this;
             var device_info = _this.device_detail_info;
-            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForConsoleActive :  _this.icon_list_t['Other'].iconUrlForConsoleActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForConsoleInactive :  _this.icon_list_t['Other'].iconUrlForConsoleInactive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
-                imageSize: new BMap.Size(40,40),
+            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive;
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,60),{
+                imageSize: new BMap.Size(30,60),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
@@ -1474,7 +1474,7 @@ export default {
         evt_setCurrent:function(row) {
             this.$refs.singleTable.setCurrentRow(row);
             if(this.device_tracks_step > 2){
-                this.$refs.singleTable.bodyWrapper.scrollTop = 33 * (this.device_tracks_step - 1);
+                this.$refs.singleTable.bodyWrapper.scrollTop = 23 * (this.device_tracks_step - 1);
             }else{
                 this.$refs.singleTable.bodyWrapper.scrollTop = 0;
             }
