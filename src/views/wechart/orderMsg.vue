@@ -20,15 +20,15 @@
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
                   </el-scrollbar>
                 </el-row>
-                <el-pagination
+                <!-- <el-pagination
                     @current-change='changeindex'
-                    layout="prev, pager, next"
+                    layout="total,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"
                     background
                     style="text-align:center">
-                </el-pagination>
+                </el-pagination> -->
             </el-col>
         </el-card>
         <!-- 添加/编辑指令 -->
@@ -160,7 +160,7 @@ export default{
             api.getCmdTemplates(data).then(res => {
               this.loading = false
               this.dataList = res.data
-              this.page.total = res.data.totalElements != null ? res.data.totalElements :0
+              // this.page.total = res.data.length
             }).catch(err => {
               this.loading = false
               this.dataList = []

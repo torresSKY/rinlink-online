@@ -1,13 +1,12 @@
 <template>
     <div>
         <el-table
-        class="particular-table"
-        :header-cell-style="{background:'#E7f2fe',color:'#5F636B'}"
+        :header-cell-style="{background:'#f2f7fb',color:'#5F636B'}"
         style="width:100%;overflow:auto;"
         @selection-change="handleSelectionChange"
         :row-key="getRowKeys"
         :row-class-name="tableRowClassName"
-        :fit="true"
+        :fit="true" border
         :data='dataList'
         :height="height">
             <template v-for='item in tableLabel'>
@@ -28,11 +27,11 @@
                     </template>
                 </el-table-column>
                 <el-table-column v-else-if="item.type == 'selection'" align='center' type="selection" width="50" :label="item.label"></el-table-column>
-                <el-table-column  v-else-if="item.type == 'clickSelect'"  align='center' min-width="60px"   :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column  v-else-if="item.type == 'clickSelect'"  align='center' width="80px"   :label='item.label' :prop='item.prop' :key="item.index">
                     <template class="scope" slot-scope="scope">
                         <el-dropdown @command="item.selectOperation($event,scope.row)">
-                        <el-button type="primary" size="small">
-                            操作<i class="el-icon-arrow-down el-icon--right"></i>
+                        <el-button type="text" size="small">
+                            更多<i class="el-icon-arrow-down el-icon--right"></i>
                         </el-button>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item v-for="selectItem in item.selectText" :key="selectItem.index" :command="selectItem.command">
@@ -58,7 +57,7 @@
                         <div :formatter='item.formatter(scop.row)' v-html="scop.row[item.prop]"></div>
                     </template>
                 </el-table-column>
-                <el-table-column v-else align='center' min-width="80px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column v-else align='center' min-width="100px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scop">
                         <span v-if="item.type == 'number'">{{Number(scop.row[item.prop]).toFixed(2)}}</span>
                         <span v-else-if="item.type == 'Timestamp'">{{scop.row[item.prop] | formatDate2}}</span>

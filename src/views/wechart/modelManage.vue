@@ -20,7 +20,7 @@
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
-                    layout="prev, pager, next"
+                    layout="total,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"
@@ -149,7 +149,7 @@ export default{
             api.getModelList(data,this.type).then(res => {
               this.loading = false
               this.dataList = res.data.content
-              this.page.total = res.data.pageTotal
+              this.page.total = res.data.totalElements
             }).catch(err => {
               this.loading = false
               this.dataList = []

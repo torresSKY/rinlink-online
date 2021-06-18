@@ -9,7 +9,7 @@
                     <el-button class="butresh" @click="allHandle">{{$t('button.allHandle')}}</el-button>
                 </el-col>
                 <el-col :span='2' style="line-height:40px">
-                    <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
+                    <el-checkbox v-model="containsChildren" @change="getlist()">{{$t('view.subordinate')}}</el-checkbox>
                 </el-col>    
                 <el-col :span='3'>
                     <el-button type="text" @click="selAlarmType">{{$t('button.sel')}}</el-button>
@@ -22,7 +22,7 @@
             </el-row>
             <el-pagination
                 @current-change='changeindex'
-                layout="prev, pager, next"
+                layout="total,prev, pager, next"
                 :current-page.sync="page.index"
                 :page-size="page.size"
                 :total="page.total"
@@ -166,7 +166,7 @@
                   this.loading = false
                   if(res.success){
                     this.dataList = res.data.content
-                    this.page.total = res.data.pageTotal
+                    this.page.total = res.data.totalElements
                   }else{
                     this.dataList = []
                     this.$message.error(res.msg)

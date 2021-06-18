@@ -102,7 +102,7 @@
                 api.getCmdTemplates(data).then(res => {
 
                   this.cmdOptions = res.data
-
+                    
                 }).catch(err => {
 
                   this.cmdOptions = []
