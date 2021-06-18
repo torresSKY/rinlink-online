@@ -40,7 +40,7 @@
                     </div>
                     <div class="row_item_middle_bottom">
                         <div class="item_content">
-                            <template v-if="devices_list.length > 0">
+                            <template v-show="devices_list.length > 0">
                                 <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', item.lastReportDataTime == null ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
                                     <div class="devices_item_mask" v-if="item.lastReportDataTime == null"></div>
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
@@ -92,7 +92,7 @@
             <el-col class="row_item" :span="16" :style="{height:height +'px'}">
                 <div class="row_item_right">
                     <!-- 首次展示头部 -->
-                    <div class="row_item_right_top" v-if="!track_detail">
+                    <div class="row_item_right_top" v-show="!track_detail">
                         <div>{{current_device_name != '' ? current_device_name + '：' + current_device_address : ''}}</div>
                         <div class="row_item_right_top_right">
                             <el-checkbox @change="evt_show_deviceName" v-model="show_deviceName">显示设备名称</el-checkbox>
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <!-- 回放头部 -->
-                    <div class="playback_top" v-if="track_detail">
+                    <div class="playback_top" v-show="track_detail">
                         <el-row type="flex" align="middle" class="playback_top_top">
                             <el-col :span="4">
                                 <span class="playback_top_text">设备名称:</span>
@@ -198,12 +198,11 @@
                             <el-table-column :formatter="evt_table_formatMileage" prop="mileageKmRelative" label="行驶里程(km)" min-width="60" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatSpeed" prop="speed" label="速度(km/h)" min-width="60" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="80" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="address" fixed="right"  label="位置" min-width="200" show-overflow-tooltip>
-                                <!-- <template slot-scope="scope">
+                            <el-table-column prop="address" fixed="right"  label="位置" min-width="200" show-overflow-tooltip></el-table-column>
+                             <!-- <template slot-scope="scope">
                                     <el-button v-if="scope.row.address == 'address'" @click="evt_getAdress(scope.row)" type="text" size="small">点击获取定位</el-button>
                                     <el-button v-if="scope.row.address != 'address'" type="text" size="small">{{scope.row.address}}</el-button>
                                 </template> -->
-                            </el-table-column>
                         </el-table>
                         <!-- <el-pagination small background layout="total,prev, pager, next,jumper" @current-change="evt_change_current" :hide-on-single-page="true" :current-page="current_tracksDetail_page" :page-size="5" :total="tracksDetail_list.length" style="text-align:center;margin-top:10px;"></el-pagination> -->
                     </div>

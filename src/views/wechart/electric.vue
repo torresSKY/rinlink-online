@@ -367,7 +367,7 @@ export default {
         _this.map = new BMap.Map("container",{enableMapClick:false});
         _this.map.enableScrollWheelZoom(true); 
         _this.map.disableDoubleClickZoom();
-        _this.map.centerAndZoom(new BMap.Point(116.2529,39.5420),6);
+        _this.map.centerAndZoom(new BMap.Point(116.413815,39.913579),6);
         _this.map.addControl(new BMap.NavigationControl({offset: new BMap.Size(20, 70)})); 
         _this.map.addControl(new BMap.ScaleControl());    
         _this.map.addControl(new BMap.OverviewMapControl());      
