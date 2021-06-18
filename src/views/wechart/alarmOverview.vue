@@ -168,7 +168,7 @@ export default {
         
         return this.$message.warning('只允许查询31天的数据')
       }
-      if(this.time.length>0){
+      if(this.time){
         data.startTime = this.time[0]
         data.endTime = this.time[1]
       }

@@ -16,7 +16,9 @@
                   </el-col>
                 </el-row>
                 <el-row :gutter="22" class="list-search" >
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
+                  <el-scrollbar style="height:70vh;padding:0 10px" ref="scrollbar">
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
+                  </el-scrollbar>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'

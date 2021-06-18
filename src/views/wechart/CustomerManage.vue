@@ -17,7 +17,7 @@
                     </el-row>
                     <el-row >
                       <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                        <el-tree :data="businessData" :props="defaultProps" ref="tree"   node-key="userId"
+                        <el-tree :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
                         @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
                     </el-row>
@@ -111,8 +111,8 @@
                   </el-row>
                   <el-row :gutter="22" style="margin-top:10px">
                     <el-scrollbar style="min-height:30vh;overflow-x:hidden" ref="scrollbar">
-                      <el-tree :data="busData" ref="tree" :props="defaultProps" :highlight-current='true'
-                  node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust"></el-tree>
+                      <el-tree :data="busData" ref="busData" :props="defaultProps" :highlight-current='true'
+                  node-key="userId" :default-expanded-keys="[inUserId]" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust"></el-tree>
                     </el-scrollbar>
                   </el-row>
                 </el-col>
@@ -242,6 +242,8 @@ export default {
         confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
       },
       type:null,
+      outUserId:'',
+      inUserId:'',
       renderContent:function (h,{node,data,store}) {
             let addElement = arguments[0];
             return addElement('span',[
@@ -320,6 +322,7 @@ export default {
         api.getBusinessUserinfo({},_this.type).then((res) =>{
             // console.log(res);
             if(res.success && res.data && Object.keys(res.data).length > 0){
+                _this.outUserId = res.data.userId
                 if(res.data.children == 0){
                   res.data['leaf'] = true
                 }
@@ -337,6 +340,7 @@ export default {
         api.getBusinessUserinfo({},_this.type).then((res) =>{
             // console.log(res);
             if(res.success && res.data && Object.keys(res.data).length > 0){
+                _this.inUserId = res.data.userId
                 _this.busData.push(res.data)
             }
         }).catch((err) => {

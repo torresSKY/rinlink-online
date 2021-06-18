@@ -189,8 +189,8 @@ export default {
       alarmTypeId:null,
       handleStatus:'',
       handleStatusOptions:[
-        { value: 1, label: '未处理'}, 
-        { value: 2, label: '已处理'}
+        { value: 0, label: '未处理'}, 
+        { value: 1, label: '已处理'}
       ],
       dialogHandle:false,
       multipleSelection:[],

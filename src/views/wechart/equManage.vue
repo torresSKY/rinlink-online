@@ -41,7 +41,8 @@
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
                         <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                          <el-tree :data="data" :props="defaultProps"  node-key="userId" :highlight-current='true' @node-click="handleNodeClick" 
+                          <el-tree :data="data" :props="defaultProps"   node-key="userId" :default-expanded-keys="[outUserId]"
+                          :highlight-current='true' @node-click="handleNodeClick" 
                           lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
                         </el-scrollbar>
                     </el-row>
@@ -190,8 +191,8 @@
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
                 <el-scrollbar style="margin-top:10px" ref="scrollbar" :style="{height:50 + 'vh'}">
-                  <el-tree :data="insiadeData" ref="tree" :props="defaultProps" :highlight-current='true' 
-                  node-key="userId" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust" ></el-tree>
+                  <el-tree :data="insiadeData" ref="insidetree" :props="defaultProps" :highlight-current='true' 
+                  node-key="userId"  :default-expanded-keys="[inUserId]" lazy :load="evt_loadTreeTwo" :render-content="renderContent" @node-click="handleCust" ></el-tree>
                 </el-scrollbar>
               </el-row>
             </el-col>
@@ -450,7 +451,7 @@
               </el-col>
               <el-col :span='12'>
                 <el-form-item :label="$t('table.expire2')+'：'"  >
-                  <span>{{SIMForm.serviceExpireTime | formatDate}}</span>
+                  <span>{{SIMForm.serviceExpireTime | formatDate2}}</span>
                 </el-form-item>
               </el-col>
             </el-form> 
@@ -642,7 +643,7 @@ export default{
           sellTime:'',
           serviceExpireTime:'',
           createTime:'',
-          useRangeCode:'',
+          useRangeCode:null,
           iccid:'',
           remark:''
         },
@@ -724,7 +725,9 @@ export default{
         ],
         current:-1,
         current1:-1,
-        timer:null
+        timer:null,
+        outUserId:'',
+        inUserId:''
       }
     },
     watch: {
@@ -761,6 +764,7 @@ export default{
         // this.getBusiness(null)
         if(this.type!=3){
           this.evt_getBusinessUserinfo()
+          this.evt_getBusinessUserinfoTwo()
         }
         
         this.getRange()
@@ -922,15 +926,38 @@ export default{
         evt_getBusinessUserinfo(){
             var _this = this;
             this.data = []
+            // this.insiadeData = []
+            // this.custData = []
+            api.getBusinessUserinfo({},_this.type).then((res) =>{
+                // console.log(res);
+                if(res.success && res.data && Object.keys(res.data).length > 0){
+                    this.outUserId = res.data.userId
+                    if(res.data.children == 0){
+                      res.data['leaf'] = true
+                    }
+                    res.data['nickname'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')'
+                    _this.data.push(res.data)
+                    // _this.insiadeData.push(res.data)
+                    // _this.custData.push(res.data)
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
+            })
+        },
+        evt_getBusinessUserinfoTwo(){
+          var _this = this;
+  
             this.insiadeData = []
             this.custData = []
             api.getBusinessUserinfo({},_this.type).then((res) =>{
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
+                    _this.inUserId = res.data.userId
                     if(res.data.children == 0){
                       res.data['leaf'] = true
                     }
-                    _this.data.push(res.data)
+                    res.data['nickname'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')'
+ 
                     _this.insiadeData.push(res.data)
                     _this.custData.push(res.data)
                 }
@@ -994,6 +1021,7 @@ export default{
                         }
                         var children_data = res.data
                         for(let i = 0;i<children_data.length;i++){
+                          children_data[i]['nickname'] = children_data[i].nickname + '(' + children_data[i].devices +'/'+ (children_data[i].devices + children_data[i].sellDevices) +')'
                           if(children_data[i].children == 0){
                             children_data[i]['leaf'] = true
                           }
@@ -1010,7 +1038,7 @@ export default{
                 })
             }  
         },
-        evt_loadTree2(node, resolve){ //查询客户下级
+        evt_loadTreeTwo(node, resolve){ //查询客户下级
           console.log(node)
           var _this = this
             if(node.level === 0){
@@ -1027,6 +1055,7 @@ export default{
                         }
                         var children_data = res.data
                         for(let i = 0;i<children_data.length;i++){
+                          children_data[i]['nickname'] = children_data[i].nickname + '(' + children_data[i].devices +'/'+ (children_data[i].devices + children_data[i].sellDevices) +')'
                           if(children_data[i].children == 0){
                             children_data[i]['leaf'] = true
                           }
@@ -1085,6 +1114,9 @@ export default{
             case '1': // 设备详情
               this.current1 = this.range.length-1
               this.equinfoForm = Object.assign({},data)
+              if(this.equinfoForm.useRangeCode==null){
+                this.equinfoForm.useRangeCode = 'Other'
+              }
               for(let i=0;i<this.range.length;i++){
                 if(this.range[i][0]==this.equinfoForm.useRangeCode){
                   this.current1 = i
@@ -1253,7 +1285,7 @@ export default{
             searchContent:this.searchName
           }
           if(this.searchName.trim() == '') {
-            this.evt_getBusinessUserinfo()
+            this.evt_getBusinessUserinfoTwo()
             return
           }
           api.searchBusiness(data,this.type).then(res => {
@@ -1433,6 +1465,18 @@ export default{
       }
       let date = new Date(time)
       return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+    },
+    formatDate2 (time) {
+      // debugger
+      if (!time||time == -1) {
+        return '--'
+      }
+      if (time != '--') {
+        let date = new Date(Number(time))
+        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      } else {
+        return time
+      }
     },
 
   }

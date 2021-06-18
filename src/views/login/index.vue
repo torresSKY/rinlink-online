@@ -295,6 +295,7 @@ position: absolute;
       top: 16vh;
       left: 50%;
       transform: translate(-50%, -50%);
+      letter-spacing:2px
     }
     .copyright{
       font-size: 14px;
