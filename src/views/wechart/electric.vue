@@ -301,7 +301,9 @@ export default {
             select_second_region:[],//二级
             select_third_region:[],//三级
             selected_frist_region:'',//选中的一级区域
+            selected_frist_code:'',
             selected_second_region:'',//选中的二级
+            selected_second_code: '',
             selected_third_region:'',//选中的三级
             selected_adcode:'',//最终选择的行政区域码
             selected_areaName: '',//最终选择的行政区名称
@@ -476,6 +478,15 @@ export default {
             };
             this.update_pen = false;
             this.drawingManager.close();
+
+            this.selected_frist_region = '';//选中的一级区域
+            this.selected_frist_code = '';
+            this.selected_second_region = '';//选中的二级
+            this.selected_second_code = '';
+            this.selected_third_region = '';//选中的三级
+            this.selected_adcode = '';//最终选择的行政区域码
+            this.selected_areaName = '';//最终选择的行政区名称
+            this.selected_level = '';//最终选择的行政区级别
         },
         // 添加围栏
         evt_submit_addPen:function(){
@@ -507,6 +518,14 @@ export default {
             _this.$message({message: _this.update_pen? '更新成功':'添加成功',type:'success',offset:'200',duration:'1000'});
             _this.update_pen = false;
             // this.pen_type_value = '1';
+            _this.selected_frist_region = '';//选中的一级区域
+            _this.selected_frist_code = '';
+            _this.selected_second_region = '';//选中的二级
+            _this.selected_second_code = '';
+            _this.selected_third_region = '';//选中的三级
+            _this.selected_adcode = '';//最终选择的行政区域码
+            _this.selected_areaName = '';//最终选择的行政区名称
+            _this.selected_level = '';//最终选择的行政区级别
         },
         // 添加、更新圆形围栏
         evt_CircleFence:function(){
@@ -617,6 +636,16 @@ export default {
             _this.pen_form.fenceArea['areaCode'] = _this.selected_adcode;
             _this.pen_form.fenceArea['areaName'] = _this.selected_areaName;
             _this.pen_form.fenceArea['areaLevel'] = _this.selected_level;
+            if(_this.selected_level == '1'){
+                _this.pen_form.fenceArea['parentAreaCodes'] = [];
+                _this.pen_form.fenceArea['parentAreaNames'] = [];
+            }else if(_this.selected_level == '2'){
+                _this.pen_form.fenceArea['parentAreaCodes'] = [_this.selected_frist_code];
+                _this.pen_form.fenceArea['parentAreaNames'] = [_this.selected_frist_region];
+            }else if(_this.selected_level == '3'){
+                _this.pen_form.fenceArea['parentAreaCodes'] = [_this.selected_frist_code,_this.selected_second_code];
+                _this.pen_form.fenceArea['parentAreaNames'] = [_this.selected_frist_region,_this.selected_second_region];
+            }
             if(!_this.update_pen){
                 type = 'create';
                 // 单设备跳转进来的
@@ -698,6 +727,7 @@ export default {
                 for(var i = 0, len = this.select_first_region.length; i < len; i++){
                     if(this.select_first_region[i].adcode.indexOf(adcode.substr(0,2)) > -1){
                         this.selected_frist_region = this.select_first_region[i].name;
+                        this.selected_frist_code = this.select_first_region[i].adcode;
                         if(level == 1){
                             this.selected_level = 1;
                             this.selected_adcode = this.select_first_region[i].adcode;
@@ -707,6 +737,7 @@ export default {
                             for(var j = 0, lth =  this.select_second_region.length; j < lth; j++){
                                 if(this.select_second_region[j].adcode.indexOf(adcode.substr(0,4)) > -1){
                                     this.selected_second_region = this.select_second_region[j].name;
+                                    this.selected_second_code = this.select_second_region[j].adcode;
                                     if(level == 2){
                                         this.selected_level = 2;
                                         this.selected_adcode = this.select_second_region[j].adcode;
@@ -727,12 +758,12 @@ export default {
                         }
                     }
                 }
-                var point_arr = [];
-                for(var i = 0, len = item.districtFence.points.length; i < len; i++){
-                    var str = item.districtFence.points[i].lng + ',' + item.districtFence.points[i].lat;
-                    point_arr.push(str);
-                }
-                this.pen_form.fenceArea['points'] = point_arr.join(';');
+                // var point_arr = [];
+                // for(var i = 0, len = item.districtFence.points.length; i < len; i++){
+                //     var str = item.districtFence.points[i].lng + ',' + item.districtFence.points[i].lat;
+                //     point_arr.push(str);
+                // }
+                // this.pen_form.fenceArea['points'] = point_arr.join(';');
             }
         },
         // 删除围栏
@@ -954,6 +985,7 @@ export default {
                     this.select_second_region = this.select_first_region[i].districts;
                     
                     this.selected_adcode = this.select_first_region[i].adcode;//最终选择的行政区域码
+                    this.selected_frist_code = this.select_first_region[i].adcode;
                     this.selected_areaName = name;//最终选择的行政区名称
                     this.selected_level = 1;//最终选择的行政区级别
                     break;
@@ -973,6 +1005,7 @@ export default {
                     // }
 
                     this.selected_adcode = this.select_second_region[i].adcode;//最终选择的行政区域码
+                    this.selected_second_code = this.select_second_region[i].adcode;
                     this.selected_areaName = name;//最终选择的行政区名称
                     this.selected_level = 2;//最终选择的行政区级别
                     break;
