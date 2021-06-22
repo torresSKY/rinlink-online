@@ -17,8 +17,8 @@
                             
                         </el-input>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
-                            <el-tree v-show="!default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
-                            <el-tree v-show="default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree v-if="!default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                            <el-tree v-if="default_expand_all_flag && user_list.length > 0" ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                         </el-scrollbar>
                     </div>
                 </div>
@@ -414,7 +414,7 @@ export default {
                 isLeaf: 'isLeaf'
             },
             zIndex: 1,//marker,label层级
-            default_expand_all_flag: false,
+            default_expand_all_flag: false,//客户列表默认进来只展开一级，搜索或其他页面带用户id进来全部展开
             search_user_list:[],//模糊搜索的用户信息集合
             total_distance: 0,//总里程
             playbackMarker: null,//轨迹回放时的marker
@@ -437,7 +437,7 @@ export default {
         
         this.evt_getRangeIconList();
         
-        if(JSON.parse(sessionStorage['user']).userType == '2'){
+        if(JSON.parse(sessionStorage['user']).userType != '3'){
             this.evt_getBusinessUserinfo();
         }else if(JSON.parse(sessionStorage['user']).userType == '3'){
             // this.current_login_user_info = JSON.parse(sessionStorage['user']);
@@ -504,10 +504,12 @@ export default {
                         user_data['isLeaf'] = true;
                     }
                     _this.user_list.push(user_data);
-                    _this.$nextTick(function(){
-                        _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices('currentUser');
-                    })
+                    if(!_this.default_expand_all_flag){
+                        _this.$nextTick(function(){
+                            _this.$refs.userTree.setCurrentKey(_this.user_id);
+                            _this.evt_queryDevices('currentUser');
+                        })
+                    }
                 }
             }).catch((err) => {
                 _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
@@ -542,6 +544,10 @@ export default {
             // console.log(node)
             var _this = this;
             if(JSON.parse(sessionStorage['user']).userType == '3'){
+                resolve([]);
+                return;
+            }
+            if(node.data.isLeaf){
                 resolve([]);
                 return;
             }
@@ -720,12 +726,11 @@ export default {
             }else{
                 this.evt_queryDevices();
             }
-            // this.evt_queryDevices();
         },
         // 搜索设备
         evt_searchDevice:function(){
             var _this = this;
-            if(_this.searchDevice_name.trim() == '') return;
+            // if(_this.searchDevice_name.trim() == '') return;
             _this.change_type = 'all';
             var request_data = {};
             request_data['page'] = 0;

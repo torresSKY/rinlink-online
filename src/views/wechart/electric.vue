@@ -1598,7 +1598,7 @@ export default {
     .search_content_list{
         // flex: 1;
         // height: 600px;
-        padding: 10px 0px;
+        padding: 10px 0px 30px 0px;
         box-sizing: border-box;
         overflow: auto;
     }
