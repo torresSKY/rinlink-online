@@ -16,14 +16,14 @@
         <el-input name="username" type="text" ref="username" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
       </el-form-item>
 
-      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]">
+      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]" style="margin-bottom:3vh">
        <span class="pl10 c iconfont icon-mima"></span>
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
           :placeholder="$t('view.paw')" />
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-      <div style="text-align:center;margin-top:2vh">
+      <div style="text-align:center;">
       <el-button type="primary" style="width:200px;background: #289DFF;
 border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
 font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>

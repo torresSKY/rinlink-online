@@ -4,21 +4,21 @@
     <div class="content" >
       <div class="topBar" >
         <el-row >
-          <el-col :span='3' >
+          <el-col  :lg="7" :xl="5" >
             <div class="title_top" >
-              <img src='@/assets/img/toubu.png' style="width: 100%;display: inline-block; vertical-align: middle">
+              <img src='@/assets/img/toubu.png' style="width: 310px;display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
-          <el-col :offset='1' :span='15'   style="text-align:center;margin-top:10px;overflow: hidden;">
-            <el-menu  :default-active="$route.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#446AEA"  background-color="#446AEA" >
+          <el-col  :lg="13" :xl="10"   style="text-align:left;margin-top:16px;overflow: hidden;">
+            <el-menu style="overflow: hidden;" :default-active="$route.path"  mode="horizontal" text-color="#fff" active-text-color="#446AEA"  background-color="#446AEA" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
-                  <el-col :span='3' >
-                    <el-menu-item :index="item.path+'/'+item.children[0].path" >
+                  <el-row style="display:inline-block;">
+                    <el-menu-item :index="item.path+'/'+item.children[0].path" style="width:110px;overflow: hidden;text-align:center;">
                       <i :class="'icon iconfont icon-'+item.icon"></i>
                       <span slot="title">{{$t(item.children[0].name)}}</span>
                     </el-menu-item>
-                  </el-col>
+                  </el-row>
                 </router-link>
               </template>
             </el-menu> 
@@ -35,7 +35,7 @@
           <!-- <el-col :span='1' >
             
           </el-col>  -->
-          <el-col :span='3' :offset='2'>
+          <el-col :lg="3" :xl="8" :offset='1'>
             
             <el-dropdown class="fr" @command="handleCommand">
               <el-button class="fr btn-loading" size="medium">
@@ -49,7 +49,7 @@
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <i class="el-icon-message-solid fr" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i>  -->
-            <el-badge is-dot style="color:#fff;margin:15px 5px 0 0;font-size:20px;cursor: pointer;" class="fr">
+            <el-badge is-dot style="color:#fff;margin:21px 5px 0 0;font-size:20px;cursor: pointer;" class="fr">
               <i class="el-icon-message-solid"  @click="jump('/notice')"></i>
             </el-badge>
           </el-col>
@@ -151,7 +151,7 @@ export default {
   mounted() {
     console.log(this.$i18n.locale)
     this.lang = this.$i18n.locale == 'zh' ? 1 : 2
-    this.height=document.body.offsetHeight-60
+    this.height=document.body.offsetHeight-72
     if(!this.viewTagList.length){
       this.pushRouter({ name: this.$t('route.Home'), path: '/index/index',meta:{keep:'homepage' }})
     }
@@ -357,11 +357,11 @@ width: 100%;
 // margin-top:6px;
 // display:table-cell;
 padding-left: 15px;
-text-align:center;
+text-align:left;
 // vertical-align:middle;
 // background-image: 'url(' + require('@/assets/img/beijing_lg.png') + ')';
 // border-radius: 0px 64px 0px 0px;
-      line-height: 60px;
+      line-height: 72px;
       // font-size: 20px;
       // font-weight: 700;
       // color: #fff;
@@ -380,7 +380,7 @@ text-align:center;
 
 .topBar {
   // line-height: 50px;
-  height: 60px;
+  height: 72px;
   background: #446AEA;
 }
 
@@ -393,7 +393,7 @@ text-align:center;
 }
 
 .btn-loading {
-  margin-top: 5px;
+  margin-top: 8px;
   margin-right: 10px;
   font-size: 20px;
   padding: 5px 10px !important;
@@ -459,32 +459,33 @@ text-align:center;
   padding:0 5px;
 }
 /deep/ .el-menu{
-  width:90%;
+  // width:90%;
+}
+/deep/ .el-menu-item.is-active {
+    background-color: #fff !important;
+    border-bottom: 0!important;
+}
+/deep/ .el-menu.el-menu--horizontal{
+    border-bottom: 0!important;
+ 
+}
+/deep/ .el-menu-item i{
+  color: #fff!important;
+}
+/deep/ .el-menu-item.is-active i{
+  color: #446AEA!important;
 }
 </style>
 <style >
-.main .no-redirect .el-breadcrumb__inner {
+/* .main .no-redirect .el-breadcrumb__inner {
   color: #606266;
   font-weight: 500;
   cursor: text;
-}
+} */
 .editpass .el-dialog.is-fullscreen.el-dialog--center {
   height: 400px;
   top: 25%;
 }
 
-.el-menu-item.is-active {
-    background-color: #fff !important;
-    border-bottom: 0!important;
-}
-.el-menu.el-menu--horizontal{
-    border-bottom: 0!important;
- 
-}
-.el-menu-item i{
-  color: #fff!important;
-}
-.el-menu-item.is-active i{
-  color: #446AEA!important;
-}
+
 </style>
