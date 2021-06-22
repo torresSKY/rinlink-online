@@ -198,8 +198,8 @@ export default {
         evt_addMarker:function(point){
             var _this = this;
             var icon_url = _this.locationInfo.networkStatus == '1' ? _this.device_detail_info.useRangeCode != null ? _this.icon_list[_this.device_detail_info.useRangeCode].iconUrlForMapActive : _this.icon_list['Other'].iconUrlForMapActive : _this.device_detail_info.useRangeCode != null ? _this.icon_list[_this.device_detail_info.useRangeCode].iconUrlForMapInactive : _this.icon_list['Other'].iconUrlForMapInactive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(40,40),{
-                imageSize: new BMap.Size(40,40),
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(34,50),{
+                imageSize: new BMap.Size(34,50),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
