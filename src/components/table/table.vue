@@ -2,7 +2,7 @@
     <div>
         <el-table
         :header-cell-style="{background:'#f2f7fb',color:'#5F636B'}"
-        style="width:100%;overflow:auto;"
+        style="width:100%;overflow:auto;font-size:12px"
         @selection-change="handleSelectionChange"
         :row-key="getRowKeys"
         :row-class-name="tableRowClassName"

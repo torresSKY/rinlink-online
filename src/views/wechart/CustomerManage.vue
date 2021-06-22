@@ -101,7 +101,7 @@
                 </el-col>
                 <el-col :span='12' v-if="type==2&&!isEdit">
                   <el-row :gutter="22">
-                    <el-input :placeholder="$t('view.inputtext')" v-model="selParentId" class="input-with-select">
+                    <el-input :placeholder="$t('view.inputtext')" v-model="selParentId" class="input-with-select" clearable>
                       <el-select v-model="selectType2" slot="prepend" >
                         <el-option label="账号" value="username"></el-option>
                         <el-option label="客户" value="nickname"></el-option>
@@ -214,6 +214,8 @@ export default {
           parentName:'',
           parentId:''
       },
+      tempParentId:null,
+      tempParentName:null,
       rules:{
         parentName: [
           { required: true, message: '请选择上级用户', trigger: 'blur' },
@@ -435,15 +437,15 @@ export default {
       }
      api.searchBusiness(data,this.type).then(res => {
         if(res.success){
-          this.businessData = this.setTreeData(res.data)
-          this.getlist(2,res.data[0].parentId)
-          this.getBusinessUserinfo(res.data[0].userId)
+          this.busData = this.setTreeData(res.data)
+          // this.getlist(2,res.data[0].parentId)
+          // this.getBusinessUserinfo(res.data[0].userId)
         }else{
-          this.businessData = []
+          this.busData = []
           this.$message.error(res.msg)
         }
       }).catch(err => {
-        this.businessData = []
+        this.busData = []
         this.$message.error(err.msg)
       })
     },
@@ -537,6 +539,8 @@ export default {
     },
     handleNodeClick(data) { // 选择用户节点
         console.log(data)
+        this.tempParentName = data.username
+        this.tempParentId = data.userId
         this.getlist(2,data.userId)
         this.getBusinessUserinfo(data.userId)
     },
@@ -556,6 +560,10 @@ export default {
             phoneNumber:'',
             email:'',
             remark:''
+        }
+        if(this.tempParentId && this.tempParentName){
+          this.customerForm.parentId = this.tempParentId
+          this.customerForm.parentName = this.tempParentName
         }
         this.evt_getBusinessUserinfo()
         this.dialogCustomer = true 
@@ -660,7 +668,7 @@ export default {
             api.deleBusiness(id,this.type).then(res => {
               if(res.success){
                 this.$message.success(this.$t('message.delesuc'))
-                this.getlist()
+                this.getlist(1)
               }else{
                 this.$message.error(res.msg)
               }
