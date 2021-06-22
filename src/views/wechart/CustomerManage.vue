@@ -52,7 +52,7 @@
                   </el-scrollbar>
                 </el-row>
                 <el-pagination
-                    @current-change='changeindex'
+                    @current-change='changeindexNew'
                     layout="total,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
@@ -275,12 +275,12 @@ export default {
             page: 0,
           }
         }else if(type==2){
-          this.page.index = 1
+          // this.page.index = 1
           data = {
             parentId :parentId,
             containsChildren :this.checked,
             pageSize: this.page.size,
-            page: 0,
+            page: this.page.index - 1,
           }
         }else{
           data = {
@@ -415,6 +415,7 @@ export default {
      api.searchBusiness(data,this.type).then(res => {
         if(res.success){
           this.businessData = this.setTreeData(res.data)
+          this.page.index = 1
           this.getlist(2,res.data[0].parentId)
           this.getBusinessUserinfo(res.data[0].userId)
         }else{
@@ -541,8 +542,16 @@ export default {
         console.log(data)
         this.tempParentName = data.username
         this.tempParentId = data.userId
+        this.page.index = 1
         this.getlist(2,data.userId)
         this.getBusinessUserinfo(data.userId)
+    },
+    changeindexNew(){
+      if(this.tempParentId){
+        this.getlist(2,this.tempParentId)
+      }else{
+        this.getlist()
+      }
     },
     addCustomer(){ // 添加客户
         if(this.$refs['customerForm']){
