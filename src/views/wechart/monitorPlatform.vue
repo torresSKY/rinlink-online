@@ -726,12 +726,11 @@ export default {
             }else{
                 this.evt_queryDevices();
             }
-            // this.evt_queryDevices();
         },
         // 搜索设备
         evt_searchDevice:function(){
             var _this = this;
-            if(_this.searchDevice_name.trim() == '') return;
+            // if(_this.searchDevice_name.trim() == '') return;
             _this.change_type = 'all';
             var request_data = {};
             request_data['page'] = 0;
