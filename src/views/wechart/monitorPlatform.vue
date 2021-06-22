@@ -40,7 +40,7 @@
                     </div>
                     <div class="row_item_middle_bottom">
                         <div class="item_content">
-                            <template v-show="devices_list.length > 0">
+                            <template v-if="devices_list.length > 0">
                                 <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', item.lastReportDataTime == null ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
                                     <div class="devices_item_mask" v-if="item.lastReportDataTime == null"></div>
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
@@ -417,6 +417,9 @@ export default {
             default_expand_all_flag: false,
             search_user_list:[],//模糊搜索的用户信息集合
             total_distance: 0,//总里程
+            playbackMarker: null,//轨迹回放时的marker
+            playbackPolyline: null,//轨迹回放的线型覆盖物
+            infoBox:null,
         }
     },
     created(){
@@ -839,6 +842,9 @@ export default {
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
             this.device_tracks_step = 0;
+            if(this.infoBox != null){
+                this.infoBox.close();
+            }
             for(var key in allOverlays){
                 if( typeof(allOverlays[key].name) == 'number' || allOverlays[key].name == 'playFlag'){
                     this.map.removeOverlay(allOverlays[key]); 
@@ -1038,8 +1044,8 @@ export default {
         evt_addMarker:function(point,info){
             var _this = this;
             var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,60),{
-                imageSize: new BMap.Size(30,60),
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(34,50),{
+                imageSize: new BMap.Size(34,50),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
@@ -1093,7 +1099,7 @@ export default {
                 ${info.csq != null ? `<div class="info_window_content_item"><span>信号：${info.csq}</span></div>`:''}
                 ${info.alertStatus != null ? `<div class="info_window_content_item"><span>防盗状态：${info.alertStatus == 0 ? '撤防' : '设防'}</span></div>`:''}
                 ${info.mileageKm && info.mileageKm != null ? `<div class="info_window_content_item"><span>总里程：${info.mileageKm}km</span></div>`:''}
-                ${info.workStatus != null ? `<div class="info_window_content_item"><span>离线原因：${info.workStatus == 1 ? '休眠':''}</span></div>`:''}
+                ${info.workStatus != null ? `<div class="info_window_content_item"><span>工作状态：${info.workStatus == 0 ? '正常':'休眠'}</span></div>`:''}
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
                 </div>
@@ -1234,6 +1240,7 @@ export default {
                         _this.total_distance = 0;
                         _this.$message({message:'无轨迹信息',type:'warning',offset:'200',duration:'1500'});
                         _this.play_flag = false;
+                        _this.tracksDetail_list = [];
                         return;
                     }
                     _this.total_distance = (res.data[res.data.length - 1].mileageKm - res.data[0].mileageKm) > 0.001 ? (res.data[res.data.length - 1].mileageKm - res.data[0].mileageKm).toFixed(3) : 0;//总里程
@@ -1261,8 +1268,18 @@ export default {
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
                     _this.play_flag = true;
-                    // _this.map.panTo(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    
                     _this.map.setCenter(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    
+                    // 轨迹回放添加marker
+                    _this.evt_playback_addMarker(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
+                    // 添加轨迹线
+                    var Polyline = new BMap.Polyline([new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat)], {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
+                    Polyline.name = 'playFlag';
+                    _this.map.addOverlay(Polyline);
+                    _this.playbackPolyline = Polyline;
+                    // marker上的信息窗口
+                    _this.evt_playback_infoWindow(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat),point_arr[0]);
                     _this.evt_LuShu();
                 }else{
                     _this.$message({message:res.msg,type:"info",offset:"200",duration:"1500"});
@@ -1281,26 +1298,31 @@ export default {
                 if(_this.device_tracks.length > 0){
                     var raw_point = _this.device_tracks.shift();
                     _this.device_tracks_shift.push(raw_point);
-                    // console.log(raw_point);
                     var point = new BMap.Point(raw_point.lng,raw_point.lat);
                     Polyline_points.push(point);
-                    // _this.map.panTo(point);
-                    _this.map.setCenter(point);
-                    // 添加线型覆盖物
-                    var Polyline = new BMap.Polyline(Polyline_points, {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
-                    Polyline.name = _this.device_tracks_step;
-                    _this.map.addOverlay(Polyline);
-                    // marker
-                    _this.evt_playback_addMarker(point);
-                    // 信息窗口
-                    _this.evt_playback_infoWindow(point,raw_point);
-                    // 清除上次绘制的覆盖物
-                    var allOverlays = _this.map.getOverlays();
-                    for(var key in allOverlays){
-                        if( typeof(allOverlays[key].name) == 'number' && allOverlays[key].name  != _this.device_tracks_step){
-                            _this.map.removeOverlay(allOverlays[key]); 
-                        }
+
+                    var Bounds = _this.map.getBounds();
+                    if(!Bounds.containsPoint(point)){
+                        _this.map.panTo(point);
                     }
+                    // 添加线型覆盖物
+                    _this.playbackPolyline.setPath(Polyline_points);
+                    // marker
+                    _this.playbackMarker.setPosition(point);
+                    // 信息窗口
+                    var infoWindow_html = `
+                        <div class="tracks_label_html">
+                            <div class="tracks_label_html_item">定位方式: ${this.positionType[raw_point.positionType]}</div>
+                            <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(raw_point.time)}</div>
+                            <div class="tracks_label_html_item_flex">
+                                <div>定位位置: </div>
+                                <div class="tracks_label_html_item_click">${raw_point.address != null ? raw_point.address :'--'}</div>
+                            </div>
+                        </div>
+                    `;
+                    _this.infoBox.setContent(infoWindow_html);
+                    _this.infoBox.setPosition(point);
+
                     // 设置table高亮行
                     if(_this.tracksDetail_flag){
                         _this.evt_setCurrent(_this.tracksDetail_list[_this.device_tracks_step]);
@@ -1320,53 +1342,34 @@ export default {
             var _this = this;
             var device_info = _this.device_detail_info;
             var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,60),{
-                imageSize: new BMap.Size(30,60),
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(34,50),{
+                imageSize: new BMap.Size(34,50),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
-                // console.log(e);
                 var point = new BMap.Point(e.currentTarget.point.lng,e.currentTarget.point.lat);
-                // if(!_this.play_flag){
-                //     var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
-                // }else{
-                //     var info = _this.table_row_info;
-                // }
-                if(e.target.name == 'playFlag'){
-                    var info = _this.table_row_info;
-                }else{
-                    var info = _this.device_tracks_shift[_this.device_tracks_shift.length - 1];
-                }
-                _this.evt_playback_infoWindow(point,info);
+                _this.infoBox.open(point);
             })
-            if(_this.play_flag){
-                marker.name = _this.device_tracks_step;
-            }else{
-                marker.name = 'playFlag';
-            }
+            marker.name = 'playFlag';
             _this.map.addOverlay(marker);
+            _this.playbackMarker = marker;
         },
         // 轨迹回放的信息窗口
         evt_playback_infoWindow:function(point,info){
             var _this = this;
-            _this.map.closeInfoWindow();
             var infoWindow_html = `
                 <div class="tracks_label_html">
                     <div class="tracks_label_html_item">定位方式: ${this.positionType[info.positionType]}</div>
                     <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(info.time)}</div>
                     <div class="tracks_label_html_item_flex">
                         <div>定位位置: </div>
-                        <div onClick="evt_playback_address('${info.lng}','${info.lat}','${info.time}','${info.positionType}')" class="tracks_label_html_item_click">${this.playback_address == '' ? '点击查看地址' : this.playback_address}</div>
+                        <div class="tracks_label_html_item_click">${info.address != null ? info.address : '--'}</div>
                     </div>
                 </div>
             `
-            var infoWindow = new BMap.InfoWindow(infoWindow_html,{enableCloseOnClick:false});
-            // console.log(point);
-            // console.log(info);
-            _this.map.openInfoWindow(infoWindow,point);
-            if(infoWindow.isOpen()){
-                _this.playback_address = '';
-            }
+            var infoBox = new BMapLib.InfoBox(_this.map,infoWindow_html,{'closeIconMargin': "10px 10px 0 0",'closeIconUrl': require('../../assets/img/cancel_icon.png'),'offset':new BMap.Size(34,20)});
+            infoBox.open(point);
+            _this.infoBox = infoBox;
         },
         evt_playback_address:function(lng,lat,time,positionType){
             var _this = this;
@@ -1420,6 +1423,20 @@ export default {
                     this.device_tracks_max = this.device_tracks.length;
                     this.device_tracks_step = 0;
                     this.map.clearOverlays();
+
+                    if(this.device_tracks.length == 0){
+                        this.play_flag = !this.play_flag;
+                        return;
+                    }
+                    // 轨迹回放添加marker
+                    this.evt_playback_addMarker(new BMap.Point(this.device_tracks[0].lng,this.device_tracks[0].lat));
+                    // 添加轨迹线
+                    var Polyline = new BMap.Polyline([new BMap.Point(this.device_tracks[0].lng,this.device_tracks[0].lat)], {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
+                    Polyline.name = 'playFlag';
+                    this.map.addOverlay(Polyline);
+                    this.playbackPolyline = Polyline;
+                    // marker上的信息窗口
+                    this.evt_playback_infoWindow(new BMap.Point(this.device_tracks[0].lng,this.device_tracks[0].lat),this.device_tracks[0]);
                     this.evt_LuShu();
                 }
             }
@@ -1480,20 +1497,24 @@ export default {
         },
         // 点击table轨迹明细中的行
         evt_handleCurrentChange:function(row){
-            if(!this.play_flag){
-                var allOverlays = this.map.getOverlays();
-                console.log(allOverlays);
-                for(var key in allOverlays){
-                    if(allOverlays[key].name == 'playFlag'){
-                        this.map.removeOverlay(allOverlays[key]); 
-                    }
-                }
+            if(!this.play_flag && this.tracksDetail_list.length > 0){
                 this.table_row_info = row;
                 var point = new BMap.Point(row.lng,row.lat);
-                // this.map.panTo(point);
-                this.map.setCenter(point);
-                this.evt_playback_addMarker(point);
-                this.evt_playback_infoWindow(point,row);
+                this.map.panTo(point);
+                this.playbackMarker.setPosition(point);
+                var infoWindow_html = `
+                    <div class="tracks_label_html">
+                        <div class="tracks_label_html_item">定位方式: ${this.positionType[row.positionType]}</div>
+                        <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(row.time)}</div>
+                        <div class="tracks_label_html_item_flex">
+                            <div>定位位置: </div>
+                            <div class="tracks_label_html_item_click">${row.address != null ? row.address :'--'}</div>
+                        </div>
+                    </div>
+                `;
+                this.infoBox.setContent(infoWindow_html);
+                this.infoBox.setPosition(point);
+
             }
         },
         // 轨迹明细
@@ -2564,6 +2585,12 @@ export default {
 }
 /deep/ .tracks_label_html{
     cursor: pointer;
+    background: #ffffff;
+    width: 260px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #666666;
+    border-radius: 4px;
     .tracks_label_html_item{
         font-size: 12px;
         font-family: Microsoft YaHei;
@@ -2584,6 +2611,18 @@ export default {
             color: #4391FE;
         }
     }
+}
+/deep/ .infoBox::after{
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border-bottom: 1px solid #666666;
+    border-right: 1px solid #666666;
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: rotate(45deg) translateX(-50%);
 }
 .item_opacity{
   opacity:0.7;
