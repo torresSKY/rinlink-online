@@ -245,7 +245,7 @@ export default{
         ],
         timeType:'',
         timeTypeoptions: [
-          {value: 0,label: '激活时间'},{value: 1,label: '生产时间'},{value: 2,label: '出货时间'}
+          {value: 2,label: '激活时间'},{value: 1,label: '生产时间'},{value: 3,label: '出货时间'}
         ],
         timevalue:null,
         usageYearsoptions:[
@@ -381,6 +381,10 @@ export default{
             }
             if(this.iccid==''){
               this.iccid = null
+            }
+            if(this.timeType && start == null){
+              this.loading = false
+              return this.$message.warning('请输入查询时间')
             }
             let data = {
               pageSize: this.page.size,
