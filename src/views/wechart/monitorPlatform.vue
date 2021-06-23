@@ -158,6 +158,7 @@
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
                                     <span class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
+                                    <span class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="5">
@@ -191,11 +192,11 @@
                             </div>
                         </div>
                         <el-table ref="singleTable" :data="tracksDetail_list" highlight-current-row @current-change="evt_handleCurrentChange" height="220" border style="width: 100%" size="small">
-                            <el-table-column type="index" label="序号" min-width="100" show-overflow-tooltip></el-table-column>
+                            <el-table-column fixed="left" type="index" label="序号" min-width="100" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="100" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatLng" prop="lng" label="经度" min-width="80" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatLat" prop="lat" label="纬度" min-width="80" show-overflow-tooltip></el-table-column>
-                            <el-table-column :formatter="evt_table_formatMileage" prop="mileageKmRelative" label="行驶里程(km)" min-width="60" show-overflow-tooltip></el-table-column>
+                            <!-- <el-table-column :formatter="evt_table_formatMileage" prop="mileageKmRelative" label="行驶里程(km)" min-width="60" show-overflow-tooltip></el-table-column> -->
                             <el-table-column :formatter="evt_table_formatSpeed" prop="speed" label="速度(km/h)" min-width="60" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="80" show-overflow-tooltip></el-table-column>
                             <el-table-column prop="address" fixed="right"  label="位置" min-width="200" show-overflow-tooltip></el-table-column>
@@ -420,6 +421,7 @@ export default {
             playbackMarker: null,//轨迹回放时的marker
             playbackPolyline: null,//轨迹回放的线型覆盖物
             infoBox:null,
+            speed_value: 0,
         }
     },
     created(){
@@ -918,6 +920,7 @@ export default {
                     if(_this.$route.query.deviceId){
                         _this.track_detail = true;
                         _this.current_device_name = res.data.deviceName;
+                        _this.speed_value = 0;
                     }
                     _this.device_name = res.data.deviceName;
                     _this.remark_text = res.data.remark;
@@ -1206,6 +1209,7 @@ export default {
                     _this.play_flag = false;
                     _this.current_device_name = deviceName;
                     _this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+                    _this.speed_value = 0;
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
@@ -1222,6 +1226,7 @@ export default {
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
             clearInterval(this.refresh_time_interval);
+            this.speed_value = 0;
         },
         // 获取设备轨迹
         evt_queryDeviceTracks:function(startTime,endTime,deviceId){
@@ -1318,6 +1323,7 @@ export default {
                     var infoWindow_html = `
                         <div class="tracks_label_html">
                             <div class="tracks_label_html_item">定位方式: ${this.positionType[raw_point.positionType]}</div>
+                            <div class="tracks_label_html_item">速度: ${raw_point.speed != null ? raw_point.speed : '0'}km/h</div>
                             <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(raw_point.time)}</div>
                             <div class="tracks_label_html_item_flex">
                                 <div>定位位置: </div>
@@ -1325,6 +1331,7 @@ export default {
                             </div>
                         </div>
                     `;
+                    _this.speed_value = raw_point.speed;
                     _this.infoBox.setContent(infoWindow_html);
                     _this.infoBox.setPosition(point);
 
@@ -1365,6 +1372,7 @@ export default {
             var infoWindow_html = `
                 <div class="tracks_label_html">
                     <div class="tracks_label_html_item">定位方式: ${this.positionType[info.positionType]}</div>
+                    <div class="tracks_label_html_item">速度: ${info.speed != null ? info.speed : '0'}km/h</div>
                     <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(info.time)}</div>
                     <div class="tracks_label_html_item_flex">
                         <div>定位位置: </div>
@@ -1372,6 +1380,7 @@ export default {
                     </div>
                 </div>
             `
+            _this.speed_value = info.speed;
             var infoBox = new BMapLib.InfoBox(_this.map,infoWindow_html,{'closeIconMargin': "10px 10px 0 0",'closeIconUrl': require('../../assets/img/cancel_icon.png'),'offset':new BMap.Size(34,20)});
             infoBox.open(point);
             _this.infoBox = infoBox;
@@ -1510,6 +1519,7 @@ export default {
                 var infoWindow_html = `
                     <div class="tracks_label_html">
                         <div class="tracks_label_html_item">定位方式: ${this.positionType[row.positionType]}</div>
+                        <div class="tracks_label_html_item">速度: ${row.speed != null ? row.speed : '0'}km/h</div>
                         <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(row.time)}</div>
                         <div class="tracks_label_html_item_flex">
                             <div>定位位置: </div>
@@ -1517,6 +1527,7 @@ export default {
                         </div>
                     </div>
                 `;
+                this.speed_value = row.speed;
                 this.infoBox.setContent(infoWindow_html);
                 this.infoBox.setPosition(point);
 
