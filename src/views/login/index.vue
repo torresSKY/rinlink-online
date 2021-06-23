@@ -3,7 +3,7 @@
     <!-- <h3 class="title" style="letter-spacing:3px">{{$t('navbar.title')}}</h3> -->
     <div class="dlbg" :style="dlbg">
       <img src='@/assets/img/0.png' class="logo">
-      <div class="logo-title"><span>云途在线管理平台</span></div>
+      <!-- <div class="logo-title"><span>云途在线管理平台</span></div> -->
     </div>
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <!-- <div class="login-img">
@@ -24,7 +24,7 @@
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
       <div style="text-align:center;">
-      <el-button type="primary" style="width:200px;background: #289DFF;
+      <el-button type="primary" style="width:10vw;background: #3F91FF;
 border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
 font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
       </div>
@@ -261,27 +261,27 @@ export default {
       border-radius: 5px;
       background: #FFFFFF;
       position: absolute;
-      top: 58vh;
+      top: 59vh;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 415px;
-      height: 25vh;
-      padding: 30px 35px 15px 35px;
+      width: 20vw;
+      height: 24vh;
+      padding: 1% 2.5%;
       // margin: 40px 0 0 55.6%;
     }
     .dlbg{
-      width: 520px;
+      width: 27vw;
       height: 22vh;
       position: absolute;
-      top: 34vh;
+      top: 36vh;
       left: 50%;
       transform: translate(-50%, -50%);
     }
     .logo{
-      width: 83px;
-      height: 83px;
+      width: 159px;
+      height: 119px;
       position: absolute;
-      top: 8vh;
+      top: 10vh;
       left: 50%;
       transform: translate(-50%, -50%);
     }
@@ -349,4 +349,13 @@ position: absolute;
       color: #fff!important;
     }
   }
+</style>
+<style type="stylesheet/scss" lang="scss" scoped>
+/deep/ .el-form-item {
+  margin-bottom: 2.2vh!important;
+}
+/deep/ .el-input {
+  height: 40px!important;
+  width: 72%!important;
+}
 </style>

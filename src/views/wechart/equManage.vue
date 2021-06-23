@@ -12,7 +12,7 @@
                     </el-tabs>
                     <el-row style="margin:0 0 10px 0" :gutter="22" v-if="activeName=='second'">
                       <el-col :span='12'>
-                        <el-select v-model="timeType2" placeholder="请选择" @change="getlist(1)">
+                        <el-select v-model="timeType2" placeholder="请选择" @change="changetimeType2">
                           <el-option
                             v-for="item in expOptions"
                             :key="item.value"
@@ -22,7 +22,7 @@
                         </el-select>
                       </el-col>
                       <el-col :span='12'>
-                        <el-select v-model="timeRange" placeholder="请选择" @change="getlist(1)">
+                        <el-select v-model="timeRange" placeholder="请选择" @change="getlist(1)" :disabled="timeRange=='全部'">
                           <el-option
                             v-for="item in rangeOptions"
                             :key="item.value"
@@ -372,13 +372,14 @@
                   v-model="hisTime"
                   type="datetimerange"
                   range-separator="-"
+                  value-format="timestamp"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
                   :default-time="['00:00:00', '23:59:59']">
                 </el-date-picker>
               </el-col>
               <el-col :span='5'>
-                <el-button class="butresh" @click="queryDeviceCmds">{{$t('button.search')}}</el-button>
+                <el-button class="butresh" @click="queryDeviceCmds(1)">{{$t('button.search')}}</el-button>
                 <el-button  @click="refreshHistory">{{$t('button.refresh')}}</el-button>
               </el-col>
             </el-row>
@@ -540,7 +541,9 @@ export default{
         ],
         useStatus:'',
         usestatusOptions:[
-          { value: '1', label: '未激活'},{ value: '2', label: '已激活'},{ value: '3', label: '已过期'},{ value: '4', label: '已激活未上线'}
+          { value: '1', label: '未激活'},{ value: '2', label: '已激活'},
+          // { value: '3', label: '已过期'},
+          { value: '4', label: '已激活未上线'}
         ],
         containsChildren:true,
         timeType:null,
@@ -781,7 +784,7 @@ export default{
           this.current1=index
           this.equinfoForm.useRangeCode = item[0]
         },
-        refresh(){
+        refresh(){ // 刷新
           this.time = null 
           this.deviceIdList=null
           this.deviceModelId=null
@@ -794,10 +797,19 @@ export default{
           this.current = -1
           this.getlist()
         },
+        changetimeType2(val){
+          if(val==5){
+            this.timeRange = '全部'
+          }else{
+            this.timeRange = 1
+          }
+          this.getlist(1)
+        },
         getlist(type){ // 获取设备型号列表
           this.loading = true
           var startTime = null 
           var endTime = null
+          var temp = null
           if(this.time&&this.activeName=='first'){
             startTime = this.time[0]
             endTime = this.time[1]
@@ -805,24 +817,34 @@ export default{
             if(this.timeRange==1&&this.timeType2==4){
               startTime = new Date().getTime() 
               endTime = new Date().getTime() + 7*60*60*24*1000
+              this.useStatus = null
+              this.timeType = '3'
             }else if(this.timeRange==2&&this.timeType2==4){
               startTime = new Date().getTime() 
               endTime = new Date().getTime() + 30*60*60*24*1000
+              this.useStatus = null
+              this.timeType = '3'
             }else if(this.timeRange==3&&this.timeType2==4){
               startTime = new Date().getTime() 
               endTime = new Date().getTime() + 60*60*60*24*1000
-            }else if(this.timeRange==1&&this.timeType2==5){
-              startTime = new Date().getTime() - 7*60*60*24*1000 
-              endTime = new Date().getTime() 
-            }else if(this.timeRange==2&&this.timeType2==5){
-              startTime = new Date().getTime() - 30*60*60*24*1000 
-              endTime = new Date().getTime() 
-            }else if(this.timeRange==3&&this.timeType2==5){
-              startTime = new Date().getTime() - 60*60*60*24*1000 
-              endTime = new Date().getTime() 
+              this.useStatus = null
+              this.timeType = '3'
+            }else if(this.timeRange = '全部'){
+              temp = '3'
+              this.timeType = null
             }
+            // else if(this.timeRange==1&&this.timeType2==5){
+            //   startTime = new Date().getTime() - 7*60*60*24*1000 
+            //   endTime = new Date().getTime() 
+            // }else if(this.timeRange==2&&this.timeType2==5){
+            //   startTime = new Date().getTime() - 30*60*60*24*1000 
+            //   endTime = new Date().getTime() 
+            // }else if(this.timeRange==3&&this.timeType2==5){
+            //   startTime = new Date().getTime() - 60*60*60*24*1000 
+            //   endTime = new Date().getTime() 
+            // }
             
-            this.timeType = '3'
+            
           }else{
             startTime = null
             endTime = null
@@ -851,6 +873,9 @@ export default{
           if(type==1){
             this.page.index = 1
             data.page = 0
+          }
+          if(temp){
+            data.useStatus = 3
           }
           api.getDevicesList(data,this.type).then(res => {
             this.loading = false
@@ -1426,7 +1451,7 @@ export default{
               this.$message.error(err.errMsg)
             })
         },
-        queryDeviceCmds(){ // 历史指令分页查询
+        queryDeviceCmds(type){ // 历史指令分页查询
             let data = {
               commandName:this.commandName,
               deviceId:this.deviceId,
@@ -1434,6 +1459,10 @@ export default{
               endTime:this.hisTime != null ? this.hisTime[1] : null,
               page:this.page1.index-1,
               pageSize:this.page1.size
+            }
+            if(type==1){
+              this.page1.index = 1
+              data.page = 0
             }
             api.queryDeviceCmds(data,this.type).then(res => {
               this.historysendList = res.data.content
