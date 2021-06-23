@@ -481,52 +481,52 @@ export default {
     getEchartsData_four:function(){
       var _this = this;
       // getUsing_device()
-      api.getOnlineDvice({},_this.userType_parameter).then((res) => {
-        if(res.success){
-          _this.Using_deviceCount = res.data.devices;
-          api.getUnexpired_device({},_this.userType_parameter).then((_res) => {
-            if(_res.success){
-              _this.Unexpired_deviceCount = _res.data.devices;
-              api.getExpired_device({},_this.userType_parameter).then((res_) => {
-                if(res_.success){
-                  _this.Expired_deviceCount = res_.data.devices;
-                  _this.$nextTick(function(){
-                    var chartDom_4 = document.getElementById("myChart4");
-                    _this.echarts_4 = echarts.init(chartDom_4);
-                    let option_str = JSON.stringify(_this.option);
-                    let option = JSON.parse(option_str);
-                    let  data =   [
-                      { value: 0, name: "正在使用" },
-                      { value: 0, name: "已过期" },
-                      { value: 0, name: "未过期" },
-                    ];
-                    data[0].value = _this.Using_deviceCount;
-                    data[1].value = _this.Expired_deviceCount;
-                    data[2].value = _this.Unexpired_deviceCount;
-                    option.series[0]['data'] = data;
-                    option.color = ["#13C3C3", "#FACD13", "#C4C6D1"];
-                    function formatter(name){
-                      for (var i = 0; i < option.series[0].data.length; i++) {
-                        if (option.series[0].data[i].name == name) {
-                          return name +": "+ option.series[0].data[i].value;
-                        }
-                      }
+      // api.getOnlineDvice({},_this.userType_parameter).then((res) => {
+      //   if(res.success){
+      //     _this.Using_deviceCount = res.data.devices;
+          
+      //   }
+      // }).catch((err) => {
+      //   _this.$message.error(err.errMsg)
+      // })
+      api.getUnexpired_device({},_this.userType_parameter).then((_res) => {
+        if(_res.success){
+          _this.Unexpired_deviceCount = _res.data.devices;
+          api.getExpired_device({},_this.userType_parameter).then((res_) => {
+            if(res_.success){
+              _this.Expired_deviceCount = res_.data.devices;
+              _this.$nextTick(function(){
+                var chartDom_4 = document.getElementById("myChart4");
+                _this.echarts_4 = echarts.init(chartDom_4);
+                let option_str = JSON.stringify(_this.option);
+                let option = JSON.parse(option_str);
+                let  data =   [
+                  { value: 0, name: "已过期" },
+                  { value: 0, name: "未过期" },
+                ];
+                // data[0].value = _this.Using_deviceCount;
+                data[0].value = _this.Expired_deviceCount;
+                data[1].value = _this.Unexpired_deviceCount;
+                option.series[0]['data'] = data;
+                option.color = ["#FACD13", "#C4C6D1"];
+                function formatter(name){
+                  for (var i = 0; i < option.series[0].data.length; i++) {
+                    if (option.series[0].data[i].name == name) {
+                      return name +": "+ option.series[0].data[i].value;
                     }
-                    option.legend.formatter = formatter;
-                    _this.echarts_4.setOption(option);
-                    _this.loading_four = false;
-                  })
+                  }
                 }
-              }).catch((err_) => {
-                _this.$message.error(err_.errMsg)
+                option.legend.formatter = formatter;
+                _this.echarts_4.setOption(option);
+                _this.loading_four = false;
               })
             }
-          }).catch((_err) => {
-            _this.$message.error(_err.errMsg)
+          }).catch((err_) => {
+            _this.$message.error(err_.errMsg)
           })
         }
-      }).catch((err) => {
-        _this.$message.error(err.errMsg)
+      }).catch((_err) => {
+        _this.$message.error(_err.errMsg)
       })
     },
     // 刷新
