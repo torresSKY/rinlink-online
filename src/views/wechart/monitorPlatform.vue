@@ -152,19 +152,19 @@
                                     </el-col>
                                 </el-row>
                             </el-col>
-                            <el-col :span="7">
+                            <el-col :span="8">
                                 <div class="speed_content">
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
                                     <span class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
-                                    <span class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
+                                    <span style="width:100px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
                                 </div>
                             </el-col>
-                            <el-col :span="7" :offset="5">
+                            <el-col :span="7" :offset="4">
                                 <el-button @click="evt_query_tracks" type="primary" size="mini">确定</el-button>
                                 <el-button @click="evt_show_tracksDetail" type="primary" size="mini">轨迹明细</el-button>
-                                <el-button type="primary" size="mini">导出轨迹</el-button>
+                                <el-button @click="evt_export" type="primary" size="mini">导出轨迹</el-button>
                             </el-col>
                         </el-row>
                     </div>
@@ -1229,7 +1229,7 @@ export default {
             this.speed_value = 0;
         },
         // 获取设备轨迹
-        evt_queryDeviceTracks:function(startTime,endTime,deviceId){
+        evt_queryDeviceTracks:function(startTime,endTime,deviceId,type){
             var _this = this;
             var request_data = {};
             request_data['startTime'] = startTime;
@@ -1240,11 +1240,13 @@ export default {
             api.queryDeviceTracks(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
-                    clearInterval(_this.device_tracks_interval);
-                    _this.device_tracks_step = 0;
-                    _this.device_tracks = [];
-                    _this.device_tracks_shift = [];
-                    _this.map.clearOverlays();
+                    if(type != 'tracksDetail'){
+                        clearInterval(_this.device_tracks_interval);
+                        _this.device_tracks_step = 0;
+                        _this.device_tracks = [];
+                        _this.device_tracks_shift = [];
+                        _this.map.clearOverlays();
+                    }
                     // 若无轨迹信息 提示 return
                     if(res.data && res.data.length == 0) {
                         _this.total_distance = 0;
@@ -1267,13 +1269,14 @@ export default {
                         }
                     }
                     // 获取轨迹明细时拿到数据
-                    if(_this.tracksDetail_flag){
+                    var tracksDetail_list = [];
+                    for(let i = 0, len = point_arr.length; i < len; i++){//防止浅拷贝
+                        tracksDetail_list.push(point_arr[i]);
+                    }
+                    _this.tracksDetail_list = tracksDetail_list;
+                    if(type == 'tracksDetail'){
                         _this.current_tracksDetail_page = 1;
-                        var tracksDetail_list = [];
-                        for(let i = 0, len = point_arr.length; i < len; i++){
-                            tracksDetail_list.push(point_arr[i]);
-                        }
-                        _this.tracksDetail_list = tracksDetail_list;
+                        return;
                     }
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
@@ -1545,7 +1548,7 @@ export default {
             }
             if(this.tracksDetail_flag) return;
             this.tracksDetail_flag = true;
-            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId,'tracksDetail');
         },
         evt_close_tracksDetail:function(){
             this.tracksDetail_flag = false;
@@ -1664,6 +1667,37 @@ export default {
                 }
             })
         },
+        // 导出轨迹明细
+        evt_export:function(){
+            var _this = this;
+            if(_this.select_date_time == null){
+                _this.$message({message: '请选择导出轨迹区间时间', type:'warning',offset:'400',duration:'2000'})
+                return;
+            }
+            if((_this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
+                _this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
+                return;
+            }
+            var request_data = {};
+            request_data['startTime'] = _this.select_date_time[0];
+            request_data['endTime'] = _this.select_date_time[1];
+            request_data['coordinateSystem'] = 'BD09';
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            request_data['positionType'] = _this.position_type;
+            api.downloadDeviceTracks(request_data,_this.userType_parameter).then((res) => {
+                // console.log(res);
+                var blob = new Blob([res],{type: "application/vnd.ms-excel"});
+                var url  = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = url;
+                link.download = '轨迹明细.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(url); 
+                document.body.removeChild(link);
+            })
+        }
     },
     filters:{
         formatDate(val) {
