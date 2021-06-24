@@ -11,12 +11,12 @@
       </div>  -->
       <!-- <h4 class="sub-title">{{$t('view.userLogin')}}</h4> -->
       
-      <el-form-item prop="username" :rules="[{required: true, min: 3,  message: $t('message.loginuser')}]">
+      <el-form-item prop="username" :rules="[{required: true, min: 3,  message: $t('message.loginuser')}]" style="margin:20px 30px 0 30px">
        <span class="pl10 c iconfont icon-denglu"></span>
         <el-input name="username" type="text" ref="username" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
       </el-form-item>
 
-      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]" style="margin-bottom:3vh">
+      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]" style="margin:0 30px 0 30px">
        <span class="pl10 c iconfont icon-mima"></span>
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
           :placeholder="$t('view.paw')" />
@@ -258,15 +258,15 @@ export default {
       font-weight: bold;
     }
     .login-form {
-      border-radius: 5px;
+      border-radius:0 0 5px 5px;
       background: #FFFFFF;
       position: absolute;
       top: 59vh;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 20vw;
-      height: 24vh;
-      padding: 1% 2.5%;
+      width: 26vw;
+      height: 27vh;
+      // padding: 1% 2.5%;
       // margin: 40px 0 0 55.6%;
     }
     .dlbg{
@@ -309,7 +309,7 @@ position: absolute;
       transform: translate(-50%, -50%);
     }
     .el-form-item {
-      border-bottom: 1px solid #0097F6;
+      border-bottom: 1px solid #EBF3FA;
       background: #FFFFFF;
       border-radius: 5px;
       color: #333333;
@@ -352,10 +352,10 @@ position: absolute;
 </style>
 <style type="stylesheet/scss" lang="scss" scoped>
 /deep/ .el-form-item {
-  margin-bottom: 2.2vh!important;
+  margin-bottom: 1.2vh!important;
 }
 /deep/ .el-input {
-  height: 40px!important;
-  width: 72%!important;
+  // height: 40px!important;
+  width: 80%!important;
 }
 </style>
