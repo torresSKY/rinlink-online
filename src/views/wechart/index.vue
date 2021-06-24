@@ -3,14 +3,6 @@
     <el-row :gutter="20" class="item_row_L">
       <el-col :span="8" class="top_left">
         <el-card>
-          <!-- <el-row>
-            <el-col class="top_left_title top_left_title_t" :span="12">{{
-              $t("view.mine")
-            }}</el-col>
-            <el-col class="top_left_title" :span="12">{{
-              $t("view.service")
-            }}</el-col>
-          </el-row> -->
           <div class="myChart_top ">
             <div @click="evt_change_userInfoType('my')" class="top_left_title" :class="user_info_type == 'my' ? 'top_left_title_t' : ''">{{$t("view.mine")}}</div>
             <div v-if="user_type == '2' && user_falg" @click="evt_change_userInfoType('service')" class="top_left_title" :class="user_info_type == 'service' ? 'top_left_title_t' : ''">{{$t("view.service")}}</div>
@@ -61,47 +53,6 @@
           </el-row>
         </el-card>
       </el-col>
-      <!-- <el-col :span="18" class="top_right">
-        <el-card class="top_right_top">
-          <div class="top_right_top_title">
-            <div>{{ $t("view.customerInfo") }}</div>
-            <img src="../../assets/img/refresh.png" alt="" />
-          </div>
-          <el-row>
-            <el-col :span="10">
-              <el-input
-                :placeholder="$t('view.searchUser')"
-                v-model="search"
-                class="input-with-select"
-              >
-                <el-button slot="append" icon="el-icon-search"></el-button>
-              </el-input>
-              <div class="top_div_tree">
-                <el-tree
-                  :data="data"
-                  :props="defaultProps"
-                  @node-click="handleNodeClick"
-                ></el-tree>
-              </div>
-            </el-col>
-            <el-col :span="14">
-              <div class="info_content">
-                <div>本部测试</div>
-                <div>
-                  <div class="info_content_item">
-                    <div>库存：100</div>
-                    <div>总数：1000</div>
-                  </div>
-                  <div class="info_content_item">
-                    <div>联系人：李墨</div>
-                    <div>联系电话：13552181899</div>
-                  </div>
-                </div>
-              </div>
-            </el-col>
-          </el-row>
-        </el-card>
-      </el-col> -->
     </el-row>
     <el-row :gutter="20" class="item_row_item">
       <el-col :span="8">
@@ -204,21 +155,6 @@ export default {
     return {
       height: 1000,
       search: "",
-      data: [
-        {
-          label: "一级 1",
-          children: [
-            {
-              label: "二级 1-1",
-              children: [
-                {
-                  label: "三级 1-1-1",
-                },
-              ],
-            },
-          ],
-        },
-      ],
       defaultProps: {
         children: "children",
         label: "label",
