@@ -914,7 +914,7 @@ export default {
             var request_data = {};
             request_data['deviceId'] = _this.need_handle_deviceId;
             api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.device_detail_info = res.data;
                     if(_this.$route.query.deviceId){
@@ -924,7 +924,7 @@ export default {
                     }
                     _this.device_name = res.data.deviceName;
                     _this.remark_text = res.data.remark;
-                    _this.range_code = res.data.useRangeCode;
+                    _this.range_code = res.data.useRangeCode != null ? res.data.useRangeCode :'Other';
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
