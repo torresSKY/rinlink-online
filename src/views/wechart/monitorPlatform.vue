@@ -1229,7 +1229,7 @@ export default {
             this.speed_value = 0;
         },
         // 获取设备轨迹
-        evt_queryDeviceTracks:function(startTime,endTime,deviceId){
+        evt_queryDeviceTracks:function(startTime,endTime,deviceId,type){
             var _this = this;
             var request_data = {};
             request_data['startTime'] = startTime;
@@ -1240,11 +1240,13 @@ export default {
             api.queryDeviceTracks(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success){
-                    clearInterval(_this.device_tracks_interval);
-                    _this.device_tracks_step = 0;
-                    _this.device_tracks = [];
-                    _this.device_tracks_shift = [];
-                    _this.map.clearOverlays();
+                    if(type != 'tracksDetail'){
+                        clearInterval(_this.device_tracks_interval);
+                        _this.device_tracks_step = 0;
+                        _this.device_tracks = [];
+                        _this.device_tracks_shift = [];
+                        _this.map.clearOverlays();
+                    }
                     // 若无轨迹信息 提示 return
                     if(res.data && res.data.length == 0) {
                         _this.total_distance = 0;
@@ -1267,13 +1269,14 @@ export default {
                         }
                     }
                     // 获取轨迹明细时拿到数据
-                    if(_this.tracksDetail_flag){
+                    var tracksDetail_list = [];
+                    for(let i = 0, len = point_arr.length; i < len; i++){//防止浅拷贝
+                        tracksDetail_list.push(point_arr[i]);
+                    }
+                    _this.tracksDetail_list = tracksDetail_list;
+                    if(type == 'tracksDetail'){
                         _this.current_tracksDetail_page = 1;
-                        var tracksDetail_list = [];
-                        for(let i = 0, len = point_arr.length; i < len; i++){
-                            tracksDetail_list.push(point_arr[i]);
-                        }
-                        _this.tracksDetail_list = tracksDetail_list;
+                        return;
                     }
                     _this.device_tracks = point_arr;
                     _this.device_tracks_max = _this.device_tracks.length;
@@ -1545,7 +1548,7 @@ export default {
             }
             if(this.tracksDetail_flag) return;
             this.tracksDetail_flag = true;
-            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+            this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId,'tracksDetail');
         },
         evt_close_tracksDetail:function(){
             this.tracksDetail_flag = false;
