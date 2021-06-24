@@ -585,7 +585,7 @@ export default{
           {label: this.$t('table.usestatus'), prop: 'useStatus',
             type: 'render',
               formatter: (params) => {
-                params['useStatus'] = params.activationTime == null ? '未激活'  
+                params['useStatus'] = (params.activationTime == null || (params.activationTime - new Date().getTime()>0)) ? '未激活'  
                 : ((params.serviceExpireTime -new Date().getTime())<0 && params.serviceExpireTime != -1)? '已过期'
                 : (params.activationTime && params.lastReportDataTime == null) ? '已激活未上线' 
                 : '已激活'

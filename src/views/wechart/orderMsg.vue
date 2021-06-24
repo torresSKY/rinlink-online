@@ -155,7 +155,8 @@ export default{
         getlist(){ // 获取指令模板列表
             this.loading = true
             let data = {
-              deviceModelId:this.deviceModelId
+              deviceModelId:this.deviceModelId,
+              templateName:this.deviceModelName
             }
             api.getCmdTemplates(data).then(res => {
               this.loading = false
