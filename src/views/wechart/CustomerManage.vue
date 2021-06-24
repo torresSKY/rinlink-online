@@ -544,7 +544,12 @@ export default {
         this.tempParentId = data.userId
         this.page.index = 1
         this.getlist(2,data.userId)
-        this.getBusinessUserinfo(data.userId)
+        if(data.username == 'admin'){
+          this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
+        }else{
+          this.getBusinessUserinfo(data.userId)
+        }
+        
     },
     changeindexNew(){
       if(this.tempParentId){
