@@ -164,7 +164,7 @@
                             <el-col :span="7" :offset="5">
                                 <el-button @click="evt_query_tracks" type="primary" size="mini">确定</el-button>
                                 <el-button @click="evt_show_tracksDetail" type="primary" size="mini">轨迹明细</el-button>
-                                <el-button type="primary" size="mini">导出轨迹</el-button>
+                                <el-button @click="evt_export" type="primary" size="mini">导出轨迹</el-button>
                             </el-col>
                         </el-row>
                     </div>
@@ -1664,6 +1664,37 @@ export default {
                 }
             })
         },
+        // 导出轨迹明细
+        evt_export:function(){
+            var _this = this;
+            if(_this.select_date_time == null){
+                _this.$message({message: '请选择导出轨迹区间时间', type:'warning',offset:'400',duration:'2000'})
+                return;
+            }
+            if((_this.select_date_time[1] - this.select_date_time[0]) > (60 * 24 * 60 * 60 * 1000) ){
+                _this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
+                return;
+            }
+            var request_data = {};
+            request_data['startTime'] = _this.select_date_time[0];
+            request_data['endTime'] = _this.select_date_time[1];
+            request_data['coordinateSystem'] = 'BD09';
+            request_data['deviceId'] = _this.need_handle_deviceId;
+            request_data['positionType'] = _this.position_type;
+            api.downloadDeviceTracks(request_data,_this.userType_parameter).then((res) => {
+                // console.log(res);
+                var blob = new Blob([res],{type: "application/vnd.ms-excel"});
+                var url  = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = url;
+                link.download = '轨迹明细.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(url); 
+                document.body.removeChild(link);
+            })
+        }
     },
     filters:{
         formatDate(val) {

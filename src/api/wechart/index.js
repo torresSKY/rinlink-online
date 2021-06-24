@@ -322,6 +322,9 @@ const getCurrentUserInfo = (data) => (
 const queryFenceDevices = (data,type) => (
     axios.post(url + '/query_fence_devices?__OPERATOR_TYPE=' + type,data)
 )
+const downloadDeviceTracks = (data,type) => (//导出轨迹
+    axios.post(url + '/download_device_tracks?__OPERATOR_TYPE=' + type,data,{responseType: 'arraybuffer'})
+)
 export default {
     login,
     getManagerList,
@@ -412,5 +415,6 @@ export default {
     sendCommand,
     queryBusinessUserInfo,
     getCurrentUserInfo,
-    queryFenceDevices
+    queryFenceDevices,
+    downloadDeviceTracks
 }
