@@ -152,16 +152,16 @@
                                     </el-col>
                                 </el-row>
                             </el-col>
-                            <el-col :span="7">
+                            <el-col :span="8">
                                 <div class="speed_content">
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
                                     <span class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
-                                    <span class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
+                                    <span style="width:100px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
                                 </div>
                             </el-col>
-                            <el-col :span="7" :offset="5">
+                            <el-col :span="7" :offset="4">
                                 <el-button @click="evt_query_tracks" type="primary" size="mini">确定</el-button>
                                 <el-button @click="evt_show_tracksDetail" type="primary" size="mini">轨迹明细</el-button>
                                 <el-button @click="evt_export" type="primary" size="mini">导出轨迹</el-button>
