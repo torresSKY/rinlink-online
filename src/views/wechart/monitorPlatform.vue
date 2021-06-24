@@ -50,7 +50,7 @@
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
-                                                <div class="devices_item_top_right_top_right" :class="item.networkStatus != '1' ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime)}}</div>
+                                                <div class="devices_item_top_right_top_right" :class="(item.networkStatus != '1' || item.stationarySeconds != null) ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime,item.stationarySeconds)}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom" v-if="item.battery != null">
                                                 <!-- 电池辅助元素 -->
@@ -244,7 +244,7 @@
                             <span>{{device_detail_info.deviceNumber}}</span>
                         </el-form-item>
                         <el-form-item label="网络状态:">
-                            <span>{{device_detail_info.networkStatus == '1' ? '在线' : '离线'}}</span>
+                            <span>{{device_detail_info.networkStatus == '1' ? device_detail_info.stationarySeconds != null ? '静止' : '在线' : '离线'}}</span>
                         </el-form-item>
                         <el-form-item label="销售时间:">
                             <span v-if="device_detail_info.sellTime">{{device_detail_info.sellTime|formatDate}}</span>
@@ -914,7 +914,7 @@ export default {
             var request_data = {};
             request_data['deviceId'] = _this.need_handle_deviceId;
             api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     _this.device_detail_info = res.data;
                     if(_this.$route.query.deviceId){
@@ -924,7 +924,7 @@ export default {
                     }
                     _this.device_name = res.data.deviceName;
                     _this.remark_text = res.data.remark;
-                    _this.range_code = res.data.useRangeCode;
+                    _this.range_code = res.data.useRangeCode != null ? res.data.useRangeCode :'Other';
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
@@ -1094,7 +1094,7 @@ export default {
                     <span>设备号：${info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>网络状态：${info.networkStatus == '1' ? '在线' : '离线'}</span>
+                    <span>网络状态：${info.networkStatus == '1' ? info.stationarySeconds != null ? '静止' : '在线' : '离线'}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
@@ -1715,14 +1715,21 @@ export default {
             }
             return (hour > 0 ? hour + '小时':'') + (minute > 0 ? minute + '分钟':'') + (second > 0 ? second + '秒':'');
         },
-        formatStatus(lastReportDataTime,networkStatus,activationTime,serviceExpireTime){
+        formatStatus(lastReportDataTime,networkStatus,activationTime,serviceExpireTime,stationarySeconds){
             var currentTime = new Date().getTime();
             if(!activationTime || activationTime == null || activationTime > currentTime){
                 return '未激活';
             }else if(activationTime && lastReportDataTime == null && serviceExpireTime > currentTime){
                 return '已激活未上线';
             }else if(activationTime && (lastReportDataTime != null || lastReportDataTime)  && networkStatus == '1' && serviceExpireTime != null && serviceExpireTime > currentTime){
-                return '在线';
+                if(stationarySeconds == null){
+                    return '在线';
+                }else{
+                    var d = Math.floor(stationarySeconds / (24 * 60 * 60));
+                    var h = Math.floor(stationarySeconds / (60 * 60));
+                    var m = Math.floor(stationarySeconds / (60));
+                    return '静止>' + (d > 0 ? d + '天': h > 0 ? h + '小时' : m + '分钟');
+                }
             }else if(activationTime && (lastReportDataTime != null || lastReportDataTime)  && networkStatus == '2' && serviceExpireTime != null && serviceExpireTime > currentTime){
                 var diffTime = currentTime - lastReportDataTime;
                 var d = Math.floor(diffTime / (24 * 60 * 60 * 1000));
