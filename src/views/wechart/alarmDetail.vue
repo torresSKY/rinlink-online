@@ -50,7 +50,7 @@
                       </el-col>
                       <el-col :span='14' >
                         <el-autocomplete v-model="input3" placeholder="请选择"  
-                        :fetch-suggestions="querySearchAsync" @select="handleSelect"></el-autocomplete>
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable></el-autocomplete>
                       </el-col>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
@@ -296,6 +296,7 @@ export default {
     },
     querySearchAsync(queryString, cb) {
       console.log(queryString, cb)
+      this.deviceId = null
       let data = null
       if(this.selStatus==1){
         data = {

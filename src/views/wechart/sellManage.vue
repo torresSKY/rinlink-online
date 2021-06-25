@@ -188,6 +188,10 @@
                     :placeholder="$t('table.date')">
                   </el-date-picker>
               </el-form-item>
+              <el-form-item :label="$t('table.useLimit')" >
+                <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
+                @click="addClass(index,item)" ><img :src="index==current?item[1].iconUrlActive:item[1].iconUrlInactive" alt="" >&nbsp;&nbsp;</span>
+              </el-form-item>
           </el-form>      
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogShipment = false">{{$t('button.cancel')}}</el-button>
@@ -345,7 +349,10 @@ export default{
         fileList:[],
         uploadDeviceNumber:'',
         flag:false,
-        type:null
+        type:null,
+        range:[],
+        current:-1,
+        useRangeCode:'Other'
       }
     },
     mounted(){
@@ -432,7 +439,27 @@ export default{
               this.$message.error(err.msg)
             })
         },
+        getRange(){ // 获取使用范围
+          api.getRangeinfo(this.type).then(res => {
+            let data = res.data
+            this.range = Object.entries(data)
+            this.$nextTick(() => {
+              this.current = this.range.length-1
+              this.useRangeCode = 'Other'
+            })
+            console.log(this.range)
+          }).catch(err => {
+            this.range = []
+            this.$message.error(err.msg)
+          })
+        },
+        addClass(index,item){
+          // console.log(item)
+          this.current = index
+          this.useRangeCode = item[0]
+        },
         sell(data){  // 出货/批量出货
+            this.getRange()
             if(data=='one'){
                 this.isMore = false
                 this.shipmentForm = {
@@ -450,6 +477,7 @@ export default{
                 this.isMore = true
                 this.fileList = []
             }
+            
             if(this.$refs['shipmentForm']){
               this.$refs['shipmentForm'].resetFields()
             }
@@ -476,7 +504,8 @@ export default{
                   activationType:this.shipmentForm.activationType,
                   activationTime:this.shipmentForm.activationTime,
                   batchNumber:this.shipmentForm.batchNumber,
-                  productionDate:this.shipmentForm.productionDate
+                  productionDate:this.shipmentForm.productionDate,
+                  useRangeCode:this.useRangeCode
                 }
                 api.shipment(data,this.type).then(res => {
                   // debugger
@@ -504,7 +533,8 @@ export default{
                   activationType:this.shipmentForm.activationType,
                   activationTime:this.shipmentForm.activationTime,
                   batchNumber:this.shipmentForm.batchNumber,
-                  productionDate:this.shipmentForm.productionDate
+                  productionDate:this.shipmentForm.productionDate,
+                  useRangeCode:this.useRangeCode
                 }
                 api.batchShipment(data,this.type).then(res => {
                   // debugger
@@ -595,5 +625,8 @@ export default{
 }
 .list-search{
   padding: 10px 0 0 15px;
+}
+.fangwei{
+  cursor: pointer;
 }
 </style>

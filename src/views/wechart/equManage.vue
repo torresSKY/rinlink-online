@@ -168,13 +168,31 @@
                 <span>{{$t('view.selEqu')}}：</span>
                 <span>{{equNum}}</span>
               </el-row>
-              <el-row style="margin:10px 0">
-                <el-input :placeholder="$t('view.inputimei')" v-model="searchImei" class="input-with-select" clearable>
+              <el-row style="margin:10px 0;border:1px solid #CCCCCC">
+                <!-- <el-input :placeholder="$t('view.inputimei')" v-model="searchImei" class="input-with-select" clearable>
                     <el-button slot="append" icon="el-icon-circle-plus-outline" @click="searchEqu"></el-button>
-                </el-input>
+                </el-input> -->
+                <el-row style="margin:10px 10px 0 10px">
+                  <el-input
+                    type="textarea"
+                    :autosize="{ minRows: 1, maxRows: 4}"
+                    placeholder="请输入设备IMEI号（多个回车换行）"
+                    v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+                  </el-input>
+                </el-row>
+                <el-row style="line-height:40px">
+                  <el-col :offset='1' :span='18'>
+                    <span>IMEI计数：{{tempNum}}</span>
+                  </el-col>
+                  <el-col :span='4'>
+                    <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
+                  </el-col>
+                </el-row>
               </el-row>
               <el-row>
-                <BaseTable  :dataList="saleList" :tableLabel="tableSale"   ></BaseTable>
+                <el-scrollbar style="height:60vh;" ref="scrollbar">
+                  <BaseTable  :dataList="saleList" :tableLabel="tableSale"   ></BaseTable>
+                </el-scrollbar>
               </el-row>
             </el-col>
             <el-col :span='10'>
@@ -529,7 +547,8 @@ export default{
         value:null,
         options: [],
         checked:false,
-        searchImei:'',
+        searchImei:null,
+        tempNum:0,
         searchName:'',
         deviceIdList:null,
         deviceModelId:null,
@@ -732,10 +751,19 @@ export default{
         current1:-1,
         timer:null,
         outUserId:'',
-        inUserId:''
+        inUserId:'',
+        // tempNum:0
       }
     },
     watch: {
+      // tempNum(val, oldVal){//普通的watch监听
+      //    console.log(val, oldVal);
+      //    if(val){
+      //      setTimeout(() => {
+      //         this.$set(this.temp,'num',val.length)
+      //       },100)
+      //    }
+      // },
       tableHeight (val) {
         // console.log(val)
         // 为了避免频繁触发resize函数导致页面卡顿，使用定时器
@@ -1032,7 +1060,7 @@ export default{
             return treeData;
         },
         evt_loadTree(node, resolve){ //查询客户下级
-          console.log(node)
+          // console.log(node)
           var _this = this
             if(node.level === 0){
                 return resolve(_this.data);
@@ -1066,7 +1094,7 @@ export default{
             }  
         },
         evt_loadTreeTwo(node, resolve){ //查询客户下级
-          console.log(node)
+          // console.log(node)
           var _this = this
             if(node.level === 0){
                 return resolve(_this.insiadeData);
@@ -1232,7 +1260,7 @@ export default{
             username:''
           }
           let list =[]
-          this.searchImei = ''
+          this.searchImei = null
           this.searchName = ''
           this.expiredTimeType = null
           this.checked = false
@@ -1242,6 +1270,7 @@ export default{
           this.saleTotal = 0
           this.saleSuc = 0
           this.saleFal = 0
+          this.tempNum = 0
           this.dialogSale = true
         },
         restInfo(){ // 重置
@@ -1258,42 +1287,99 @@ export default{
           this.saleList = list.concat(this.multipleSelection) 
           this.equNum = this.multipleSelection.length
         },
+        inputChange(){
+          this.searchImei=this.searchImei.replace(/[^\d|^\n\r]/g,'')
+        },
+        changeIMEI(val){
+          // console.log(val,typeof val)
+          if(val.trim()){
+            let temp = null
+            temp= val.split("\n")
+            temp = temp.filter(str => !!str)
+            setTimeout(() => {
+              this.tempNum = temp.length
+            },100)
+          }else{
+            // this.$set(this.temp,'num',0)
+            this.tempNum = 0
+          }
+        },
         searchEqu(){ //销售-搜索设备
           if(!this.searchImei){
             return this.$message.warning(this.$t('table.searchimei'))
           }
-          let data = {
-            containsChildren: true,
-            deviceNumberKeyword : this.searchImei
+          let temp = null
+          temp= this.searchImei.split("\n")
+          temp = temp.filter(str => !!str)
+          let data = null
+          if(temp.length == 0){
+            return this.$message.warning(this.$t('table.searchimei'))
+          }else if(temp.length == 1){
+            data = {
+              containsChildren: true,
+              deviceNumberKeyword : this.searchImei.replace("\n", "")
+            }
+          }else{
+            data = {
+              containsChildren: true,
+              deviceNumberList : temp,
+              pageSize : temp.length
+            }
           }
+          // console.log(temp)
+           
           api.getDevicesList(data,this.type).then(res => {
             if(res.success){
               if(res.data.content.length<=0){
                 return this.$message.warning(this.$t('table.temporarily'))
               }
-              let item = res.data.content[0]
-              if(item.deviceModel){
-                item['model'] = item.deviceModel.name
-              }else{
-                item['model'] = ''
-              }
-              if(item.owner){
-                item['username'] = item.owner.username
-              }else{
-                item['username'] = ''
-              }
-              var num = 0
-              
-              for(let i = 0;i < this.saleList.length;i++){
-                if(this.saleList[i].id == item.id){
-                  num = 0
-                }else {
-                  num++
+              let item = res.data.content
+              for(let i = 0;i<item.length;i++){
+                if(item[i].deviceModel){
+                  item[i]['model'] = item[i].deviceModel.name
+                }else{
+                  item[i]['model'] = ''
+                }
+                if(item[i].owner){
+                  item[i]['username'] = item[i].owner.username
+                }else{
+                  item[i]['username'] = ''
                 }
               }
-              if(num == this.saleList.length){
-                this.saleList.push(item)
+              for(let a=0;a<this.saleList.length;a++){
+                for(let b = 0;b<item.length;b++){
+                  if(this.saleList[a].id == item[b].id){
+                    item.splice(b, 1)
+                    b--
+                  }
+                }
               }
+              if(item.length>0){
+                this.saleList = this.saleList.concat(item)
+              }
+              // let item = res.data.content[0]
+              // if(item.deviceModel){
+              //   item['model'] = item.deviceModel.name
+              // }else{
+              //   item['model'] = ''
+              // }
+              // if(item.owner){
+              //   item['username'] = item.owner.username
+              // }else{
+              //   item['username'] = ''
+              // }
+              // var num = 0
+              
+              // for(let i = 0;i < this.saleList.length;i++){
+              //   if(this.saleList[i].id == item.id){
+              //     num = 0
+              //   }else {
+              //     num++
+              //   }
+              // }
+              // if(num == this.saleList.length){
+              //   this.saleList.push(item)
+              // }
               this.equNum = this.saleList.length
               // console.log(this.saleList)
             }else{
