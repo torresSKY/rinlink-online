@@ -42,7 +42,7 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_middle_middle">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称" v-model="searchDevice_name">
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称或IMEI" v-model="searchDevice_word">
                             <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                     </div>
@@ -352,7 +352,7 @@ export default {
             user_id:'',//用户查询用户设备列表的用户id
             devices_list:[],//当前用户的设备列表
             searchBusiness_name:'',//搜索用户关键字
-            searchDevice_name:'',//搜索设备的关键字
+            searchDevice_word:'',//搜索设备的关键字
             selected_devices:[],//选中的设备
             device_info_visible:false,//设备具体信息的展示框
             device_command_visible:false,//设备指令弹框展示
@@ -745,18 +745,17 @@ export default {
         // 搜索设备
         evt_searchDevice:function(){
             var _this = this;
-            // if(_this.searchDevice_name.trim() == '') return;
             _this.change_type = 'all';
             var request_data = {};
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
-            request_data['deviceNameKeyword'] = _this.searchDevice_name;
+            request_data['deviceNumberKeyword'] = _this.searchDevice_word;
             // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
             if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
                 request_data['ownerId'] = _this.user_id;
             }
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     // 把设备返回的gdj02坐标转换成bd09
                     for(var key in res.data.content){
