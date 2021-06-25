@@ -54,7 +54,7 @@
                 </el-row>
                 <el-row class="list-search" :gutter="22" >
                   <el-col :span='4'>
-                    <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
+                    <el-input v-model="deviceIdList" placeholder="请输入IMEI或设备名称" clearable></el-input>
                   </el-col>
                   <el-col :span='4'>
                     <el-select v-model="deviceModelId" :placeholder="$t('table.model')" clearable>
