@@ -10,12 +10,20 @@
                     </div>
                     <div class="row_item_bottom_left">
                         <div class="row_item_bottom_left_search" v-show="search_user_list.length > 0">
-                            <div v-for="(item,index) in search_user_list" :key="index" @click="evt_select_user(item)">{{item.nickname}}</div>
+                            <div class="text_line" v-for="(item,index) in search_user_list" :key="index" @click="evt_select_user(item)">
+                                <i class="el-icon-s-custom"></i>
+                                <span>{{item.nickname}}</span>
+                            </div>
                         </div>
-                        <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入客户名称" v-model="searchBusiness_name">
-                            <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
-                            
-                        </el-input>
+                        <div style="display:flex">
+                            <el-select v-model="searchBusiness_type" @change="evt_change_searchBusiness_type" placeholder="请选择" size="mini" style="width: 45%;">
+                                <el-option key="名称" label="名称" value="nickname"></el-option>
+                                <el-option key="账号" label="账号" value="username"></el-option>
+                            </el-select>
+                            <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入内容" v-model="searchBusiness_name">
+                                <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
+                            </el-input>
+                        </div>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
                             <el-tree v-if="!default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                             <el-tree v-if="default_expand_all_flag && user_list.length > 0" ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
@@ -49,7 +57,7 @@
                                         <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
-                                                <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
+                                                <div class="devices_item_top_right_top_left text_line" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
                                                 <div class="devices_item_top_right_top_right" :class="(item.networkStatus != '1' || item.stationarySeconds != null) ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime,item.stationarySeconds)}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom" v-if="item.battery != null">
@@ -422,6 +430,7 @@ export default {
             playbackPolyline: null,//轨迹回放的线型覆盖物
             infoBox:null,
             speed_value: 0,
+            searchBusiness_type: 'nickname',//客户搜索类型
         }
     },
     created(){
@@ -622,6 +631,10 @@ export default {
             this.evt_refresh_interval();
         },
         // 搜索查询用户
+        evt_change_searchBusiness_type:function(){
+            this.search_user_list = [];
+            this.searchBusiness_name = '';
+        },
         evt_searchBusiness:function(){
             var _this = this;
             if(_this.searchBusiness_name.trim() == '') return;
@@ -632,7 +645,7 @@ export default {
             }
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
-            request_data['searchType'] = 'nickname';
+            request_data['searchType'] = _this.searchBusiness_type;
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
@@ -1824,7 +1837,7 @@ export default {
         overflow-x: hidden;
     }
     .row_item_bottom_left_search{
-        width: 80%;
+        width: 65%;
         max-height: 200px;
         background: #ffffff;
         box-sizing: border-box;
@@ -1834,7 +1847,7 @@ export default {
         overflow-y: scroll;
         position: absolute;
         top: 38px;
-        left: 10px;
+        right: 10px;
         z-index: 9999;
     }
     .row_item_bottom_left_search>div:hover{
@@ -1993,9 +2006,6 @@ export default {
                             font-family: Microsoft YaHei;
                             font-weight: 400;
                             color: #333333;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
                         }
                         .devices_item_top_right_top_left_t{
                             color: #018C0E;
@@ -2006,6 +2016,7 @@ export default {
                             font-family: Microsoft YaHei;
                             font-weight: 400;
                             color: #018C0E;
+                            margin-left: 5px;
                         }
                         .devices_item_top_right_top_right_t{
                             color: #FF6565;
@@ -2684,6 +2695,13 @@ export default {
 .item_opacity{
   opacity:0.7;
   -webkit-filter:grayscale(100%);
+}
+.text_line{
+    word-break:break-all;
+    display:-webkit-box;
+    -webkit-line-clamp:1;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
 }
 </style>
 <style>
