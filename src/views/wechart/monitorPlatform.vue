@@ -1071,12 +1071,13 @@ export default {
             marker.addEventListener('click',function(e){
                 // console.log(e);
                 for(let i = 0, len = _this.devices_list.length; i < len; i++){
-                    if(e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
+                    // console.log('-----');
+                    if(_this.devices_list[i].positionInfo && e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
                         _this.map.closeInfoWindow();
                         var current_point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                         _this.evt_addInfoWindow(current_point,_this.devices_list[i]);
+                        break;
                     }
-                    break;
                 }
             })
             marker.name = 'marker_device';
@@ -1140,10 +1141,7 @@ export default {
         // 删除指定的覆盖物
         evt_deleteOverlay:function(lng,lat){
             var allOverlays = this.map.getOverlays();
-            // console.log(allOverlays);
             for(var key in allOverlays){
-                // console.log(allOverlays[key].point);
-                // console.log(allOverlays[key].name);
                 if(allOverlays[key].point && allOverlays[key].point.lng == lng && allOverlays[key].point.lat == lat){
                     this.map.removeOverlay(allOverlays[key])
                 }
@@ -1171,7 +1169,7 @@ export default {
                         var lng = allOverlays[key].point.lng,
                             lat = allOverlays[key].point.lat;
                         for(var item in this.devices_list){
-                            if(this.devices_list[item].positionInfo.coordinate.lng == lng && this.devices_list[item].positionInfo.coordinate.lat == lat){
+                            if(this.devices_list[item].positionInfo != null && this.devices_list[item].positionInfo.coordinate != null && this.devices_list[item].positionInfo.coordinate.lng == lng && this.devices_list[item].positionInfo.coordinate.lat == lat){
                                 var current_point = new BMap.Point(lng,lat);
                                 this.evt_addLabel(current_point,this.devices_list[item]);
                             }
