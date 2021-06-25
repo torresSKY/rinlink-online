@@ -10,12 +10,20 @@
                     </div>
                     <div class="row_item_bottom_left">
                         <div class="row_item_bottom_left_search" v-show="search_user_list.length > 0">
-                            <div v-for="(item,index) in search_user_list" :key="index" @click="evt_select_user(item)">{{item.nickname}}</div>
+                            <div class="text_line" v-for="(item,index) in search_user_list" :key="index" @click="evt_select_user(item)">
+                                <i class="el-icon-s-custom"></i>
+                                <span>{{item.nickname}}</span>
+                            </div>
                         </div>
-                        <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入客户名称" v-model="searchBusiness_name">
-                            <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
-                            
-                        </el-input>
+                        <div style="display:flex">
+                            <el-select v-model="searchBusiness_type" @change="evt_change_searchBusiness_type" placeholder="请选择" size="mini" style="width: 45%;">
+                                <el-option key="名称" label="名称" value="nickname"></el-option>
+                                <el-option key="账号" label="账号" value="username"></el-option>
+                            </el-select>
+                            <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入内容" v-model="searchBusiness_name">
+                                <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
+                            </el-input>
+                        </div>
                         <el-scrollbar style="height:78vh;" ref="scrollbar">
                             <el-tree v-if="!default_expand_all_flag" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                             <el-tree v-if="default_expand_all_flag && user_list.length > 0" ref="userTree" @node-click="evt_node_click" node-key="user_id" default-expand-all  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
@@ -34,7 +42,7 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_middle_middle">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称" v-model="searchDevice_name">
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称或IMEI" v-model="searchDevice_word">
                             <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                     </div>
@@ -49,7 +57,7 @@
                                         <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
-                                                <div class="devices_item_top_right_top_left" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
+                                                <div class="devices_item_top_right_top_left text_line" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
                                                 <div class="devices_item_top_right_top_right" :class="(item.networkStatus != '1' || item.stationarySeconds != null) ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime,item.stationarySeconds)}}</div>
                                             </div>
                                             <div class="devices_item_top_right_bottom" v-if="item.battery != null">
@@ -344,7 +352,7 @@ export default {
             user_id:'',//用户查询用户设备列表的用户id
             devices_list:[],//当前用户的设备列表
             searchBusiness_name:'',//搜索用户关键字
-            searchDevice_name:'',//搜索设备的关键字
+            searchDevice_word:'',//搜索设备的关键字
             selected_devices:[],//选中的设备
             device_info_visible:false,//设备具体信息的展示框
             device_command_visible:false,//设备指令弹框展示
@@ -422,6 +430,7 @@ export default {
             playbackPolyline: null,//轨迹回放的线型覆盖物
             infoBox:null,
             speed_value: 0,
+            searchBusiness_type: 'nickname',//客户搜索类型
         }
     },
     created(){
@@ -622,6 +631,10 @@ export default {
             this.evt_refresh_interval();
         },
         // 搜索查询用户
+        evt_change_searchBusiness_type:function(){
+            this.search_user_list = [];
+            this.searchBusiness_name = '';
+        },
         evt_searchBusiness:function(){
             var _this = this;
             if(_this.searchBusiness_name.trim() == '') return;
@@ -632,7 +645,7 @@ export default {
             }
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
-            request_data['searchType'] = 'nickname';
+            request_data['searchType'] = _this.searchBusiness_type;
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.data && res.data.length > 0 && res.success){
@@ -732,18 +745,17 @@ export default {
         // 搜索设备
         evt_searchDevice:function(){
             var _this = this;
-            // if(_this.searchDevice_name.trim() == '') return;
             _this.change_type = 'all';
             var request_data = {};
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
-            request_data['deviceNameKeyword'] = _this.searchDevice_name;
+            request_data['deviceNumberKeyword'] = _this.searchDevice_word;
             // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
             if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
                 request_data['ownerId'] = _this.user_id;
             }
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
                     // 把设备返回的gdj02坐标转换成bd09
                     for(var key in res.data.content){
@@ -1059,12 +1071,13 @@ export default {
             marker.addEventListener('click',function(e){
                 // console.log(e);
                 for(let i = 0, len = _this.devices_list.length; i < len; i++){
-                    if(e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
+                    // console.log('-----');
+                    if(_this.devices_list[i].positionInfo && e.currentTarget.point.lng ==  _this.devices_list[i].positionInfo.coordinate.lng  && e.currentTarget.point.lat == _this.devices_list[i].positionInfo.coordinate.lat){
                         _this.map.closeInfoWindow();
                         var current_point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                         _this.evt_addInfoWindow(current_point,_this.devices_list[i]);
+                        break;
                     }
-                    break;
                 }
             })
             marker.name = 'marker_device';
@@ -1128,10 +1141,7 @@ export default {
         // 删除指定的覆盖物
         evt_deleteOverlay:function(lng,lat){
             var allOverlays = this.map.getOverlays();
-            // console.log(allOverlays);
             for(var key in allOverlays){
-                // console.log(allOverlays[key].point);
-                // console.log(allOverlays[key].name);
                 if(allOverlays[key].point && allOverlays[key].point.lng == lng && allOverlays[key].point.lat == lat){
                     this.map.removeOverlay(allOverlays[key])
                 }
@@ -1159,7 +1169,7 @@ export default {
                         var lng = allOverlays[key].point.lng,
                             lat = allOverlays[key].point.lat;
                         for(var item in this.devices_list){
-                            if(this.devices_list[item].positionInfo.coordinate.lng == lng && this.devices_list[item].positionInfo.coordinate.lat == lat){
+                            if(this.devices_list[item].positionInfo != null && this.devices_list[item].positionInfo.coordinate != null && this.devices_list[item].positionInfo.coordinate.lng == lng && this.devices_list[item].positionInfo.coordinate.lat == lat){
                                 var current_point = new BMap.Point(lng,lat);
                                 this.evt_addLabel(current_point,this.devices_list[item]);
                             }
@@ -1824,7 +1834,7 @@ export default {
         overflow-x: hidden;
     }
     .row_item_bottom_left_search{
-        width: 80%;
+        width: 65%;
         max-height: 200px;
         background: #ffffff;
         box-sizing: border-box;
@@ -1834,7 +1844,7 @@ export default {
         overflow-y: scroll;
         position: absolute;
         top: 38px;
-        left: 10px;
+        right: 10px;
         z-index: 9999;
     }
     .row_item_bottom_left_search>div:hover{
@@ -1993,9 +2003,6 @@ export default {
                             font-family: Microsoft YaHei;
                             font-weight: 400;
                             color: #333333;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
                         }
                         .devices_item_top_right_top_left_t{
                             color: #018C0E;
@@ -2006,6 +2013,7 @@ export default {
                             font-family: Microsoft YaHei;
                             font-weight: 400;
                             color: #018C0E;
+                            margin-left: 5px;
                         }
                         .devices_item_top_right_top_right_t{
                             color: #FF6565;
@@ -2684,6 +2692,13 @@ export default {
 .item_opacity{
   opacity:0.7;
   -webkit-filter:grayscale(100%);
+}
+.text_line{
+    word-break:break-all;
+    display:-webkit-box;
+    -webkit-line-clamp:1;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
 }
 </style>
 <style>
