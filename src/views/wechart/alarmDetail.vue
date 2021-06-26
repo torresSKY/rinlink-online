@@ -213,10 +213,12 @@ export default {
     this.type = JSON.parse(sessionStorage['user']).userType
     if(this.$route.params.data){
         this.deviceId = this.$route.params.data.id
+        this.getlist()
     }else{
         this.deviceId = null
     }
-    this.getlist()
+
+    
     if(this.type!=3){
       this.getBusiness()
     }
@@ -244,7 +246,7 @@ export default {
           // })
           setTimeout(() => {
             this.getlist(1)
-          },500)
+          },100)
         }
         
       },

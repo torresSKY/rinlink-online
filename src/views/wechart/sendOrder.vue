@@ -40,11 +40,14 @@
             <span v-if="num">({{num}})</span>
         </el-row>
         <el-row style="margin:20px 0;" >
-            <el-col :span='7'  style="border:1px solid grey;text-align:center;line-height:40px;margin-right:10px" v-for="item in list" :key="item.id">
+            <!-- <el-col :span='7'  style="border:1px solid grey;text-align:center;line-height:40px;margin-right:10px" v-for="item in list" :key="item.id">
                 <span>{{item.deviceName}}</span>
                 <span>({{item.deviceNumber}})</span>
                 <div style="cursor:pointer;display:inline;font-size:18px"><i class="el-icon-close"></i></div>
-            </el-col>
+            </el-col> -->
+            <el-scrollbar style="height:30vh;" ref="scrollbar">
+              <BaseTable  :dataList="list" :tableLabel="tableLabel"   ></BaseTable>
+            </el-scrollbar>
         </el-row>
         <!-- <div slot="footer" class="dialog-footer" style="text-align:center">
            <el-button type="primary" @click="confrim">{{$t('button.send')}}</el-button>
@@ -54,7 +57,7 @@
 <script>
     import api from '@/api/wechart/index'
     import VueForm from '@lljj/vue-json-schema-form'
-    import axios from 'axios'
+    import BaseTable from '@/components/table'
     export default{
         name:'sendOrder',
         props:{
@@ -62,7 +65,7 @@
                 type:Array
             }
         },
-        components:{ VueForm },
+        components:{ VueForm , BaseTable },
         data(){
             return {
                 height: 1000,
@@ -75,11 +78,23 @@
                     
                 },
                 schema: null,
-                type:null
+                type:null,
+                tableLabel:[
+                  {label: this.$t('table.imei'), prop: 'deviceNumber'},
+                  {label: this.$t('table.Device'), prop: 'deviceName'},
+                  {label: this.$t('table.model'), prop: 'model'},
+                  {label: this.$t('table.customers'), prop: 'username'},
+                  {label: this.$t('button.dele'),
+                    type:'clickEvent',
+                    tableClick: (val) => {
+                    this.showDialog('a', val)
+                  }
+                 }
+                ],
             }
         },
         mounted(){
-            this.type = JSON.parse(sessionStorage['user']).userType
+           this.type = JSON.parse(sessionStorage['user']).userType
            var that = this
            window.onresize = function () {
               that.height = 80 + 'vh'
@@ -131,6 +146,19 @@
               }).catch(err => {
                 console.log(err)
               })
+            },
+            showDialog(index, data){ // 操作
+                switch (index) {
+                    case 'a': //销售-删除设备
+                    // debugger
+                    for(let i = 0;i<this.list.length;i++){
+                      if(this.list[i].id==data.id){
+                        this.list.splice(i,1)
+                        i--
+                      }
+                    }
+                    break
+                }
             },
             confrim(){ // 确认下发
                 console.log(this.formData)

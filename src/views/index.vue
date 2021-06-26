@@ -49,7 +49,7 @@
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <i class="el-icon-message-solid fr" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i>  -->
-            <el-badge is-dot style="color:#fff;margin:21px 5px 0 0;font-size:20px;cursor: pointer;" class="fr">
+            <el-badge is-dot style="color:#fff;margin:21px 5px 0 0;font-size:20px;cursor: pointer;" class="fr" v-if='userType!=1'>
               <i class="el-icon-message-solid"  @click="jump('/notice')"></i>
             </el-badge>
           </el-col>
@@ -146,12 +146,14 @@ export default {
         backgroundSize:"100% 100%",
         overflow: "hidden",
       },
+      userType:null
     };
   },
   mounted() {
     console.log(this.$i18n.locale)
     this.lang = this.$i18n.locale == 'zh' ? 1 : 2
     this.height=document.body.offsetHeight-72
+    this.userType = JSON.parse(sessionStorage['user']).userType
     if(!this.viewTagList.length){
       this.pushRouter({ name: this.$t('route.Home'), path: '/index/index',meta:{keep:'homepage' }})
     }
