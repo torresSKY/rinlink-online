@@ -883,18 +883,45 @@ export default {
                         this.$set(this.devices_list[i],'checked',true);
                         this.need_handle_deviceId = this.devices_list[i].id;
                         this.current_select_deviceId = this.devices_list[i].id;
-                        if(this.devices_list[i].positionInfo && this.devices_list[i].positionInfo.coordinate && this.devices_list[i].positionInfo.coordinate.lng){
-                            // 删除如果已存在的覆盖层 重新添加
-                            for(var key in allOverlays){
-                                if(allOverlays[key].point && allOverlays[key].point.lng == this.devices_list[i].positionInfo.coordinate.lng && allOverlays[key].point.lat == this.devices_list[i].positionInfo.coordinate.lat){
-                                    this.map.removeOverlay(allOverlays[key]); 
+
+                        var request_data = {};
+                        request_data['deviceId'] = deviceId;
+                        api.getDeviceDetail(request_data,this.userType_parameter).then((res) => {
+                            // console.log(res);
+                            if(res.success && res.data && Object.keys(res.data).length > 0){
+                                var point_t = gcj02tobd09(res.data.positionInfo.coordinate.lng,res.data.positionInfo.coordinate.lat);
+                                res.data.positionInfo.coordinate.lng = point_t[0];
+                                res.data.positionInfo.coordinate.lat = point_t[1];
+                                for(var key in allOverlays){
+                                    if(allOverlays[key].point && allOverlays[key].point.lng == res.data.positionInfo.coordinate.lng && allOverlays[key].point.lat == res.data.positionInfo.coordinate.lat){
+                                        this.map.removeOverlay(allOverlays[key]); 
+                                    }
                                 }
+                                this.evt_addOverlay(res.data);
+                                var point = new BMap.Point(point_t[0],point_t[1]);
+                                this.$set(this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
+                                this.$set(this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                this.evt_getLocation(point);
+                                this.current_device_name = res.data.deviceName;
                             }
-                            this.evt_addOverlay(this.devices_list[i]);
-                            var point = new BMap.Point(this.devices_list[i].positionInfo.coordinate.lng,this.devices_list[i].positionInfo.coordinate.lat);
-                            this.evt_getLocation(point);
-                        }
-                        this.current_device_name = this.devices_list[i].deviceName;
+                        }).catch((err) => {
+                            // console.log(err)
+                            this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
+                        })
+
+
+                        // if(this.devices_list[i].positionInfo && this.devices_list[i].positionInfo.coordinate && this.devices_list[i].positionInfo.coordinate.lng){
+                        //     // 删除如果已存在的覆盖层 重新添加
+                        //     for(var key in allOverlays){
+                        //         if(allOverlays[key].point && allOverlays[key].point.lng == this.devices_list[i].positionInfo.coordinate.lng && allOverlays[key].point.lat == this.devices_list[i].positionInfo.coordinate.lat){
+                        //             this.map.removeOverlay(allOverlays[key]); 
+                        //         }
+                        //     }
+                        //     this.evt_addOverlay(this.devices_list[i]);
+                        //     var point = new BMap.Point(this.devices_list[i].positionInfo.coordinate.lng,this.devices_list[i].positionInfo.coordinate.lat);
+                        //     this.evt_getLocation(point);
+                        // }
+                        // this.current_device_name = this.devices_list[i].deviceName;
                     }
                     break;
                 }
