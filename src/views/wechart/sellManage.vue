@@ -43,11 +43,15 @@
                   <el-col :span='3'>
                      <el-input v-model="batchNumber" :placeholder="$t('table.batch')"></el-input>
                   </el-col>
-                  <el-col :span='6'>
+                  <el-col :span='7'>
                     <el-button class="butresh" @click="getlist">{{$t('button.search')}}</el-button>
-                    <el-button class="butdele" @click="sell('one')">{{$t('button.sell')}}</el-button>
-                    <el-button class="butdele" @click="sell('more')">{{$t('button.sellMore')}}</el-button>
+                    <el-button class="butadd" @click="sell('one')">{{$t('button.sell')}}</el-button>
+                    <el-button class="butadd" @click="sell('more')">{{$t('button.sellMore')}}</el-button>
                     <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
+                    
+                  </el-col>
+                  <el-col :span='1'>
+                    <el-button class="butedior" @click="plDelete">批量删除</el-button>
                   </el-col>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
@@ -90,7 +94,7 @@
                 </el-row>
                 <el-row :gutter="22" class="list-search" style="margin-bottom:10px">
                   <el-scrollbar style="height:64vh;" ref="scrollbar">
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  ></BaseTable>
+                    <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  ></BaseTable>
                   </el-scrollbar>
                 </el-row>
                 <el-pagination
@@ -188,10 +192,30 @@
                     :placeholder="$t('table.date')">
                   </el-date-picker>
               </el-form-item>
+              <el-form-item :label="$t('table.useLimit')" >
+                <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
+                @click="addClass(index,item)" ><img :src="index==current?item[1].iconUrlActive:item[1].iconUrlInactive" alt="" >&nbsp;&nbsp;</span>
+              </el-form-item>
           </el-form>      
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogShipment = false">{{$t('button.cancel')}}</el-button>
             <el-button type="primary" @click="confrimShipment">{{$t('button.determine')}}</el-button>
+          </span>
+        </el-dialog>
+        <!-- 删除设备列表 -->
+        <el-dialog
+          :title="'已选删除设备（'+delList.length+'）台'"
+          :visible.sync="dialogDel"
+          width="30%"
+          >
+          <el-row>
+            <el-scrollbar style="height:30vh;" ref="scrollbar">
+              <BaseTable  :dataList="delList" :tableLabel="tableDelLabel"   ></BaseTable>
+            </el-scrollbar>
+          </el-row>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogDel = false">取 消</el-button>
+            <el-button type="primary" @click="confrimDel">确 定</el-button>
           </span>
         </el-dialog>
     </div>
@@ -259,6 +283,7 @@ export default{
         loading:false,
         dataList:[],
         tableLabel: [
+          {label: '', type: 'selection'},
           {label: this.$t('table.index'), type: 'index'},
           {label: this.$t('table.Device'), prop: 'deviceName'},
           {label: this.$t('table.model'), prop: 'model',type: 'render',
@@ -304,6 +329,11 @@ export default{
           // {label: this.$t('table.serviceLife'), prop: 'usageYears'},
           {label: this.$t('table.deliveryTime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.expire2'), prop: 'serviceExpireTime', type: 'Timestamp'},
+          {label: this.$t('button.dele'),
+            type:'clickEvent',
+            tableClick: (val) => {
+            this.showDialog('1', val)
+          }}
           // {label: this.$t('table.usestatus'), prop: 'status'},
         ],
         dialogShipment:false,
@@ -345,7 +375,20 @@ export default{
         fileList:[],
         uploadDeviceNumber:'',
         flag:false,
-        type:null
+        type:null,
+        range:[],
+        current:-1,
+        useRangeCode:'Other',
+        multipleSelection:[],
+        dialogDel:false,
+        delList:[],
+        tableDelLabel:[
+          {label: this.$t('table.index'), type: 'index'},
+          {label: this.$t('table.imei'), prop: 'deviceNumber'},
+          {label: this.$t('table.Device'), prop: 'deviceName'},
+          {label: this.$t('table.model'), prop: 'model'},
+        ],
+        delFlag:false
       }
     },
     mounted(){
@@ -410,6 +453,10 @@ export default{
               this.$message.error(err.msg)
             })
         },
+        childByValue(val){ //选择处理数据
+          // console.log(val)
+          this.multipleSelection = val
+        },
         getModel(){ // 获取设备型号
           api.getModelList({params: {
               pageSize: 100,
@@ -432,7 +479,27 @@ export default{
               this.$message.error(err.msg)
             })
         },
+        getRange(){ // 获取使用范围
+          api.getRangeinfo(this.type).then(res => {
+            let data = res.data
+            this.range = Object.entries(data)
+            this.$nextTick(() => {
+              this.current = this.range.length-1
+              this.useRangeCode = 'Other'
+            })
+            console.log(this.range)
+          }).catch(err => {
+            this.range = []
+            this.$message.error(err.msg)
+          })
+        },
+        addClass(index,item){
+          // console.log(item)
+          this.current = index
+          this.useRangeCode = item[0]
+        },
         sell(data){  // 出货/批量出货
+            this.getRange()
             if(data=='one'){
                 this.isMore = false
                 this.shipmentForm = {
@@ -450,6 +517,7 @@ export default{
                 this.isMore = true
                 this.fileList = []
             }
+            
             if(this.$refs['shipmentForm']){
               this.$refs['shipmentForm'].resetFields()
             }
@@ -476,7 +544,8 @@ export default{
                   activationType:this.shipmentForm.activationType,
                   activationTime:this.shipmentForm.activationTime,
                   batchNumber:this.shipmentForm.batchNumber,
-                  productionDate:this.shipmentForm.productionDate
+                  productionDate:this.shipmentForm.productionDate,
+                  useRangeCode:this.useRangeCode
                 }
                 api.shipment(data,this.type).then(res => {
                   // debugger
@@ -504,7 +573,8 @@ export default{
                   activationType:this.shipmentForm.activationType,
                   activationTime:this.shipmentForm.activationTime,
                   batchNumber:this.shipmentForm.batchNumber,
-                  productionDate:this.shipmentForm.productionDate
+                  productionDate:this.shipmentForm.productionDate,
+                  useRangeCode:this.useRangeCode
                 }
                 api.batchShipment(data,this.type).then(res => {
                   // debugger
@@ -565,6 +635,71 @@ export default{
             this.uploadDeviceNumber = ''
             this.$message.error(err.msg)
           })
+        },
+        plDelete(){
+          this.delList = []
+          if(this.multipleSelection<=0){
+            return this.$message.warning('请选择删除的设备')
+          }
+          this.delFlag = true
+          this.delList = this.multipleSelection
+          this.dialogDel = true
+        },
+        showDialog(index, data){ // 操作
+          switch (index) {
+            case '1': // 删除
+            this.delList = []
+            this.delFlag = false
+            this.dialogDel = true
+            this.delList.push(data)
+            break
+          } 
+        },
+        confrimDel(){
+          this.$confirm('请谨慎删除设备！若删除已销售的设备会导致用户投诉，且设备历史数据永久无法恢复！', this.$t('message.newtitle'), {
+              confirmButtonText: '确认删除',
+              cancelButtonText: this.$t('button.cancel'),
+              type: 'error'
+            }).then(() => {
+              if(!this.delFlag){
+                let id = {
+                  deviceNumber:this.delList[0].deviceNumber
+                }
+                api.deleteDevice(id,this.type).then(res => {
+                  if(res.success){
+                    this.dialogDel = false
+                    this.$message.success(this.$t('message.delesuc'))
+                    this.getlist()
+                  }else{
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.msg)
+                })
+              }else{
+                let list = []
+                for(let i = 0; i<this.multipleSelection.length; i++){
+                  list.push(this.multipleSelection[i].deviceNumber)
+                }
+                let data = {
+                  deviceNumbers:list
+                }
+                api.batchDeleteDevice(data,this.type).then(res => {
+                  if(res.success){
+                    this.dialogDel = false
+                    this.$message.success(this.$t('message.delesuc'))
+                    this.getlist()
+                  }else{
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.msg)
+                })
+              }
+              
+            }).catch(err => {
+              console.log(err)
+            })
         }
    },
   // 过滤器格式化时间戳
@@ -595,5 +730,11 @@ export default{
 }
 .list-search{
   padding: 10px 0 0 15px;
+}
+.fangwei{
+  cursor: pointer;
+}
+/deep/ .el-scrollbar__wrap {
+overflow-x: hidden;
 }
 </style>

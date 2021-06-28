@@ -50,7 +50,7 @@
                       </el-col>
                       <el-col :span='14' >
                         <el-autocomplete v-model="input3" placeholder="请选择"  
-                        :fetch-suggestions="querySearchAsync" @select="handleSelect"></el-autocomplete>
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable></el-autocomplete>
                       </el-col>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
@@ -213,10 +213,12 @@ export default {
     this.type = JSON.parse(sessionStorage['user']).userType
     if(this.$route.params.data){
         this.deviceId = this.$route.params.data.id
+        this.getlist()
     }else{
         this.deviceId = null
     }
-    this.getlist()
+
+    
     if(this.type!=3){
       this.getBusiness()
     }
@@ -244,7 +246,7 @@ export default {
           // })
           setTimeout(() => {
             this.getlist(1)
-          },500)
+          },100)
         }
         
       },
@@ -296,6 +298,7 @@ export default {
     },
     querySearchAsync(queryString, cb) {
       console.log(queryString, cb)
+      this.deviceId = null
       let data = null
       if(this.selStatus==1){
         data = {

@@ -128,6 +128,12 @@ const batchShipment = (data,type) => (   //批量出货
 const uploadDeviceNumber = (data,type) => (   //上传文件-设备号
     axios.post(url+'/upload_device_number?__OPERATOR_TYPE='+type, data)
 )
+const deleteDevice = (data,type) => (   //删除设备
+    axios.post(url+'/delete_device?__OPERATOR_TYPE='+type, data)
+)
+const batchDeleteDevice = (data,type) => (   //批量删除设备
+    axios.post(url+'/batch_delete_device?__OPERATOR_TYPE='+type, data)
+)
 const getBusinessList = (data,type) => (   //分页查询客户
     axios.post(url+'/paging_query_business_users?__OPERATOR_TYPE='+type, data)
 )
@@ -343,6 +349,8 @@ export default {
     batchShipment,
     getBusiness,
     uploadDeviceNumber,
+    deleteDevice,
+    batchDeleteDevice,
     getBusinessList,
     addBusiness,
     editBusiness,

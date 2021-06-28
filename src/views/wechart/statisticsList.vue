@@ -47,6 +47,11 @@
         methods:{
            handleClick(tab, event) {
               console.log(tab, event)
+              if(tab.label == '报警详情'){
+                  this.$refs.alarmDetail.dataList = []
+                  this.$refs.alarmDetail.getlist()
+                  
+              }
            },
            itemclick(data){
                console.log(data)
