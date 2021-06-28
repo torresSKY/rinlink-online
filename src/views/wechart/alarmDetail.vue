@@ -82,16 +82,16 @@
                       <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                     </el-col>
                 </el-row>
-                <el-row style="margin-top:10px">
+                <el-row style="margin:10px 0">
                     <el-col :span='4'>
                       <el-button size="mini" @click="allHandle">{{$t('button.allHandle')}}</el-button>
                       <el-button size="mini" @click="singleHandle">{{$t('table.chuli')}}</el-button>
                     </el-col> 
                 </el-row>    
-                <el-row style="margin-top:10px">
-                  <el-scrollbar style="height:66vh;" ref="scrollbar">
+                <el-row :style="{height:tableHeight - 220 + 'px',overflow:'auto', }">
+                  <!-- <el-scrollbar style="height:66vh;" ref="scrollbar"> -->
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh" ></BaseTable>
-                  </el-scrollbar>
+                  <!-- </el-scrollbar> -->
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -205,10 +205,17 @@ export default {
       selOptions:[
         { value: 1, label: '设备IMEI'}, 
         { value: 2, label: '设备名称'}
-      ]
+      ],
+      tableHeight:document.body.offsetHeight - 102
     }
   },
   mounted() {
+    var that =this
+    window.onresize = () => {
+      return (() => {
+        that.tableHeight = document.body.offsetHeight - 102
+      })()
+    }
     // debugger
     this.type = JSON.parse(sessionStorage['user']).userType
     if(this.$route.params.data){
@@ -233,6 +240,8 @@ export default {
         if(newValue){
           this.input3 = newValue.deviceNumber
           // debugger
+          this.deviceId = newValue.deviceId
+          this.time = newValue.time
           this.alarmTypeId = null
           for(let i = 0;i<this.alarmTypeList.length;i++){
             if(newValue.name == this.alarmTypeList[i][1].name){
@@ -240,7 +249,7 @@ export default {
             }
           }
           // this.alarmTypeId = newValue.statistic[0].alarmTypeCode
-          this.getdeviceId(this.input3)
+          // this.getdeviceId(this.input3)
           // this.$setTimeout(() => {
           //   this.getlist(1)
           // })
@@ -265,7 +274,8 @@ export default {
         deviceOwnerId:this.value,
         deviceIdList:this.deviceId==''?[]:this.deviceId!=null?[this.deviceId]:[],
         alarmTypeCodeList:this.alarmTypeId==''?[]:this.alarmTypeId!=null?[this.alarmTypeId]:[],
-        handleStatus:this.handleStatus
+        handleStatus:this.handleStatus,
+        containsChildren:true
       }
       // if(this.alarmTypeId){
       //   data.alarmTypeCodeList = [this.alarmTypeId]

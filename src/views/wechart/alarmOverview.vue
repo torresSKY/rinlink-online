@@ -2,7 +2,7 @@
     <div id="alarmOverview" >
         <el-row :gutter="22">
             <el-col :span='24'>
-                <el-row :gutter="22" style="margin-top:10px">
+                <el-row :gutter="22" style="margin:10px 0">
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="dateValue" @change="changeDate">
                           <el-option
@@ -64,10 +64,10 @@
                       <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
                     </el-col>
                 </el-row>
-                <el-row style="margin:10px 0">
-                  <el-scrollbar style="height:66vh;" ref="scrollbar">
+                <el-row  :style="{height:tableHeight - 210 + 'px',overflow:'auto', }">
+                  <!-- <el-scrollbar style="height:66vh;" ref="scrollbar"> -->
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
-                  </el-scrollbar>
+                  <!-- </el-scrollbar> -->
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -133,12 +133,18 @@ export default {
       selOptions:[
         { value: 1, label: '设备IMEI'}, 
         { value: 2, label: '设备名称'}
-      ]
+      ],
+      tableHeight:document.body.offsetHeight - 82
     }
   },
   mounted() {
+    var that =this
+    window.onresize = () => {
+      return (() => {
+        that.tableHeight = document.body.offsetHeight - 82
+      })()
+    }
     this.type = JSON.parse(sessionStorage['user']).userType
-    
     this.getlist()
     this.getAlarmType()
     if(this.type!=3){
@@ -379,6 +385,11 @@ export default {
       switch (index) {
         case 'a' : // 跳转指令信息
           data['name'] = name
+          if(this.time){
+            data['time'] = this.time
+          }else{
+            data['time'] = []
+          }
           this.$emit('itemclick',data)
           break
       }

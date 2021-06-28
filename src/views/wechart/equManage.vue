@@ -143,7 +143,7 @@
                 <el-row  style="margin-top:10px" >
                   <!-- :style="{height:tableHeight}" -->
                   <el-scrollbar :style="{height:tableHeight}" ref="scrollbar" >
-                    <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
+                    <BaseTable ref="tableBase" v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
                   </el-scrollbar>
                 </el-row>
                 <el-pagination
@@ -365,8 +365,9 @@
         <el-dialog
             :title="$t('button.send')"
             :visible.sync="dialogSend"
-            width="50%">
-            <send-order ref="sendOrder" :list = "multipleSelection" @confrimSend='confrimSend'/>
+            width="50%"
+            >
+            <send-order ref="sendOrder" :list="tempList" @confrimSend='confrimSend'/>
         </el-dialog>
         <!-- 历史指令 -->
         <el-dialog
@@ -510,7 +511,7 @@ export default{
           }
         },
         height:900,
-        tableHeight:document.body.offsetHeight-262 +"px",
+        tableHeight:document.body.offsetHeight-272 +"px",
         activeName: 'first',
         search:null,
         moreFlag:false,
@@ -679,6 +680,7 @@ export default{
           { value: '730', label: '二年'},{ value: '1095', label: '三年'},
         ],
         multipleSelection:[],
+        tempList:[],
         historysendList:[],
         tableHistorysend:[
           {label: this.$t('table.index'), type: 'index'},
@@ -723,7 +725,7 @@ export default{
           {label: this.$t('table.Device'), prop: 'deviceName'},
           {label: this.$t('table.model'), prop: 'model'},
           {label: this.$t('table.customers'), prop: 'username'},
-          {label: this.$t('button.dele'),
+          {label: this.$t('table.operation'),
             type:'clickEvent',
             tableClick: (val) => {
             this.showDialog('a', val)
@@ -771,7 +773,7 @@ export default{
           
           var str = val.substring(0,val.length-2)
           // 一旦监听到的screenWidth值改变，就将其重新赋给data里的screenWidth
-          this.tableHeight = (str - 60) + 'px'
+          this.tableHeight = (str - 80) + 'px'
           this.timer = true
           let that = this
           // that.height = document.body.clientHeight-242
@@ -789,7 +791,7 @@ export default{
         window.onresize = () => {
           return (() => {
               that.height = document.body.offsetHeight-142
-              that.tableHeight = document.body.offsetHeight-262 +"px"
+              that.tableHeight = document.body.offsetHeight-272 +"px"
           })()
         }
         this.getlist()
@@ -926,9 +928,9 @@ export default{
         moreSearch(){ // 更多搜索条件
           this.moreFlag = !this.moreFlag
           if(this.moreFlag){
-            this.tableHeight = document.body.offsetHeight-262 - 50 +"px"
+            this.tableHeight = document.body.offsetHeight-272 - 50 +"px"
           }else{
-            this.tableHeight = document.body.offsetHeight-262 +"px"
+            this.tableHeight = document.body.offsetHeight-272 +"px"
           }
         },
         searchCustomer(){ // 搜索客户或账号
@@ -1197,13 +1199,15 @@ export default{
               this.$router.push({path:'/electric/electric',query:{deviceName:data.deviceName,deviceId:data.id}})
               break
             case '4' : // 下发指令
-              this.multipleSelection = []
-              this.multipleSelection.push(data)
+              this.tempList = []
+              this.tempList.push(data)
               this.dialogSend = true
               this.$nextTick(() => {
                 this.$refs.sendOrder.formData = {}
                 this.$refs.sendOrder.schema = null
                 this.$refs.sendOrder.deviceCmdTemplateId = null
+                this.$refs.sendOrder.searchImei = null
+                this.$refs.sendOrder.tempNum = 0
                 this.$refs.sendOrder.getlist()
               })
               break  
@@ -1514,12 +1518,14 @@ export default{
               return this.$message.warning(this.$t('message.defeModel'))
             }
           }
-          
+          this.tempList = this.multipleSelection
           this.dialogSend = true
           this.$nextTick(() => {
             this.$refs.sendOrder.formData = {}
             this.$refs.sendOrder.schema = null
             this.$refs.sendOrder.deviceCmdTemplateId = null
+            this.$refs.sendOrder.searchImei = null
+            this.$refs.sendOrder.tempNum = 0
             this.$refs.sendOrder.getlist()
           })
         },

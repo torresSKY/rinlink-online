@@ -1,10 +1,10 @@
 <template>
-    <div  >
+    <div  id='sell'>
         <el-row class="cust-title">
             <span>{{$t('route.List')}}</span>
         </el-row>
-        <el-card  :style="{height:height + 'px'}" >
-            <el-col :span='24'>
+        <el-row  >
+            <!-- <el-col :span='24'> -->
                 <el-row class="list-search" :gutter="22">
                   <el-col :span='3'>
                     <el-input v-model="deviceNumber" :placeholder="$t('table.searchimeiiccid')" clearable></el-input>
@@ -92,10 +92,10 @@
                       </el-select>
                     </el-col>   -->
                 </el-row>
-                <el-row :gutter="22" class="list-search" style="margin-bottom:10px">
-                  <el-scrollbar style="height:64vh;" ref="scrollbar">
+                <el-row style="margin:10px" :style="{height:tableHeight - 200 + 'px',overflow:'auto', }">
+                  <!-- <el-scrollbar style="height:64vh;" ref="scrollbar"> -->
                     <BaseTable v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  ></BaseTable>
-                  </el-scrollbar>
+                  <!-- </el-scrollbar> -->
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -104,10 +104,10 @@
                     :page-size="page.size"
                     :total="page.total"
                     background
-                    style="text-align:center">
+                    style="text-align:center;margin-top:10px">
                 </el-pagination>
-            </el-col>
-        </el-card>
+            <!-- </el-col> -->
+        </el-row>
         <!-- 出货/批量出货 -->
         <el-dialog
           :title="isMore? $t('button.sellMore'): $t('button.sell')"
@@ -246,12 +246,12 @@ export default{
         }
       }
      return {
-         pickerOptions: {
-            disabledDate(time) {
-                return time.getTime() > Date.now();
-                }
-            },
-        height:900,
+        pickerOptions: {
+          disabledDate(time) {
+              return time.getTime() > Date.now();
+              }
+          },
+        height:document.body.offsetHeight-30,
         deviceNumber:null,
         deviceModelId:null,
         iccid:null,
@@ -329,7 +329,7 @@ export default{
           // {label: this.$t('table.serviceLife'), prop: 'usageYears'},
           {label: this.$t('table.deliveryTime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.expire2'), prop: 'serviceExpireTime', type: 'Timestamp'},
-          {label: this.$t('button.dele'),
+          {label: this.$t('table.operation'),
             type:'clickEvent',
             tableClick: (val) => {
             this.showDialog('1', val)
@@ -388,21 +388,24 @@ export default{
           {label: this.$t('table.Device'), prop: 'deviceName'},
           {label: this.$t('table.model'), prop: 'model'},
         ],
-        delFlag:false
+        delFlag:false,
+        tableHeight:document.body.offsetHeight - 102
       }
     },
     mounted(){
         // console.log(this.$store.getters.user)
         this.type = JSON.parse(sessionStorage['user']).userType
         var that = this
+        window.onresize = () => {
+             return (() => {
+                //  that.height = document.body.offsetHeight-30
+                 that.tableHeight = document.body.offsetHeight - 102
+             })()
+           }
         this.getlist()
         this.getModel()
         this.getBusiness()
-        window.onresize = () => {
-             return (() => {
-                 that.height = document.body.offsetHeight-142
-             })()
-           }
+        
     },
     methods:{
         getlist(){ // 获取出货列表
@@ -723,10 +726,6 @@ export default{
   border: 1px solid #dbe6fa;
   background: #EDF3FF;
   padding-left: 20px;
-}
-.cust-subtitle{
-    margin-top: 10px;
-    border: 1px solid #EDF3FF;
 }
 .list-search{
   padding: 10px 0 0 15px;

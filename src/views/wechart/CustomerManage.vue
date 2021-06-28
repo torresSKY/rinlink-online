@@ -29,7 +29,7 @@
                     {{$t('table.count')}}：<span>{{username}}</span>&nbsp;
                     {{$t('table.phone')}}：<span>{{phone}}</span>
                 </el-card>
-                <el-row :gutter="22" style="margin:10px 0 0 5px">
+                <el-row :gutter="22" style="margin:10px 0 10px 5px">
                     <el-col :span='4'>
                         <el-input v-model="input3" :placeholder="$t('view.inputtext')" clearable class="input-with-select">
                           <el-select v-model="selectType1" slot="prepend" >
@@ -46,10 +46,10 @@
                       <el-button class="butadd" @click="addCustomer">{{$t('button.addCustomer')}}</el-button>
                     </el-col>
                 </el-row>
-                <el-row style="margin-top:10px" >
-                  <el-scrollbar style="height:64vh;" ref="scrollbar">
+                <el-row :style="{height:height - 250 + 'px',overflow:'auto', }">
+                  <!-- <el-scrollbar style="height:64vh;" ref="scrollbar"> -->
                     <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
-                  </el-scrollbar>
+                  <!-- </el-scrollbar> -->
                 </el-row>
                 <el-pagination
                     @current-change='changeindexNew'
@@ -246,6 +246,7 @@ export default {
       type:null,
       outUserId:'',
       inUserId:'',
+      height:document.body.offsetHeight - 102,
       renderContent:function (h,{node,data,store}) {
             let addElement = arguments[0];
             return addElement('span',[
@@ -256,7 +257,29 @@ export default {
         },
     }
   },
+  watch: {
+    // height (val) {
+    //     console.log(val)
+    //     // 为了避免频繁触发resize函数导致页面卡顿，使用定时器
+    //     if (!this.timer) {
+          
+    //       this.height = document.body.offsetHeight - 102
+    //       this.timer = true
+    //       let that = this
+    //       setTimeout(function () {
+    //         // 打印screenWidth变化的值
+    //         that.timer = false
+    //       }, 400)
+    //     }
+    //   }
+  },
   mounted() {
+    var that =this
+    window.onresize = () => {
+      return (() => {
+        that.height = document.body.offsetHeight - 102
+      })()
+    }
     this.type = JSON.parse(sessionStorage['user']).userType
     this.getlist()
     this.getBusiness()

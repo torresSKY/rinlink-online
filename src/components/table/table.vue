@@ -10,9 +10,9 @@
         :data='dataList'
         :height="height">
             <template v-for='item in tableLabel'>
-                <el-table-column  v-if="item.type == 'clickEvent'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column  v-if="item.type == 'clickEvent'"  align='center' width="60px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scope">
-                        <el-button @click.native.prevent='item.tableClick(scope.row)' type="text">{{item.label}}</el-button>
+                        <el-button @click.native.prevent='item.tableClick(scope.row)' type="text" style="font-size:12px">删除</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickPush'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
@@ -26,7 +26,7 @@
                         <el-button v-else-if="scope.row.handleStatus==1" @click.native.prevent='item.selectOperation(2,scope.row)' type="text">查看处理</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column v-else-if="item.type == 'selection'" align='center' type="selection" width="50" :label="item.label"></el-table-column>
+                <el-table-column v-else-if="item.type == 'selection'" align='center' type="selection" width="50"  :key="item.index"></el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickSelect'"  align='center' width="80px"   :label='item.label' :prop='item.prop' :key="item.index">
                     <template class="scope" slot-scope="scope">
                         <el-dropdown @command="item.selectOperation($event,scope.row)">
@@ -50,8 +50,8 @@
                         </el-dropdown>
                     </template>
                 </el-table-column>
-                <el-table-column v-else-if="item.type == 'index'" align='center' type="index" width="50" :label="item.label"></el-table-column>
-                <el-table-column v-else-if="item.type == 'renderNew'" align='center' min-width="40px"  :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column v-else-if="item.type == 'index'" align='center' type="index" width="50" :label="item.label" :key="item.index"></el-table-column>
+                <el-table-column v-else-if="item.type == 'renderNew'" align='center'  min-width="40px"  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scop">
                         <!-- <span v-if="item.type == 'renderNew'" :formatter='item.formatter(scop.row)'>{{scop.row[item.prop]}}</span> -->
                         <div :formatter='item.formatter(scop.row)' v-html="scop.row[item.prop]"></div>

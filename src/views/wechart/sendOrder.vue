@@ -39,6 +39,24 @@
             <span>{{$t('view.selList')}}</span>
             <span v-if="num">({{num}})</span>
         </el-row>
+        <el-row  style="margin:10px 0;border:1px solid #CCCCCC">
+          <el-row style="margin:10px 10px 0 10px">
+            <el-input
+              type="textarea"
+              :autosize="{ minRows: 1, maxRows: 4}"
+              placeholder="请输入设备IMEI号（多个回车换行）"
+              v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+            </el-input>
+          </el-row>
+          <el-row style="line-height:40px">
+            <el-col :offset='1' :span='18'>
+              <span>IMEI计数：{{tempNum}}</span>
+            </el-col>
+            <el-col :span='4'>
+              <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
+            </el-col>
+          </el-row>
+        </el-row>
         <el-row style="margin:20px 0;" >
             <!-- <el-col :span='7'  style="border:1px solid grey;text-align:center;line-height:40px;margin-right:10px" v-for="item in list" :key="item.id">
                 <span>{{item.deviceName}}</span>
@@ -84,13 +102,15 @@
                   {label: this.$t('table.Device'), prop: 'deviceName'},
                   {label: this.$t('table.model'), prop: 'model'},
                   {label: this.$t('table.customers'), prop: 'username'},
-                  {label: this.$t('button.dele'),
+                  {label: this.$t('table.operation'),
                     type:'clickEvent',
                     tableClick: (val) => {
                     this.showDialog('a', val)
                   }
                  }
                 ],
+                searchImei:null,
+                tempNum:0,
             }
         },
         mounted(){
@@ -159,6 +179,84 @@
                     }
                     break
                 }
+            },
+            inputChange(){
+              this.searchImei=this.searchImei.replace(/[^\d|^\n\r]/g,'')
+            },
+            changeIMEI(val){
+              // console.log(val,typeof val)
+              if(val.trim()){
+                let temp = null
+                temp= val.split("\n")
+                temp = temp.filter(str => !!str)
+                setTimeout(() => {
+                  this.tempNum = temp.length
+                },100)
+              }else{
+                // this.$set(this.temp,'num',0)
+                this.tempNum = 0
+              }
+            },
+            searchEqu(){ //下发-搜索设备
+              if(!this.searchImei){
+                return this.$message.warning(this.$t('table.searchimei'))
+              }
+              let temp = null
+              temp= this.searchImei.split("\n")
+              temp = temp.filter(str => !!str)
+              let data = null
+              if(temp.length == 0){
+                return this.$message.warning(this.$t('table.searchimei'))
+              }else if(temp.length == 1){
+                data = {
+                  containsChildren: true,
+                  deviceNumberKeyword : this.searchImei.replace("\n", "")
+                }
+              }else{
+                data = {
+                  containsChildren: true,
+                  deviceNumberList : temp,
+                  pageSize : temp.length
+                }
+              }
+              // console.log(temp)
+              api.getDevicesList(data,this.type).then(res => {
+                if(res.success){
+                  if(res.data.content.length<=0){
+                    return this.$message.warning(this.$t('table.temporarily'))
+                  }
+                  let item = res.data.content
+                  for(let i = 0;i<item.length;i++){
+                    if(item[i].deviceModel){
+                      item[i]['model'] = item[i].deviceModel.name
+                    }else{
+                      item[i]['model'] = ''
+                    }
+                    if(item[i].owner){
+                      item[i]['username'] = item[i].owner.username
+                    }else{
+                      item[i]['username'] = ''
+                    }
+                  }
+                  for(let a=0;a<this.list.length;a++){
+                    for(let b = 0;b<item.length;b++){
+                      if(this.list[a].id == item[b].id){
+                        item.splice(b, 1)
+                        b--
+                      }
+                    }
+                  }
+                  if(item.length>0){
+                    this.list = this.list.concat(item)
+                  }
+                  this.equNum = this.list.length
+                  // console.log(this.saleList)
+                }else{
+                  this.$message.error(res.msg)
+                }
+              }).catch(err => {
+                this.$message.error(err.msg)
+              })
             },
             confrim(){ // 确认下发
                 console.log(this.formData)
