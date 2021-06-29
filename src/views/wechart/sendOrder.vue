@@ -104,6 +104,7 @@
                   {label: this.$t('table.customers'), prop: 'username'},
                   {label: this.$t('table.operation'),
                     type:'clickEvent',
+                    name:'删除',
                     tableClick: (val) => {
                     this.showDialog('a', val)
                   }

@@ -545,6 +545,7 @@ export default {
                     }
                     var children_data = res.data
                     for(let i = 0;i<children_data.length;i++){
+                      children_data[i]['nickname'] = children_data[i].nickname + '(' + children_data[i].devices +'/'+ (children_data[i].devices + children_data[i].sellDevices) +')'
                           if(children_data[i].children == 0){
                             children_data[i]['leaf'] = true
                           }

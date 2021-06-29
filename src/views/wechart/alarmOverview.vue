@@ -35,7 +35,7 @@
                           </el-option>
                         </el-select> -->
                         <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
-                        :load-options="loadOptions"/>
+                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据'/>
                     </el-col>
                     <!-- <el-col :span='3'>
                         <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
@@ -52,7 +52,7 @@
                         </el-select>
                       </el-col>
                       <el-col :span='14'>
-                        <el-autocomplete v-model="deviceIdInput" placeholder="请选择"  
+                        <el-autocomplete v-model="deviceIdInput" placeholder="请选择"   autocomplete="off"
                         :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable></el-autocomplete>
                       </el-col>
                     </el-col>
@@ -134,7 +134,8 @@ export default {
         { value: 1, label: '设备IMEI'}, 
         { value: 2, label: '设备名称'}
       ],
-      tableHeight:document.body.offsetHeight - 82
+      tableHeight:document.body.offsetHeight - 82,
+      noOptionsText:null
     }
   },
   mounted() {
@@ -199,15 +200,19 @@ export default {
       })
     },
     getBusiness(){ // 获取代理商
+      this.noOptionsText = '加载中'
       let data = {
         parentId:null
       }
       api.getBusiness(data,this.type).then(res => {
+          if(res.data.length == 0){
+           return this.noOptionsText = '暂无数据'
+          }
           this.businessoptions = res.data
           for(let i =0;i<this.businessoptions.length;i++){
             this.businessoptions[i]['id'] = this.businessoptions[i].userId
             this.businessoptions[i]['label'] = this.businessoptions[i].nickname
-            if(this.businessoptions[i].children==1){
+            if(this.businessoptions[i].children>=1){
               this.businessoptions[i].children = null
             }
           }
@@ -233,7 +238,7 @@ export default {
                 for(let i = 0;i<children_data.length;i++){
                   children_data[i]['id'] = children_data[i].userId
                   children_data[i]['label'] = children_data[i].nickname
-                  if(children_data[i].children == 1){
+                  if(children_data[i].children >= 1){
                     children_data[i].children = null
                   }
                 }
@@ -310,12 +315,12 @@ export default {
             clearTimeout(that.timeout);
             that.timeout = setTimeout(() => {
               cb(results)
-            }, 1000 )
+            }, 200 )
           }else{
             clearTimeout(that.timeout);
             that.timeout = setTimeout(() => {
               cb([])
-            }, 1000 )
+            }, 200 )
           }
         }else{
           this.$message.error(res.msg)

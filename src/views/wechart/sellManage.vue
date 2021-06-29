@@ -20,7 +20,7 @@
                     </el-select>
                   </el-col>
                   <el-col :span='3'>
-                    <el-select v-model="businessUserId" clearable :placeholder="$t('table.agent')">
+                    <el-select v-model="businessUserId" clearable placeholder="一级代理商">
                       <el-option
                         v-for="item in businessoptions"
                         :key="item.userId"
@@ -212,10 +212,14 @@
             <el-scrollbar style="height:30vh;" ref="scrollbar">
               <BaseTable  :dataList="delList" :tableLabel="tableDelLabel"   ></BaseTable>
             </el-scrollbar>
+            <el-row style="color:red;text-align:center">
+              <div>注意：删除设备会导致用户投诉，且设备历史数据永久无法恢复！</div>
+              <div>请确认是否继续执行删除操作</div>
+            </el-row>
           </el-row>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogDel = false">取 消</el-button>
-            <el-button type="primary" @click="confrimDel">确 定</el-button>
+            <el-button type="primary" @click="confrimDel">确认继续</el-button>
           </span>
         </el-dialog>
     </div>
@@ -331,6 +335,7 @@ export default{
           {label: this.$t('table.expire2'), prop: 'serviceExpireTime', type: 'Timestamp'},
           {label: this.$t('table.operation'),
             type:'clickEvent',
+            name:'删除',
             tableClick: (val) => {
             this.showDialog('1', val)
           }}
@@ -389,7 +394,28 @@ export default{
           {label: this.$t('table.model'), prop: 'model'},
         ],
         delFlag:false,
-        tableHeight:document.body.offsetHeight - 102
+        tableHeight:document.body.offsetHeight - 102,
+        timer:null,
+      }
+    },
+    watch: {
+    tableHeight (val) {
+        console.log(val)
+        // 为了避免频繁触发resize函数导致页面卡顿，使用定时器
+        if (!this.timer) {
+          if(val<=867){
+            this.tableHeight = document.body.offsetHeight - 102
+          }else{
+            this.tableHeight = val - 102
+          }
+          
+          this.timer = true
+          let that = this
+          setTimeout(function () {
+            // 打印screenWidth变化的值
+            that.timer = false
+          }, 400)
+        }
       }
     },
     mounted(){
@@ -472,10 +498,10 @@ export default{
             })
         },
         getBusiness(){ // 获取代理商
-          let data = {
-            parentId:null
-          }
-          api.getBusiness(data,this.type).then(res => {
+          // let data = {
+          //   parentId:null
+          // }
+          api.getTopBusiness({},this.type).then(res => {
               this.businessoptions = res.data
             }).catch(err => {
               this.businessoptions = []
@@ -553,7 +579,7 @@ export default{
                 api.shipment(data,this.type).then(res => {
                   // debugger
                   if(res.success){
-                    this.$message.success(this.$t('message.success'))
+                    this.$message({message:this.$t('message.success'),type:'success',duration:'1000'})
                     this.$refs['shipmentForm'].resetFields()
                     this.dialogShipment = false
                     this.getlist()
@@ -582,7 +608,8 @@ export default{
                 api.batchShipment(data,this.type).then(res => {
                   // debugger
                   if(res.success){
-                    this.$message.success(this.$t('message.success'))
+                    this.$message({message:this.$t('message.success'),type:'success',duration:'1000'})
+                    // this.$message.success(this.$t('message.success'))
                     this.$refs['shipmentForm'].resetFields()
                     this.dialogShipment = false
                     this.getlist()
@@ -659,7 +686,7 @@ export default{
           } 
         },
         confrimDel(){
-          this.$confirm('请谨慎删除设备！若删除已销售的设备会导致用户投诉，且设备历史数据永久无法恢复！', this.$t('message.newtitle'), {
+          this.$confirm('删除设备会导致用户投诉，且设备历史数据永久无法恢复！请最后确认是否立即删除选中的设备？', '警告', {
               confirmButtonText: '确认删除',
               cancelButtonText: this.$t('button.cancel'),
               type: 'error'
