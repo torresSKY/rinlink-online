@@ -1,13 +1,13 @@
 <template>
     <div class="app" :style="{height:height +'px',overflow:'hidden' }">
         <el-row  >
-            <el-col :span='4' v-if="type!=3">
+            <el-col :span='4' >
                 <el-row class="cust-title">
                     <span>{{$t('view.customerList')}}</span>
                 </el-row>
                 <el-row class="cust-subtitle" :style="{height:(height-40) + 'px'}">
                     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-                        <el-tab-pane name="first"><span slot="label">{{$t('view.allCust')}}</span></el-tab-pane>
+                        <el-tab-pane name="first" v-if="type!=3"><span slot="label">{{$t('view.allCust')}}</span></el-tab-pane>
                         <el-tab-pane name="second"><span slot="label">{{$t('view.expire')}}</span></el-tab-pane>
                     </el-tabs>
                     <el-row style="margin:0 0 10px 0" :gutter="22" v-if="activeName=='second'">
@@ -801,6 +801,8 @@ export default{
         if(this.type!=3){
           this.evt_getBusinessUserinfo()
           this.evt_getBusinessUserinfoTwo()
+        }else if(this.type==3){
+          this.activeName = 'second'
         }
         
         this.getRange()

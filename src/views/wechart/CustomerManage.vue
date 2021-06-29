@@ -695,7 +695,7 @@ export default {
           this.isEdit = true
           break
         case '2' : //删除客户 
-          this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+          this.$confirm('请先确认该用户下所有设备“销售”转移给别的用户，否则无法删除，且'+this.$t('message.equdele'), '警告', {
             confirmButtonText: this.$t('button.determine'),
             cancelButtonText: this.$t('button.cancel'),
             type: 'warning'
