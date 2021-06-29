@@ -194,6 +194,9 @@ const getModelList = (data,type) => (   //分页查询设备型号
 const getBusiness = (data,type) => (   //查询代理商
     axios.post(url+'/query_business_users?__OPERATOR_TYPE='+type, data)
 )
+const getTopBusiness = (data,type) => (   //查询一级代理商
+    axios.post(url+'/get_top_business_user_info?__OPERATOR_TYPE='+type, data)
+)
 const getServices = (type,data) => (   //查询所有IOT服务
     axios.post(url+'/query_all_iot_services?__OPERATOR_TYPE='+type, data)
 )
@@ -348,6 +351,7 @@ export default {
     shipment,
     batchShipment,
     getBusiness,
+    getTopBusiness,
     uploadDeviceNumber,
     deleteDevice,
     batchDeleteDevice,

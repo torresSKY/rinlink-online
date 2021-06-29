@@ -727,6 +727,7 @@ export default{
           {label: this.$t('table.customers'), prop: 'username'},
           {label: this.$t('table.operation'),
             type:'clickEvent',
+            name:'删除',
             tableClick: (val) => {
             this.showDialog('a', val)
           }
@@ -946,6 +947,8 @@ export default{
             if(res.success){
               if(res.data){
                 this.data = this.setTreeData(res.data)
+              }else{
+                this.data = []
               }
             }else{
               // this.data = []

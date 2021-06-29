@@ -23,10 +23,10 @@
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-      <div style="text-align:center;">
+      <div style="text-align:center">
       <el-button type="primary" style="width:10vw;background: #3F91FF;
 border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
-font-weight: 400;"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
+font-weight: 400;height:5vh;line-height:1vh"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
       </div>
       <!--div class="tips">账号:admin 密码随便填</div>
       <div class="tips">账号:editor  密码随便填</div>

@@ -10,9 +10,9 @@
         :data='dataList'
         :height="height">
             <template v-for='item in tableLabel'>
-                <el-table-column  v-if="item.type == 'clickEvent'"  align='center' width="60px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column  v-if="item.type == 'clickEvent'"  align='center' min-width="60px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scope">
-                        <el-button @click.native.prevent='item.tableClick(scope.row)' type="text" style="font-size:12px">删除</el-button>
+                        <el-button @click.native.prevent='item.tableClick(scope.row)' type="text" style="font-size:12px">{{item.name}}</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickPush'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">

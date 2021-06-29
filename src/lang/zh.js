@@ -48,7 +48,7 @@ export default {
     addrole:'新增角色',
     addpiliang: '批量添加',
     download: '导出',
-    login: '登录',
+    login: '登 录',
     search: '查询',
     dele: '删除',
     add: '添加',

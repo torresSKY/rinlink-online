@@ -15,8 +15,8 @@
                   </el-col>
                 </el-row>
                 
-                <el-row :gutter="22" class="list-search" >
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  style="height:60vh;padding:0 10px" ></BaseTable>
+                <el-row :gutter="22" class="list-search" :style="{height:tableHeight - 220 + 'px',overflow:'auto', }">
+                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"  ></BaseTable>
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -100,6 +100,7 @@ export default{
           {label: this.$t('table.model'), prop: 'name'},
           {label: this.$t('table.communication'), prop: 'iotServiceName'},
           {label: this.$t('table.orderMsg'), type:'clickEvent',
+          name:'指令信息',
           tableClick: (val) => {
             this.showDialog('a', val)
           }},
@@ -130,20 +131,27 @@ export default{
           // ],
         },
         options:[],
-        type:null
+        type:null,
+        tableHeight:document.body.offsetHeight - 102
       }
     },
     mounted(){
+      var that =this
+      window.onresize = () => {
+        return (() => {
+          that.tableHeight = document.body.offsetHeight - 102
+        })()
+      }
       this.type = JSON.parse(sessionStorage['user']).userType
-        this.height=document.body.offsetHeight-152
-        this.getlist()
+      this.height=document.body.offsetHeight-152
+      this.getlist()
     },
     methods:{
         getlist(){ // 获取设备型号列表
             this.loading = true
             let data = {
               pageSize: this.page.size,
-              pageNumber: this.page.index - 1,
+              page: this.page.index - 1,
               deviceModelName: this.deviceModelName,
             }
             api.getModelList(data,this.type).then(res => {
@@ -218,6 +226,7 @@ export default{
                 }
                 api.deleModel(id,this.type).then(res => {
                   if(res.success){
+                    this.page.index = 1
                     this.$message.success(this.$t('message.delesuc'))
                     this.getlist()
                   }else{
