@@ -945,7 +945,7 @@ export default {
                 // username model
                 item.deviceInfo['model'] = item.deviceInfo.deviceModel.name;
                 item.deviceInfo['username'] = item.deviceInfo.owner.username;
-                this.multipleSelection.push(item.deviceInfo);
+                this.multipleSelection = [item.deviceInfo];
                 clearInterval(this.refresh_time_interval);
                 this.$nextTick(() => {
                     this.$refs.sendOrder.formData = {}

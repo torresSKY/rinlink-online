@@ -118,17 +118,6 @@
                             <el-button @click="evt_searchDevice" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                         <div class="devices_bottom">
-                            <!-- <el-tree
-                                :data="data_tree"
-                                show-checkbox
-                                node-key="id"
-                                :default-expanded-keys="[2]"
-                                :default-checked-keys="[5]"
-                                :props="defaultProps">
-                            </el-tree> -->
-                            <!-- <el-checkbox-group @change="evt_select_devices" v-model="checked_devices" size="mini">
-                                <el-checkbox size="mini" style="display:block;"  v-for="item in devices_list" :checked="item.checked" :label="item.deviceName" :key="item.deviceName">{{item.deviceName}}</el-checkbox>
-                            </el-checkbox-group> -->
                             <template v-if="devices_list.length > 0">
                                 <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id)">
                                     <img v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
@@ -141,31 +130,6 @@
                     </div>
                 </el-col>
             </el-row>
-            <!-- <el-row :gutter="20" class="search_device">
-                <el-col :span="8">
-                    <el-input size="small" placeholder="请输入设备名称/设备IMEI" prefix-icon="el-icon-search" v-model="search_device_key"></el-input>
-                </el-col>
-                <el-col :span="3">
-                    <el-button style="width:100%" size="small" type="primary">搜索</el-button>
-                </el-col>
-                <el-col :span="3">
-                    <el-button size="small" type="danger" @click="evt_cancel_allSelect">取消关联</el-button>
-                </el-col>
-            </el-row> -->
-            <!-- <el-table @selection-change="evt_select_table" v-show="current_page_devices.length > 0" class="relevance_table" size="mini" :data="current_page_devices" style="width: 100%" tooltip-effect="dark">
-                <el-table-column align="center" fixed type="selection" min-width="20"></el-table-column>
-                <el-table-column align="center" fixed :label="$t('table.Device')" prop="deviceName" min-width="120" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.imei')" prop='deviceNumber' min-width="140" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.model')" prop="deviceModel.name" min-width="80" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.Detailed')" prop="address" min-width="180" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" :label="$t('table.addtime')" prop="activationTime" min-width="160" show-overflow-tooltip></el-table-column>
-                <el-table-column align="center" fixed="right" :label="$t('table.operation')" min-width="100">
-                    <template slot-scope="scope">
-                       <el-button size="mini" @click="evt_cancel_item(scope.row)" type="danger">取消关联</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-pagination @current-change="evt_current_change" :hide-on-single-page="true" small background :page-size="selected_devices_pagesize" :current-page="selected_devices_page" layout="total, prev, pager, next ,jumper" :total="selected_devices.length" style="text-align:center;margin-top:10px"></el-pagination> -->
             <div class="select_collect">
                 <div class="select_collect_top">
                     <span>已选设备({{selected_devices.length}})</span>
@@ -225,7 +189,6 @@
                 </el-form-item>
                 </el-form>
         </el-dialog>
-
     </div>
 </template>
 <script>
@@ -672,31 +635,6 @@ export default {
             }).catch((err) => {
                  _this.$message({message: err.msg ? err.msg : _this.update_pen ? '更新失败,请重试' : '添加失败,请重试',type:'error',offset:'200',duration:'1000'});
             })
-            // var boundary = new BMap.Boundary();
-            // boundary.get(_this.selected_areaName,function(res){
-            //     // console.log(res);
-            //     if(res){
-            //         var points = [];
-            //         for(var i = 0, len = res.boundaries.length; i < len; i++){
-            //             var point_arr = res.boundaries[i].split(';')
-            //             var arr = [];
-            //             for(var j = 0, le = point_arr.length; j < le; j++){
-            //                 var arr_item = [];
-            //                 var point = point_arr[j].split(',');
-            //                 var lng = point[0].slice(0,point[0].indexOf('.')+7);
-            //                 arr_item.push(lng);
-            //                 var lat = point[1].trim().slice(0,point[1].trim().indexOf('.')+7);
-            //                 arr_item.push(lat);
-            //                 arr.push(arr_item.join(','));
-            //             }
-            //             points = points.concat(arr);
-            //         }
-            //         var points_str = points.join(";");
-            //         // console.log(points_str);
-            //         _this.pen_form.fenceArea['points'] = points_str;
-                    
-            //     }
-            // })
         },
          // 选择更新围栏
         evt_edit:function(item){
@@ -758,12 +696,6 @@ export default {
                         }
                     }
                 }
-                // var point_arr = [];
-                // for(var i = 0, len = item.districtFence.points.length; i < len; i++){
-                //     var str = item.districtFence.points[i].lng + ',' + item.districtFence.points[i].lat;
-                //     point_arr.push(str);
-                // }
-                // this.pen_form.fenceArea['points'] = point_arr.join(';');
             }
         },
         // 删除围栏
@@ -1300,7 +1232,6 @@ export default {
                     break;
                 }
             }
-            // this.evt_current_page_data();
         },
         // 取消要关联的设备
         evt_cancel_selected:function(item){
@@ -1328,82 +1259,6 @@ export default {
             }
         },
 
-
-        
-        // 处理关联设备的当前页数据
-        evt_current_page_data:function(){
-            // 整理当前页的数据
-            if(this.selected_devices.length < 5){ //不满足分页
-                this.current_page_devices = this.selected_devices;
-                if(this.selected_devices_page != 1){
-                    this.selected_devices_page = 1;
-                }
-            }else if(this.selected_devices.length >= 5){ //需要分页
-                var total_page = Math.ceil(this.selected_devices.length / this.selected_devices_pagesize);
-                if(total_page >= this.selected_devices_page){
-                    this.current_page_devices = this.selected_devices.slice((this.selected_devices_page - 1) * this.selected_devices_pagesize,this.selected_devices_page * this.selected_devices_pagesize);
-                }else{
-                    this.selected_devices_page = this.selected_devices_page - 1;
-                    this.current_page_devices = this.selected_devices.slice((this.selected_devices_page - 1) * this.selected_devices_pagesize,this.selected_devices_page * this.selected_devices_pagesize);
-                }
-            }
-        },
-        // 选择取消关联的设备
-        evt_select_table:function(e){
-            this.selected_cancel = e;
-        },
-        // 取消当前页所有已选择的关联设备
-        evt_cancel_allSelect:function(){
-            // 如果没有选中要取消关联的设备 直接return
-            if(this.selected_cancel.length == 0){
-                return;
-            }
-            for(let i = 0, len = this.selected_cancel.length; i < len; i++){
-                for(let j = 0, le = this.selected_devices.length; j < le; j++){
-                    if(this.selected_cancel[i].id == this.selected_devices[j].id){
-                        this.selected_devices.splice(j,1);
-                    }
-                }
-                for(let z = 0, l = this.devices_list.length; z < l; z++){
-                    if(this.selected_cancel[i].deviceId == this.devices_list[z].id){
-                        this.$set(this.devices_list[z],'checked',false);
-                    }
-                }
-            }
-            this.selected_cancel = [];
-            this.evt_current_page_data();
-        },
-        // 表格里单个取消关联
-        evt_cancel_item:function(content){
-            // 如果没有选中要取消关联的设备 直接return
-            if(this.selected_cancel.length == 0){
-                return;
-            }
-            console.log(content);
-            for(let i = 0, len = this.selected_cancel.length; i < len; i++){
-                if(this.selected_cancel[i].id == content.id){
-                    this.selected_cancel.splice(i,1);
-                }
-            }
-            for(let z = 0, l = this.devices_list.length; z < l; z++){
-                if(content.id == this.devices_list[z].id){
-                    this.$set(this.devices_list[z],'checked',false);
-                }
-            }
-            for(let i = 0, len = this.selected_devices.length; i < len; i++){
-                if(this.selected_devices[i].id == content.id){
-                    this.selected_devices.splice(i,1);
-                    break;
-                }
-            }
-            this.evt_current_page_data();
-        },
-        // 分页栏切换页面
-        evt_current_change:function(num){
-            this.current_page_devices = this.selected_devices.slice((num - 1) * this.selected_devices_pagesize, num * this.selected_devices_pagesize);
-        },
-
-
         // 搜索用户searchBusiness
         evt_searchBusiness:function(){
             var _this = this;
@@ -1426,17 +1281,6 @@ export default {
             var _this = this;
             if(_this.searchDevice_name.trim() == '') return;
             var request_data = {};
-            // request_data['searchType'] = 'deviceName';
-            // request_data['searchContent'] = _this.searchDevice_name;
-            // request_data['ownerId'] = _this.user_id;
-            // api.searchDevices(request_data).then((res) =>{
-            //     console.log(res);
-            //     if(res.msg == 'OK' && res.success){
-            //         _this.devices_list = res.data;
-            //     }
-            // }).catch((err) => {
-            //     _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
-            // })
             request_data['page'] = 0;
             request_data['pageSize'] = 20;
             request_data['deviceNameKeyword'] = _this.searchDevice_name;
@@ -1485,49 +1329,6 @@ export default {
             }).catch((err) => {
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'})
             })
-        },
-
-
-       
-
-        
-        bd09togcj02(bd_lon, bd_lat) { 
-    　      let x_pi = 3.14159265358979324 * 3000.0 / 180.0;
-    　      let x = bd_lon - 0.0065;
-    　      let y = bd_lat - 0.006;
-    　      let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
-    　      let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
-    　      let gg_lng = z * Math.cos(theta);
-    　      let gg_lat = z * Math.sin(theta);
-    　      return [gg_lng, gg_lat]
-　      },
-        gcj02towgs84(lng, lat) { 
-            var dlat = this.transformlat(lng - 105.0, lat - 35.0);
-            var dlng = this.transformlng(lng - 105.0, lat - 35.0);
-            var radlat = lat / 180.0 * this.PI;
-            var magic = Math.sin(radlat);
-            magic = 1 - this.ee * magic * magic;
-            var sqrtmagic = Math.sqrt(magic);
-            dlat = (dlat * 180.0) / ((this.a * (1 - this.ee)) / (magic * sqrtmagic) * this.PI);
-            dlng = (dlng * 180.0) / (this.a / sqrtmagic * Math.cos(radlat) * this.PI);
-            var mglat = lat + dlat;
-            var mglng = lng + dlng;
-            return [lng * 2 - mglng, lat * 2 - mglat]
-        },
-        transformlat(lng, lat) { 
-            var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
-            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-            ret += (20.0 * Math.sin(lat * this.PI) + 40.0 * Math.sin(lat / 3.0 * this.PI)) * 2.0 / 3.0;
-            ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
-            return ret
-        },
-
-        transformlng(lng, lat) { 
-            var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
-            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
-            ret += (20.0 * Math.sin(lng * this.PI) + 40.0 * Math.sin(lng / 3.0 * this.PI)) * 2.0 / 3.0;
-            ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
-            return ret
         },
     },
     filters:{
