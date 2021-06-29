@@ -861,6 +861,8 @@ export default {
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
             this.device_tracks_step = 0;
+            this.device_tracks = [];
+            this.device_tracks_shift = [];
             if(this.infoBox != null){
                 this.infoBox.close();
             }
@@ -1475,13 +1477,16 @@ export default {
             if(!this.play_flag){
                 clearInterval(this.device_tracks_interval);
             }else{
-                if(this.device_tracks_step != this.device_tracks_max){
+                if(this.device_tracks_step != 0 && this.device_tracks_step != this.device_tracks_max){
                     var arr_point = [];
                     for(var i = 0, len = this.device_tracks_shift.length; i < len; i++){
                         arr_point.push(new BMap.Point(this.device_tracks_shift[i].lng,this.device_tracks_shift[i].lat))
                     }
                     this.evt_LuShu(arr_point);
                 }else{
+                    this.evt_clearOverlays();
+                    this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+                    return;
                     this.device_tracks = this.device_tracks_shift;
                     this.device_tracks_shift = [];
                     clearInterval(this.device_tracks_interval);
