@@ -363,7 +363,7 @@ export default {
             icon_list:[],//适用范围图标
             icon_list_t:{},
             range_code:'',//设备使用范围的code
-            tab_value:'history',
+            tab_value:'parameter',
             command_page:1,//历史指令当前页
             command_pageSize:10,//历史指令页面数据条数
             command_total:0,//历史指令的总条数
@@ -861,6 +861,8 @@ export default {
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
             this.device_tracks_step = 0;
+            this.device_tracks = [];
+            this.device_tracks_shift = [];
             if(this.infoBox != null){
                 this.infoBox.close();
             }
@@ -938,9 +940,19 @@ export default {
                 this.device_info_visible = true;
             }else if(item.type == 'command'){
                 this.need_deviceModelId = item.deviceModelId;
-                this.evt_queryDeviceCmds();
+                // this.evt_queryDeviceCmds();
                 this.device_command_visible = true;
-                this.multipleSelection = [item.deviceInfo];
+                // username model
+                item.deviceInfo['model'] = item.deviceInfo.deviceModel.name;
+                item.deviceInfo['username'] = item.deviceInfo.owner.username;
+                this.multipleSelection.push(item.deviceInfo);
+                clearInterval(this.refresh_time_interval);
+                this.$nextTick(() => {
+                    this.$refs.sendOrder.formData = {}
+                    this.$refs.sendOrder.schema = null
+                    this.$refs.sendOrder.deviceCmdTemplateId = null
+                    this.$refs.sendOrder.getlist()
+                })
             }
         },
         // 关闭设备详情
@@ -1023,7 +1035,8 @@ export default {
             this.command_template_id = '';
             this.is_template_content = true;
             this.command_templates_list = {};
-            this.tab_value = 'history';
+            this.tab_value = 'parameter';
+            this.evt_refresh_interval();
         },
         // 设备指令的tab切换
         evt_tab_click:function(){
@@ -1464,13 +1477,16 @@ export default {
             if(!this.play_flag){
                 clearInterval(this.device_tracks_interval);
             }else{
-                if(this.device_tracks_step != this.device_tracks_max){
+                if(this.device_tracks_step != 0 && this.device_tracks_step != this.device_tracks_max){
                     var arr_point = [];
                     for(var i = 0, len = this.device_tracks_shift.length; i < len; i++){
                         arr_point.push(new BMap.Point(this.device_tracks_shift[i].lng,this.device_tracks_shift[i].lat))
                     }
                     this.evt_LuShu(arr_point);
                 }else{
+                    this.evt_clearOverlays();
+                    this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
+                    return;
                     this.device_tracks = this.device_tracks_shift;
                     this.device_tracks_shift = [];
                     clearInterval(this.device_tracks_interval);
