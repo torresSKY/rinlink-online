@@ -1,7 +1,7 @@
 <template>
     <div id="customerManage" >
         <el-row >
-            <el-col :span='4'>
+            <el-col :md="6" :lg="5" :xl="4">
                 <el-card>
                     <el-row>
                         <span>{{$t('view.customerList')}}</span>
@@ -16,14 +16,14 @@
                         </el-input>
                     </el-row>
                     <el-row >
-                      <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
+                      <el-scrollbar :style="{height:69 + 'vh'}" ref="scrollbar">
                         <el-tree :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
                         @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
                     </el-row>
                 </el-card>
             </el-col>
-            <el-col :span='20'>
+            <el-col :md="18" :lg="19" :xl="20">
                 <el-card>
                     <span>{{company}}</span>&nbsp;
                     {{$t('table.count')}}：<span>{{username}}</span>&nbsp;
@@ -46,9 +46,10 @@
                       <el-button class="butadd" @click="addCustomer">{{$t('button.addCustomer')}}</el-button>
                     </el-col>
                 </el-row>
-                <el-row :style="{height:height - 250 + 'px',overflow:'auto', }">
+                <el-row >
+                  <!-- :style="{height:height - 250 + 'px',overflow:'auto', }" -->
                   <!-- <el-scrollbar style="height:64vh;" ref="scrollbar"> -->
-                    <BaseTable v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
+                    <BaseTable :height='height' v-loading="loading" :dataList="dataList" :tableLabel="tableLabel"   ></BaseTable>
                   <!-- </el-scrollbar> -->
                 </el-row>
                 <el-pagination
@@ -246,7 +247,7 @@ export default {
       type:null,
       outUserId:'',
       inUserId:'',
-      height:document.body.offsetHeight - 102,
+      height:document.body.offsetHeight - 332,
       renderContent:function (h,{node,data,store}) {
             let addElement = arguments[0];
             return addElement('span',[
@@ -277,7 +278,7 @@ export default {
     var that =this
     window.onresize = () => {
       return (() => {
-        that.height = document.body.offsetHeight - 102
+        that.height = document.body.offsetHeight - 332
       })()
     }
     this.type = JSON.parse(sessionStorage['user']).userType
