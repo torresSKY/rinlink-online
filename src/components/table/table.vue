@@ -27,7 +27,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column v-else-if="item.type == 'selection'" align='center' type="selection" width="50"  :key="item.index"></el-table-column>
-                <el-table-column  v-else-if="item.type == 'clickSelect'"  align='center' width="80px"   :label='item.label' :prop='item.prop' :key="item.index">
+                <el-table-column  v-else-if="item.type == 'clickSelect'"  align='center' width="80px" fixed="right"  :label='item.label' :prop='item.prop' :key="item.index">
                     <template class="scope" slot-scope="scope">
                         <el-dropdown @command="item.selectOperation($event,scope.row)">
                         <el-button type="text" size="small">

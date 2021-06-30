@@ -158,6 +158,12 @@ const editBusinessUserinfo = (data,type) => (   //更新客户信息
 const updateCurrentPwd = (data,type) => (   //更新当前用户密码
     axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE='+type, data)
 )
+const updateConsumer = (data,type) => (   //更新C端客户信息
+    axios.post(url+'/update_current_consumer_user?__OPERATOR_TYPE='+type, data)
+)
+const resetConsumer = (data,type) => (   //更新C端用户密码
+    axios.post(url+'/reset_consumer_user_password?__OPERATOR_TYPE='+type, data)
+)
 const searchBusiness = (data,type) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
 )
@@ -390,6 +396,8 @@ export default {
     editBManager,
     deleBManager,
     upsetBPwd,
+    updateConsumer,
+    resetConsumer,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

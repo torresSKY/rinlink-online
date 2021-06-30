@@ -270,12 +270,15 @@
             handlerSubmit() { // 确认下发
                 let arr = []
                 for(let i = 0;i <this.list.length;i++){
-                    arr.push(this.list[i].id)
+                  if(((this.list[i].serviceExpireTime -new Date().getTime())<0 && this.list[i].serviceExpireTime != -1)){
+                    return this.$message.warning('已过期设备无法下发指令')
+                  }
+                  arr.push(this.list[i].id)
                 }
                 let data = {
-                    cmdTemplateId:this.deviceCmdTemplateId,
-                    cmdData:this.formData,
-                    deviceIdList:arr
+                  cmdTemplateId:this.deviceCmdTemplateId,
+                  cmdData:this.formData,
+                  deviceIdList:arr
                 }
                 api.createDeviceCmd(data,this.type).then(res => {
                   if(res.success){

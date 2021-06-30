@@ -23,9 +23,9 @@
                     <el-select v-model="businessUserId" clearable placeholder="一级代理商">
                       <el-option
                         v-for="item in businessoptions"
-                        :key="item.userId"
+                        :key="item.id"
                         :label="item.username"
-                        :value="item.userId">
+                        :value="item.id">
                       </el-option>
                     </el-select>
                   </el-col>
@@ -44,9 +44,10 @@
                      <el-input v-model="batchNumber" :placeholder="$t('table.batch')"></el-input>
                   </el-col>
                   <el-col :span='7'>
-                    <el-button class="butresh" @click="getlist">{{$t('button.search')}}</el-button>
+                    <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butadd" @click="sell('one')">{{$t('button.sell')}}</el-button>
                     <el-button class="butadd" @click="sell('more')">{{$t('button.sellMore')}}</el-button>
+                    <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                     <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
                     
                   </el-col>
@@ -128,9 +129,9 @@
                  <el-select v-model="shipmentForm.businessUserId" filterable clearable :placeholder="$t('table.agent')">
                     <el-option
                       v-for="item in businessoptions"
-                      :key="item.userId"
+                      :key="item.id"
                       :label="item.username"
-                      :value="item.userId">
+                      :value="item.id">
                     </el-option>
                   </el-select>
               </el-form-item>
@@ -434,7 +435,7 @@ export default{
         
     },
     methods:{
-        getlist(){ // 获取出货列表
+        getlist(num){ // 获取出货列表
             this.loading = true
             let start = null
             let end = null
@@ -457,6 +458,9 @@ export default{
             if(this.timeType && start == null){
               this.loading = false
               return this.$message.warning('请输入查询时间')
+            }
+            if(num==1){
+              this.page.index = 1
             }
             let data = {
               pageSize: this.page.size,
@@ -481,6 +485,19 @@ export default{
               this.dataList = []
               this.$message.error(err.msg)
             })
+        },
+        refresh(){
+          this.page.index = 1
+          this.iccid = null
+          this.deviceNumber = null
+          this.deviceModelId = null
+          this.businessUserId = null
+          this.isWithCard = null
+          this.batchNumber = null
+          this.batchNumber = null
+          this.timeType = null
+          this.timevalue = null
+          this.getlist()
         },
         childByValue(val){ //选择处理数据
           // console.log(val)
@@ -699,7 +716,7 @@ export default{
                   if(res.success){
                     this.dialogDel = false
                     this.$message.success(this.$t('message.delesuc'))
-                    this.getlist()
+                    this.getlist(1)
                   }else{
                     this.$message.error(res.msg)
                   }
@@ -718,7 +735,7 @@ export default{
                   if(res.success){
                     this.dialogDel = false
                     this.$message.success(this.$t('message.delesuc'))
-                    this.getlist()
+                    this.getlist(1)
                   }else{
                     this.$message.error(res.msg)
                   }
