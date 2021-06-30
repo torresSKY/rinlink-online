@@ -124,6 +124,7 @@
                                     <el-option value="今天"></el-option>
                                     <el-option value="昨天"></el-option>
                                     <el-option value="最近一周"></el-option>
+                                    <el-option value="自定义"></el-option>
                                 </el-select>
                             </el-col>
                             <el-col :span="8" class="playback_top_date_picker">
@@ -357,6 +358,7 @@ export default {
             device_info_visible:false,//设备具体信息的展示框
             device_command_visible:false,//设备指令弹框展示
             need_handle_deviceId:'',//更多下拉框需要进行操作的设备的id
+            need_handle_deviceNumber: '',
             device_detail_info:{},//设备的详细信息
             device_name:'',//设备名称
             remark_text:'',//设备备注信息
@@ -442,6 +444,7 @@ export default {
             this.play_flag = false;
             this.current_select_deviceId = this.$route.query.deviceId;
             this.need_handle_deviceId = this.$route.query.deviceId;
+            this.need_handle_deviceNumber = this.$route.query.deviceNumber;
             // 获取设备详情信息
             this.evt_getDeviceInfo();
         }
@@ -606,6 +609,7 @@ export default {
                 return;
             }
             this.need_handle_deviceId = '';
+            this.need_handle_deviceNumber = '';
             this.current_select_deviceId = '';
             this.current_device_name = '';
             this.current_device_address = '';
@@ -889,6 +893,7 @@ export default {
                     }else{
                         this.$set(this.devices_list[i],'checked',true);
                         this.need_handle_deviceId = this.devices_list[i].id;
+                        this.need_handle_deviceNumber = this.devices_list[i].deviceNumber;
                         this.current_select_deviceId = this.devices_list[i].id;
 
                         var request_data = {};
@@ -940,6 +945,7 @@ export default {
         evt_more_command:function(item){
             // console.log(item);
             this.need_handle_deviceId = item.deviceId;
+            this.need_handle_deviceNumber = item.deviceNumber;
             if(item.type == 'detail'){
                 this.evt_getDeviceInfo();
                 this.device_info_visible = true;
@@ -1180,7 +1186,7 @@ export default {
                 <div class="info_window_content_btn">
                     <div onClick="evt_trace('${info.id}','panorama')">街景</div>
                     <div onClick="evt_trace('${info.id}','trace')">跟踪</div>
-                    <div onClick="evt_track('${info.id}','${info.deviceName}')">轨迹</div>
+                    <div onClick="evt_track('${info.id}','${info.deviceName}','${info.deviceNumber}')">轨迹</div>
                     <div onClick="evt_nav_fence('${info.deviceName}','${info.id}')">电子围栏</div>
                 </div>
             </div>`
@@ -1251,11 +1257,12 @@ export default {
             this.$router.push({path:'/electric/electric',query:{deviceName:deviceName,deviceId:deviceId}});
         },
         // 信息窗口上的轨迹
-        evt_track:function(deviceId,deviceName){
+        evt_track:function(deviceId,deviceName,deviceNumber){
             // console.log(deviceId,deviceName);
             // this.evt_clearOverlays();
             var _this = this;
             _this.need_handle_deviceId = deviceId;
+            _this.need_handle_deviceNumber = deviceNumber;
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
             var request_data = {};
             request_data['deviceId'] = _this.need_handle_deviceId;
@@ -1280,6 +1287,7 @@ export default {
             this.device_detail_info = item;
             this.evt_clearOverlays();
             this.need_handle_deviceId = item.id;
+            this.need_handle_deviceNumber = item.deviceNumber;
             this.track_detail = true;
             this.current_device_name = item.deviceName;
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
@@ -1479,6 +1487,7 @@ export default {
             if(e instanceof Array && (e[1] - e[0]) > (60 * 24 * 60 * 60 * 1000)){
                 this.$message({message: '开始时间至结束时间不得超过60天', type:'warning',offset:'400',duration:'3000'})
             }
+            this.select_date = '自定义';
         },
         // 播放与暂停
         evt_play_pause:function(){
@@ -1753,7 +1762,14 @@ export default {
                 const link = document.createElement('a');
                 link.style.display = 'none';
                 link.href = url;
-                link.download = '轨迹明细.xlsx';
+                var myDate = new Date();
+                var Y = myDate.getFullYear();
+                var M = (myDate.getMonth() + 1) > 9 ? myDate.getMonth() + 1 : '0' + (myDate.getMonth() + 1);
+                var D = myDate.getDate();
+                var H = myDate.getHours() > 9 ? myDate.getHours() : '0' + myDate.getHours();
+                var m = myDate.getMinutes() > 9 ? myDate.getMinutes() : '0' + myDate.getMinutes();
+                var s = myDate.getSeconds() > 9 ? myDate.getSeconds() : '0' + myDate.getSeconds();         
+                link.download = '轨迹明细_' + _this.need_handle_deviceNumber + '_' + Y + M + D + H + m + s + '.xlsx';
                 document.body.appendChild(link);
                 link.click();
                 window.URL.revokeObjectURL(url); 
