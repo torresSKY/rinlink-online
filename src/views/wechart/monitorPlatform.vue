@@ -953,10 +953,12 @@ export default {
                 this.multipleSelection = [item.deviceInfo];
                 clearInterval(this.refresh_time_interval);
                 this.$nextTick(() => {
-                    this.$refs.sendOrder.formData = {}
-                    this.$refs.sendOrder.schema = null
-                    this.$refs.sendOrder.deviceCmdTemplateId = null
-                    this.$refs.sendOrder.getlist()
+                    this.$refs.sendOrder.formData = {};
+                    this.$refs.sendOrder.schema = null;
+                    this.$refs.sendOrder.deviceCmdTemplateId = null;
+                    this.$refs.sendOrder.searchImei = null;
+                    this.$refs.sendOrder.tempNum = 0;
+                    this.$refs.sendOrder.getlist();
                 })
             }
         },
@@ -1057,10 +1059,12 @@ export default {
                 this.evt_queryDeviceCmds();
             }else{
                 this.$nextTick(() => {
-                    this.$refs.sendOrder.formData = {}
-                    this.$refs.sendOrder.schema = null
-                    this.$refs.sendOrder.deviceCmdTemplateId = null
-                    this.$refs.sendOrder.getlist()
+                    this.$refs.sendOrder.formData = {};
+                    this.$refs.sendOrder.schema = null;
+                    this.$refs.sendOrder.deviceCmdTemplateId = null;
+                    this.$refs.sendOrder.searchImei = null;
+                    this.$refs.sendOrder.tempNum = 0;
+                    this.$refs.sendOrder.getlist();
                 })
             }
         },
