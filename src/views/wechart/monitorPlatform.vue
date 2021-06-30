@@ -766,6 +766,11 @@ export default {
                         }
                     }
                     _this.devices_list = res.data.content;
+                    _this.current_select_deviceId = '';
+                    _this.current_device_name = '';
+                    _this.current_device_address = '';
+                    _this.map.clearOverlays();
+                    _this.map.closeInfoWindow();
                     for(let i = 0, len = _this.devices_list.length; i < len; i++){
                         _this.$set(_this.devices_list[i],'checked',false);
                     }
