@@ -54,7 +54,7 @@
                                     <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                         <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
+                                        <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.stationarySeconds != null ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleStationary : icon_list_t['Other'].iconUrlForConsoleStationary  : item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['Other'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['Other'].iconUrlForConsoleInactive"></el-avatar>
                                         <div class="devices_item_top_right">
                                             <div class="devices_item_top_right_top">
                                                 <div class="devices_item_top_right_top_left text_line" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
@@ -917,8 +917,8 @@ export default {
                                 this.current_device_name = res.data.deviceName;
                             }
                         }).catch((err) => {
-                            // console.log(err)
-                            this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
+                            console.log(err)
+                            this.$message({message:err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
                         })
 
 
@@ -1118,9 +1118,9 @@ export default {
         // 添加标记
         evt_addMarker:function(point,info){
             var _this = this;
-            var icon_url = info.networkStatus == '1' ? info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(34,50),{
-                imageSize: new BMap.Size(34,50),
+            var icon_url = info.networkStatus == '1' ? info.stationarySeconds != null ? info.useRangeCode != null ?  _this.icon_list_t[info.useRangeCode].iconUrlForMapStationary : _this.icon_list_t['Other'].iconUrlForMapStationary : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,48),{
+                imageSize: new BMap.Size(30,48),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
@@ -1424,8 +1424,8 @@ export default {
             var _this = this;
             var device_info = _this.device_detail_info;
             var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive;
-            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(34,50),{
-                imageSize: new BMap.Size(34,50),
+            var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,48),{
+                imageSize: new BMap.Size(30,48),
             });
             var marker = new BMap.Marker(point, {icon: marker_icon});
             marker.addEventListener('click',function(e){
