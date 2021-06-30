@@ -71,6 +71,9 @@
         mounted(){
            this.type = JSON.parse(sessionStorage['user']).userType
            this.height = document.body.offsetHeight-152
+        //    if(this.type==1){
+               this.userId = JSON.parse(sessionStorage['user']).userId
+        //    }
            this.getlist()
         },
         methods:{
@@ -79,36 +82,77 @@
                 let data = {
                     userId: this.userId
                 }
-                api.getBusinessUserinfo(data,this.type).then(res => {
-                  this.loading = false
-                  if(res.success){
-                    this.info = res.data
-                  }else{
-                    this.$message.error(res.msg)
-                  }
-                  
-                }).catch(err => {
-                  this.loading = false
-                  this.$message.error(err.msg)
-                })
+                if(this.type==3){
+                    api.queryBusinessUserInfo(data,this.type).then(res => {
+                      this.loading = false
+                      if(res.success){
+                        this.info = res.data
+                      }else{
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.loading = false
+                      this.$message.error(err.msg)
+                    })
+                }else{
+                    api.getBusinessUserinfo(data,this.type).then(res => {
+                      this.loading = false
+                      if(res.success){
+                        this.info = res.data
+                      }else{
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.loading = false
+                      this.$message.error(err.msg)
+                    })
+                }
+                
             },
             confrimInfo(){ // 确认更新客户信息
                 let data = {
                     userId: this.info.userId,
                     nickname: this.info.nickname,
                     personToContact: this.info.personToContact,
-                    phoneNumber: this.info.phoneNumber
+                    phoneNumber: this.info.phoneNumber,
+                    userId:this.userId
                 }
-                api.editBusinessUserinfo(data,this.type).then(res => {
-                  if(res.success){
-                    this.$message.success(this.$t('message.savesuc'))
-                    this.getlist()
-                  }else {
-                    this.$message.error(res.msg)
-                  }
-                }).catch(err => {
-                  this.$message.error(err.msg)
-                })
+                // debugger
+                if(this.type==1){
+                   api.editManager(data,this.type).then(res => {
+                     if(res.success){
+                       this.$message.success(this.$t('message.savesuc'))
+                       this.getlist()
+                     }else {
+                       this.$message.error(res.msg)
+                     }
+                   }).catch(err => {
+                     this.$message.error(err.msg)
+                   })     
+                }else if(this.type==3){
+                    api.updateConsumer(data,this.type).then(res => {
+                      if(res.success){
+                        this.$message.success(this.$t('message.savesuc'))
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })
+                }else{
+                    api.editBusinessUserinfo(data,this.type).then(res => {
+                      if(res.success){
+                        this.$message.success(this.$t('message.savesuc'))
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })
+                }
+                
             }
         }
     }

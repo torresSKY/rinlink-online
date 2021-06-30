@@ -359,6 +359,12 @@ export default {
                 if(res.data.children == 0){
                   res.data['leaf'] = true
                 }
+                if(_this.type==1){
+                  res.data['nickname'] = res.data.nickname + '(库存:0/总数:' + (res.data.deviceTotal) + ')'
+                }else{
+                  res.data['nickname'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')'
+                }
+                
                 _this.businessData.push(res.data)
             }
             _this.getBusinessUserinfo(JSON.parse(sessionStorage['user']).userId)
@@ -695,7 +701,13 @@ export default {
           this.isEdit = true
           break
         case '2' : //删除客户 
-          this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+          const confirmText = ['用户被删除后，对应的数据将丢弃，且无法恢复。确认要继续删除该用户吗？','提示：请先将该用户下的所有设备“销售“转移给别的用户，才允许删除用户。'] 
+          const newDatas = []
+          const h = this.$createElement
+          for (const i in confirmText) {
+            newDatas.push(h('p', null, confirmText[i]))
+          }
+          this.$confirm(h('div', null, newDatas), '警告', {
             confirmButtonText: this.$t('button.determine'),
             cancelButtonText: this.$t('button.cancel'),
             type: 'warning'

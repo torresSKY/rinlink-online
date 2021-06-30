@@ -61,7 +61,7 @@
                     nickname:'',
                     username:'',
                 },
-                userId:'',
+                userId:null,
                 dialogPwd:false,
                 pwdForm:{
                   userId:'',
@@ -76,7 +76,10 @@
             }
         },
         mounted(){
-          this.type = JSON.parse(sessionStorage['user']).userType
+           this.type = JSON.parse(sessionStorage['user']).userType
+           if(this.type==1||this.type==3){
+               this.userId = JSON.parse(sessionStorage['user']).userId
+           }
            this.height = document.body.offsetHeight-152
            this.getlist()
         },
@@ -86,18 +89,31 @@
                 let data = {
                     userId: this.userId
                 }
-                api.getBusinessUserinfo(data,this.type).then(res => {
-                  this.loading = false
-                  if(res.success){
-                    this.info = res.data
-                  }else{
-                    this.$message.error(res.msg)
-                  }
-                  
-                }).catch(err => {
-                  this.loading = false
-                  this.$message.error(err.msg)
-                })
+                if(this.type==3){
+                    api.queryBusinessUserInfo(data,this.type).then(res => {
+                      this.loading = false
+                      if(res.success){
+                        this.info = res.data
+                      }else{
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.loading = false
+                      this.$message.error(err.msg)
+                    })
+                }else{
+                    api.getBusinessUserinfo(data,this.type).then(res => {
+                      this.loading = false
+                      if(res.success){
+                        this.info = res.data
+                      }else{
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.loading = false
+                      this.$message.error(err.msg)
+                    })
+                }
             },
             editPwd(){ // 修改密码dialog
                 this.pwdForm = {
@@ -120,23 +136,62 @@
               }
               this.$refs['pwdForm'].validate((valid) => {
                 if (valid) {
-                  let data = {
-                    userId:this.pwdForm.userId,
-                    password:this.pwdForm.password
-                  }
-                  api.updateCurrentPwd(data,this.type).then(res => {
-                    // debugger
-                    if(res.success){
-                      this.$message.success(this.$t('message.changesuc'))
-                      this.$refs['pwdForm'].resetFields()
-                      this.dialogPwd = false
-                      this.getlist()
-                    }else {
-                      this.$message.error(res.msg)
+                  if(this.type == 1){
+                    let data1 = {
+                      userId:this.userId,
+                      password:this.pwdForm.password
                     }
-                  }).catch(err => {
-                    this.$message.error(err.msg)
-                  })
+                    api.upsetPwd(data1,this.type).then(res => {
+                      // debugger
+                      if(res.success){
+                        this.$message.success(this.$t('message.changesuc'))
+                        this.$refs['pwdForm'].resetFields()
+                        this.dialogPwd = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })
+                  }else if(this.type==3){
+                    let data3 = {
+                      userId:this.userId,
+                      password:this.pwdForm.password
+                    }
+                    api.resetConsumer(data3,this.type).then(res => {
+                      // debugger
+                      if(res.success){
+                        this.$message.success(this.$t('message.changesuc'))
+                        this.$refs['pwdForm'].resetFields()
+                        this.dialogPwd = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })
+                  }else{
+                    let data = {
+                      userId:this.pwdForm.userId,
+                      password:this.pwdForm.password
+                    }
+                    api.updateCurrentPwd(data,this.type).then(res => {
+                      // debugger
+                      if(res.success){
+                        this.$message.success(this.$t('message.changesuc'))
+                        this.$refs['pwdForm'].resetFields()
+                        this.dialogPwd = false
+                        this.getlist()
+                      }else {
+                        this.$message.error(res.msg)
+                      }
+                    }).catch(err => {
+                      this.$message.error(err.msg)
+                    })
+                  }
+                  
                 } else {
                   this.$message.warning(this.$t('message.checkmsg'))
                   return false
