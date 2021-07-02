@@ -21,13 +21,14 @@
           </el-row>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px;">
         <el-card v-loading="loading_two">
           <div class="myChart_top">
             <div>设备状态统计</div>
             <img @click="evt_refresh" data-type="2" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row>
+          <el-row style="overflow:scroll;">
+            <!-- :style="{'min-height': page_item_min_height+'px','min-width': page_item_min_width + 'px'}" -->
             <el-col :span="24">
               <div
                 id="myChart2"
@@ -57,7 +58,7 @@
             <div>激活统计</div>
             <img @click="evt_refresh" data-type="3" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row>
+          <el-row style="overflow:scroll;">
             <el-col :span="24">
               <div
                 id="myChart3"
@@ -70,10 +71,13 @@
       <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
         <el-card v-loading="loading_one">
           <div class="myChart_top">
-            <div>库存统计</div>
+            <div style="display:flex;align-items:flex-end">
+              <div>库存统计</div>
+              <span style="font-size:12px;line-height:20px;margin-left:5px;"> (总进货数：{{Inventory_deviceCount + Sold_deviceCount}})</span>
+            </div>
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row style="position: relative;">
+          <el-row style="position: relative;overflow:scroll;">
             <!-- <el-col :span="24">
               <div
                 id="myChart1"
@@ -84,11 +88,11 @@
                 <div id="myChart1" :style="{ height: '26vh', margin: '10px' }"></div>
               </el-col>
               <!-- <el-col :span="6"> -->
-                <div class="myChart_text_content myChart1_text_content">
+                <!-- <div class="myChart_text_content myChart1_text_content">
                   <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
                   <div>库存：{{Inventory_deviceCount}}</div>
                   <div>已销售：{{Sold_deviceCount}}</div>
-                </div>
+                </div> -->
               <!-- </el-col> -->
           </el-row>
         </el-card>
@@ -99,7 +103,7 @@
             <div>设备期限</div>
             <img @click="evt_refresh" data-type="4" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row>
+          <el-row style="overflow:scroll;">
             <el-col :span="24">
               <div
                 id="myChart4"
@@ -233,8 +237,7 @@ export default {
         3: '用户'
       },
       userType_parameter: '',//请求接口拼接的用户类型
-      page_min_width: 1240,//页面最小宽度
-      page_item_min_height: 300,//页面内块的最小高度
+      rechargeList: [],
     };
   },
   watch: {},
@@ -256,10 +259,6 @@ export default {
   mounted() {
     this.height = document.body.offsetHeight - 150;
     // this.main_width = document.body.offsetWidth - 236; // 可视区域的宽度 - 左侧导航栏的宽度
-    // console.log(document.body.clientWidth);
-    // console.log(document.body.offsetWidth);
-    // console.log(document.getElementsByClassName('top_left')[0].offsetHeight);
-    this.page_item_min_height = document.getElementsByClassName('top_left')[0].offsetHeight;
   },
   beforeDestroy() {},
   methods: {
@@ -330,7 +329,7 @@ export default {
                 data[1].value = _this.Inventory_deviceCount;
                 option.series[0]['data'] = data;
                 option.color = ["#F14864", "#C4C6D1"];
-                option.legend = {show:false};
+                // option.legend = {show:false};
                 function formatter(name){
                   for (var i = 0; i < option.series[0].data.length; i++) {
                     if (option.series[0].data[i].name == name) {
