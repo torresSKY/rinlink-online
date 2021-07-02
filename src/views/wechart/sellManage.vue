@@ -141,6 +141,7 @@
               <el-form-item :label="$t('view.upfile')"  v-if="isMore">
                   <el-upload class="upload-demo" ref="upload" :limit="1" accept=".xls, .xlsx" action="string" :file-list="fileList" :show-file-list="true" :auto-upload="false"  :on-remove="handleRemove" :on-change="handleChange" >
                     <el-button slot="trigger" size="medium" type="primary">{{$t('button.clickip')}}</el-button>
+                    <div slot="tip" class="el-upload__tip">只能上传xls/xlsx文件</div>
                   </el-upload>
               </el-form-item>
               <el-form-item :label="$t('table.isCard')" prop="isWithCard">
