@@ -38,7 +38,7 @@
               <el-form-item :label="$t('table.model')" prop="name" >
                   <el-input v-model="modelForm.name" :placeholder="$t('table.model')"></el-input>
               </el-form-item>
-              <el-form-item :label="$t('table.communication')" prop="iotServiceId">
+              <!-- <el-form-item :label="$t('table.communication')" prop="iotServiceId">
                  <el-select v-model="modelForm.iotServiceId" :placeholder="$t('table.communication')">
                     <el-option
                       v-for="item in options"
@@ -47,7 +47,7 @@
                       :value="item.iotServiceId">
                     </el-option>
                   </el-select>
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item :label="$t('table.note')" prop="description" >
                   <el-input v-model="modelForm.description" :placeholder="$t('table.note')" type="textarea" :rows="2"></el-input>
               </el-form-item>
@@ -98,7 +98,7 @@ export default{
         dataList:[],
         tableLabel: [
           {label: this.$t('table.model'), prop: 'name'},
-          {label: this.$t('table.communication'), prop: 'iotServiceName'},
+          // {label: this.$t('table.communication'), prop: 'iotServiceName'},
           {label: this.$t('table.orderMsg'), type:'clickEvent',
           name:'指令信息',
           tableClick: (val) => {
@@ -111,13 +111,14 @@ export default{
               this.showDialog(index, row)
             },
             selectText: [
-              // {command: '1', text: this.$t('button.editor'), index: 1},
+              {command: '1', text: this.$t('button.editor'), index: 1},
               {command: '2', text: this.$t('button.dele'), index: 2} ]
           }
         ],
         isEdit:false,
         dialogModel:false,
         modelForm:{
+          deviceModelId:'',
           name:'',
           iotServiceId:'',
           description:''
@@ -184,28 +185,50 @@ export default{
           this.dialogModel = true
           this.getServices()
         },
-        confrimModel(){ // 确认添加设备型号
+        confrimModel(){ // 确认添加/编辑设备型号
           this.$refs['modelForm'].validate((valid) => {
             if (valid) {
-              let data = {
-                name:this.modelForm.name,
-                // iotServiceId:this.modelForm.iotServiceId,
-                iotServiceId:'tcp',
-                description:this.modelForm.description
-              }
-              api.addModel(data,this.type).then(res => {
-                // debugger
-                if(res.success){
-                  this.$message.success(this.$t('message.addsuc'))
-                  this.$refs['modelForm'].resetFields()
-                  this.dialogModel = false
-                  this.getlist()
-                }else {
-                  this.$message.error(res.msg)
+              if(!this.isEdit){
+                let data = {
+                  name:this.modelForm.name,
+                  // iotServiceId:this.modelForm.iotServiceId,
+                  iotServiceId:'tcp',
+                  description:this.modelForm.description
                 }
-              }).catch(err => {
-                this.$message.error(err.msg)
-              })
+                api.addModel(data,this.type).then(res => {
+                  // debugger
+                  if(res.success){
+                    this.$message.success(this.$t('message.addsuc'))
+                    this.$refs['modelForm'].resetFields()
+                    this.dialogModel = false
+                    this.getlist()
+                  }else {
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.msg)
+                })
+              }else{
+                let data2 = {
+                  deviceModelId:this.modelForm.deviceModelId,
+                  name:this.modelForm.name,
+                  description:this.modelForm.description
+                }
+                api.updateModel(data2,this.type).then(res => {
+                  // debugger
+                  if(res.success){
+                    this.$message({message:res.msg,type:'warning',offset:'200',duration:'3000'})
+                    this.$refs['modelForm'].resetFields()
+                    this.dialogModel = false
+                    this.getlist()
+                  }else {
+                    this.$message.error(res.msg)
+                  }
+                }).catch(err => {
+                  this.$message.error(err.msg)
+                })
+              }
+              
             } else {
               this.$message.warning(this.$t('message.checkmsg'))
               return false
@@ -215,6 +238,19 @@ export default{
         showDialog(index, data){ // 操作
           // console.log(index, data)
           switch (index) {
+            case '1': // 编辑设备型号
+              if(this.$refs['modelForm']){
+                this.$refs['modelForm'].resetFields()
+              }
+              this.modelForm={
+                deviceModelId:data.id,
+                name:data.name,
+                iotServiceId:data.iotServiceId,
+                description:data.description
+              }
+              this.isEdit = true
+              this.dialogModel = true
+              break
             case '2': // 删除设备型号
               this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
                 confirmButtonText: this.$t('button.determine'),

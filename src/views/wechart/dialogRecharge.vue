@@ -1,0 +1,252 @@
+<template>
+    <div >
+        <el-dialog
+          title="平台服务费充值"
+          :visible.sync="dialogVisible"
+          width="50%"
+          >
+        <el-row >
+            <el-col :span='4' style="text-align:center">
+              <div style="color:#666666;font-weight:400;display:inline-block">选择充值年限：</div>
+            </el-col>
+            <el-col :span='20'>
+              <div  :class="flag == 1 ? 'selColor':'noSelColor'" style="margin-right:20px" @click="chooseCol(1)">10元/年</div>
+              <div :class="flag == 2 ? 'selColor':'noSelColor'" style="margin-right:20px" @click="chooseCol(2)">20元/2年</div>
+              <div :class="flag == 3 ? 'selColor':'noSelColor'" @click="chooseCol(3)">30元/3年</div>
+            </el-col>
+        </el-row>
+        <el-row style="margin-top:20px;">
+            <el-col :span='4' style="text-align:center">
+                <span>平台充值设备：</span>
+            </el-col>
+            <el-col :span='20' style="border:1px solid #CCCCCC">
+                <el-row style="margin:10px 10px 0 10px">
+                  <el-input
+                    type="textarea"
+                    :autosize="{ minRows: 1, maxRows: 4}"
+                    placeholder="请输入设备IMEI号（多个回车换行）"
+                    v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+                  </el-input>
+                </el-row>
+                <el-row style="line-height:40px">
+                  <el-col :offset='1' :span='18'>
+                    <span>IMEI计数：{{tempNum}}</span>
+                  </el-col>
+                  <el-col :span='4'>
+                    <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
+                  </el-col>
+                </el-row>
+            </el-col>
+        </el-row>
+        <el-row style="margin:20px 0;">
+            <el-scrollbar style="height:30vh;" ref="scrollbar">
+              <BaseTable  :dataList="list" :tableLabel="tableLabel"   ></BaseTable>
+            </el-scrollbar>
+        </el-row>
+          <el-row  style="width:80%,height:100px;text-align:right">
+              <div style="display:inline-block">
+                <span style="color:#333333;">总费用：</span>
+                <span style="color:#FF7F00">￥{{tempTotal}}</span>
+              </div>
+              <div style="display:inline-block;margin:0 20px">
+                <el-popover
+                  placement="bottom"
+                  width="240"
+                  trigger="click"
+                  :content="content">
+                  <el-button type='text' slot="reference">明细</el-button>
+                </el-popover>
+              </div>
+              <div style="display:inline-block;width:180px;margin-right:20px">
+                <el-select v-model="payment" placeholder="请选择" >
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </div>
+              <div style="display:inline-block">
+                <!-- <el-button @click="dialogVisible = false">取 消</el-button> -->
+                <el-button type="warning" @click="dialogVisible = false">充 值</el-button>
+              </div>
+          </el-row >
+        </el-dialog>
+  
+    </div>
+</template>
+<script>
+    import api from '@/api/wechart/index'
+    import mixin from '@/mixins/index'
+    import BaseTable from '@/components/table'
+
+    export default{
+        name:'dialogRecharge',
+        props:{
+            list:{
+                type:Array,
+                default() {
+                  return []
+                }
+            }
+        },
+        components:{ BaseTable  },
+        mixins:[mixin],
+        data(){
+            return {
+               dialogVisible:false,
+               searchImei:null,
+               tempNum:0,
+               tableLabel:[
+                  {label: this.$t('table.imei'), prop: 'deviceNumber'},
+                  {label: this.$t('table.customers'), prop: 'username'},
+                  {label: '设备充值前到期时间', prop: 'serviceExpireTime', type: 'Timestamp'},
+                  {label: '设备充值后到期时间', prop: 'serviceExpireTime', type: 'Timestamp'},
+                  {label: this.$t('table.operation'),
+                    type:'clickEvent',
+                    name:'删除',
+                    tableClick: (val) => {
+                    this.showDialog('a', val)
+                  }
+                 }
+                ],
+                payment:1,
+                options:[
+                    { value: 1, label: '支付宝支付'},{ value: 2, label: '微信支付'}
+                ],
+                flag:1
+            }
+        },
+        watch: {
+
+        },
+        computed:{
+            tempTotal: function () {
+                return Number(this.list.length) * 10
+            },
+            content: function () {
+                return '充值年限'+this.flag+'年：'+this.list.length+'台 '+' 每台价格：￥10'
+            }
+        },
+        mounted(){
+           this.type = JSON.parse(sessionStorage['user']).userType
+        },
+        methods:{
+            chooseCol(type){
+              this.flag = type
+            },
+            inputChange(){
+                this.searchImei = this.searchImei.replace(/[^\d|^\n\r]/g,'')
+            },
+            changeIMEI(){
+                if(val.trim()){
+                  let temp = null
+                  temp= val.split("\n")
+                  temp = temp.filter(str => !!str)
+                  setTimeout(() => {
+                    this.tempNum = temp.length
+                  },100)
+                }else{
+                  this.tempNum = 0
+                }
+            },
+            searchEqu(){ //充值-搜索设备
+              if(!this.searchImei){
+                return this.$message.warning(this.$t('table.searchimei'))
+              }
+              let temp = null
+              temp= this.searchImei.split("\n")
+              temp = temp.filter(str => !!str)
+              let data = null
+              if(temp.length == 0){
+                return this.$message.warning(this.$t('table.searchimei'))
+              }else if(temp.length == 1){
+                data = {
+                  containsChildren: true,
+                  deviceNumberKeyword : this.searchImei.replace("\n", "")
+                }
+              }else{
+                data = {
+                  containsChildren: true,
+                  deviceNumberList : temp,
+                  pageSize : temp.length
+                }
+              }
+              api.getDevicesList(data,this.type).then(res => {
+                if(res.success){
+                  if(res.data.content.length<=0){
+                    return this.$message.warning(this.$t('table.temporarily'))
+                  }
+                  let item = res.data.content
+                  for(let i = 0;i<item.length;i++){
+                    if(item[i].deviceModel){
+                      item[i]['model'] = item[i].deviceModel.name
+                    }else{
+                      item[i]['model'] = ''
+                    }
+                    if(item[i].owner){
+                      item[i]['username'] = item[i].owner.username
+                    }else{
+                      item[i]['username'] = ''
+                    }
+                  }
+                  for(let a=0;a<this.list.length;a++){
+                    for(let b = 0;b<item.length;b++){
+                      if(this.list[a].id == item[b].id){
+                        item.splice(b, 1)
+                        b--
+                      }
+                    }
+                  }
+                  if(item.length>0){
+                    this.list = this.list.concat(item)
+                  }
+                  this.equNum = this.list.length
+                }else{
+                  this.$message.error(res.msg)
+                }  
+              }).catch(err => {
+                this.$message.error(err.msg)
+              })
+            },
+            showDialog(index, data){ // 操作
+                switch (index) {
+                    case 'a': //销售-删除设备
+                    // debugger
+                    for(let i = 0;i<this.list.length;i++){
+                      if(this.list[i].id==data.id){
+                        this.list.splice(i,1)
+                        i--
+                      }
+                    }
+                    break
+                }
+            }
+        }
+    }
+</script>
+<style type="stylesheet/scss" lang="scss" scoped>
+.selColor{
+  width: 90px;
+  height: 30px;
+  background: #648EF8;
+  border-radius: 3px;
+  display: inline-block;
+  color: #FFFFFF;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+.noSelColor{
+  width: 90px;
+  height: 30px;
+  background: #E0E8FE;
+  border-radius: 3px;
+  display: inline-block;
+  color: #648EF8;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+</style>

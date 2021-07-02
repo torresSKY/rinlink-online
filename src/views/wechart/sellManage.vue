@@ -745,6 +745,7 @@ export default{
               }
               
             }).catch(err => {
+              this.dialogDel = false
               console.log(err)
             })
         }

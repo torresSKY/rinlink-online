@@ -137,6 +137,7 @@
                       <el-button size="mini" @click="sale" v-if="type==2">{{$t('button.sale')}}</el-button>
                       <!-- <el-button size="mini" @click="download">{{$t('button.download')}}</el-button> -->
                       <el-button size="mini" @click="send" >{{$t('button.send')}}</el-button>
+                      <!-- <el-button size="mini"  @click="recharge">平台充值</el-button> -->
                       <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
                 </el-row>
@@ -476,6 +477,7 @@
               </el-col>
             </el-form> 
         </el-dialog>
+        <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>
     </div>
 </template>
 <script>
@@ -487,9 +489,10 @@ import {alatype,order} from '@/plugins/filter.js'
 import { formatDate } from '@/plugins/date.js'
 import BaseTable from '@/components/table'
 import sendOrder from './sendOrder.vue'
+import dialogRecharge from './dialogRecharge.vue'
 export default{
     name:'equManage',
-    components:{ BaseTable,sendOrder },
+    components:{ BaseTable,sendOrder,dialogRecharge },
     mixins:[mixin],
     computed:{
         ...mapState({user:'user',adminRoles:'roles'})
@@ -755,6 +758,7 @@ export default{
         timer:null,
         outUserId:'',
         inUserId:'',
+        rechargeList:[]
         // tempNum:0
       }
     },
@@ -1273,7 +1277,7 @@ export default{
           this.expiredTimeType = null
           this.checked = false
           this.insiadeData = this.custData 
-          this.saleList = list.concat(this.multipleSelection) 
+          this.saleList = JSON.parse(JSON.stringify(this.multipleSelection))
           this.equNum = this.multipleSelection.length
           this.saleTotal = 0
           this.saleSuc = 0
@@ -1522,7 +1526,7 @@ export default{
               return this.$message.warning(this.$t('message.defeModel'))
             }
           }
-          this.tempList = this.multipleSelection
+          this.tempList = JSON.parse(JSON.stringify(this.multipleSelection))
           this.dialogSend = true
           this.$nextTick(() => {
             this.$refs.sendOrder.formData = {}
@@ -1581,6 +1585,16 @@ export default{
           this.hisTime = null
           this.commandName = null
           this.queryDeviceCmds()
+        },
+        recharge(){ // 平台充值
+          // debugger
+          this.rechargeList = JSON.parse(JSON.stringify(this.multipleSelection))
+          this.$refs.dialogRecharge.dialogVisible = true
+          this.$nextTick(() => {
+            this.$refs.dialogRecharge.searchImei = null
+            this.$refs.dialogRecharge.tempNum = 0
+            this.$refs.dialogRecharge.flag = 1
+          })
         }
    },
   // 过滤器格式化时间戳

@@ -230,6 +230,9 @@ const createDeviceCmd = (data,type) => (   //下发指令
 const addModel = (data,type) => (   //创建设备型号
     axios.post(url+'/create_device_model?__OPERATOR_TYPE='+type, data)
 )
+const updateModel = (data,type) => (   //修改设备型号
+    axios.post(url+'/update_device_model?__OPERATOR_TYPE='+type, data)
+)
 const deleModel = (data,type) => (   //删除设备型号
     axios.post(url+'/delete_device_model?__OPERATOR_TYPE='+type, data)
 )
@@ -408,6 +411,7 @@ export default {
     getModelList,
     getServices,
     addModel,
+    updateModel,
     deleModel,
     getOnlineDvice,
     getOfflineDevice,
