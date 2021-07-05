@@ -27,15 +27,12 @@
             <div>设备状态统计</div>
             <img @click="evt_refresh" data-type="2" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row style="overflow:scroll;">
-            <!-- :style="{'min-height': page_item_min_height+'px','min-width': page_item_min_width + 'px'}" -->
-            <el-col :span="24">
+            <el-scrollbar :native="false">
               <div
                 id="myChart2"
-                :style="{ height: '26vh', margin: '10px auto' }"
+                :style="{ height: '26vh',margin: '10px auto'}"
               ></div>
-            </el-col>
-          </el-row>
+            </el-scrollbar>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
@@ -58,14 +55,12 @@
             <div>激活统计</div>
             <img @click="evt_refresh" data-type="3" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row style="overflow:scroll;">
-            <el-col :span="24">
-              <div
-                id="myChart3"
-                :style="{ height: '26vh', margin: '10px auto' }"
-              ></div>
-            </el-col>
-          </el-row>
+          <el-scrollbar :native="false">
+            <div
+              id="myChart3"
+              :style="{ height: '26vh', margin: '10px auto' }"
+            ></div>
+          </el-scrollbar>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
@@ -77,16 +72,19 @@
             </div>
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row style="position: relative;overflow:scroll;">
+          <el-scrollbar :native="false">
+            <div id="myChart1" :style="{ height: '26vh', margin: '10px auto' }"></div>
+          </el-scrollbar>
+          <!-- <el-row style="overflow:scroll;"> -->
             <!-- <el-col :span="24">
               <div
                 id="myChart1"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
             </el-col> -->
-              <el-col :span="24">
-                <div id="myChart1" :style="{ height: '26vh', margin: '10px' }"></div>
-              </el-col>
+              <!-- <el-col :span="24">
+                <div id="myChart1" :style="{ height: '26vh', margin: '10px auto' }"></div>
+              </el-col> -->
               <!-- <el-col :span="6"> -->
                 <!-- <div class="myChart_text_content myChart1_text_content">
                   <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
@@ -94,7 +92,7 @@
                   <div>已销售：{{Sold_deviceCount}}</div>
                 </div> -->
               <!-- </el-col> -->
-          </el-row>
+          <!-- </el-row> -->
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
@@ -103,14 +101,20 @@
             <div>设备期限</div>
             <img @click="evt_refresh" data-type="4" src="../../assets/img/refresh.png" alt="" />
           </div>
-          <el-row style="overflow:scroll;">
+          <el-scrollbar :native="false">
+            <div
+              id="myChart4"
+              :style="{ height: '26vh', margin: '10px auto' }"
+            ></div>
+          </el-scrollbar>
+          <!-- <el-row style="overflow:scroll;">
             <el-col :span="24">
               <div
                 id="myChart4"
                 :style="{ height: '26vh', margin: '10px auto' }"
               ></div>
             </el-col>
-          </el-row>
+          </el-row> -->
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
