@@ -1754,7 +1754,7 @@ export default {
             request_data['endTime'] = _this.select_date_time[1];
             request_data['coordinateSystem'] = 'BD09';
             request_data['deviceId'] = _this.need_handle_deviceId;
-            request_data['positionType'] = _this.position_type;
+            request_data['positionTypes'] = _this.position_type;
             api.downloadDeviceTracks(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 var blob = new Blob([res],{type: "application/vnd.ms-excel"});
