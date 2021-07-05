@@ -137,7 +137,7 @@
                       <el-button size="mini" @click="sale" v-if="type==2">{{$t('button.sale')}}</el-button>
                       <!-- <el-button size="mini" @click="download">{{$t('button.download')}}</el-button> -->
                       <el-button size="mini" @click="send" >{{$t('button.send')}}</el-button>
-                      <!-- <el-button size="mini"  @click="recharge">平台充值</el-button> -->
+                      <el-button size="mini"  @click="recharge">平台充值</el-button>
                       <!-- <el-button size="mini" @click="moveLable">{{$t('button.moveLable')}}</el-button> -->
                     </el-col>  
                 </el-row>
