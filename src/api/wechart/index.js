@@ -164,6 +164,9 @@ const updateConsumer = (data,type) => (   //更新C端客户信息
 const resetConsumer = (data,type) => (   //更新C端用户密码
     axios.post(url+'/reset_consumer_user_password?__OPERATOR_TYPE='+type, data)
 )
+const create_device_order = (data,type) => (   //创建订单
+    axios.post(url+'/create_device_order?__OPERATOR_TYPE='+type, data)
+)
 const searchBusiness = (data,type) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
 )
@@ -401,6 +404,7 @@ export default {
     upsetBPwd,
     updateConsumer,
     resetConsumer,
+    create_device_order,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

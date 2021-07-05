@@ -224,7 +224,7 @@
               api.getDevicesList(data,this.type).then(res => {
                 if(res.success){
                   if(res.data.content.length<=0){
-                    return this.$message.warning(this.$t('table.temporarily'))
+                    return this.$message.warning('输入的IMEI没有查到数据')
                   }
                   let item = res.data.content
                   for(let i = 0;i<item.length;i++){
