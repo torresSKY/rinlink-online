@@ -63,7 +63,7 @@
           </el-scrollbar>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
+      <el-col v-if="userType_parameter != 3" :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
         <el-card v-loading="loading_one">
           <div class="myChart_top">
             <div style="display:flex;align-items:flex-end">
@@ -251,7 +251,9 @@ export default {
   created:function(){
     var _this = this;
     _this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
-    _this.getEchartsData_one();
+    if(_this.userType_parameter != 3){
+      _this.getEchartsData_one();
+    }
     _this.getEchartsData_two();
     _this.getEchartsData_three();
     _this.getEchartsData_four();
