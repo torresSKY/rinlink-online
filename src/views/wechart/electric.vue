@@ -8,8 +8,8 @@
                         <el-row class="select_type_name" :gutter="4" type="flex" align="center">
                             <el-col :span="10">
                                 <el-select @change="evt_changeSearchType" v-model="select_type_name" placeholder="请选择查询类型" size="small">
-                                    <el-option key="设备名称"  label="设备名称" value="deviceName"></el-option>
-                                    <el-option key="设备IMEI"  label="设备IMEI" value="deviceNumber"></el-option>
+                                    <!-- <el-option key="设备名称"  label="设备名称" value="deviceName"></el-option> -->
+                                    <el-option key="设备名称或IMEI"  label="设备名称或IMEI" value="deviceNumber"></el-option>
                                     <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
                             </el-col>
@@ -17,7 +17,7 @@
                                 <div class="fenceSearch_content">
                                     <el-input size="small" v-model='fenceSearchContent' placeholder="请输入搜索内容"></el-input>
                                     <!-- <input id="fence_search" type="text" v-model='fenceSearchContent' placeholder="请输入搜索内容"> -->
-                                    <div v-if="fenceSearch_content_flag" class="fenceSearch_content_tab">
+                                    <div v-if="fenceSearch_content_flag" class="fenceSearch_content_tab"  v-infinite-scroll="evt_search_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="20">
                                         <el-table @row-click="evt_row_click"  size="mini" :data="search_result" style="width:100%" :show-header="false">
                                             <el-table-column v-if="select_type_name == 'fenceName'" prop="fenceName" label="围栏名称"></el-table-column>
                                             <el-table-column v-if="select_type_name == 'deviceName' || select_type_name == 'deviceNumber'" prop="deviceName" label="设备名称"></el-table-column>
@@ -44,9 +44,6 @@
                                         <div class="elecard_item_right" :class="item.fenceType != '0' ? 'elecard_item_right_t':''">
                                             <div v-if="item.fenceType == '0'">半径：{{item.circleFence.radius}}米</div>
                                             <div class="fence_icon">
-                                                <!-- <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/list.png')" fit="contain" @click.stop="evt_show_relevance(item)"></el-image>
-                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/edit.png')" fit="contain" @click.stop='evt_edit(item)'></el-image>
-                                                <el-image style="width: 22px; height: 22px" :src="require('../../assets/img/delet.png')" fit="contain"  @click.stop='evt_delete(item)'></el-image> -->
                                                 <div  @click.stop="evt_show_relevance(item)"></div>
                                                 <div  @click.stop="evt_edit(item)"></div>
                                                 <div  @click.stop="evt_delete(item)"></div>
@@ -297,7 +294,10 @@ export default {
             nav_deviceId: '',//路由中携带的设备id 存在即是其他页面跳转就来的
             props:{
                 isLeaf: 'isLeaf'
-            }
+            },
+            search_page: 0,//根据设备模糊搜索围栏时搜索设备的分页页数
+            search_pageSize: 10,//根据设备模糊搜索围栏时搜索设备的分页条数
+            search_totalPage: 1,//根据设备模糊搜索围栏时搜索设备的分页总页数
         }
     },
     watch: {
@@ -318,7 +318,7 @@ export default {
     created(){
         this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
 
-        this.select_type_name = this.$route.query.deviceName ?  'deviceName' : '';
+        this.select_type_name = this.$route.query.deviceName ?  'deviceNumber' : '';
         this.fenceSearchContent = this.$route.query.deviceName ? this.$route.query.deviceName : '';
         this.nav_deviceId = this.$route.query.deviceId ? this.$route.query.deviceId : '';
         this.fenceSearchDeviceId = this.$route.query.deviceId ? this.$route.query.deviceId : '';
@@ -739,10 +739,10 @@ export default {
         // 模糊搜索设备
         evt_search_device:function(){
             var _this = this;
-            _this.search_result = [];
+            // _this.search_result = [];
             var request_data = {};
-            request_data['page'] = 0;
-            request_data['pageSize'] = 20;
+            request_data['page'] = _this.search_page;
+            request_data['pageSize'] = _this.search_pageSize;
             request_data['containsChildren'] = true;
             if(_this.select_type_name == 'deviceNumber'){
                 request_data['deviceNumberKeyword'] = _this.fenceSearchContent;
@@ -750,9 +750,11 @@ export default {
                 request_data['deviceNameKeyword'] = _this.fenceSearchContent;
             }
             api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
+                // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
-                    _this.search_result = res.data.content;
+                    _this.search_result = _this.search_result.concat(res.data.content);
                     _this.fenceSearch_content_flag = true;
+                    _this.search_totalPage = res.data.pageTotal;
                 }else if(res.success && res.data && Object.keys(res.data).length > 0 && res.data.content.length == 0){
                     _this.search_result = [];
                     _this.fenceSearch_content_flag = true;
@@ -760,6 +762,13 @@ export default {
             }).catch((err) => {
                 _this.$message({message:err.msg || '请求错误，请稍后重试',type:'error',offset:'200',duration:'1000'});
             })
+        },
+        evt_search_scroll_load:function(){
+            if(this.search_page == this.search_totalPage -1){
+                return;
+            }
+            this.search_page = this.search_page + 1;
+            this.evt_search_device();
         },
         // 根据类型模糊搜索电子围栏
         evt_fence_query:function(){
@@ -780,12 +789,18 @@ export default {
                 _this.queryPen_pageTotal = 1;
                 _this.evt_queryPen();
             }else{
+                _this.search_page = 0;
+                _this.search_totalPage = 1;
+                _this.search_result = [];
                 _this.evt_search_device();
             }
             
             let dom_element = document.getElementsByTagName('body')[0];
             dom_element.addEventListener('click',function(){
                 _this.fenceSearch_content_flag = false;
+                _this.search_page = 0;
+                _this.search_totalPage = 1;
+                _this.search_result = [];
                 dom_element.removeEventListener('click',function(){})
             })
         },
@@ -803,6 +818,9 @@ export default {
             this.queryPen_pageTotal = 1;
             this.fenceSearchDeviceId = row.id;
             this.fenceSearch_content_flag = false;
+            this.search_page = 0;
+            this.search_totalPage = 1;
+            this.search_result = [];
             this.evt_queryPen();
         },
         // 查询电子围栏
