@@ -296,7 +296,7 @@ export default {
                 isLeaf: 'isLeaf'
             },
             search_page: 0,//根据设备模糊搜索围栏时搜索设备的分页页数
-            search_pageSize: 10,//根据设备模糊搜索围栏时搜索设备的分页条数
+            search_pageSize: 20,//根据设备模糊搜索围栏时搜索设备的分页条数
             search_totalPage: 1,//根据设备模糊搜索围栏时搜索设备的分页总页数
         }
     },
