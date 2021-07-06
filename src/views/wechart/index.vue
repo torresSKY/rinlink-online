@@ -1,9 +1,9 @@
 <template>
   <div id="users">
     <el-row :gutter="20" class="item_row_L">
-      <el-col :span="8" class="top_left">
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" class="top_left" style="margin-bottom:20px">
         <el-card>
-          <div class="myChart_top ">
+          <div>
             <div @click="evt_change_userInfoType('my')" class="top_left_title" :class="user_info_type == 'my' ? 'top_left_title_t' : ''">{{$t("view.mine")}}</div>
             <div v-if="user_type == '2' && user_falg" @click="evt_change_userInfoType('service')" class="top_left_title" :class="user_info_type == 'service' ? 'top_left_title_t' : ''">{{$t("view.service")}}</div>
           </div>
@@ -21,7 +21,7 @@
           </el-row>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px;">
         <el-card v-loading="loading_two">
           <div class="myChart_top">
             <div>设备状态统计</div>
@@ -35,7 +35,21 @@
             </el-scrollbar>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
+        <el-card>
+          <div class="myChart_top">
+            <div>平台服务充值</div>
+          </div>
+          <el-row>
+            <el-col :span="24">
+              <div :style="{ height: '26vh', margin: '10px auto'}" class="pay">
+                <el-button @click="evt_pay" type="primary">平台服务充值</el-button>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
         <el-card v-loading="loading_three">
           <div class="myChart_top">
             <div>激活统计</div>
@@ -49,12 +63,13 @@
           </el-scrollbar>
         </el-card>
       </el-col>
-    </el-row>
-    <el-row :gutter="20" class="item_row_item">
-      <el-col :span="8">
+      <el-col v-if="userType_parameter != 3" :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
         <el-card v-loading="loading_one">
           <div class="myChart_top">
-            <div>库存统计</div>
+            <div style="display:flex;align-items:flex-end">
+              <div>库存统计</div>
+              <span style="font-size:12px;line-height:20px;margin-left:5px;"> (总进货数：{{Inventory_deviceCount + Sold_deviceCount}})</span>
+            </div>
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-scrollbar :native="false">
@@ -71,16 +86,16 @@
                 <div id="myChart1" :style="{ height: '26vh', margin: '10px auto' }"></div>
               </el-col> -->
               <!-- <el-col :span="6"> -->
-                <div class="myChart_text_content myChart1_text_content">
+                <!-- <div class="myChart_text_content myChart1_text_content">
                   <div>总进货数：{{Inventory_deviceCount + Sold_deviceCount}}</div>
                   <div>库存：{{Inventory_deviceCount}}</div>
                   <div>已销售：{{Sold_deviceCount}}</div>
-                </div>
+                </div> -->
               <!-- </el-col> -->
           <!-- </el-row> -->
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
         <el-card v-loading="loading_four">
           <div class="myChart_top">
             <div>设备期限</div>
@@ -102,7 +117,7 @@
           </el-row> -->
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" style="margin-bottom:20px">
         <el-card>
           <div class="myChart_top">
             <div>轨迹信息</div>
@@ -140,6 +155,8 @@
         </el-card>
       </el-col>
     </el-row>
+
+     <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>
   </div>
 </template>
 
@@ -150,11 +167,13 @@ import mixin from "@/mixins/index";
 import { mapGetters } from "vuex";
 import { alatype } from "@/plugins/filter.js";
 import * as echarts from "echarts";
+import dialogRecharge from './dialogRecharge.vue'
 export default {
   name: "users",
   mixins: [mixin],
   components: {
     CountTo,
+    dialogRecharge
   },
   data() {
     return {
@@ -222,6 +241,7 @@ export default {
         3: '用户'
       },
       userType_parameter: '',//请求接口拼接的用户类型
+      rechargeList: [],
     };
   },
   watch: {},
@@ -231,13 +251,14 @@ export default {
   created:function(){
     var _this = this;
     _this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
-    _this.getEchartsData_one();
+    if(_this.userType_parameter != 3){
+      _this.getEchartsData_one();
+    }
     _this.getEchartsData_two();
     _this.getEchartsData_three();
     _this.getEchartsData_four();
     _this.user_type = JSON.parse(sessionStorage['user']).userType;
     _this.user_id = JSON.parse(sessionStorage['user']).userId;
-
     _this.evt_queryBusinessUserInfo();
   },
   mounted() {
@@ -313,7 +334,7 @@ export default {
                 data[1].value = _this.Inventory_deviceCount;
                 option.series[0]['data'] = data;
                 option.color = ["#F14864", "#C4C6D1"];
-                option.legend = {show:false};
+                // option.legend = {show:false};
                 function formatter(name){
                   for (var i = 0; i < option.series[0].data.length; i++) {
                     if (option.series[0].data[i].name == name) {
@@ -524,6 +545,15 @@ export default {
         this.$router.push({path:'/control/control',query:{deviceId:row.id}});
       }
     },
+    evt_pay:function(){ // 平台充值
+      this.rechargeList = [];
+      this.$refs.dialogRecharge.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.dialogRecharge.searchImei = null
+        this.$refs.dialogRecharge.tempNum = 0
+        this.$refs.dialogRecharge.flag = 1
+      })
+    }
   },
   // 过滤器格式化时间戳
   filters: {
@@ -541,8 +571,10 @@ export default {
   border-bottom: 1px solid gray;
 }
 #users {
+  height: 100%;
   padding: 20px;
-//   background: #f2f2f2;
+  // background: #f2f2f2;
+  overflow: scroll;
 }
 .item_row_L {
   margin-bottom: 20px;
@@ -554,7 +586,7 @@ export default {
   border-radius: 4px;
   .top_left_title {
     width: 50%;
-    font-size: 14px;
+    font-size: 16px;
     font-family: Microsoft YaHei;
     font-weight: 400;
     color: #666666;
@@ -568,7 +600,7 @@ export default {
     width: 100%;
     height: 26vh;
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 11px;
     border-top: 1px solid #eeeeee;
     display: flex;
     justify-content: center;
@@ -738,6 +770,11 @@ export default {
     width: 100%;
     margin-bottom: 2vh;
   }
+}
+.pay{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
 <style rel="stylesheet/scss" lang="scss">
