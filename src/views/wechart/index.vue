@@ -69,7 +69,7 @@
             <div style="display:flex;align-items:flex-end">
               <div>库存统计</div>
               <span style="font-size:12px;line-height:20px;margin-left:5px;"> (总进货数：{{Inventory_deviceCount + Sold_deviceCount}})</span>
-            </div>
+            </div> 
             <img @click="evt_refresh" data-type="1" src="../../assets/img/refresh.png" alt="" />
           </div>
           <el-scrollbar :native="false">
