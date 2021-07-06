@@ -944,7 +944,7 @@ export default{
             searchType : this.selectType,
             searchContent:this.search
           }
-          if(this.search.trim() == '') {
+          if(this.search == '') {
             this.evt_getBusinessUserinfo()
             return
           }
@@ -1409,7 +1409,7 @@ export default{
             searchType : this.selectType1,
             searchContent:this.searchName
           }
-          if(this.searchName.trim() == '') {
+          if(this.searchName == '' ) {
             this.evt_getBusinessUserinfoTwo()
             return
           }
@@ -1478,6 +1478,10 @@ export default{
               this.$message.success(this.$t('message.success'))
               // this.multipleSelection = []
               // this.dialogSale = false
+              if(this.type!=3){
+                this.evt_getBusinessUserinfo()
+                this.evt_getBusinessUserinfoTwo()
+              }
               this.getlist()
               let suc = 0
               let fal = 0

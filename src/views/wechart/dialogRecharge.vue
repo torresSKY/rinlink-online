@@ -73,10 +73,21 @@
               </div>
           </el-row >
         </el-dialog>
-  
+        <el-dialog
+          :title="payment == 'ALI_QR'? '支付宝扫码支付': '微信扫码支付'"
+          :visible.sync="dialogCode"
+          :show-close='false'
+          width="26%">
+          <div class="qrcode" ref="qrCodeUrl" style="width:200px;text-align:center;margin:0 auto"></div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogCode = false">取消付款</el-button>
+            <el-button type="primary" @click="confirmPay" :loading="loading">已付款</el-button>
+          </span>
+        </el-dialog>
     </div>
 </template>
 <script>
+    import QRCode from 'qrcodejs2'
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'
     import BaseTable from '@/components/table'
@@ -115,7 +126,12 @@
                 options:[
                     { value: 'ALI_QR', label: '支付宝支付'},{ value: 'WX_NATIVE', label: '微信支付'}
                 ],
-                flag:1
+                flag:1,
+                dialogCode:false,
+                type:JSON.parse(sessionStorage['user']).userType,
+                qrCodeUrl:null,
+                payOrderId:null,
+                loading:false
             }
         },
         watch: {
@@ -131,7 +147,7 @@
             }
         },
         mounted(){
-           this.type = JSON.parse(sessionStorage['user']).userType
+          //  this.type = JSON.parse(sessionStorage['user']).userType
         },
         methods:{
             chooseCol(type){ // 选择年限
@@ -244,7 +260,9 @@
                     break
                 }
             },
-            recharge(){
+            recharge(){ // 充值生成二维码
+              this.qrCodeUrl = null 
+              this.payOrderId = null
               if(this.list.length<=0){
                 return this.$message.warning('请输入需充值的设备')
               }
@@ -258,9 +276,69 @@
                 wayCode : this.payment
               }
               api.create_device_order(data,this.type).then(res => {
-                
+                // debugger
+                if(res.success){
+                  this.qrCodeUrl = res.data.payData
+                  this.payOrderId = res.data.payOrderId
+                  this.dialogCode = true
+                  this.$nextTick(() => {
+                    this.creatQrCode()
+                  })
+                }else{
+                  this.$message.error(err.msg)
+                }
               }).catch(err => {
-
+                this.$message.error(err.msg)
+              })
+            },
+            creatQrCode() {
+                let qrcode = new QRCode(this.$refs.qrCodeUrl, {
+                    text: this.qrCodeUrl, // 需要转换为二维码的内容
+                    width: 200,
+                    height: 200,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff'
+                })
+            },
+            confirmPay(){ // 确认付款
+              this.loading = true  
+              var that = this
+              setTimeout(function(){ that.get_device_order() },3000)
+            },
+            get_device_order(){
+              
+              let data = {
+                payOrderId : this.payOrderId
+              }
+              api.get_device_order(data,this.type).then(res => {
+                // debugger
+                this.loading = false
+                if(res.success){
+                  let msg = null
+                  let state = res.data.orderState
+                  if(state==0){
+                    msg = '订单生成'
+                  }else if(state==1){
+                    msg = '支付中'
+                  }else if(state==2){
+                    msg = '支付成功'
+                  }else if(state==3){
+                    msg = '支付失败'
+                  }else if(state==4){
+                    msg = '已撤销'
+                  }else if(state==5){
+                    msg = '已退款'
+                  }else if(state==6){
+                    msg = '订单关闭'
+                  }
+                  this.$message(msg)
+                  this.dialogCode = false
+                  this.dialogVisible = false
+                }else{
+                  this.$message.error(err.msg)
+                }
+              }).catch(err => {
+                this.loading = false
                 this.$message.error(err.msg)
               })
             }

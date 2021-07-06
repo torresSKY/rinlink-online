@@ -167,6 +167,15 @@ const resetConsumer = (data,type) => (   //更新C端用户密码
 const create_device_order = (data,type) => (   //创建订单
     axios.post(url+'/create_device_order?__OPERATOR_TYPE='+type, data)
 )
+const get_device_order = (data,type) => (   //查询设备订单
+    axios.post(url+'/get_device_order?__OPERATOR_TYPE='+type, data)
+)
+const paging_query_device_order = (data,type) => (   //分页查询设备订单
+    axios.post(url+'/paging_query_device_order?__OPERATOR_TYPE='+type, data)
+)
+const paging_device_mileage_statistics = (data,type) => (   //分页查询设备的里程统计
+    axios.post(url+'/paging_device_mileage_statistics?__OPERATOR_TYPE='+type, data)
+)
 const searchBusiness = (data,type) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
 )
@@ -405,6 +414,9 @@ export default {
     updateConsumer,
     resetConsumer,
     create_device_order,
+    get_device_order,
+    paging_query_device_order,
+    paging_device_mileage_statistics,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

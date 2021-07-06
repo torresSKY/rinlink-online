@@ -123,6 +123,17 @@ const list={
         ]
       },
       {
+        path: '/orderManage',
+        name: '订单管理',
+        radius:false,
+        roles:[2,3],
+        component: _import('index'),
+        redirect: '/orderManage',
+        children: [
+          {path: 'order',name: '订单管理',component: () =>import('@/views/wechart/orderManage'),hidden: true,radius:false,roles:[2,3],},
+        ]
+      },
+      {
         path: '/orderMsg',
         name: 'table.orderMsg',
         radius:false,
