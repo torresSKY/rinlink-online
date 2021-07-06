@@ -51,7 +51,7 @@
               <div style="display:inline-block;margin:0 20px">
                 <el-popover
                   placement="bottom"
-                  width="240"
+                  width="370"
                   trigger="click"
                   :content="content">
                   <el-button type='text' slot="reference">明细</el-button>
@@ -69,7 +69,7 @@
               </div>
               <div style="display:inline-block">
                 <!-- <el-button @click="dialogVisible = false">取 消</el-button> -->
-                <el-button type="warning" @click="dialogVisible = false">充 值</el-button>
+                <el-button type="warning" @click="recharge">充 值</el-button>
               </div>
           </el-row >
         </el-dialog>
@@ -102,7 +102,7 @@
                   {label: this.$t('table.imei'), prop: 'deviceNumber'},
                   {label: this.$t('table.customers'), prop: 'username'},
                   {label: '设备充值前到期时间', prop: 'serviceExpireTime', type: 'Timestamp'},
-                  {label: '设备充值后到期时间', prop: 'serviceExpireTime', type: 'Timestamp'},
+                  {label: '设备充值后到期时间', prop: 'newExpireTime', type: 'Timestamp'},
                   {label: this.$t('table.operation'),
                     type:'clickEvent',
                     name:'删除',
@@ -111,9 +111,9 @@
                   }
                  }
                 ],
-                payment:1,
+                payment:'ALI_QR',
                 options:[
-                    { value: 1, label: '支付宝支付'},{ value: 2, label: '微信支付'}
+                    { value: 'ALI_QR', label: '支付宝支付'},{ value: 'WX_NATIVE', label: '微信支付'}
                 ],
                 flag:1
             }
@@ -123,23 +123,37 @@
         },
         computed:{
             tempTotal: function () {
-                return Number(this.list.length) * 10
+                return Number(this.list.length) * 10 * this.flag
             },
             content: function () {
-                return '充值年限'+this.flag+'年：'+this.list.length+'台 '+' 每台价格：￥10'
+                // return '充值年限'+this.flag+'年：'+this.list.length+'台 '+' 每台价格：￥10'
+                return this.flag+'年x10元（每台价格）x'+this.list.length+'台(设备数量)='+Number(this.list.length) * 10 * this.flag+'元（总费用）'
             }
         },
         mounted(){
            this.type = JSON.parse(sessionStorage['user']).userType
         },
         methods:{
-            chooseCol(type){
+            chooseCol(type){ // 选择年限
               this.flag = type
+              for(let i = 0;i<this.list.length;i++){
+                // debugger
+                if(this.list[i]['serviceExpireTime']==-1||!this.list[i]['serviceExpireTime']){
+                  this.list[i]['newExpireTime'] = '--'
+                }else{
+                  let date=new Date(this.list[i]['serviceExpireTime'])
+                  date.setFullYear(date.getFullYear()+this.flag)
+                  // this.list[i]['newExpireTime'] = date.getTime()
+                  this.$set(this.list[i],"newExpireTime", date.getTime())
+                }
+                
+              }
+              console.log(this.list)
             },
             inputChange(){
                 this.searchImei = this.searchImei.replace(/[^\d|^\n\r]/g,'')
             },
-            changeIMEI(){
+            changeIMEI(val){
                 if(val.trim()){
                   let temp = null
                   temp= val.split("\n")
@@ -176,7 +190,7 @@
               api.getDevicesList(data,this.type).then(res => {
                 if(res.success){
                   if(res.data.content.length<=0){
-                    return this.$message.warning(this.$t('table.temporarily'))
+                    return this.$message.warning('输入的IMEI没有查到数据')
                   }
                   let item = res.data.content
                   for(let i = 0;i<item.length;i++){
@@ -189,6 +203,13 @@
                       item[i]['username'] = item[i].owner.username
                     }else{
                       item[i]['username'] = ''
+                    }
+                    if(item[i]['serviceExpireTime']==-1||!item[i]['serviceExpireTime']){
+                      item[i]['newExpireTime'] = '--'
+                    }else{
+                      let date=new Date(item[i]['serviceExpireTime'])
+                      date.setFullYear(date.getFullYear()+this.flag)
+                      item[i]['newExpireTime'] = date.getTime()
                     }
                   }
                   for(let a=0;a<this.list.length;a++){
@@ -212,7 +233,7 @@
             },
             showDialog(index, data){ // 操作
                 switch (index) {
-                    case 'a': //销售-删除设备
+                    case 'a': //充值-删除设备
                     // debugger
                     for(let i = 0;i<this.list.length;i++){
                       if(this.list[i].id==data.id){
@@ -222,6 +243,26 @@
                     }
                     break
                 }
+            },
+            recharge(){
+              if(this.list.length<=0){
+                return this.$message.warning('请输入需充值的设备')
+              }
+              let arr = []
+              for(let i = 0;i<this.list.length;i++){
+                arr.push(this.list[i].id)
+              }
+              let data = {
+                paymentContentId : this.flag,
+                deviceIds : arr,
+                wayCode : this.payment
+              }
+              api.create_device_order(data,this.type).then(res => {
+                
+              }).catch(err => {
+
+                this.$message.error(err.msg)
+              })
             }
         }
     }

@@ -9,7 +9,7 @@
                     <el-button class="butresh" @click="allHandle">{{$t('button.allHandle')}}</el-button>
                 </el-col>
                 <el-col :span='2' style="line-height:40px">
-                    <el-checkbox v-model="containsChildren" @change="getlist()">{{$t('view.subordinate')}}</el-checkbox>
+                    <el-checkbox v-model="containsChildren" @change="getlist(1)">{{$t('view.subordinate')}}</el-checkbox>
                 </el-col>    
                 <el-col :span='3'>
                     <el-button type="text" @click="selAlarmType">{{$t('button.sel')}}</el-button>
@@ -154,8 +154,11 @@
            
         },
         methods:{
-            getlist(){ // 获取列表
+            getlist(item){ // 获取列表
                 this.loading = true
+                if(item==1){
+                  this.page.index = 1
+                }
                 let data = {
                   pageSize: this.page.size,
                   page: this.page.index - 1,

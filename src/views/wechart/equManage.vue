@@ -1343,7 +1343,7 @@ export default{
           api.getDevicesList(data,this.type).then(res => {
             if(res.success){
               if(res.data.content.length<=0){
-                return this.$message.warning(this.$t('table.temporarily'))
+                return this.$message.warning('输入的IMEI没有查到数据')
               }
               let item = res.data.content
               for(let i = 0;i<item.length;i++){
@@ -1570,7 +1570,7 @@ export default{
             }).catch(err => {
               this.historysendList = []
               this.page1.total = 0
-              this.$message.error(err.errMsg)
+              this.$message.error(err.msg)
             })
         },
         changeindex1(val){ // 历史指令查询
@@ -1588,14 +1588,27 @@ export default{
         },
         recharge(){ // 平台充值
           // debugger
-          this.rechargeList = JSON.parse(JSON.stringify(this.multipleSelection))
-          this.$refs.dialogRecharge.dialogVisible = true
+         
+          this.$refs.dialogRecharge.flag = 1
+          for(let i = 0;i<this.multipleSelection.length;i++){
+            // debugger
+            if(this.multipleSelection[i]['serviceExpireTime']==-1||!this.multipleSelection[i]['serviceExpireTime']){
+              this.multipleSelection[i]['newExpireTime'] = '--'
+            }else{
+              let date=new Date(this.multipleSelection[i]['serviceExpireTime'])
+              date.setFullYear(date.getFullYear()+this.$refs.dialogRecharge.flag)
+              this.multipleSelection[i]['newExpireTime'] = date.getTime()
+            }
+            
+          }
+           this.rechargeList = JSON.parse(JSON.stringify(this.multipleSelection))
           this.$nextTick(() => {
             this.$refs.dialogRecharge.searchImei = null
             this.$refs.dialogRecharge.tempNum = 0
-            this.$refs.dialogRecharge.flag = 1
+            this.$refs.dialogRecharge.dialogVisible = true
+            
           })
-        }
+        },
    },
   // 过滤器格式化时间戳
   filters: {

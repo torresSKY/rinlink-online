@@ -702,7 +702,7 @@ export default {
           this.isEdit = true
           break
         case '2' : //删除客户 
-          const confirmText = ['用户被删除后，对应的数据将丢弃，且无法恢复。确认要继续删除该用户吗？','  ','提示：如果该用户下有设备，请先将所有设备"销售"转移给别的用户，再来该删除用户。'] 
+          const confirmText = ['用户被删除后，对应的数据将丢弃，且无法恢复。确认要继续删除该用户吗？','  ','提示：如果该用户下有设备，请先将所有设备"销售"转移给别的用户，再来删除该用户。'] 
           const newDatas = []
           const h = this.$createElement
           for (const i in confirmText) {

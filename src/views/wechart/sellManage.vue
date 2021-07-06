@@ -82,8 +82,8 @@
                     <el-col :span='3'>
                       <el-input v-model="iccid" :placeholder="$t('table.searchiccid')" clearable></el-input>
                     </el-col>
-                    <!-- <el-col :span='3'>
-                      <el-select v-model="useStatus" clearable :placeholder="$t('view.inputstate2')">
+                    <el-col :span='3'>
+                      <el-select v-model="useStatus" clearable placeholder="请选择设备状态">
                         <el-option
                           v-for="item in useStatusoptions"
                           :key="item.value"
@@ -91,7 +91,7 @@
                           :value="item.value">
                         </el-option>
                       </el-select>
-                    </el-col>   -->
+                    </el-col>  
                 </el-row>
                 <el-row style="margin:10px" :style="{height:tableHeight - 200 + 'px',overflow:'auto', }">
                   <!-- <el-scrollbar style="height:64vh;" ref="scrollbar"> -->
@@ -271,7 +271,7 @@ export default{
         businessoptions:[],
         useStatus:null,
         useStatusoptions:[
-          {value: 0,label: '未激活'},{value: 1,label: '激活'},{value: 2,label: '到期'}
+          {value: 1,label: '未激活'},{value: 2,label: '已激活'},{value: 3,label: '已过期'},{value: 4,label: '已激活未上线'}
         ],
         timeType:'',
         timeTypeoptions: [
@@ -300,6 +300,16 @@ export default{
             }
           },
           {label: this.$t('table.imei'), prop: 'deviceNumber'},
+          {label: this.$t('table.usestatus'), prop: 'useStatus',
+            type: 'render',
+              formatter: (params) => {
+                params['useStatus'] = (params.activationTime == null || (params.activationTime - new Date().getTime()>0)) ? '未激活'  
+                : ((params.serviceExpireTime -new Date().getTime())<0 && params.serviceExpireTime != -1 && params.serviceExpireTime != null)? '已过期'
+                : (params.activationTime && params.lastReportDataTime == null) ? '已激活未上线' 
+                : '已激活'
+                return params
+              }
+          },
           {label: this.$t('table.agent'), prop: 'username',
             type: 'render',
             formatter: (params) => {
@@ -475,7 +485,8 @@ export default{
               usageStatus:this.usageStatus,
               timeType:this.timeType,
               startTime:start,
-              endTime:end
+              endTime:end,
+              useStatus:this.useStatus
             }
             api.getShipmentList(data,this.type).then(res => {
               this.loading = false
@@ -498,6 +509,7 @@ export default{
           this.batchNumber = null
           this.timeType = null
           this.timevalue = null
+          this.useStatus = null
           this.getlist()
         },
         childByValue(val){ //选择处理数据
