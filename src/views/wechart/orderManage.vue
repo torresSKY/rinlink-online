@@ -18,13 +18,12 @@
         <el-dialog
           title="订单详情"
           :visible.sync="dialogDetail"
-          width="40%">
+          width="50%">
           <el-row  :style="{height:'40vh',overflow:'auto'}" style="margin:10px 10px 0 10px">
             <BaseTable  ref="tableDetail"   :dataList="detailList" :tableLabel="detailLabel"   ></BaseTable>
           </el-row>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogDetail = false">取 消</el-button>
-            <el-button type="primary" @click="dialogDetail = false">确 定</el-button>
+            <el-button @click="dialogDetail = false">关 闭</el-button>
           </span>
         </el-dialog>
     </div>
@@ -77,7 +76,12 @@
                 ],
                 detailLabel:[
                     {label: this.$t('table.index'), type: 'index'},
-                    {label: '设备IMEI', prop: 'devices.deviceNumber'},
+                    {label: '设备IMEI', prop: 'deviceNumber'},
+                    {label: '所属客户', prop: 'owner'},
+                    {label: '设备充值前到期时间', prop: 'beforeTime', type: 'Timestamp'},
+                    {label: '设备充值后到期时间', prop: 'afterTime', type: 'Timestamp'},
+                    {label: '充值金额', prop: 'jine'},
+                    {label: '充值状态', prop: 'state'},
                 ]
             }
         },
@@ -117,9 +121,30 @@
             showDialog(index, data){ // 操作
                 switch (index) {
                     case 'a': //详情
+                    this.detailList = data.devices
+                    for(let i = 0;i<this.detailList.length;i++){
+                        this.detailList[i]['jine'] = data.unitPrice / 100
+                        this.detailList[i]['state'] = data.state
+                    }
                     this.dialogDetail = true
                     break
                 }
+            },
+            get_device_order(id){ // 获取详情
+              let data = {
+                payOrderId : id
+              }
+              api.get_device_order(data,this.type).then(res => {
+                // debugger
+                if(res.success){
+                 this.detailList = res.data.content
+                }else{
+                  this.$message.error(err.msg)
+                }
+              }).catch(err => {
+                this.detailList = []
+                this.$message.error(err.msg)
+              })
             }
             
         }

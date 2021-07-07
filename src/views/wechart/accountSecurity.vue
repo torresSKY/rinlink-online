@@ -30,6 +30,9 @@
           :visible.sync="dialogPwd"
           width="30%">
           <el-form :model="pwdForm" ref="pwdForm" :rules="pwdRules" label-width="100px">
+                <el-form-item label="旧密码" prop="oldPassword" >
+                  <el-input  name="password"  v-model="pwdForm.oldPassword"></el-input>
+                </el-form-item>
                 <el-form-item :label="$t('view.paw')" prop="password" >
                   <el-input  name="password"  v-model="pwdForm.password"></el-input>
                 </el-form-item>
@@ -65,10 +68,12 @@
                 dialogPwd:false,
                 pwdForm:{
                   userId:'',
+                  oldPassword:'',
                   password:'',
                   confirmPaw:''
                 },
                 pwdRules: {
+                  oldPassword: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
                   password: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
                   confirmPaw: [{ required: true, min: 6,  message: this.$t('message.pawlong') }],
                 },
@@ -117,6 +122,7 @@
             },
             editPwd(){ // 修改密码dialog
                 this.pwdForm = {
+                    oldPassword:'',
                     password:'',
                     confirmPaw:'',
                     userId:this.info.userId
@@ -139,9 +145,10 @@
                   if(this.type == 1){
                     let data1 = {
                       userId:this.userId,
+                      oldPassword:this.pwdForm.oldPassword,
                       password:this.pwdForm.password
                     }
-                    api.upsetPwd(data1,this.type).then(res => {
+                    api.update_current_system_manager_user_password(data1,this.type).then(res => {
                       // debugger
                       if(res.success){
                         this.$message.success(this.$t('message.changesuc'))
@@ -157,9 +164,10 @@
                   }else if(this.type==3){
                     let data3 = {
                       userId:this.userId,
+                      oldPassword:this.pwdForm.oldPassword,
                       password:this.pwdForm.password
                     }
-                    api.resetConsumer(data3,this.type).then(res => {
+                    api.update_current_consumer_user_password(data3,this.type).then(res => {
                       // debugger
                       if(res.success){
                         this.$message.success(this.$t('message.changesuc'))
@@ -175,9 +183,10 @@
                   }else{
                     let data = {
                       userId:this.pwdForm.userId,
+                      oldPassword:this.pwdForm.oldPassword,
                       password:this.pwdForm.password
                     }
-                    api.updateCurrentPwd(data,this.type).then(res => {
+                    api.update_current_business_user_password(data,this.type).then(res => {
                       // debugger
                       if(res.success){
                         this.$message.success(this.$t('message.changesuc'))

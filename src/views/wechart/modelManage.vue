@@ -31,9 +31,9 @@
         </el-card>
         <!-- 添加/编辑设备型号 -->
         <el-dialog
-            :title="isEdit? $t('button.editor'): $t('button.add')"
+            :title="isEdit? '编辑设备型号': '添加设备型号'"
             :visible.sync="dialogModel"
-            width="30%">
+            width="36%">
             <el-form :model="modelForm" :rules="rules" ref="modelForm" label-width="120px" class="demo-ruleForm">
               <el-form-item :label="$t('table.model')" prop="name" >
                   <el-input v-model="modelForm.name" :placeholder="$t('table.model')"></el-input>
@@ -50,6 +50,10 @@
               </el-form-item> -->
               <el-form-item :label="$t('table.note')" prop="description" >
                   <el-input v-model="modelForm.description" :placeholder="$t('table.note')" type="textarea" :rows="2"></el-input>
+              </el-form-item>
+              <el-form-item style="color:red" v-if="isEdit">
+                <div>注：修改设备型号后，可能不会立即生效。</div>
+                <div>根据该型号出货数量多少，需要等待几分钟或几个小时才能全部生效。</div>
               </el-form-item>
             </el-form>  
             <span slot="footer" class="dialog-footer">
@@ -252,7 +256,19 @@ export default{
               this.dialogModel = true
               break
             case '2': // 删除设备型号
-              this.$confirm(this.$t('message.equdele'), this.$t('message.newtitle'), {
+              const confirmText = ['删除该设备型号后，对应的"指令信息"等数据都讲失效，请再次确认是否要删除该型号？','  ','注：如果该型号下有设备，请先删除所有设备后再来删除该型号。'] 
+              const newDatas = []
+              const h = this.$createElement
+              for (const i in confirmText) {
+                // debugger
+                if(i==2){
+                  newDatas.push(h('div', { style: 'color: red;margin-top:10px' }, confirmText[i]))
+                }else{
+                  newDatas.push(h('div', null, confirmText[i]))
+                }
+                
+              }
+              this.$confirm(h('div', null, newDatas), '警告', {
                 confirmButtonText: this.$t('button.determine'),
                 cancelButtonText: this.$t('button.cancel'),
                 type: 'warning'

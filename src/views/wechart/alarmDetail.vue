@@ -2,17 +2,17 @@
     <div id="alarmOverview" >
         <el-row :gutter="22">
             <el-col :span='24'>
-                <el-row :gutter="22" style="margin-top:10px">
-                    <!-- <el-col :span='2' style="line-height:40px">
-                        <el-select v-model="value" >
+                <el-row :gutter="22" style="margin:10px 0">
+                    <el-col :span='3' style="line-height:40px">
+                        <el-select v-model="dateValue" @change="changeDate">
                           <el-option
-                            v-for="item in options"
+                            v-for="item in dateOptions"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value">
                           </el-option>
                         </el-select>
-                    </el-col> -->
+                    </el-col>
                     <el-col :span='5' >
                         <el-date-picker
                           style="width:98%"
@@ -22,7 +22,8 @@
                           range-separator="-"
                           :start-placeholder="$t('table.startdata')"
                           :end-placeholder="$t('table.enddata')"
-                          :default-time="['00:00:00', '23:59:59']">
+                          :default-time="['00:00:00', '23:59:59']"
+                          @change="selDate">
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:38px" v-if="type!=3">
@@ -63,6 +64,17 @@
                           </el-option>
                         </el-select>
                     </el-col>
+                    
+                    <!-- <el-col :span='2' style="line-height:40px">
+                      <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
+                    </el-col> -->
+                    <el-col :span='4'>
+                      <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
+                      <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
+                      <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="22" style="margin:10px 0">
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="handleStatus" :placeholder="$t('table.proStatus')" clearable>
                           <el-option
@@ -73,17 +85,7 @@
                           </el-option>
                         </el-select>
                     </el-col>
-                    <!-- <el-col :span='2' style="line-height:40px">
-                      <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
-                    </el-col> -->
-                    <el-col :span='4'>
-                      <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
-                      <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
-                      <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
-                    </el-col>
-                </el-row>
-                <el-row style="margin:10px 0">
-                    <el-col :span='4'>
+                    <el-col :span='4' style="line-height:40px">
                       <el-button size="mini" @click="allHandle">{{$t('button.allHandle')}}</el-button>
                       <el-button size="mini" @click="singleHandle">{{$t('table.chuli')}}</el-button>
                     </el-col> 
@@ -151,6 +153,13 @@ export default {
   },
   data() {
     return {
+      dateValue:'1',
+      dateOptions:[
+        { value: '1', label: '今天'},{ value: '2', label: '昨天'},
+        { value: '3', label: '本周'},{ value: '4', label: '上周'},
+        { value: '5', label: '本月'},{ value: '6', label: '上月'},
+        { value: '7', label: '自定义'}
+      ],
       input3:null,
       value:null,
       businessoptions:[],
@@ -185,7 +194,7 @@ export default {
         {label: this.$t('table.proTime'), prop: 'handleTime', type: 'Timestamp'},
         {label: this.$t('table.process'), prop: 'handleRemark'},     
       ],
-      time:[],
+      time:[new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()],
       alarmTypeId:null,
       handleStatus:'',
       handleStatusOptions:[
@@ -237,12 +246,13 @@ export default {
     itemData: {
       immediate: true, //绑定值就开始执行监听，而不是等值改变。
       handler(newValue, oldValue) {
-        console.log(newValue, oldValue)
+        // console.log(newValue, oldValue)
         if(newValue){
           this.input3 = newValue.deviceNumber
           // debugger
           this.deviceId = newValue.deviceId
           this.time = newValue.time
+          this.dateValue = '7'
           this.alarmTypeId = null
           for(let i = 0;i<this.alarmTypeList.length;i++){
             if(newValue.name == this.alarmTypeList[i][1].name){
@@ -263,6 +273,48 @@ export default {
     },
   },
   methods: {
+    changeDate(val){ //切换时间范围
+      this.time = []
+      var currentDate = new Date()
+      var dateZero = new Date(new Date().toLocaleDateString()).getTime()
+      const week = currentDate.getDay()
+      const millisecond = 1000 * 60 * 60 * 24
+      const minusDay = week != 0 ? week - 1 : 6
+      const thisweekStart = new Date(dateZero - minusDay * millisecond).getTime()
+      const nowMonth = currentDate.getMonth()
+      const nowYear = currentDate.getFullYear()
+      const monthStartDate = new Date(nowYear, nowMonth, 1)
+      if(val == 1){
+        this.time = [dateZero,currentDate.getTime()]
+      }else if(val == 2){
+        let yesterdayStart =  new Date(new Date().toLocaleDateString()).getTime()-1000 * 60 * 60 * 24
+        let yesterdayEnd = new Date(new Date().toLocaleDateString()).getTime()-1000
+        this.time = [yesterdayStart,yesterdayEnd]
+      }else if (val == 3){
+        this.time = [thisweekStart,currentDate.getTime()]
+      }else if (val == 4){
+        let priorWeekLastDay = new Date(thisweekStart - millisecond)
+        let priorWeekFirstDay = new Date(priorWeekLastDay.getTime() - (millisecond * 6))
+        this.time = [priorWeekFirstDay.getTime(),priorWeekLastDay.getTime()+millisecond-1000]
+      }else if (val == 5){
+        this.time = [monthStartDate.getTime(),currentDate.getTime()]
+      }else if (val == 6){
+        let lastMonth = nowMonth
+        let lastYear = nowYear
+        if (nowMonth == 0) {
+          lastMonth = 11 //月份为上年的最后月份
+          lastYear-- //年份减1
+        }else {
+          lastMonth--
+        }
+        this.time = [new Date(lastYear, lastMonth, 1).getTime(),monthStartDate.getTime()-1000] 
+      }else if (val == 7){
+        this.time = []
+      }
+    },
+    selDate(){
+      this.dateValue = '7'
+    },
     getlist(type){ // 获取报警详情列表
       // if(this.input3){
       //   this.getdeviceId(this.input3)

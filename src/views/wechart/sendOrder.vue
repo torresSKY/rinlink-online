@@ -37,7 +37,8 @@
         <div style="border-top:1px solid grey;margin:20px 0"></div>
         <el-row>
             <span>{{$t('view.selList')}}</span>
-            <span v-if="num">({{num}})</span>
+            <span v-if="num">({{num}})</span>&nbsp;&nbsp;
+            <el-button type='text' @click="qingkong">清空</el-button>
         </el-row>
         <el-row  style="margin:10px 0;border:1px solid #CCCCCC">
           <el-row style="margin:10px 10px 0 10px">
@@ -258,6 +259,9 @@
               }).catch(err => {
                 this.$message.error(err.msg)
               })
+            },
+            qingkong(){
+              this.list = []
             },
             confrim(){ // 确认下发
                 console.log(this.formData)

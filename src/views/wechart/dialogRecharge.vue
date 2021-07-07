@@ -78,9 +78,9 @@
           :visible.sync="dialogCode"
           :show-close='false'
           width="26%">
-          <div class="qrcode" ref="qrCodeUrl" style="width:200px;text-align:center;margin:0 auto"></div>
+          <div class="qrcode" id='qrcode' ref="qrCodeUrl" style="width:200px;text-align:center;margin:0 auto"></div>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogCode = false">取消付款</el-button>
+            <el-button @click="cannel">返 回</el-button>
             <el-button type="primary" @click="confirmPay" :loading="loading">已付款</el-button>
           </span>
         </el-dialog>
@@ -260,9 +260,14 @@
                     break
                 }
             },
+            cannel(){
+              document.getElementById("qrcode").innerHTML = ""
+              this.dialogCode = false
+            },
             recharge(){ // 充值生成二维码
               this.qrCodeUrl = null 
               this.payOrderId = null
+              
               if(this.list.length<=0){
                 return this.$message.warning('请输入需充值的设备')
               }
@@ -306,7 +311,6 @@
               setTimeout(function(){ that.get_device_order() },3000)
             },
             get_device_order(){
-              
               let data = {
                 payOrderId : this.payOrderId
               }
@@ -332,6 +336,7 @@
                     msg = '订单关闭'
                   }
                   this.$message(msg)
+                  document.getElementById("qrcode").innerHTML = ""
                   this.dialogCode = false
                   this.dialogVisible = false
                 }else{
