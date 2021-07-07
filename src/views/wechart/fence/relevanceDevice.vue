@@ -3,21 +3,21 @@
     <el-dialog @close="evt_close" class="relevance_device" width="60%" title="关联设备" :visible="relevance_device_flag"  top="5vh">
         <el-row :gutter="20">
             <el-col :span="12">
-                <div class="users">
+                <div class="users" v-loading="loading_one">
                     <el-input placeholder="请输入客户名称" size="mini" v-model="searchBusiness_name">
                         <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
-                    <div class="users_bottom"  v-loading="loading_one">
+                    <div class="users_bottom">
                         <el-tree :props="props" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" :lazy="true" :render-content="renderContent"></el-tree>
                     </div>
                 </div>
             </el-col>
             <el-col :span="12">
-                <div class="devices">
+                <div class="devices" v-loading="loading_two">
                     <el-input placeholder="输入设备名称或IMEI" size="mini" v-model="searchDevice_name">
                         <el-button @click="evt_searchDevice" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
-                    <div class="devices_bottom" v-loading="loading_two" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="5">
+                    <div class="devices_bottom" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="5">
                         <template v-if="devices_list.length > 0">
                             <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id)">
                                 <img v-show="!item.checked" :src="require('../../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
