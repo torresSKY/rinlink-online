@@ -87,7 +87,7 @@
                                         </div>
                                     </div>
                                     <div v-if="item.activationTime != null && current_time > item.serviceExpireTime" class="devices_item_bottom_two">
-                                        <div><span class="span_hover">充值缴费</span></div>
+                                        <div><span class="span_hover" @click="evt_pay(item.deviceNumber)">充值缴费</span></div>
                                         <div><span class="span_hover" @click="evt_more_command({type:'detail',deviceId:item.id})">设备详情</span></div>
                                     </div>
                                 </div>
@@ -200,6 +200,7 @@
                                 <i @click="evt_close_tracksDetail" class="el-icon-circle-close"></i>
                             </div>
                         </div>
+                        <!-- <controlTable /> -->
                         <el-table ref="singleTable" :data="tracksDetail_list" highlight-current-row @current-change="evt_handleCurrentChange" height="220" border style="width: 100%" size="small">
                             <el-table-column fixed="left" type="index" label="序号" min-width="100" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="100" show-overflow-tooltip></el-table-column>
@@ -305,7 +306,7 @@
                 </el-tab-pane>
             </el-tabs>
         </el-drawer>
-
+        <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>
     </div>
 </template>
 <script>
@@ -322,10 +323,12 @@ import mixin from '@/mixins/index'
 import { formatDate } from '@/plugins/date.js'
 import {gcj02tobd09, bd09togcj02, gcj02towgs84, wgs84togcj02} from '@/utils/baidumap.js'
 import sendOrder from './sendOrder.vue'
+import controlTable from './control/table.vue'
+import dialogRecharge from './dialogRecharge.vue'
 export default {
     name: 'electric',
     mixins:[mixin],
-    components:{sendOrder},
+    components:{sendOrder,controlTable,dialogRecharge},
     data(){
         return{
             imei: this.$route.query.imei,
@@ -433,6 +436,7 @@ export default {
             infoBox:null,
             speed_value: 0,
             searchBusiness_type: 'nickname',//客户搜索类型
+            rechargeList: [],
         }
     },
     created(){
@@ -1775,6 +1779,16 @@ export default {
                 window.URL.revokeObjectURL(url); 
                 document.body.removeChild(link);
             })
+        },
+        evt_pay:function(deviceNumber){
+            this.rechargeList = [];
+            this.$refs.dialogRecharge.dialogVisible = true
+            clearInterval(this.refresh_time_interval);
+            this.$nextTick(() => {
+                this.$refs.dialogRecharge.searchImei = deviceNumber
+                this.$refs.dialogRecharge.tempNum = 1
+                this.$refs.dialogRecharge.flag = 1
+            })
         }
     },
     filters:{
@@ -2172,7 +2186,7 @@ export default {
             }
             .devices_item_bottom_two{
                 position: relative;
-                z-index: 9999;
+                z-index: 99;
                 height: 28px;
                 display: flex;
                 cursor: pointer;
