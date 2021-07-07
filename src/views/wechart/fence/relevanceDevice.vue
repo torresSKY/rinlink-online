@@ -7,17 +7,17 @@
                     <el-input placeholder="请输入客户名称" size="mini" v-model="searchBusiness_name">
                         <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
-                    <div class="users_bottom">
+                    <div class="users_bottom"  v-loading="loading_one">
                         <el-tree :props="props" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :data="user_list" :load="evt_loadTree" :lazy="true" :render-content="renderContent"></el-tree>
                     </div>
                 </div>
             </el-col>
             <el-col :span="12">
                 <div class="devices">
-                    <el-input placeholder="设备名称" size="mini" v-model="searchDevice_name">
+                    <el-input placeholder="输入设备名称或IMEI" size="mini" v-model="searchDevice_name">
                         <el-button @click="evt_searchDevice" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
-                    <div class="devices_bottom">
+                    <div class="devices_bottom" v-loading="loading_two" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="5">
                         <template v-if="devices_list.length > 0">
                             <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id)">
                                 <img v-show="!item.checked" :src="require('../../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
@@ -78,6 +78,11 @@ export default {
                 ]);
             },//el-tree 自定义图标
             userType_parameter: '',//请求接口拼接的用户类型
+            loading_one:false,
+            loading_two:false,
+            pageNum: 0,
+            pageSize: 20,
+            totalPage: 1,
         }
     },
     created(){
@@ -122,9 +127,11 @@ export default {
         // 获取当前用户的信息 C端
         evt_getCurrentUserInfo:function(){
             var _this = this;
+            _this.loading_one = true;
             api.getCurrentUserInfo({}).then((res) => {
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
+                    _this.user_list = [];
                     var user_data = {};
                     user_data['label'] = res.data.nickname;
                     user_data['info'] = res.data
@@ -134,22 +141,29 @@ export default {
                     _this.user_id = res.data.userId;
                     _this.$nextTick(function(){
                         _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices('currentUser');
+                        _this.pageNum = 0;
+                        _this.totalPage = 0;
+                        _this.devices_list = [];
+                        _this.evt_queryDevices();
                     })
                 }else{
                     _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
                 }
+                _this.loading_one = false;
             }).catch((err) => {
+                _this.loading_one = false;
                 _this.$message({message: err.msg || '请求失败',type:'error',offset:'200',duration:'1000'});
             })
         },
         //获取代理商 b端
         evt_getBusiness:function(){
             var _this = this;
+            _this.loading_one = true;
             api.getBusinessUserinfo({},_this.userType_parameter).then((res) =>{
                 // console.log(res);
                 if(res.success && res.data && Object.keys(res.data).length > 0){
                     // _this.current_login_user_info = res.data;
+                    _this.user_list = [];
                     _this.user_id = res.data.userId;
                     var user_data = {};
                     user_data['label'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')';
@@ -163,10 +177,15 @@ export default {
                     _this.user_list.push(user_data);
                     _this.$nextTick(function(){
                         _this.$refs.userTree.setCurrentKey(_this.user_id);
-                        _this.evt_queryDevices('currentUser');
+                        _this.pageNum = 0;
+                        _this.totalPage = 0;
+                        _this.devices_list = [];
+                        _this.evt_queryDevices();
                     })
                 }
+                _this.loading_one = false;
             }).catch((err) => {
+                _this.loading_one = false;
                 _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
             })
         },
@@ -226,45 +245,55 @@ export default {
                 return;
             }
             this.user_id = e.info.userId;
-            // this.devices_list = [];
-            // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
-            if(this.user_id == JSON.parse(sessionStorage['user']).userId){
-                this.evt_queryDevices('currentUser');
-            }else{
-                this.evt_queryDevices();
-            }
+
+            this.pageNum = 0;
+            this.totalPage = 0;
+            this.devices_list = [];
+            this.evt_queryDevices();
         },
         // 查询设备
-        evt_queryDevices:function(type){
+        evt_queryDevices:function(){
             var _this = this;
+            _this.loading_two = true;
             var request_data = {};
-            if(type != 'currentUser'){
+            if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
                 request_data['ownerId'] = _this.user_id;
             }
-            api.queryDevices(request_data,_this.userType_parameter).then((res) => {
+            request_data['page'] = _this.pageNum;
+            request_data['pageSize'] = _this.pageSize;
+            request_data['deviceNumberKeyword'] = _this.searchDevice_name;
+            request_data['containsChildren'] = false;   
+            api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
-                if(res.success){
-                    _this.devices_list = [];
-                    if(res.data && res.data.length == 0) return;
-                    _this.devices_list = res.data;
-                    for(let i = 0, len = _this.devices_list.length; i < len; i++){
+                if(res.success && res.data && res.data.content && res.data.content.length > 0){
+                    var newData = res.data.content;
+                    for(let i = 0, len = newData.length; i < len; i++){
                         // 遍历增加一个区分是否选中的标识
-                        _this.$set(_this.devices_list[i],'checked',false);
+                        _this.$set(newData[i],'checked',false);
                         // 已选择的要关联的数据列表是否存在 如果存在对比设备列表中是否有选择中的设备
                         if(_this.selected_devices.length > 0){
                             for(let j = 0, len_j = _this.selected_devices.length; j < len_j; j++){
-                                if(_this.devices_list[i].id == _this.selected_devices[j].id){
-                                    _this.$set(_this.devices_list[i],'checked',true);
+                                if(newData[i].id == _this.selected_devices[j].id){
+                                    _this.$set(newData[i],'checked',true);
                                 }
                             }
                         }
                     }
-                }else{
-                    _this.$message({message: res.msg,type:'warning',offset:'200',duration:'1000'});
+                    _this.devices_list = _this.devices_list.concat(newData);
+                    _this.totalPage = res.data.pageTotal;
                 }
+                _this.loading_two = false;
             }).catch((err) => {
-                _this.$message({message: err.msg || '请求错误',type:'error',offset:'200',duration:'1000'});
+                _this.loading_two = false;
+                _this.$message({message:err.msg || '请求错误',type:'error',offset:'200',duration:'1500'});
             })
+        },
+        evt_scroll_load:function(){
+            if(this.pageNum == this.totalPage - 1){
+                return;
+            }
+            this.pageNum = this.pageNum + 1;
+            this.evt_queryDevices()
         },
         // 选择关联的设备
         evt_select_devices:function(Id){
@@ -316,38 +345,55 @@ export default {
         // 搜索用户searchBusiness
         evt_searchBusiness:function(){
             var _this = this;
-            if(_this.searchBusiness_name.trim() == '') return;
+            if(_this.searchBusiness_name.trim() == ''){
+                if(_this.userType_parameter == '3'){
+                    _this.evt_getCurrentUserInfo();
+                }else{
+                    _this.evt_getBusiness();
+                }
+                return;
+            }
+            _this.loading_one = true;
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
             request_data['searchType'] = 'username';
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
-                if(res.msg == "OK" && res.success){
+                if(res.success && res.data && res.data.length > 0){
                     _this.user_id = res.data[0].userId;
-                    _this.evt_queryDevices();
+                    _this.user_list = [];
+                    for(var i = 0, len = res.data.length; i < len; i++){
+                        var user_data = {};
+                        user_data['label'] = res.data[i].nickname;
+                        user_data['info'] = res.data[i]
+                        user_data['user_id'] = res.data[i].userId;
+                        if(res.data[i].children != null && res.data[i].children > 0){
+                            user_data['isLeaf'] = false;
+                        }else{
+                            user_data['isLeaf'] = true;
+                        }
+                        _this.user_list.push(user_data);
+                    }
+                    _this.$nextTick(function(){
+                        _this.pageNum = 0;
+                        _this.totalPage = 0;
+                        _this.devices_list = [];
+                        _this.evt_queryDevices();
+                        _this.$refs.userTree.setCurrentKey(_this.user_id);
+                    })
                 }
+                _this.loading_one = false;
             }).catch((err) => {
+                _this.loading_one = false;
                 _this.$message({message:err.errMsg,type:'error',offset:'200',duration:'1000'});
             })
         },
          // 搜索当前用户下的设备
         evt_searchDevice:function(){
-            var _this = this;
-            if(_this.searchDevice_name.trim() == '') return;
-            var request_data = {};
-            request_data['page'] = 0;
-            request_data['pageSize'] = 20;
-            request_data['deviceNameKeyword'] = _this.searchDevice_name;
-            api.getDevicesList(request_data,_this.userType_parameter).then((res) => {
-                // console.log(res);
-                if(res.success && res.data && res.data.content && res.data.content.length > 0){
-                    _this.devices_list = res.data.content;
-                }else{
-                    _this.$message({message:'未查询到搜索设备',type:"info",offset:"200",duration:'1500'});
-                }
-            }).catch((err) => {
-                _this.$message({message:err.msg,type:'error',offset:'200',duration:'1500'});
-            })
+            this.pageNum = 0;
+            this.totalPage = 0;
+            this.devices_list = [];
+            this.evt_queryDevices();
         },
 
         // 提交关联设备
