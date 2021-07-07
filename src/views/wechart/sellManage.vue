@@ -126,7 +126,7 @@
                   </el-select>
               </el-form-item>
               <el-form-item :label="$t('table.agent')" prop="businessUserId">
-                 <el-select v-model="shipmentForm.businessUserId" filterable clearable :placeholder="$t('table.agent')">
+                 <el-select v-model="shipmentForm.businessUserId" filterable clearable placeholder="一级代理商">
                     <el-option
                       v-for="item in businessoptions"
                       :key="item.id"
@@ -141,7 +141,21 @@
               <el-form-item :label="$t('view.upfile')"  v-if="isMore">
                   <el-upload class="upload-demo" ref="upload" :limit="1" accept=".xls, .xlsx" action="string" :file-list="fileList" :show-file-list="true" :auto-upload="false"  :on-remove="handleRemove" :on-change="handleChange" >
                     <el-button slot="trigger" size="medium" type="primary">{{$t('button.clickip')}}</el-button>
-                    <div slot="tip" class="el-upload__tip">只能上传xls/xlsx文件</div>
+                    <div slot="tip" class="el-upload__tip">
+                      <el-col :span='10'>
+                        <div>注：仅支持xls、xlsx文件</div>
+                        <div>内容格式按照右图填写</div>
+                      </el-col>
+                      <el-col :span='10'>
+                        <el-popover
+                          placement="right"
+                          width="200"
+                          trigger="click">
+                          <img src='@/assets/img/moban.jpg' style=" vertical-align: middle">
+                          <el-button slot="reference" type='text'>模板样式</el-button>
+                        </el-popover>
+                      </el-col>
+                    </div>
                   </el-upload>
               </el-form-item>
               <el-form-item :label="$t('table.isCard')" prop="isWithCard">

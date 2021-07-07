@@ -8,6 +8,9 @@
                <el-tab-pane :label="$t('view.aladetail')" name="second">
                    <alarm-detail ref="alarmDetail" :itemData="itemData"  :style="{height:80 + 'vh'}"/>
                </el-tab-pane>
+               <el-tab-pane label="里程统计" name="third">
+                   <mile-statistics ref="mileStatistics"   :style="{height:80 + 'vh'}"/>
+               </el-tab-pane>
                <!-- <el-tab-pane :label="$t('view.punchReport')" name="third">
                    <punch-report ref="punchReport"  :style="{height:80 + 'vh'}"/>
                </el-tab-pane> -->
@@ -17,13 +20,13 @@
 </template>
 <script>
     import api from '@/api/wechart/index'
-    import axios from 'axios'
     import alarmOverview from './alarmOverview.vue'
     import alarmDetail from './alarmDetail.vue'
+    import mileStatistics from './mileStatistics.vue'
     import punchReport from './punchReport.vue'
     export default{
         name:'statisticsList',
-        components:{ alarmOverview,alarmDetail,punchReport },
+        components:{ alarmOverview,alarmDetail,punchReport,mileStatistics },
         data(){
             return {
                 activeName: 'first',
@@ -50,7 +53,9 @@
               if(tab.label == '报警详情'){
                   this.$refs.alarmDetail.dataList = []
                   this.$refs.alarmDetail.getlist()
-                  
+              }else if(tab.label == '里程统计'){
+                //   this.$refs.mileStatistics.getlist()
+                // this.$refs.mileStatistics.totalMile = 0
               }
            },
            itemclick(data){

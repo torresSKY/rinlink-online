@@ -45,6 +45,8 @@
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="a"><b>{{$t('button.personal')}}</b></el-dropdown-item>
+                <el-dropdown-item command="c"><b>公司简介</b></el-dropdown-item>
+                <el-dropdown-item command="d" v-if="userType!=1"><b>订单管理</b></el-dropdown-item>
                 <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -103,7 +105,19 @@
      </div>
     
     </div>
-
+    <el-dialog
+      title="公司简介"
+      :visible.sync="dialogVisible"
+      width="30%"
+      >
+      <div>云途星晨，为提高企业或个人对资产的有效管理，通过设备与平台、客户端相结合，融入云计算、大数据等先进技术，随时随地掌握资产的实时位置以及实时动态。</div>
+      <div>上海零零智能自主研发的SaaS服务平台，基于千万级云服务系统，技术水平行业领先，具有高可用、高稳定、高安全性、分布式、可部署任何服务器等特点，实现云端智能、设备联网、数据挖掘采集、平台对接、远程监控等多样化功能，还同步开发APP、小程序移动端轻量应用，充分方便企业使用，为企业赋能。</div>
+      <div>零零智能旗下现有SaaS服务平台以大数据和安全为基础，既有标准化服务云平台，也可根据客户个性化定制服务云平台。按应用领域可细分为车联网SaaS平台、NB-IoT资产管理SaaS平台、4G资产管理SaaS平台、AR/VR三维展示平台、冷链物流云SaaS平台、综合传感器SaaS平台、云途星晨SaaS平台，能够满足客户ODM个性化定制、云部署和自有业务平台的垂直需求。</div>
+      <div>自2017年成立以来，零零智能旗下温湿度后台管理系统、IOT平台系统、健康设备管理软件、定位查询软件、扫码支付等超过20余个软件平台已经过国家版权局认证并颁发软件著作权登记证书。</div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">关 闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -146,7 +160,8 @@ export default {
         backgroundSize:"100% 100%",
         overflow: "hidden",
       },
-      userType:null
+      userType:null,
+      dialogVisible:false
     };
   },
   mounted() {
@@ -279,7 +294,11 @@ export default {
         // })
       } else if (command == "b") {
         this.signOut()
-      }
+      } else if(command == "c"){
+        this.dialogVisible = true
+      }else if (command == "d") {
+        this.$router.push('/orderManage/order')
+      } 
     },
     closetab(){
       this.editpassstate = false

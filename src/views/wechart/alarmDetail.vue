@@ -267,11 +267,17 @@ export default {
       // if(this.input3){
       //   this.getdeviceId(this.input3)
       // }
+      let startTime = null
+      let end = null
+      if(this.time){
+        startTime = this.time[0]
+        end = this.time[1]
+      }
       let data = {
         pageSize: this.page.size,
         page: this.page.index - 1,
-        startTime:this.time[0] || null,
-        endTime:this.time[1] || null,
+        startTime:startTime ,
+        endTime:end ,
         deviceOwnerId:this.value,
         deviceIdList:this.deviceId==''?[]:this.deviceId!=null?[this.deviceId]:[],
         alarmTypeCodeList:this.alarmTypeId==''?[]:this.alarmTypeId!=null?[this.alarmTypeId]:[],
@@ -472,7 +478,7 @@ export default {
     },
     singleHandle(){ // 单个处理
       if(this.multipleSelection.length !==1){
-        return this.$message.warning(this.$t('message.selOne'))
+        return this.$message.warning('请选择一条未处理数据')
       }
       if(this.multipleSelection[0].handleStatus!=='未处理'){
         return this.$message.warning(this.$t('message.selUnprocessed'))
@@ -498,6 +504,15 @@ export default {
       })
     },
     allHandle(){ // 全部处理
+      // if(this.multipleSelection.length <=0){
+      //   return this.$message.warning('请选择一条未处理数据')
+      // }
+      // for(let i = 0;i<this.multipleSelection.length;i++){
+      //   if(this.multipleSelection[i].handleStatus!=='未处理'){
+      //     return this.$message.warning(this.$t('message.selUnprocessed'))
+      //   }
+      // }
+      
       this.$confirm(this.$t('message.handleAll'), this.$t('message.newtitle'), {
         confirmButtonText: this.$t('button.determine'),
         cancelButtonText: this.$t('button.cancel'),

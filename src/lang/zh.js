@@ -198,7 +198,7 @@ export default {
     handler:'处理人',
     alarmAddress:'报警地址',
     importtime:'导入时间',
-    mileage:'总里程',
+    mileage:'总里程（KM）',
     salesTime:'销售时间',
     expire:'平台到期时间',
     activeTime:'激活时间',
