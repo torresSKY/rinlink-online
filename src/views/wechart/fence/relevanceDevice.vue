@@ -1,6 +1,6 @@
 <template>
     <!-- 关联设备 -->
-    <el-dialog @close="evt_close" class="relevance_device" width="60%" title="关联设备" :visible="relevance_device_flag"  top="5vh">
+    <el-dialog @close="evt_close" class="relevance_device" width="60%" title="关联设备" :visible="relevance_device_flag" :close-on-click-modal="false" top="5vh">
         <el-row :gutter="20">
             <el-col :span="12">
                 <div class="users" v-loading="loading_one">
@@ -19,7 +19,7 @@
                     </el-input>
                     <div class="devices_bottom" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="5">
                         <template v-if="devices_list.length > 0">
-                            <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id)">
+                            <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id,item.activationTime,item.serviceExpireTime)" :class="(item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) ? 'grayscale' : ''">
                                 <img v-show="!item.checked" :src="require('../../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
                                 <img v-show="item.checked" :src="require('../../../assets/img/selected_icon.png')" style="width:20px;height:20px;">
                                 <span style="font-size:16px;margin-left:5px;line-height:20px;">{{item.deviceName}}</span>
@@ -83,6 +83,7 @@ export default {
             pageNum: 0,
             pageSize: 20,
             totalPage: 1,
+            current_time:0,
         }
     },
     created(){
@@ -285,6 +286,7 @@ export default {
                     _this.totalPage = res.data.pageTotal;
                 }
                 _this.loading_two = false;
+                _this.current_time = new Date().getTime();
             }).catch((err) => {
                 _this.loading_two = false;
                 _this.$message({message:err.msg || '请求错误',type:'error',offset:'200',duration:'1500'});
@@ -298,7 +300,8 @@ export default {
             this.evt_queryDevices()
         },
         // 选择关联的设备
-        evt_select_devices:function(Id){
+        evt_select_devices:function(Id,activationTime,serviceExpireTime){
+            if(activationTime != null && activationTime < this.current_time && this.current_time > serviceExpireTime) return;
             // console.log(Id);
             // 遍历修改操作的设备的是否选中标识  选中的情况下添加到要关联的设备数据中
             for(let i = 0,len = this.devices_list.length; i < len; i++){
@@ -565,4 +568,9 @@ export default {
     justify-content: center;
     align-items: center;
 }
+.grayscale{
+    opacity:0.7;
+    -webkit-filter:grayscale(100%);
+}
+
 </style>
