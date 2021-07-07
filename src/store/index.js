@@ -15,6 +15,7 @@ let state = {
   viewTagList:sessionStorage['viewTagList'] ? JSON.parse(sessionStorage['viewTagList']) : [],     //tab标签
   isLogin:sessionStorage['isLogin'] ? sessionStorage['isLogin'] : 0,
   lang: sessionStorage['lang'] ? sessionStorage['lang'] : 'zh',
+  isAlarm: sessionStorage['isAlarm'] ? sessionStorage['isAlarm'] : false,
 }
 
 let actions = {
@@ -50,6 +51,9 @@ let actions = {
   },
   setLang({ commit }, info) {
     commit('SET_LANG', info)
+  },
+  setIsAlarm({ commit }, info) {
+    commit('SET_ISALARM', info)
   },
 }
 
@@ -93,6 +97,10 @@ let mutations = {
     state.lang=info
     localStorage.setItem('lang',info)
   },
+  SET_ISALARM(state,info){
+    state.isAlarm=info
+    sessionStorage.setItem('isAlarm',info)
+  },
 }
 let getters = {
   loading: state => state.loading,
@@ -105,6 +113,7 @@ let getters = {
   token:  state => state.token,
   usercode:   state => state.usercode,
   lang:   state => state.lang,
+  isAlarm:   state => state.isAlarm,
 }
 
 export default new Vuex.Store({

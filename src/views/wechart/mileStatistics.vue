@@ -182,26 +182,44 @@ export default {
         data.endTime = this.time[1]
       }
       
-      this.totalMile = 0
+      // this.totalMile = 0
       this.loading = true
       api.paging_device_mileage_statistics(data,this.type).then(res => {
         this.loading = false
         this.dataList = res.data.content
-        for(let i = 0;i<this.dataList.length;i++){
-          // debugger
-          this.totalMile += this.dataList[i].mileageKm
-        }
-        if(this.totalMile>0){
-          this.totalMile = this.totalMile.toFixed(2)
-        }
+        // for(let i = 0;i<this.dataList.length;i++){
+        //   // debugger
+        //   this.totalMile += this.dataList[i].mileageKm
+        // }
+        // if(this.totalMile>0){
+        //   this.totalMile = this.totalMile.toFixed(2)
+        // }
         // console.log(this.dataList)
         this.page.total = res.data.totalElements
+        this.getMile()
       }).catch(err => {
-        
         this.loading = false
         this.dataList = []
-        this.$message.error(err.msg)
+        // this.$message.error(err.msg)
       })
+    },
+    getMile(){
+      let data = {
+        deviceNumber:this.deviceNumber,
+        startTime:this.time[0],
+        endTime:this.time[1]
+      }
+      api.get_mileage_between_time(data,this.type).then(res => {
+            if(res.success){
+              this.totalMile = res.data
+            }else{
+              this.totalMile = 0
+            }
+          }).catch(err => {
+            this.totalMile = 0
+            // this.$message.error(err.msg)
+          })
+
     },
     getBusiness(){ // 获取代理商
       this.noOptionsText = '加载中'

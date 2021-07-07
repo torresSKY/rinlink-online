@@ -185,6 +185,9 @@ const paging_query_device_order = (data,type) => (   //分页查询设备订单
 const paging_device_mileage_statistics = (data,type) => (   //分页查询设备的里程统计
     axios.post(url+'/paging_device_mileage_statistics?__OPERATOR_TYPE='+type, data)
 )
+const get_mileage_between_time = (data,type) => (   //获取时间段内的总里程
+    axios.post(url+'/get_mileage_between_time?__OPERATOR_TYPE='+type, data)
+)
 const searchBusiness = (data,type) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
 )
@@ -429,6 +432,7 @@ export default {
     get_device_order,
     paging_query_device_order,
     paging_device_mileage_statistics,
+    get_mileage_between_time,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,

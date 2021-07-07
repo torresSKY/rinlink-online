@@ -137,10 +137,11 @@
 <script>
 import api from "@/api/wechart/index"
 import mixin from "@/mixins/index"
-import { mapState } from "vuex"
+import { mapState, mapGetters, mapActions } from "vuex"
 import BaseTable from '@/components/table'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 export default {
   name: "alarmDetail",
   components:{ BaseTable,Treeselect },
@@ -273,6 +274,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["setIsAlarm"]),
     changeDate(val){ //切换时间范围
       this.time = []
       var currentDate = new Date()
@@ -580,6 +582,8 @@ export default {
         }
         api.handleDeviceAlarms(this.type,id).then(res => {
           if(res.success){
+            this.setIsAlarm(false)
+            // this.$router.go(0)
             this.$message.success(this.$t('message.alaedit'))
             this.getlist()
           }else{
