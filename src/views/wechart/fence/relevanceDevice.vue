@@ -4,7 +4,7 @@
         <el-row :gutter="20">
             <el-col :span="12">
                 <div class="users" v-loading="loading_one">
-                    <el-input placeholder="请输入客户名称" size="mini" v-model="searchBusiness_name">
+                    <el-input placeholder="请输入客户名称或账号" size="mini" v-model="searchBusiness_name">
                         <el-button @click="evt_searchBusiness" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
                     <div class="users_bottom">
@@ -358,7 +358,7 @@ export default {
             _this.loading_one = true;
             var request_data = {};
             request_data['searchContent'] = _this.searchBusiness_name;
-            request_data['searchType'] = 'username';
+            request_data['searchType'] = 'nickname';
             api.searchBusiness(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data && res.data.length > 0){
@@ -383,6 +383,8 @@ export default {
                         _this.evt_queryDevices();
                         _this.$refs.userTree.setCurrentKey(_this.user_id);
                     })
+                }else if(res.data == null){
+                    _this.$message({message:'暂无相应的搜索数据',type:'info',offset:'200',duration:'1000'});
                 }
                 _this.loading_one = false;
             }).catch((err) => {
