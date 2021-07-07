@@ -124,8 +124,10 @@
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
 import api from '@/api/login/index';
+import api2 from "@/api/wechart/index"
 import BMap from "BMap";
 import axios from 'axios'
+import errorTestAVue from '../../../xinya.tms.refactor/src/views/errorLog/errorTestA.vue';
 export default {
   name: "index",
   data() {
@@ -161,16 +163,21 @@ export default {
         overflow: "hidden",
       },
       userType:null,
-      dialogVisible:false
+      dialogVisible:false,
+      isAlarm:null,
+      flag:false,
     };
   },
   mounted() {
-    console.log(this.$i18n.locale)
+    // console.log(this.$i18n.locale)
     this.lang = this.$i18n.locale == 'zh' ? 1 : 2
     this.height=document.body.offsetHeight-72
     this.userType = JSON.parse(sessionStorage['user']).userType
     if(!this.viewTagList.length){
       this.pushRouter({ name: this.$t('route.Home'), path: '/index/index',meta:{keep:'homepage' }})
+    }
+    if(this.userType!=1){
+      this.getAlarmsDetail()
     }
   },
   methods: {
@@ -187,8 +194,27 @@ export default {
         this.$router.push(path);
       }
     },
-    
+    getAlarmsDetail(){
+      let data = {
+        pageSize: 20,
+        page: 0,
+        handleStatus:0,
+        containsChildren:true
+      }
+      api2.getAlarmsDetail(data,this.userType).then(res => {
+        if(res.success){
+          if(res.data.content.length>0){
+            this.isAlarm = true
+          }else{
+            this.isAlarm = false
+          }
+        }else{
 
+        }
+      }).catch(err => {
+        console.log(errorTestAVue)
+      })
+    },
     //tag 关闭
     handleClose(index, path) {
       this.viewTagList.splice(index, 1);

@@ -83,6 +83,9 @@ const deleManager = (data,type) => (   //删除系统管理员
 const upsetPwd = (data,type) => (   //重置系统管理员密码
     axios.post(url+'/reset_system_manager_user_password?__OPERATOR_TYPE='+type, data)
 )
+const update_current_system_manager_user_password = (data,type) => (   //更新当前系统管理员用户的密码
+    axios.post(url+'/update_current_system_manager_user_password?__OPERATOR_TYPE='+type, data)
+)
 const getBManagerList = (data,type) => (   //分页查询B端管理员
     axios.post(url+'/paging_business_manager_users?__OPERATOR_TYPE='+type, data)
 )
@@ -158,11 +161,17 @@ const editBusinessUserinfo = (data,type) => (   //更新客户信息
 const updateCurrentPwd = (data,type) => (   //更新当前用户密码
     axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE='+type, data)
 )
+const update_current_business_user_password = (data,type) => (   //更新D端用户密码
+    axios.post(url+'/update_current_business_user_password?__OPERATOR_TYPE='+type, data)
+)
 const updateConsumer = (data,type) => (   //更新C端客户信息
     axios.post(url+'/update_current_consumer_user?__OPERATOR_TYPE='+type, data)
 )
 const resetConsumer = (data,type) => (   //更新C端用户密码
     axios.post(url+'/reset_consumer_user_password?__OPERATOR_TYPE='+type, data)
+)
+const update_current_consumer_user_password = (data,type) => (   //更新C端用户密码
+    axios.post(url+'/update_current_consumer_user_password?__OPERATOR_TYPE='+type, data)
 )
 const create_device_order = (data,type) => (   //创建订单
     axios.post(url+'/create_device_order?__OPERATOR_TYPE='+type, data)
@@ -362,6 +371,7 @@ export default {
     editManager,
     deleManager,
     upsetPwd,
+    update_current_system_manager_user_password,
     getAuthority,
     getCheckedAuthority,
     getRolesList,
@@ -384,6 +394,7 @@ export default {
     getBusinessUserinfo,
     editBusinessUserinfo,
     updateCurrentPwd,
+    update_current_business_user_password,
     searchBusiness,
     getAlarmsDetail,
     handleDeviceAlarm,
@@ -413,6 +424,7 @@ export default {
     upsetBPwd,
     updateConsumer,
     resetConsumer,
+    update_current_consumer_user_password,
     create_device_order,
     get_device_order,
     paging_query_device_order,

@@ -204,7 +204,7 @@
             },
             confrimSel(){ // 确认筛选报警类型
                 this.dialogSel = false
-                this.getlist()
+                this.getlist(1)
             },
             showDialog(index, data){ // 操作
                 switch (index) {
