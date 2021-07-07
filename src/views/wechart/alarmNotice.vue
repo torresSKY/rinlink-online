@@ -75,7 +75,7 @@
 <script>
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'
-    import axios from 'axios'
+    import { mapState, mapGetters, mapActions } from "vuex"
     import BaseTable from '@/components/table'
     export default{
         name:'alarmNotice',
@@ -154,6 +154,7 @@
            
         },
         methods:{
+            ...mapActions(["setIsAlarm"]),
             getlist(item){ // 获取列表
                 this.loading = true
                 if(item==1){
@@ -185,7 +186,7 @@
                 api.getAlarmType().then(res => {
                   if(res.success){
                     this.alarmTypeList = Object.entries(res.data)
-                    console.log(this.alarmTypeList)
+                    // console.log(this.alarmTypeList)
                   }else{
                     this.alarmTypeList = []
                     this.$message.error(res.msg)
@@ -249,8 +250,10 @@
                   }
                   api.handleDeviceAlarms(this.type,id).then(res => {
                     if(res.success){
-                      this.$message.success(this.$t('message.alaedit'))
+                      this.setIsAlarm(false)
+                      // this.$router.go(0)
                       this.getlist()
+                      this.$message.success(this.$t('message.alaedit'))
                     }else{
                       this.$message.error(res.msg)
                     }

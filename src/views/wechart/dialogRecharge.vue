@@ -262,6 +262,7 @@
             },
             cannel(){
               document.getElementById("qrcode").innerHTML = ""
+              // this.$emit('closeRecharge', false)
               this.dialogCode = false
             },
             recharge(){ // 充值生成二维码
@@ -337,6 +338,7 @@
                   }
                   this.$message(msg)
                   document.getElementById("qrcode").innerHTML = ""
+                  this.$emit('closeRecharge', false)
                   this.dialogCode = false
                   this.dialogVisible = false
                 }else{

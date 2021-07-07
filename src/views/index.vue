@@ -51,8 +51,8 @@
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <i class="el-icon-message-solid fr" style="font-size:30px;color:#fff;margin-top:15px;cursor: pointer;" @click="jump('/notice')"></i>  -->
-            <el-badge is-dot style="color:#fff;margin:21px 5px 0 0;font-size:20px;cursor: pointer;" class="fr" v-if='userType!=1'>
-              <i class="el-icon-message-solid"  @click="jump('/notice')"></i>
+            <el-badge :is-dot='flag' style="color:#fff;margin:21px 5px 0 0;font-size:20px;cursor: pointer;" class="fr" v-if='userType!=1'>
+              <i class="el-icon-message-solid"  @click="jump('/notice')" ></i>
             </el-badge>
           </el-col>
         </el-row>
@@ -164,7 +164,7 @@ export default {
       },
       userType:null,
       dialogVisible:false,
-      isAlarm:null,
+      isAlarms:false,
       flag:false,
     };
   },
@@ -176,12 +176,17 @@ export default {
     if(!this.viewTagList.length){
       this.pushRouter({ name: this.$t('route.Home'), path: '/index/index',meta:{keep:'homepage' }})
     }
+    var that = this
+    
+	  // that.isAlarm = sessionStorage.getItem("isAlarm")
+	 
+    
     if(this.userType!=1){
       this.getAlarmsDetail()
     }
   },
   methods: {
-    ...mapActions(["setViewTagList","setToken","setLang"]),
+    ...mapActions(["setViewTagList","setToken","setLang","setIsAlarm"]),
     //导航栏跳转
     pushRouter(val) {
       if (this.viewTagList.filter(t => t.path == val.path).length == 0) {
@@ -204,10 +209,12 @@ export default {
       api2.getAlarmsDetail(data,this.userType).then(res => {
         if(res.success){
           if(res.data.content.length>0){
-            this.isAlarm = true
+            this.isAlarms = true
           }else{
-            this.isAlarm = false
+            this.isAlarms = false
           }
+          // sessionStorage.setItem("isAlarm", this.isAlarm)
+          this.setIsAlarm(this.isAlarms)
         }else{
 
         }
@@ -364,10 +371,21 @@ export default {
     },
     $route(val) {
       this.pushRouter(val);
+    },
+    getisAlarm:{//深度监听，可监听到对象、数组的变化
+        handler(val, oldVal){
+        console.log(val, oldVal)
+        if(val){
+          this.flag = true
+        }else{
+          this.flag = false
+        }
+      },
+      deep:true //true 深度监听
     }
   },
   computed: {
-    ...mapState(["loading", "routerList", "viewTagList","roles"]),
+    ...mapState(["loading", "routerList", "viewTagList","roles","isAlarm"]),
     // ...mapGetters(["loading", "routerList", "viewTagList"]),
     viewTagKeep(){
       let arr=[]
@@ -375,6 +393,10 @@ export default {
         arr.push(this.viewTagList[i].keep)
       }
       return arr.join(',') || 'baidu'
+    },
+    getisAlarm(){
+      console.log(this.$store.getters)
+      return this.$store.getters.isAlarm
     }
   }
 };
