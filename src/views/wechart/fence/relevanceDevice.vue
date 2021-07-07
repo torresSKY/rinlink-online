@@ -206,7 +206,9 @@ export default {
             }
             if(node.level != 0){
                 var request_data = {};
-                request_data['parentId'] = node.data.info.userId;
+                if(node.data.info.userId != JSON.parse(sessionStorage['user']).userId){
+                    request_data['parentId'] = node.data.info.userId;
+                }
                 api.getBusiness(request_data,_this.userType_parameter).then((res) => {
                     if(res.success){
                         if(res.data.length == 0){
