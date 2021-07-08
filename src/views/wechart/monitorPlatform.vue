@@ -87,7 +87,7 @@
                                         </div>
                                     </div>
                                     <div v-if="item.activationTime != null && current_time > item.serviceExpireTime" class="devices_item_bottom_two">
-                                        <div><span class="span_hover">充值缴费</span></div>
+                                        <div><span class="span_hover" @click="evt_pay(item.deviceNumber)">充值缴费</span></div>
                                         <div><span class="span_hover" @click="evt_more_command({type:'detail',deviceId:item.id})">设备详情</span></div>
                                     </div>
                                 </div>
@@ -166,8 +166,8 @@
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
-                                    <span class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
-                                    <span style="width:100px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
+                                    <span style="margin-left:20px;" class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
+                                    <span style="width:100px;margin-left:20px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="4">
@@ -200,6 +200,7 @@
                                 <i @click="evt_close_tracksDetail" class="el-icon-circle-close"></i>
                             </div>
                         </div>
+                        <!-- <controlTable /> -->
                         <el-table ref="singleTable" :data="tracksDetail_list" highlight-current-row @current-change="evt_handleCurrentChange" height="220" border style="width: 100%" size="small">
                             <el-table-column fixed="left" type="index" label="序号" min-width="100" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="100" show-overflow-tooltip></el-table-column>
@@ -305,7 +306,7 @@
                 </el-tab-pane>
             </el-tabs>
         </el-drawer>
-
+        <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>
     </div>
 </template>
 <script>
@@ -322,10 +323,12 @@ import mixin from '@/mixins/index'
 import { formatDate } from '@/plugins/date.js'
 import {gcj02tobd09, bd09togcj02, gcj02towgs84, wgs84togcj02} from '@/utils/baidumap.js'
 import sendOrder from './sendOrder.vue'
+import controlTable from './control/table.vue'
+import dialogRecharge from './dialogRecharge.vue'
 export default {
     name: 'electric',
     mixins:[mixin],
-    components:{sendOrder},
+    components:{sendOrder,controlTable,dialogRecharge},
     data(){
         return{
             imei: this.$route.query.imei,
@@ -433,6 +436,7 @@ export default {
             infoBox:null,
             speed_value: 0,
             searchBusiness_type: 'nickname',//客户搜索类型
+            rechargeList: [],
         }
     },
     created(){
@@ -1416,6 +1420,16 @@ export default {
                 }else{
                     clearInterval(_this.device_tracks_interval);
                     _this.play_flag = false;
+                    _this.$confirm('轨迹回放完毕', '提示', {
+                        confirmButtonText: '重播',
+                        cancelButtonText: '取消',
+                        type: 'warning',
+                        center: true
+                    }).then(() => {
+                       _this.evt_play_pause();
+                    }).catch(() => {
+                        
+                    });
                 }
             }, speed);
         },
@@ -1765,7 +1779,7 @@ export default {
                 var myDate = new Date();
                 var Y = myDate.getFullYear();
                 var M = (myDate.getMonth() + 1) > 9 ? myDate.getMonth() + 1 : '0' + (myDate.getMonth() + 1);
-                var D = myDate.getDate();
+                var D = myDate.getDate() > 9 ? myDate.getDate() : '0' + myDate.getDate();
                 var H = myDate.getHours() > 9 ? myDate.getHours() : '0' + myDate.getHours();
                 var m = myDate.getMinutes() > 9 ? myDate.getMinutes() : '0' + myDate.getMinutes();
                 var s = myDate.getSeconds() > 9 ? myDate.getSeconds() : '0' + myDate.getSeconds();         
@@ -1774,6 +1788,16 @@ export default {
                 link.click();
                 window.URL.revokeObjectURL(url); 
                 document.body.removeChild(link);
+            })
+        },
+        evt_pay:function(deviceNumber){
+            this.rechargeList = [];
+            this.$refs.dialogRecharge.dialogVisible = true
+            clearInterval(this.refresh_time_interval);
+            this.$nextTick(() => {
+                this.$refs.dialogRecharge.searchImei = deviceNumber
+                this.$refs.dialogRecharge.tempNum = 1
+                this.$refs.dialogRecharge.flag = 1
             })
         }
     },
@@ -2172,7 +2196,7 @@ export default {
             }
             .devices_item_bottom_two{
                 position: relative;
-                z-index: 9999;
+                z-index: 99;
                 height: 28px;
                 display: flex;
                 cursor: pointer;
