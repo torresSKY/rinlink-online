@@ -166,8 +166,8 @@
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
                                     <span class="speed_content_text">快</span>
-                                    <span class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
-                                    <span style="width:100px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
+                                    <span style="margin-left:20px;" class="speed_content_text speed_content_text_t">总里程：{{total_distance}}km</span>
+                                    <span style="width:100px;margin-left:20px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
                                 </div>
                             </el-col>
                             <el-col :span="7" :offset="4">
