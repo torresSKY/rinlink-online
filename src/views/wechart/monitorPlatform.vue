@@ -1420,6 +1420,16 @@ export default {
                 }else{
                     clearInterval(_this.device_tracks_interval);
                     _this.play_flag = false;
+                    _this.$confirm('轨迹回放完毕', '提示', {
+                        confirmButtonText: '重播',
+                        cancelButtonText: '取消',
+                        type: 'warning',
+                        center: true
+                    }).then(() => {
+                       _this.evt_play_pause();
+                    }).catch(() => {
+                        
+                    });
                 }
             }, speed);
         },
