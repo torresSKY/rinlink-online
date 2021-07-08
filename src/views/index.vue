@@ -6,10 +6,10 @@
         <el-row >
           <el-col  :lg="7" :xl="5" >
             <div class="title_top" >
-              <img src='@/assets/img/toubu.png' style="width: 310px;display: inline-block; vertical-align: middle">
+              <img src='@/assets/img/toubu.png' style="display: inline-block; vertical-align: middle">
             </div>  
           </el-col>
-          <el-col  :lg="13" :xl="10"   style="text-align:left;margin-top:16px;overflow: hidden;">
+          <el-col  :lg="14" :xl="10"   style="text-align:left;margin-top:16px;overflow: hidden;">
             <el-menu style="overflow: hidden;" :default-active="$route.path"  mode="horizontal" text-color="#fff" active-text-color="#446AEA"  background-color="#446AEA" >
               <template v-for="(item,index) in routerList">
                 <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
@@ -35,7 +35,7 @@
           <!-- <el-col :span='1' >
             
           </el-col>  -->
-          <el-col :lg="3" :xl="8" :offset='1'>
+          <el-col  :lg="3" :xl="9" >
             
             <el-dropdown class="fr" @command="handleCommand">
               <el-button class="fr btn-loading" size="medium">

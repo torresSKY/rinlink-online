@@ -40,10 +40,10 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='3'>
+                  <el-col :span='2'>
                      <el-input v-model="batchNumber" :placeholder="$t('table.batch')"></el-input>
                   </el-col>
-                  <el-col :span='7'>
+                  <el-col :span='8'>
                     <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butadd" @click="sell('one')">{{$t('button.sell')}}</el-button>
                     <el-button class="butadd" @click="sell('more')">{{$t('button.sellMore')}}</el-button>

@@ -1,7 +1,7 @@
 <template>
     <div id="customerManage" >
         <el-row >
-            <el-col :md="6" :lg="5" :xl="4">
+            <el-col :md="7" :lg="6" :xl="4">
                 <el-card>
                     <el-row>
                         <span>{{$t('view.customerList')}}</span>
@@ -23,14 +23,14 @@
                     </el-row>
                 </el-card>
             </el-col>
-            <el-col :md="18" :lg="19" :xl="20">
+            <el-col :md="17" :lg="18" :xl="20">
                 <el-card>
                     <span>{{company}}</span>&nbsp;
                     {{$t('table.count')}}：<span>{{username}}</span>&nbsp;
                     {{$t('table.phone')}}：<span>{{phone}}</span>
                 </el-card>
                 <el-row :gutter="22" style="margin:10px 0 10px 5px">
-                    <el-col :span='4'>
+                    <el-col :span='6'>
                         <el-input v-model="input3" :placeholder="$t('view.inputtext')" clearable class="input-with-select">
                           <el-select v-model="selectType1" slot="prepend" >
                               <el-option label="账号" value="username"></el-option>
@@ -38,7 +38,7 @@
                             </el-select>
                         </el-input>
                     </el-col>
-                    <el-col :span='2' style="line-height:40px">
+                    <el-col :span='3' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col>
                     <el-col :span='6'>

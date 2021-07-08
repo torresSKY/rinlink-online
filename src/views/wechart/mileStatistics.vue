@@ -49,13 +49,13 @@
                     <!-- <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col> -->
-                    <el-col :span='3' style="line-height:40px">
+                    <el-col :span='4' style="line-height:40px">
                       <span>统计方式：</span>
                       <el-radio v-model="radio" label="1">天</el-radio>
                     </el-col>
                     <el-col :span='4'>
                       <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
-                      <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
+                      <el-button class="butadd" @click="download">{{$t('button.download')}}</el-button>
                     </el-col>
                 </el-row>
                 <el-row :gutter="22" style="margin:10px 10px">
@@ -392,8 +392,43 @@ export default {
     },
     selDate(){
       this.dateValue = '7'
+    },
+    download(){
+      if(this.deviceNumber == null){
+        return this.$message({message: '请选择设备IMEI/设备名称', type:'warning',offset:'100',duration:'2000'})
+      }
+      if(this.time ==null){
+        return this.$message.warning('请选择查询时间')
+      }
+      let data = {
+        deviceNumber:this.deviceNumber,
+        statStep:1,
+        startTime:this.time[0],
+        endTime:this.time[1]
+      }
+      api
+        .export_device_mileage_statistics(data,this.type)
+        .then(res => {
+          let blob = new Blob([res], { type: 'application/vnd.ms-excel' }) // res就是接口返回的文件流了
+          let objectUrl = URL.createObjectURL(blob)
+          var a = document.createElement('a')
+          a.href = objectUrl
+          let time = new Date()
+          let y = time.getFullYear()
+          let m = time.getMonth() + 1
+          let d = time.getDate()
+          let h = time.getHours() + 1 //获取当前小时数(0-23)
+          let mm = time.getMinutes() + 1 //获取当前分钟数(0-59)
+          let hh = time.getSeconds() + 1 //获取当前秒数(0-59)
+          let name = '里程统计_'+this.deviceNumber + '_' + y + '' + m + '' + d + '' + h + '' + mm + '' + hh + '.xlsx'
+          a.download = name
+          a.click()
+          window.URL.revokeObjectURL(objectUrl)
+        })
+        .catch(err => {
+          this.$message.error(err.msg)
+        })
     }
-
     
   }
 }
