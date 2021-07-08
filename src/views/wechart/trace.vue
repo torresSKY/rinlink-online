@@ -1,6 +1,15 @@
 <template>
     <div class="page">
         <div class="page_top">{{device_detail_info.deviceName}}：{{device_address}}</div>
+        <div class="page_top_t">
+            <el-select @change="evt_change_refreshInterval" style="width: 80px;" v-model="refresh_interval" size="mini">
+                <el-option label="10秒" value="10"></el-option>
+                <el-option label="20秒" value="20"></el-option>
+                <el-option label="30秒" value="30"></el-option>
+                <el-option label="1分钟" value="60"></el-option>
+            </el-select>
+            <div class="page_top_t_text">刷新</div>
+        </div>
         <div class="map_container">
             <div id="container"></div>
             <div class="map_type">
@@ -44,6 +53,7 @@ export default {
             deviceNumber:'',
             device_detail_info:'',
             icon_list:{},
+            refresh_interval: '30',
         }
     },
     created(){
@@ -123,8 +133,8 @@ export default {
                     // gcj02转bd09
                     if(res.data.coordinate && Object.keys(res.data.coordinate).length == 0) return;
                     var point_t = gcj02tobd09(res.data.coordinate.lng,res.data.coordinate.lat);
-                    res.data.coordinate.lng = point_t[0];
-                    res.data.coordinate.lat = point_t[1];
+                    res.data.coordinate.lng = point_t[0].toString().slice(0,point_t[0].toString().indexOf('.')+7);
+                    res.data.coordinate.lat = point_t[1].toString().slice(0,point_t[1].toString().indexOf('.')+7);
                     _this.locationInfo = res.data;
                     _this.locationArr = _this.locationArr.concat(res.data);
                     if(_this.Panorama_flag){
@@ -147,6 +157,7 @@ export default {
                     })
                 }
             }).catch((err) => {
+                console.log(err)
                 _this.$message({message:err.msg,type:'error',duration:'1000',offset:'200'})
             })
         },
@@ -236,11 +247,11 @@ export default {
         evt_interval:function(){
             var _this = this;
             clearInterval(_this.interval);
-            _this.interval_num = 30;
+            _this.interval_num = parseInt(_this.refresh_interval);
             _this.interval = setInterval(() => {
                 _this.interval_num--;
                 if(_this.interval_num == 0){
-                    _this.interval_num = 30;
+                    _this.interval_num = parseInt(_this.refresh_interval);
                     _this.evt_getDeviceLastCoordinate();
                 }
             }, 1000);
@@ -249,6 +260,9 @@ export default {
         evt_formatDate:function(time){
             let date_time = new Date(time);
             return isNaN(date_time) ? " " : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
+        },
+        evt_change_refreshInterval:function(){
+            this.evt_interval();
         }
         
     }
@@ -275,6 +289,23 @@ export default {
             top: 0px;
             left: 0px;
             z-index: 999;
+        }
+        .page_top_t{
+            height: 50px;
+            position: fixed;
+            top: 0px;
+            right: 40px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            .page_top_t_text{
+                font-size: 14px;
+                font-family: Source Han Sans CN;
+                font-weight: 400;
+                color: #FFFFFF;
+                line-height: 50px;
+                margin-left: 10px;
+            }
         }
     }
     .map_container{
