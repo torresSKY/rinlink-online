@@ -1769,7 +1769,7 @@ export default {
                 var myDate = new Date();
                 var Y = myDate.getFullYear();
                 var M = (myDate.getMonth() + 1) > 9 ? myDate.getMonth() + 1 : '0' + (myDate.getMonth() + 1);
-                var D = myDate.getDate();
+                var D = myDate.getDate() > 9 ? myDate.getDate() : '0' + myDate.getDate();
                 var H = myDate.getHours() > 9 ? myDate.getHours() : '0' + myDate.getHours();
                 var m = myDate.getMinutes() > 9 ? myDate.getMinutes() : '0' + myDate.getMinutes();
                 var s = myDate.getSeconds() > 9 ? myDate.getSeconds() : '0' + myDate.getSeconds();         
