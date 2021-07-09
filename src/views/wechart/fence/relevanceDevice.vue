@@ -17,7 +17,7 @@
                     <el-input placeholder="输入设备名称或IMEI" size="mini" v-model="searchDevice_name">
                         <el-button @click="evt_searchDevice" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
-                    <div class="devices_bottom" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="5">
+                    <div class="devices_bottom" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="10">
                         <template v-if="devices_list.length > 0">
                             <div v-for="item in devices_list" :key="item.id" style="display:flex;align-items: center; margin-bottom:5px;cursor: pointer;" @click="evt_select_devices(item.id,item.activationTime,item.serviceExpireTime)" :class="(item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) ? 'grayscale' : ''">
                                 <img v-show="!item.checked" :src="require('../../../assets/img/no_select_icon.png')" style="width:20px;height:20px;">
@@ -293,6 +293,9 @@ export default {
             })
         },
         evt_scroll_load:function(){
+            if(this.devices_list.length == 0){
+                return;
+            }
             if(this.pageNum == this.totalPage - 1){
                 return;
             }
