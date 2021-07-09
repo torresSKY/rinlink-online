@@ -52,11 +52,12 @@
                 <el-row class="cust-title">
                     <span>{{$t('route.List')}}</span>
                 </el-row>
-                <el-row class="list-search" :gutter="22" >
-                  <el-col :span='4'>
+                <el-row style="margin-top:10px" :gutter="22" >
+                  <el-col :md="15" :lg="15" :xl="17">
+                    <el-col :md="8" :lg="8" :xl="6">
                     <el-input v-model="deviceIdList" placeholder="请输入IMEI或设备名称" clearable></el-input>
                   </el-col>
-                  <el-col :span='4'>
+                  <el-col :md="8" :lg="8" :xl="6">
                     <el-select v-model="deviceModelId" :placeholder="$t('table.model')" clearable>
                       <el-option
                         v-for="item in deviceModeOptions"
@@ -66,7 +67,7 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='4'>
+                  <el-col :md="8" :lg="8" :xl="6">
                     <el-select v-model="networkStatus" :placeholder="$t('view.inputstate')" clearable>
                       <el-option
                         v-for="item in networkStatusOptions"
@@ -76,7 +77,7 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='4'>
+                  <el-col :md="8" :lg="8" :xl="6">
                     <el-select v-model="useStatus" :placeholder="$t('view.inputstate2')" clearable>
                       <el-option
                         v-for="item in usestatusOptions"
@@ -86,14 +87,18 @@
                       </el-option>
                     </el-select>
                   </el-col>
-                  <el-col :span='2' style="line-height:40px">
-                    <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                   </el-col>
-                  <el-col :span='6'>
+                  <el-col :md="9" :lg="9" :xl="7">
+                     <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
                     <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
                     <el-button class="butdele" @click="moreSearch">{{$t('button.more')}}</el-button>
                     <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                   </el-col>
+                  
+                  <!-- <el-col :span='2' style="line-height:40px">
+                    <el-checkbox v-model="containsChildren">{{$t('view.subordinate')}}</el-checkbox>
+                  </el-col> -->
+ 
                 </el-row>
                 <el-row class="list-search"  v-show="moreFlag" :gutter="22" ref="header">
                   <el-col :span='3'>
@@ -121,10 +126,10 @@
                   </el-col>
                   <el-col :span='15' >
                     <el-row style="line-height:40px">
-                      <el-col :span='3'>
+                      <el-col :md="4" :lg="4" :xl="3">
                         <span>{{$t('table.useLimit')}}：</span>
                       </el-col>
-                      <el-col :span='21' >
+                      <el-col :md="20" :lg="20" :xl="21" >
                         <!-- <img :src="item[1].iconUrl" alt=""> -->
                         <span v-for="(item,index) in range" :key="item[0]" class='fangwei'
                         @click="addClass(index,item)" ><img :src="index==current?item[1].iconUrlActive:item[1].iconUrlInactive" alt="" >&nbsp;&nbsp;</span>

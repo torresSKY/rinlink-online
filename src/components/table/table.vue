@@ -20,6 +20,13 @@
                         <el-button @click.native.prevent='item.tableClick(scope.row,item.label)' type="text">{{scope.row[item.prop]}}</el-button>
                     </template>
                 </el-table-column>
+                <el-table-column  v-else-if="item.type == 'clickPay'"  align='center' min-width="80px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
+                    <template slot-scope="scope">
+                        <el-button  @click.native.prevent='item.selectOperation(1,scope.row)' type="text">详情</el-button>
+                        <el-button  v-if="scope.row.orderState==1" @click.native.prevent='item.selectOperation(2,scope.row)' type="text">取消订单</el-button>
+                        <el-button  v-if="scope.row.orderState==1" @click.native.prevent='item.selectOperation(3,scope.row)' type="text">去支付</el-button>
+                    </template>
+                </el-table-column>
                 <el-table-column  v-else-if="item.type == 'clickChuli'"  align='center' min-width="50px" show-overflow-tooltip  :label='item.label' :prop='item.prop' :key="item.index">
                     <template slot-scope="scope">
                         <el-button v-if="scope.row.handleStatus==0" @click.native.prevent='item.selectOperation(1,scope.row)' type="text">处理</el-button>

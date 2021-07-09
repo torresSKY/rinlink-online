@@ -26,9 +26,21 @@
             <el-button @click="dialogDetail = false">关 闭</el-button>
           </span>
         </el-dialog>
+        <el-dialog
+          :title="payment == 'ALI_QR'? '支付宝扫码支付': '微信扫码支付'"
+          :visible.sync="dialogCode"
+          :show-close='false'
+          width="26%">
+          <div class="qrcode" id='qrcode' ref="qrCodeUrl" style="width:200px;text-align:center;margin:0 auto"></div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="cannel">关 闭</el-button>
+            <!-- <el-button type="primary" @click="confirmPay" :loading="loading">已付款</el-button> -->
+          </span>
+        </el-dialog>
     </div>
 </template>
 <script>
+    import QRCode from 'qrcodejs2'
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'
     import BaseTable from '@/components/table'
@@ -68,11 +80,11 @@
                       return params
                     }},
                     {label: this.$t('table.operation'),
-                      type:'clickEvent',
-                      name:'详情',
-                      tableClick: (val) => {
-                      this.showDialog('a', val)
-                    }}
+                      type:'clickPay',
+                      selectOperation: (index, row) => {
+                      // console.log(index, row)
+                      this.showDialog(index, row)
+                    },}
                 ],
                 detailLabel:[
                     {label: this.$t('table.index'), type: 'index'},
@@ -82,7 +94,10 @@
                     {label: '设备充值后到期时间', prop: 'afterTime', type: 'Timestamp'},
                     {label: '充值金额', prop: 'jine'},
                     {label: '充值状态', prop: 'state'},
-                ]
+                ],
+                dialogCode:false,
+                payment:null,
+                qrCodeUrl:null
             }
         },
         mounted(){
@@ -94,7 +109,10 @@
            this.getlist()
         },
         methods:{
-            getlist(){ // 获取订单信息
+            getlist(msg){ // 获取订单信息
+                if(msg==1){
+                  this.page.index = 1
+                }
                 let data = {
                     pageSize: this.page.size,
                     page: this.page.index - 1,
@@ -120,7 +138,7 @@
             },
             showDialog(index, data){ // 操作
                 switch (index) {
-                    case 'a': //详情
+                    case 1: //详情
                     this.detailList = data.devices
                     for(let i = 0;i<this.detailList.length;i++){
                         this.detailList[i]['jine'] = data.unitPrice / 100
@@ -128,7 +146,55 @@
                     }
                     this.dialogDetail = true
                     break
+                    case 2: //取消订单
+                    this.$confirm('确定要取消订单吗?', '提示', {
+                      confirmButtonText: '确定',
+                      cancelButtonText: '取消',
+                      type: 'warning'
+                    }).then(() => {
+                      let data2 = {
+                        payOrderId : data.payOrderId
+                      }
+                      api.abandon_device_order(data2,this.type).then(res => {
+                        // debugger
+                        if(res.success){
+                         this.$message.success('取消订单成功')
+                         this.getlist(1)
+                        }
+                      }).catch(err => {
+                        this.$message.error(err.msg)
+                      })
+
+                    }).catch(() => {
+                      this.$message({
+                        type: 'info',
+                        message: '取消操作'
+                      });          
+                    })
+                    break
+                    case 3: //去支付
+                    if(data.wayCode=='ALI_APP'||data.wayCode=='WX_APP'){
+                      return this.$message.warning('此订单为APP创建的订单，需在APP完成支付')
+                    }else if(data.wayCode=='WX_LITE'){
+                      return this.$message.warning('此订单为小程序创建的订单，需在小程序完成支付')
+                    }
+                    this.payment = data.wayCode
+                    this.qrCodeUrl = data.payData
+                    this.dialogCode = true
+                    this.$nextTick(() => {
+                      this.creatQrCode()
+                    })
+                    break
                 }
+            },
+            creatQrCode() {
+                let qrcode = new QRCode(this.$refs.qrCodeUrl, {
+                    text: this.qrCodeUrl, // 需要转换为二维码的内容
+                    width: 200,
+                    height: 200,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff'
+                })
             },
             get_device_order(id){ // 获取详情
               let data = {
@@ -145,8 +211,11 @@
                 this.detailList = []
                 this.$message.error(err.msg)
               })
+            },
+            cannel(){
+              document.getElementById("qrcode").innerHTML = ""
+              this.dialogCode = false
             }
-            
         }
     }
 </script>

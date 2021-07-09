@@ -40,7 +40,7 @@
                     <!-- <el-col :span='3'>
                         <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
                     </el-col> -->
-                    <el-col :span='5'>
+                    <el-col :span='6'>
                       <el-col :span='10'>
                         <el-select v-model="selStatus" >
                           <el-option

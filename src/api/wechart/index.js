@@ -182,11 +182,17 @@ const get_device_order = (data,type) => (   //查询设备订单
 const paging_query_device_order = (data,type) => (   //分页查询设备订单
     axios.post(url+'/paging_query_device_order?__OPERATOR_TYPE='+type, data)
 )
+const abandon_device_order = (data,type) => (   //取消设备订单
+    axios.post(url+'/abandon_device_order?__OPERATOR_TYPE='+type, data)
+)
 const paging_device_mileage_statistics = (data,type) => (   //分页查询设备的里程统计
     axios.post(url+'/paging_device_mileage_statistics?__OPERATOR_TYPE='+type, data)
 )
 const get_mileage_between_time = (data,type) => (   //获取时间段内的总里程
     axios.post(url+'/get_mileage_between_time?__OPERATOR_TYPE='+type, data)
+)
+const export_device_mileage_statistics = (data,type) => (   //导出设备的里程统计
+    axios.post(url+'/export_device_mileage_statistics?__OPERATOR_TYPE='+type, data,{responseType: 'arraybuffer'})
 )
 const searchBusiness = (data,type) => (   //搜索客户信息
     axios.post(url+'/search_business_users?__OPERATOR_TYPE='+type, data)
@@ -431,8 +437,10 @@ export default {
     create_device_order,
     get_device_order,
     paging_query_device_order,
+    abandon_device_order,
     paging_device_mileage_statistics,
     get_mileage_between_time,
+    export_device_mileage_statistics,
     // getEqulistnew,
     // getzhucheList,
     // getzhucheListPagination,
