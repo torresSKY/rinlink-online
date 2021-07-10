@@ -200,6 +200,9 @@ const searchBusiness = (data,type) => (   //搜索客户信息
 const getAlarmsDetail = (data,type) => (   //分页查询报警详情
     axios.post(url+'/paging_device_alarms?__OPERATOR_TYPE='+type, data)
 )
+const download_device_alarms = (data,type) => (   //导出报警详情
+    axios.post(url+'/download_device_alarms?__OPERATOR_TYPE='+type, data,{responseType: 'arraybuffer'})
+)
 const handleDeviceAlarm = (data,type) => (   //处理报警
     axios.post(url+'/handle_device_alarm?__OPERATOR_TYPE='+type, data)
 )
@@ -223,6 +226,9 @@ const getAlarmType = (data) => (   //查询报警类型
 )
 const alarmStatistic = (data,type) => (   //分页查询设备报警统计
     axios.post(url+'/paging_device_alarm_statistic?__OPERATOR_TYPE='+type, data)
+)
+const download_device_alarm_statistic = (data,type) => (   //导出设备报警统计
+    axios.post(url+'/download_device_alarm_statistic?__OPERATOR_TYPE='+type, data,{responseType: 'arraybuffer'})
 )
 const getModelList = (data,type) => (   //分页查询设备型号
     axios.post(url+'/paging_query_device_models', data)
@@ -406,6 +412,7 @@ export default {
     update_current_business_user_password,
     searchBusiness,
     getAlarmsDetail,
+    download_device_alarms,
     handleDeviceAlarm,
     handleDeviceAlarms,
     platformExpire,
@@ -414,6 +421,7 @@ export default {
     systemMessages,
     getAlarmType,
     alarmStatistic,
+    download_device_alarm_statistic,
     getDevicesList,
     searchDevices,
     queryDevices,

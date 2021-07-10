@@ -14,7 +14,7 @@
             </el-col>
             <el-col :span="12">
                 <div class="devices" v-loading="loading_two">
-                    <el-input placeholder="输入设备名称或IMEI" size="mini" v-model="searchDevice_name">
+                    <el-input placeholder="输入设备名称或SN" size="mini" v-model="searchDevice_name">
                         <el-button @click="evt_searchDevice" slot="append" icon="el-icon-search"></el-button>
                     </el-input>
                     <div class="devices_bottom" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="5">

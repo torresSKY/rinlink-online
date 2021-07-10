@@ -28,7 +28,7 @@
                                <el-button type="primary" size="small" @click="historyOrder(scope.row)">{{$t('button.historysend')}}</el-button>
                                <el-dialog :title="$t('table.addsend')" :visible.snyc="dialogTableVisible" :before-close="handleClose">
                                    <el-form>
-                                       <el-form-item label="imei" >
+                                       <el-form-item label="SN" >
                                            <el-input v-model="imei"></el-input>
                                        </el-form-item>
                                        <el-form-item :label="$t('table.sendtime')">

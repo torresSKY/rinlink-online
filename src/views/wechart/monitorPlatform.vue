@@ -42,7 +42,7 @@
                         <div><i class="el-icon-arrow-left"></i></div>
                     </div>
                     <div class="row_item_middle_middle">
-                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称或IMEI" v-model="searchDevice_word">
+                        <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称或SN" v-model="searchDevice_word">
                             <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                         </el-input>
                     </div>
@@ -250,7 +250,7 @@
                 </el-col>
                 <el-col :span="12" class="device_info_right">
                     <el-form>
-                        <el-form-item label="设备IMEI:">
+                        <el-form-item label="设备SN:">
                             <span>{{device_detail_info.deviceNumber}}</span>
                         </el-form-item>
                         <el-form-item label="网络状态:">

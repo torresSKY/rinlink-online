@@ -38,22 +38,6 @@
                         <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
                         :load-options="loadOptions" :noOptionsText='noOptionsText' noResultsText='暂无数据'/>
                     </el-col>
-                    <el-col :span='5'>
-                      <el-col :span='10'>
-                        <el-select v-model="selStatus" >
-                          <el-option
-                            v-for="item in selOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                          </el-option>
-                        </el-select>
-                      </el-col>
-                      <el-col :span='14' >
-                        <el-autocomplete v-model="input3" placeholder="请选择"  
-                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable></el-autocomplete>
-                      </el-col>
-                    </el-col>
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')" clearable>
                           <el-option
@@ -64,13 +48,29 @@
                           </el-option>
                         </el-select>
                     </el-col>
+                    <el-col :span='4'>
+                      <!-- <el-col :span='10'>
+                        <el-select v-model="selStatus" >
+                          <el-option
+                            v-for="item in selOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-select>
+                      </el-col> -->
+                      <!-- <el-col :span='14' > -->
+                        <el-autocomplete v-model="input3" placeholder="请搜索并选择SN或设备名称"  
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable style="width:100%"></el-autocomplete>
+                      <!-- </el-col> -->
+                    </el-col>
                     
                     <!-- <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
                     </el-col> -->
-                    <el-col :span='4'>
+                    <el-col :span='6'>
                       <el-button class="butresh" @click="getlist(1)">{{$t('button.search')}}</el-button>
-                      <!-- <el-button class="butadd" >{{$t('button.download')}}</el-button> -->
+                      <el-button class="butadd" @click="download">{{$t('button.download')}}</el-button>
                       <el-button class="butresh" @click="refresh">{{$t('button.refresh')}}</el-button>
                     </el-col>
                 </el-row>
@@ -213,7 +213,7 @@ export default {
       timeout: null,
       selStatus:1,
       selOptions:[
-        { value: 1, label: '设备IMEI'}, 
+        { value: 1, label: '设备SN'}, 
         { value: 2, label: '设备名称'}
       ],
       tableHeight:document.body.offsetHeight - 102,
@@ -371,18 +371,21 @@ export default {
       console.log(queryString, cb)
       this.deviceId = null
       let data = null
-      if(this.selStatus==1){
-        data = {
-          deviceNumberKeyword: queryString,
-          containsChildren:true
-        }
-      }else{
-        data = {
-          deviceNameKeyword: queryString,
-          containsChildren:true
-        }
+      // if(this.selStatus==1){
+      //   data = {
+      //     deviceNumberKeyword: queryString,
+      //     containsChildren:true
+      //   }
+      // }else{
+      //   data = {
+      //     deviceNameKeyword: queryString,
+      //     containsChildren:true
+      //   }
+      // }
+      data = {
+        deviceNumberKeyword:this.input3,
+        containsChildren:true
       }
-      
       var that = this
       this.deviceIdList = []
       api.getDevicesList(data,this.type).then(res => {
@@ -392,7 +395,7 @@ export default {
           if(res.data.content.length>0){
             that.deviceIdList = res.data.content
             for(let i = 0;i<that.deviceIdList.length;i++){
-              if(this.selStatus==1){
+              if(!isNaN(this.input3)){
                 that.deviceIdList[i]['value'] = that.deviceIdList[i].deviceNumber
               }else{
                 that.deviceIdList[i]['value'] = that.deviceIdList[i].deviceName
@@ -421,7 +424,7 @@ export default {
     createStateFilter(queryString) {
       return (state) => {
         // console.log(state)
-        if(this.selStatus==1){
+        if(!isNaN(this.input3)){
           return (state.deviceNumber.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
         }else{
           return (state.deviceName.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
@@ -596,6 +599,42 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    download(){ // 导出
+      if(this.time ==null){
+        return this.$message.warning('请选择导出时间')
+      }
+      let data = {
+        containsChildren:this.checked,
+        deviceOwnerId:this.value,
+        startTime:this.time[0],
+        endTime:this.time[1],
+        deviceIdList:this.deviceId==''?[]:this.deviceId!=null?[this.deviceId]:[],
+        alarmTypeCodeList:this.alarmTypeId==''?[]:this.alarmTypeId!=null?[this.alarmTypeId]:[],
+        handleStatus:this.handleStatus,
+      }
+      api
+        .download_device_alarms(data,this.type)
+        .then(res => {
+          let blob = new Blob([res], { type: 'application/vnd.ms-excel' }) // res就是接口返回的文件流了
+          let objectUrl = URL.createObjectURL(blob)
+          var a = document.createElement('a')
+          a.href = objectUrl
+          let time = new Date()
+          let y = time.getFullYear()
+          let m = time.getMonth() + 1
+          let d = time.getDate()
+          let h = time.getHours() + 1 //获取当前小时数(0-23)
+          let mm = time.getMinutes() + 1 //获取当前分钟数(0-59)
+          let hh = time.getSeconds() + 1 //获取当前秒数(0-59)
+          let name = '报警详情_'  + y + '' + m + '' + d + '' + h + '' + mm + '' + hh + '.xlsx'
+          a.download = name
+          a.click()
+          window.URL.revokeObjectURL(objectUrl)
+        })
+        .catch(err => {
+          this.$message.error(err.msg)
+        })
     }
   }
 }

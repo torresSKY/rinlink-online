@@ -463,9 +463,9 @@ text-align:left;
 
 .btn-loading {
   margin-top: 8px;
-  margin-right: 10px;
+  // margin-right: 10px;
   font-size: 20px;
-  padding: 5px 10px !important;
+  padding: 5px 0 5px 10px !important;
   background: none !important;
   border: none;
   height: 50px;

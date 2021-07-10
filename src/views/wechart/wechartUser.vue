@@ -104,7 +104,7 @@
                             style="width: 100%">
                             <el-table-column
                                 prop="imei"
-                                label="imei">
+                                label="SN">
                             </el-table-column>
                             <el-table-column label="id" width="100">
                                 <template slot-scope="scope">
