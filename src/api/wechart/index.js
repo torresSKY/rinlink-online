@@ -379,6 +379,9 @@ const queryFenceDevices = (data,type) => (
 const downloadDeviceTracks = (data,type) => (//导出轨迹
     axios.post(url + '/download_device_tracks?__OPERATOR_TYPE=' + type,data,{responseType: 'arraybuffer'})
 )
+const getDevicesCoordinate = (data,type) => (//获取多设备位置的位置定位
+    axios.post(url + '/get_devices_last_coordinate?__OPERATOR_TYPE=' + type,data)
+)
 export default {
     login,
     getManagerList,
@@ -488,5 +491,6 @@ export default {
     queryBusinessUserInfo,
     getCurrentUserInfo,
     queryFenceDevices,
-    downloadDeviceTracks
+    downloadDeviceTracks,
+    getDevicesCoordinate
 }
