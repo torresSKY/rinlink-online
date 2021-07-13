@@ -123,7 +123,8 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password,effectiveSecond:86400}).then(res=>{
+          // effectiveSecond:86400
+          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password}).then(res=>{
             //if(res.id){
               // if(1){
               // this.setRoles(res.detail.role)
