@@ -196,28 +196,9 @@
         </el-dialog>
 
         <!-- 设备指令 -->
-        <el-drawer class="device_order" modal direction="rtl" :show-close="false" :visible="device_command_visible" size="60%">
-            <template slot="title">
-                <i class="device_order_top_icon el-icon-back" @click="evt_close_command_content"></i>
-                <span class="device_order_top_text" @click="evt_close_command_content">返回</span>
-            </template>
-            <el-tabs type="border-card" v-model="tab_value" @tab-click="evt_tab_click">
-                <el-tab-pane label="指令参数" name="parameter">
-                    <send-order ref="sendOrder" :list = "multipleSelection" @confrimSend='confrimSend'/>
-                </el-tab-pane>
-                <el-tab-pane label="历史指令" name="history">
-                    <el-table class="" :data="command_data_list" border style="width: 100%" size="small">
-                        <!-- <el-table-column fixed prop="commandId" label="指令ID" min-width="160" show-overflow-tooltip></el-table-column> -->
-                        <el-table-column fixed label="序号" type="index" min-width="50" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="commandName" label="指令类型" min-width="100" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatCommandData" prop="commandData" label="指令数据" min-width="180" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatDate" prop="createTime" label="创建时间" min-width="100" show-overflow-tooltip></el-table-column>
-                        <el-table-column :formatter="evt_table_formatCommandStatus" prop="commandStatus" label="指令结果" min-width="80" show-overflow-tooltip></el-table-column>
-                    </el-table>
-                    <el-pagination @current-change="evt_current_change" small background layout="total,prev, pager, next,jumper" :hide-on-single-page="true" :current-page="command_page" :page-size="command_pageSize" :total="command_total" style="text-align:center;margin-top:30px;"></el-pagination>
-                </el-tab-pane>
-            </el-tabs>
-        </el-drawer>
+        <commandCompent :commandVisible="device_command_visible" :selection="multipleSelection" @closeCommand="evt_closeCommand"></commandCompent>
+
+        <!-- 充值 -->
         <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>
     </div>
 </template>
@@ -239,10 +220,11 @@ import controlTable from './control/table.vue'
 import dialogRecharge from './dialogRecharge.vue'
 import userCompent from './control/users.vue'
 import devicesCompent from './control/devicesList.vue'
+import commandCompent from './control/command.vue'
 export default {
     name: 'electric',
     mixins:[mixin],
-    components:{sendOrder,controlTable,dialogRecharge,userCompent,devicesCompent},
+    components:{sendOrder,controlTable,dialogRecharge,userCompent,devicesCompent,commandCompent},
     data(){
         return{
             height: 0, //可视高度
@@ -259,16 +241,6 @@ export default {
             icon_list:[],//适用范围图标
             icon_list_t:{},
             range_code:'',//设备使用范围的code
-            tab_value:'parameter',
-            command_page:1,//历史指令当前页
-            command_pageSize:10,//历史指令页面数据条数
-            command_total:0,//历史指令的总条数
-            command_data_list:[],//历史指令的当前页数据
-            need_deviceModelId: '',//需要获取指令模板列表的设备型号
-            command_templates_list: [],//设备指令模板列表信息
-            command_template_id:'',//选择下发的模板指令id
-            template_content: {},//选择要下发指令的模板内容信息
-            is_template_content: true,//模板内容信息是否为空 默认不为空
             current_select_deviceId:'',//当前选择的设备id
             show_deviceName: true,//是否显示设备名称
             track_detail:false,//展示轨迹
@@ -406,7 +378,6 @@ export default {
                 this.map.setMapType(BMAP_NORMAL_MAP);
             }
         },
-        
         // 跳转到当前页查看轨迹的情况
         evt_route:function(info){
             var _this = this;
@@ -475,23 +446,17 @@ export default {
                 this.evt_getDeviceInfo();
                 this.device_info_visible = true;
             }else if(item.type == 'command'){
-                this.need_deviceModelId = item.deviceModelId;
-                // this.evt_queryDeviceCmds();
                 this.device_command_visible = true;
-                // username model
                 item.deviceInfo['model'] = item.deviceInfo.deviceModel.name;
                 item.deviceInfo['username'] = item.deviceInfo.owner.username;
                 this.multipleSelection = [item.deviceInfo];
                 clearInterval(this.refresh_time_interval);
-                this.$nextTick(() => {
-                    this.$refs.sendOrder.formData = {};
-                    this.$refs.sendOrder.schema = null;
-                    this.$refs.sendOrder.deviceCmdTemplateId = null;
-                    this.$refs.sendOrder.searchImei = null;
-                    this.$refs.sendOrder.tempNum = 0;
-                    this.$refs.sendOrder.getlist();
-                })
             }
+        },
+        // 关闭指令弹框
+        evt_closeCommand:function(){
+            this.device_command_visible = false;
+            this.evt_refresh_interval();
         },
         // 关闭设备详情
         evt_close_deviceInfo:function(){
@@ -563,72 +528,8 @@ export default {
                 _this.$message({message:err.msg,type:"error",offset:'200',duration:'1000'})
             })
         },
-        // 关闭指令弹框
-        evt_close_command_content:function(){
-            this.device_command_visible = false;
-            this.command_page = 1;
-            this.command_total = 0;
-            this.command_data_list = [];
-            this.command_templates_list = [];
-            this.command_template_id = '';
-            this.is_template_content = true;
-            this.command_templates_list = {};
-            this.tab_value = 'parameter';
-            this.evt_refresh_interval();
-        },
-        // 设备指令的tab切换
-        evt_tab_click:function(){
-            // console.log(this.tab_value);
-            this.command_page = 1;
-            this.command_total = 0;
-            this.command_data_list = [];
-            this.command_templates_list = [];
-            this.command_template_id = '';
-            this.is_template_content = true;
-            this.command_templates_list = {};
-            if(this.tab_value == 'history'){
-                this.evt_queryDeviceCmds();
-            }else{
-                this.$nextTick(() => {
-                    this.$refs.sendOrder.formData = {};
-                    this.$refs.sendOrder.schema = null;
-                    this.$refs.sendOrder.deviceCmdTemplateId = null;
-                    this.$refs.sendOrder.searchImei = null;
-                    this.$refs.sendOrder.tempNum = 0;
-                    this.$refs.sendOrder.getlist();
-                })
-            }
-        },
-        confrimSend:function(data){ // 
-            //console.log(data);
-            if(!data){
-                this.evt_close_command_content();
-            }
-        },
-        // 获取设备历史指令
-        evt_queryDeviceCmds:function(){
-            var _this = this;
-            var request_data = {};
-            request_data['page'] = _this.command_page - 1;
-            request_data['pageSize'] = _this.command_pageSize;
-            request_data['deviceId'] = _this.need_handle_deviceId;
-            api.queryDeviceCmds(request_data,_this.userType_parameter).then((res) => {
-                // console.log(res);
-                if(res.success && res.data && res.data.content && res.data.content.length > 0){
-                    _this.command_data_list = res.data.content;
-                    _this.command_total = res.data.pageTotal * _this.command_pageSize;
-                }else if(!res.success){
-                    _this.$message({message: res.msg, type:"info", offset: "200", duration:"1500"});
-                }
-            }).catch((err) => {
-                _this.$message({message: err.msg, type:"error", offset: "200", duration:"1500"});
-            })
-        },
-        // 分页页数改变
-        evt_current_change:function(num){
-            this.command_page = num;
-            this.evt_queryDeviceCmds();
-        },
+        
+        
         // 切换刷新时间
         evt_change_refreshInterval:function(value){
             // console.log(value);
@@ -1744,67 +1645,7 @@ export default {
     justify-content: center;
     margin-top: 4vh;
 }
-.device_order{
-    .device_order_top_icon{
-        font-size: 18px;
-        color: #218FFF;
-        cursor: pointer;
-    }
-    .device_order_top_text{
-        font-size: 14px;
-        font-family: Source Han Sans CN;
-        font-weight: 400;
-        color: #545D6A;
-        cursor: pointer;
-    }
-    .order_form_item{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .order_time_text{
-        font-size: 13px;
-        font-family: Source Han Sans CN;
-        font-weight: 400;
-        color: #AAAAAA;
-        position: relative;
-        left: 75px;
-        top: -16px;
-    }
-    .order_form_btn{
-        margin-top: 50vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    /deep/ .el-drawer__header {
-        margin: 0px;
-        padding: 20px;
-    }
-    /deep/ .el-drawer__header>:first-child{
-        flex-grow: 0;
-    }
-    /deep/ .el-drawer__body{
-        padding: 0px 20px;
-    }
-    /deep/ .el-tabs__content{
-        height: 80vh;
-    }
-    /deep/ .el-form-item{
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-    }
-    /deep/ .el-table td,.el-table th {
-        text-align: center !important;
-    }
-    /deep/ .el-table th>.cell{
-        text-align: center !important;
-    }
-    /deep/ .el-table th {
-        background: #F2F2F2 !important;
-    }
-}
+
 /deep/ .anchorBL {
     display: block; 
 }
