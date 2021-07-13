@@ -88,7 +88,7 @@
                 ],
                 detailLabel:[
                     {label: this.$t('table.index'), type: 'index'},
-                    {label: '设备IMEI', prop: 'deviceNumber'},
+                    {label: '设备SN', prop: 'deviceNumber'},
                     {label: '所属客户', prop: 'owner'},
                     {label: '设备充值前到期时间', prop: 'beforeTime', type: 'Timestamp'},
                     {label: '设备充值后到期时间', prop: 'afterTime', type: 'Timestamp'},

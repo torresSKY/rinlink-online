@@ -55,7 +55,7 @@
                 <el-row style="margin-top:10px" :gutter="22" >
                   <el-col :md="15" :lg="15" :xl="17">
                     <el-col :md="8" :lg="8" :xl="6">
-                    <el-input v-model="deviceIdList" placeholder="请输入IMEI或设备名称" clearable></el-input>
+                    <el-input v-model="deviceIdList" placeholder="请输入SN或设备名称" clearable></el-input>
                   </el-col>
                   <el-col :md="8" :lg="8" :xl="6">
                     <el-select v-model="deviceModelId" :placeholder="$t('table.model')" clearable>
@@ -182,13 +182,13 @@
                   <el-input
                     type="textarea"
                     :autosize="{ minRows: 1, maxRows: 4}"
-                    placeholder="请输入设备IMEI号（多个回车换行）"
+                    placeholder="请输入设备SN号（多个回车换行）"
                     v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
                   </el-input>
                 </el-row>
                 <el-row style="line-height:40px">
                   <el-col :offset='1' :span='18'>
-                    <span>IMEI计数：{{tempNum}}</span>
+                    <span>SN计数：{{tempNum}}</span>
                   </el-col>
                   <el-col :span='4'>
                     <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
@@ -1348,7 +1348,7 @@ export default{
           api.getDevicesList(data,this.type).then(res => {
             if(res.success){
               if(res.data.content.length<=0){
-                return this.$message.warning('输入的IMEI没有查到数据')
+                return this.$message.warning('输入的SN没有查到数据')
               }
               let item = res.data.content
               for(let i = 0;i<item.length;i++){

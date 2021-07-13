@@ -30,8 +30,8 @@
                         <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
                         :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据'/>
                     </el-col>
-                    <el-col :span='5'>
-                      <el-col :span='10'>
+                    <el-col :span='4'>
+                      <!-- <el-col :span='10'>
                         <el-select v-model="selStatus" @change="selState">
                           <el-option
                             v-for="item in selOptions"
@@ -40,11 +40,12 @@
                             :value="item.value">
                           </el-option>
                         </el-select>
-                      </el-col>
-                      <el-col :span='14'>
-                        <el-autocomplete v-model="deviceIdInput" placeholder="请选择"   autocomplete="off"
-                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable></el-autocomplete>
-                      </el-col>
+                      </el-col> -->
+                      <!-- <el-col :span='14'> -->
+                        <el-autocomplete v-model="deviceIdInput" placeholder="请搜索并选择SN或设备名称"   autocomplete="off"
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable style="width:100%"></el-autocomplete>
+                      <!-- </el-col> -->
+                      <!-- <el-input v-model="deviceIdInput" placeholder="请输入SN或设备名称"></el-input> -->
                     </el-col>
                     <!-- <el-col :span='2' style="line-height:40px">
                       <el-checkbox v-model="checked">{{$t('view.subordinate')}}</el-checkbox>
@@ -128,7 +129,7 @@ export default {
       type:null,
       selStatus:1,
       selOptions:[
-        { value: 1, label: '设备IMEI'}, 
+        { value: 1, label: '设备SN'}, 
         { value: 2, label: '设备名称'}
       ],
       tableHeight:document.body.offsetHeight - 82,
@@ -155,7 +156,7 @@ export default {
   methods: {
     getlist(type){ // 分页查询设备报警统计
       if(this.deviceNumber == null){
-        return this.$message({message: '请选择设备IMEI/设备名称', type:'warning',offset:'100',duration:'2000'})
+        return this.$message({message: '请选择设备SN/设备名称', type:'warning',offset:'100',duration:'2000'})
       }
       let data = {
         pageSize: this.page.size,
@@ -285,18 +286,21 @@ export default {
       // console.log(queryString, cb)
       this.deviceNumber = null
       let data = null
-      if(this.selStatus==1){
-        data = {
-          deviceNumberKeyword: queryString,
-          containsChildren:true
-        }
-      }else{
-        data = {
-          deviceNameKeyword: queryString,
-          containsChildren:true
-        }
+      // if(this.selStatus==1){
+      //   data = {
+      //     deviceNumberKeyword: queryString,
+      //     containsChildren:true
+      //   }
+      // }else{
+      //   data = {
+      //     deviceNameKeyword: queryString,
+      //     containsChildren:true
+      //   }
+      // }
+      data = {
+        deviceNumberKeyword:this.deviceIdInput,
+        containsChildren:true
       }
-      
       var that = this
       var deviceIdList = []
       api.getDevicesList(data,this.type).then(res => {
@@ -306,7 +310,7 @@ export default {
           if(res.data.content.length>0){
             deviceIdList = res.data.content
             for(let i = 0;i<deviceIdList.length;i++){
-              if(this.selStatus==1){
+              if(!isNaN(this.deviceIdInput)){
                 deviceIdList[i]['value'] = deviceIdList[i].deviceNumber
               }else{
                 deviceIdList[i]['value'] = deviceIdList[i].deviceName
@@ -335,12 +339,11 @@ export default {
     createStateFilter(queryString) {
       return (state) => {
         // console.log(state)
-        if(this.selStatus==1){
+        if(!isNaN(this.deviceIdInput)){
           return (state.deviceNumber.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
         }else{
           return (state.deviceName.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
         }
-        
       };
     },
     handleSelect(item){
@@ -393,9 +396,9 @@ export default {
     selDate(){
       this.dateValue = '7'
     },
-    download(){
+    download(){ // 导出
       if(this.deviceNumber == null){
-        return this.$message({message: '请选择设备IMEI/设备名称', type:'warning',offset:'100',duration:'2000'})
+        return this.$message({message: '请选择设备SN/设备名称', type:'warning',offset:'100',duration:'2000'})
       }
       if(this.time ==null){
         return this.$message.warning('请选择查询时间')

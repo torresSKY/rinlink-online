@@ -9,7 +9,7 @@
                             <el-col :span="10">
                                 <el-select @change="evt_changeSearchType" v-model="select_type_name" placeholder="请选择查询类型" size="small">
                                     <!-- <el-option key="设备名称"  label="设备名称" value="deviceName"></el-option> -->
-                                    <el-option key="设备名称或IMEI"  label="设备名称或IMEI" value="deviceNumber"></el-option>
+                                    <el-option key="设备名称或SN"  label="设备名称或SN" value="deviceNumber"></el-option>
                                     <el-option  key="围栏名称" label="围栏名称" value="fenceName"></el-option>
                                 </el-select>
                             </el-col>

@@ -60,7 +60,7 @@
         <el-dialog
           :title="$t('button.sel')"
           :visible.sync="dialogSel"
-          width="30%">
+          width="30%" :before-close="handleClose">
           <el-row>
               <el-checkbox-group v-model="alarmTypeCodeList" >
                 <el-checkbox v-for="item in alarmTypeList" :label="item[0]" :key="item[0]">{{item[1].name}}</el-checkbox>
@@ -197,10 +197,15 @@
                   this.$message.error(err.msg)
                 })
             },
+            handleClose(done) {
+              this.alarmTypeCodeList = []
+              done()
+            },
             selAlarmType(){ // 筛选报警类型
                 if(this.alarmTypeList.length<=0){
                    this.getAlarmType()
                 }
+                // this.alarmTypeCodeList = []
                 this.dialogSel = true
             },
             confrimSel(){ // 确认筛选报警类型

@@ -24,13 +24,13 @@
                   <el-input
                     type="textarea"
                     :autosize="{ minRows: 1, maxRows: 4}"
-                    placeholder="请输入设备IMEI号（多个回车换行）"
+                    placeholder="请输入设备sn号（多个回车换行）"
                     v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
                   </el-input>
                 </el-row>
                 <el-row style="line-height:40px">
                   <el-col :offset='1' :span='18'>
-                    <span>IMEI计数：{{tempNum}}</span>
+                    <span>SN计数：{{tempNum}}</span>
                   </el-col>
                   <el-col :span='4'>
                     <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
@@ -69,7 +69,7 @@
               </div>
               <div style="display:inline-block">
                 <!-- <el-button @click="dialogVisible = false">取 消</el-button> -->
-                <el-button type="warning" @click="recharge">充 值</el-button>
+                <el-button type="warning" @click="recharge" :loading="loadingRec">充 值</el-button>
               </div>
           </el-row >
         </el-dialog>
@@ -131,7 +131,8 @@
                 type:JSON.parse(sessionStorage['user']).userType,
                 qrCodeUrl:null,
                 payOrderId:null,
-                loading:false
+                loading:false,
+                loadingRec:false
             }
         },
         watch: {
@@ -206,7 +207,7 @@
               api.getDevicesList(data,this.type).then(res => {
                 if(res.success){
                   if(res.data.content.length<=0){
-                    return this.$message.warning('输入的IMEI没有查到数据')
+                    return this.$message.warning('输入的SN没有查到数据')
                   }
                   let item = res.data.content
                   for(let i = 0;i<item.length;i++){
@@ -272,6 +273,7 @@
               if(this.list.length<=0){
                 return this.$message.warning('请输入需充值的设备')
               }
+              this.loadingRec = true
               let arr = []
               for(let i = 0;i<this.list.length;i++){
                 arr.push(this.list[i].id)
@@ -283,17 +285,21 @@
               }
               api.create_device_order(data,this.type).then(res => {
                 // debugger
+                
                 if(res.success){
                   this.qrCodeUrl = res.data.payData
                   this.payOrderId = res.data.payOrderId
                   this.dialogCode = true
                   this.$nextTick(() => {
+                    this.loadingRec = false
                     this.creatQrCode()
                   })
                 }else{
+                  this.loadingRec = false
                   this.$message.error(err.msg)
                 }
               }).catch(err => {
+                this.loadingRec = false
                 this.$message.error(err.msg)
               })
             },
