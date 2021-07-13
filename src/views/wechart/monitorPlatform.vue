@@ -122,12 +122,7 @@
                             <el-table-column :formatter="evt_table_formatSpeed" prop="speed" label="速度(km/h)" min-width="60" show-overflow-tooltip></el-table-column>
                             <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="80" show-overflow-tooltip></el-table-column>
                             <el-table-column prop="address" fixed="right"  label="位置" min-width="200" show-overflow-tooltip></el-table-column>
-                             <!-- <template slot-scope="scope">
-                                    <el-button v-if="scope.row.address == 'address'" @click="evt_getAdress(scope.row)" type="text" size="small">点击获取定位</el-button>
-                                    <el-button v-if="scope.row.address != 'address'" type="text" size="small">{{scope.row.address}}</el-button>
-                                </template> -->
                         </el-table>
-                        <!-- <el-pagination small background layout="total,prev, pager, next,jumper" @current-change="evt_change_current" :hide-on-single-page="true" :current-page="current_tracksDetail_page" :page-size="5" :total="tracksDetail_list.length" style="text-align:center;margin-top:10px;"></el-pagination> -->
                     </div>
                 </div>
             </el-col>
@@ -261,8 +256,6 @@ export default {
             tracksDetail_flag:false,//显示轨迹明细
             tracksDetail_list:[],//轨迹明细信息
             table_row_info:{},//单选中的轨迹明细信息
-            current_tracksDetail_list:[],//当前页轨迹明细信息
-            current_tracksDetail_page:1,
             positionType:{
                 '-1': '无定位',
                 '1':'GPS',
@@ -354,7 +347,13 @@ export default {
             if(userId != JSON.parse(sessionStorage['user']).userId){
                 this.current_select_deviceId = '';
             }
+            clearInterval(this.device_tracks_interval);
             this.evt_clearOverlays();
+            this.track_detail = false;
+            this.device_tracks_step = 0;
+            this.tracksDetail_flag = false;
+            this.interval_num = parseInt(this.refresh_interval);
+            this.evt_refresh_interval();
         },
         // 监听设备列表改变事件
         evt_monitorDevicesList:function(devicesList){
@@ -837,7 +836,6 @@ export default {
                     }
                     _this.tracksDetail_list = tracksDetail_list;
                     if(type == 'tracksDetail'){
-                        _this.current_tracksDetail_page = 1;
                         return;
                     }
                     _this.device_tracks = point_arr;
@@ -1009,28 +1007,6 @@ export default {
                 }else{
                     this.evt_clearOverlays();
                     this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
-                    return;
-                    this.device_tracks = this.device_tracks_shift;
-                    this.device_tracks_shift = [];
-                    clearInterval(this.device_tracks_interval);
-                    this.device_tracks_max = this.device_tracks.length;
-                    this.device_tracks_step = 0;
-                    this.map.clearOverlays();
-
-                    if(this.device_tracks.length == 0){
-                        this.play_flag = !this.play_flag;
-                        return;
-                    }
-                    // 轨迹回放添加marker
-                    this.evt_playback_addMarker(new BMap.Point(this.device_tracks[0].lng,this.device_tracks[0].lat));
-                    // 添加轨迹线
-                    var Polyline = new BMap.Polyline([new BMap.Point(this.device_tracks[0].lng,this.device_tracks[0].lat)], {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
-                    Polyline.name = 'playFlag';
-                    this.map.addOverlay(Polyline);
-                    this.playbackPolyline = Polyline;
-                    // marker上的信息窗口
-                    this.evt_playback_infoWindow(new BMap.Point(this.device_tracks[0].lng,this.device_tracks[0].lat),this.device_tracks[0]);
-                    this.evt_LuShu();
                 }
             }
         },
@@ -1128,12 +1104,6 @@ export default {
         },
         evt_close_tracksDetail:function(){
             this.tracksDetail_flag = false;
-        },
-        // 轨迹明细改变当前页
-        evt_change_current:function(num){
-            console.log(num);
-            this.current_tracksDetail_page = num;
-            this.current_tracksDetail_list = this.tracksDetail_list.slice((this.current_tracksDetail_page - 1) * 5,this.current_tracksDetail_page * 5);
         },
         // 点个获取位置信息
         evt_getAdress:function(row){
