@@ -108,7 +108,7 @@ export default {
                 this.page = 0;
                 this.totalPage = 1;
                 this.devices_list = [];
-                this.current_select_deviceId = '';//当前选择的设备id
+                // this.current_select_deviceId = '';//当前选择的设备id
                 this.evt_queryDevices();
             },
             deep:true
@@ -116,6 +116,12 @@ export default {
         iconList:{
             handler(){
                 this.icon_list_t = this.iconList;
+            },
+            deep: true
+        },
+        selectDeviceId:{
+            handler(){
+                this.current_select_deviceId = this.selectDeviceId;//当前选择的设备id
             },
             deep: true
         }

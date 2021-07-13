@@ -324,6 +324,7 @@ export default {
             speed_value: 0,
             rechargeList: [],
             monitorUserId:'',//用户列表选择的用户Id
+            nav_flag: false,
         }
     },
     created(){
@@ -378,18 +379,21 @@ export default {
         evt_monitorUserId:function(userId){
             // console.log(userId);
             this.monitorUserId = userId;
-            this.current_select_deviceId = '';
+            if(userId != JSON.parse(sessionStorage['user']).userId){
+                this.current_select_deviceId = '';
+            }
             this.evt_clearOverlays();
         },
         // 监听设备列表改变事件
         evt_monitorDevicesList:function(devicesList){
             // console.log(devicesList);
             this.devices_list = devicesList;
-            this.current_select_deviceId = '';
+            if(this.nav_flag) return;
             if(this.$route.query.deviceId == undefined) return;
             for(let i = 0, len = this.devices_list.length; i < len; i++){
                 if(this.$route.query.deviceId && this.$route.query.deviceId == this.devices_list[i].id){
                     this.$set(this.devices_list[i],'checked',true);
+                    this.nav_flag = true;
                     this.evt_route(this.devices_list[i]);
                 }
             }
