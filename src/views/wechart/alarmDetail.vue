@@ -61,7 +61,7 @@
                       </el-col> -->
                       <!-- <el-col :span='14' > -->
                         <el-autocomplete v-model="input3" placeholder="请搜索并选择SN或设备名称"  
-                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable style="width:100%"></el-autocomplete>
+                        :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable @clear="setBlur()" style="width:100%"></el-autocomplete>
                       <!-- </el-col> -->
                     </el-col>
                     
@@ -366,6 +366,9 @@ export default {
       this.handleStatus = null 
       this.selStatus = 1
       this.getlist(1)
+    },
+    setBlur(){
+      document.activeElement.blur()
     },
     querySearchAsync(queryString, cb) {
       console.log(queryString, cb)
