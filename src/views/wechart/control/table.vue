@@ -16,123 +16,108 @@
                 </thead>
             </table>
         </div>
-        <el-scrollbar :native="false">
-            <div class="table-scrollbar">
-                <table class="table">
-                    <tbody id="trackDetailTable">
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                        <tr class="tr">
-                            <td width="60">1</td>
-                            <td width="100">2021-09-12 12:20:10</td>
-                            <td width="80">131.999987</td>
-                            <td width="80">32.989878</td>
-                            <td width="60">7</td>
-                            <td width="80">基站</td>
-                            <td width="200">上海市闵行区新镇路288号闵行体育公园</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <el-scrollbar ref="tableScrollbar" class="table-scrollbar" :native="false" viewClass="scrollbarTable">
+            <table class="table" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="0">
+                <tbody id="trackDetailTable">
+                    <tr class="tr" :class="track_step - 1 == index ? 'tr_t':''" v-for="(item,index) in tracksDetail_list" :key="index" @click="evt_click(index,item)">
+                        <td width="60">{{index + 1}}</td>
+                        <td width="100">{{item.time|formatDate}}</td>
+                        <td width="80">{{item.lng|formatLngLat}}</td>
+                        <td width="80">{{item.lat|formatLngLat}}</td>
+                        <td width="60">{{item.speed|formatSpeed}}</td>
+                        <td width="80">{{positionType[item.positionType]}}</td>
+                        <td width="200">{{item.address}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </el-scrollbar>
     </div>
 </template>
 <script>
+import { formatDate } from '@/plugins/date.js'
 export default {
     name:'componentTab',
-    props:['contentList'],
+    props:['dataList','step','playFlag'],
     data(){
         return{
-            // contentdata:this.contentList,
+            tracksDetail_list:[],//轨迹明细信息
+            all_tracks_list: this.dataList,//查询日期内的全部轨迹
+            track_step: this.step,//轨迹步数下标
+            positionType:{
+                '-1': '无定位',
+                '1':'GPS',
+                '2':'WIFI',
+                '3': '基站'
+            },
+            play_flag: this.playFlag,
         }
     },
     watch:{
-        // contentList:{
-        //     handler(){
-        //         this.contentdata = this.contentList;
-        //     },
-        //     deep:true
-        // }
-    },
-    filters:{
-       
+        dataList:{
+            handler(){
+                this.all_tracks_list = this.dataList;
+                this.tracksDetail_list = this.all_tracks_list.slice(0,100);
+            },
+            deep: true
+        },
+        step:{
+            handler(){
+                this.track_step = this.step;
+                if(this.track_step > this.tracksDetail_list.length){
+                    this.tracksDetail_list = this.tracksDetail_list.concat(this.all_tracks_list.slice(this.tracksDetail_list.length,this.tracksDetail_list.length + 100));
+                }else{
+                    this.evt_setCurrent();
+                }
+            },
+            deep: true
+        },
+        playFlag:{
+            handler(){
+                this.play_flag = this.playFlag;
+            },
+            deep: true
+        }
     },
     created:function(){
 
     },
     methods: {
-        
+        // 设置table高亮行
+        evt_setCurrent:function() {
+            if(this.track_step > 5){
+                this.$refs['tableScrollbar'].wrap.scrollTop = 24 * (this.track_step - 2);
+            }else{
+                this.$refs['tableScrollbar'].wrap.scrollTop = 0;
+            }
+        },
+        evt_scroll_load:function(){
+            this.tracksDetail_list = this.tracksDetail_list.concat(this.all_tracks_list.slice(this.tracksDetail_list.length,this.tracksDetail_list.length + 100));
+        },
+        // 点击table中的某一行
+        evt_click:function(index,item){
+            if(this.play_flag) return;
+            this.track_step = index + 1;
+            this.$emit('handleCurrentChange',item);
+        }
     },
+    filters:{
+        formatDate(val) {
+            let date = new Date(val)
+            // 判断这个时间格式是否为NaN-aN-aN aN:aN:aN，
+            return isNaN(date) ? " " : formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+        },
+        formatLngLat:function(val){
+            var str = val.toString();
+            return str.slice(0,str.indexOf('.')+7);
+        },
+        formatSpeed:function(val){
+            if(val == null){
+                return 0;
+            }else{
+                return val
+            }
+        },
+    }
 }
 </script>
 <style scoped>
@@ -154,6 +139,7 @@ export default {
     }
     .table-scrollbar{
         height: 192px;
+        cursor: pointer;
     }
     .table{
         width: 100%;
@@ -169,6 +155,9 @@ export default {
         font-weight: 400;
         color: #666666;
         text-align: center;
+    }
+    .tr_t{
+        background: #409EFF70;
     }
     .tr>td{
         border-right: 1px solid #E6E6E680;
