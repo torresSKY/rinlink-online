@@ -292,6 +292,7 @@ export default {
         if(type==1){
           this.page.index = 1
           data = {
+            parentId :this.tempParentId,
             searchType :this.selectType1,
             searchContent:this.input3,
             containsChildren :this.checked,
