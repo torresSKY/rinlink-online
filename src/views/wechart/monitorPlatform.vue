@@ -112,17 +112,7 @@
                                 <i @click="evt_close_tracksDetail" class="el-icon-circle-close"></i>
                             </div>
                         </div>
-                        <!-- <controlTable /> -->
-                        <el-table ref="singleTable" :data="tracksDetail_list" highlight-current-row @current-change="evt_handleCurrentChange" height="220" border style="width: 100%" size="small">
-                            <el-table-column fixed="left" type="index" label="序号" min-width="100" show-overflow-tooltip></el-table-column>
-                            <el-table-column :formatter="evt_table_formatDate" prop="time" label="更新时间" min-width="100" show-overflow-tooltip></el-table-column>
-                            <el-table-column :formatter="evt_table_formatLng" prop="lng" label="经度" min-width="80" show-overflow-tooltip></el-table-column>
-                            <el-table-column :formatter="evt_table_formatLat" prop="lat" label="纬度" min-width="80" show-overflow-tooltip></el-table-column>
-                            <!-- <el-table-column :formatter="evt_table_formatMileage" prop="mileageKmRelative" label="行驶里程(km)" min-width="60" show-overflow-tooltip></el-table-column> -->
-                            <el-table-column :formatter="evt_table_formatSpeed" prop="speed" label="速度(km/h)" min-width="60" show-overflow-tooltip></el-table-column>
-                            <el-table-column :formatter="evt_table_formatPositionType" prop="positionType" label="定位类型" min-width="80" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="address" fixed="right"  label="位置" min-width="200" show-overflow-tooltip></el-table-column>
-                        </el-table>
+                        <controlTable :dataList="all_tracks_list" :step="device_tracks_step" :playFlag="play_flag" @handleCurrentChange="evt_handleCurrentChange"></controlTable>
                     </div>
                 </div>
             </el-col>
@@ -254,7 +244,7 @@ export default {
             device_tracks_interval:null,//轨迹回放定时器
             speed:300,
             tracksDetail_flag:false,//显示轨迹明细
-            tracksDetail_list:[],//轨迹明细信息
+            all_tracks_list:[],//查询日期内的全部轨迹
             table_row_info:{},//单选中的轨迹明细信息
             positionType:{
                 '-1': '无定位',
@@ -813,7 +803,7 @@ export default {
                         _this.total_distance = 0;
                         _this.$message({message:'无轨迹信息',type:'warning',offset:'200',duration:'1500'});
                         _this.play_flag = false;
-                        _this.tracksDetail_list = [];
+                        _this.all_tracks_list = [];
                         return;
                     }
                     _this.total_distance = (res.data[res.data.length - 1].mileageKm - res.data[0].mileageKm) > 0.001 ? (res.data[res.data.length - 1].mileageKm - res.data[0].mileageKm).toFixed(3) : 0;//总里程
@@ -830,11 +820,11 @@ export default {
                         }
                     }
                     // 获取轨迹明细时拿到数据
-                    var tracksDetail_list = [];
+                    var all_tracks_list = [];
                     for(let i = 0, len = point_arr.length; i < len; i++){//防止浅拷贝
-                        tracksDetail_list.push(point_arr[i]);
+                        all_tracks_list.push(point_arr[i]);
                     }
-                    _this.tracksDetail_list = tracksDetail_list;
+                    _this.all_tracks_list = all_tracks_list;
                     if(type == 'tracksDetail'){
                         return;
                     }
@@ -898,10 +888,6 @@ export default {
                     _this.infoBox.setContent(infoWindow_html);
                     _this.infoBox.setPosition(point);
 
-                    // 设置table高亮行
-                    if(_this.tracksDetail_flag){
-                        _this.evt_setCurrent(_this.tracksDetail_list[_this.device_tracks_step]);
-                    }
                     _this.device_tracks_step += 1;
                     if(!_this.play_flag){
                         clearInterval(_this.device_tracks_interval);
@@ -1055,38 +1041,28 @@ export default {
             this.evt_clearOverlays();
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
         },
-        // 设置table高亮行
-        evt_setCurrent:function(row) {
-            this.$refs.singleTable.setCurrentRow(row);
-            if(this.device_tracks_step > 2){
-                this.$refs.singleTable.bodyWrapper.scrollTop = 23 * (this.device_tracks_step - 1);
-            }else{
-                this.$refs.singleTable.bodyWrapper.scrollTop = 0;
-            }
-        },
         // 点击table轨迹明细中的行
         evt_handleCurrentChange:function(row){
-            if(!this.play_flag && this.tracksDetail_list.length > 0){
-                this.table_row_info = row;
-                var point = new BMap.Point(row.lng,row.lat);
-                this.map.panTo(point);
-                this.playbackMarker.setPosition(point);
-                var infoWindow_html = `
-                    <div class="tracks_label_html">
-                        <div class="tracks_label_html_item">定位方式: ${this.positionType[row.positionType]}</div>
-                        <div class="tracks_label_html_item">速度: ${row.speed != null ? row.speed : '0'}km/h</div>
-                        <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(row.time)}</div>
-                        <div class="tracks_label_html_item_flex">
-                            <div>定位位置: </div>
-                            <div class="tracks_label_html_item_click">${row.address != null ? row.address :'--'}</div>
-                        </div>
+            // console.log(row);
+            this.table_row_info = row;
+            var point = new BMap.Point(row.lng,row.lat);
+            this.map.panTo(point);
+            this.playbackMarker.setPosition(point);
+            var infoWindow_html = `
+                <div class="tracks_label_html">
+                    <div class="tracks_label_html_item">定位方式: ${this.positionType[row.positionType]}</div>
+                    <div class="tracks_label_html_item">速度: ${row.speed != null ? row.speed : '0'}km/h</div>
+                    <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(row.time)}</div>
+                    <div class="tracks_label_html_item_flex">
+                        <div>定位位置: </div>
+                        <div class="tracks_label_html_item_click">${row.address != null ? row.address :'--'}</div>
                     </div>
-                `;
-                this.speed_value = row.speed;
-                this.infoBox.setContent(infoWindow_html);
-                this.infoBox.setPosition(point);
+                </div>
+            `;
+            this.speed_value = row.speed;
+            this.infoBox.setContent(infoWindow_html);
+            this.infoBox.setPosition(point);
 
-            }
         },
         // 轨迹明细
         evt_show_tracksDetail:function(){
@@ -1105,36 +1081,6 @@ export default {
         evt_close_tracksDetail:function(){
             this.tracksDetail_flag = false;
         },
-        // 点个获取位置信息
-        evt_getAdress:function(row){
-            // console.log(row);
-            var _this = this;
-            var geocoder = new BMap.Geocoder();
-            var point = new BMap.Point(row.lng,row.lat);
-            for(let i = 0, len = _this.tracksDetail_list.length; i < len; i++){
-                if(_this.tracksDetail_list[i].lng === row.lng && _this.tracksDetail_list[i].lat === row.lat){
-                    geocoder.getLocation(point,function(result){
-                        // console.log(result);
-                        if(result.address){
-                            _this.$set(_this.tracksDetail_list[i],'address',result.address)
-                        }
-                    })
-                }
-            }
-        },
-        evt_getAllAdress:function(){
-            var _this = this;
-            var geocoder = new BMap.Geocoder();
-            for(let i = 0, len = _this.tracksDetail_list.length; i < len; i++){
-                var point = new BMap.Point(_this.tracksDetail_list[i].lng,_this.tracksDetail_list[i].lat);
-                geocoder.getLocation(point,function(result){
-                    // console.log(result);
-                    if(result.address){
-                        _this.$set(_this.tracksDetail_list[i],'address',result.address)
-                    }
-                })
-            }
-        },
         // infoWindow格式化时间格式
         evt_formatDate:function(time){
             let date_time = new Date(time);
@@ -1143,48 +1089,6 @@ export default {
         evt_formatLatLng:function(info){
             var info = info.toString();
             return info.slice(0,info.indexOf('.')+7);
-        },
-        // table格式化时间格式
-        evt_table_formatDate:function(row,column){
-            let date = row.createTime ? row.createTime : row.time;
-            let date_time = new Date(date);
-            return isNaN(date_time) ? "--" : formatDate(date_time,'yyyy-MM-dd hh:mm:ss');
-        },
-        evt_table_formatLng:function(row,column){
-            var str = row.lng.toString();
-            return str.slice(0,str.indexOf('.')+7);
-        },
-        evt_table_formatLat:function(row,column){
-            var str = row.lat.toString();
-            return str.slice(0,str.indexOf('.')+7);
-        },
-        evt_table_formatMileage:function(row,column){
-            if(row.mileageKmRelative < 0.001){
-                return 0
-            }else{
-                return row.mileageKmRelative.toFixed(3);
-            }
-        },
-        evt_table_formatSpeed:function(row,column){
-            if(row.speed == null){
-                return 0;
-            }else{
-                return row.speed
-            }
-        },
-        evt_table_formatCommandData:function(row,column){
-            // console.log(row);
-            if(Object.keys(row.commandData).length > 0){
-                return JSON.stringify(row.commandData);
-            }else{
-                return '----'
-            }
-        },
-        evt_table_formatCommandStatus:function(row,column){
-            return this.command_status[row.commandStatus];
-        },
-        evt_table_formatPositionType:function(row,column){
-            return this.positionType[row.positionType]
         },
         // 导出轨迹明细
         evt_export:function(){
@@ -1539,26 +1443,6 @@ export default {
             }
         }
     }
-    /deep/ .el-table td,.el-table th {
-        text-align: center !important;
-    }
-    /deep/ .el-table th>.cell{
-        text-align: center !important;
-    }
-    /deep/ .el-table--small td, .el-table--small th{
-        padding: 0px !important;
-    }
-    /deep/ .el-table td, .el-table th{
-        padding: 0px !important;
-    }
-    /deep/ .el-table--small th{
-        // padding: 5px !important;
-    }
-    /deep/ .el-table th {
-        // padding: 5px !important;
-        background: #F2F2F2 !important;
-    }
- 
 }
 .device_info{
     /deep/  .el-dialog__header{
