@@ -7,7 +7,7 @@
                 </el-row>
                 <el-row class="cust-subtitle" :style="{height:(height-40) + 'px'}">
                     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-                        <el-tab-pane name="first" v-if="type!=3"><span slot="label">{{$t('view.allCust')}}</span></el-tab-pane>
+                        <el-tab-pane name="first" ><span slot="label">{{$t('view.allCust')}}</span></el-tab-pane>
                         <el-tab-pane name="second"><span slot="label">{{$t('view.expire')}}</span></el-tab-pane>
                     </el-tabs>
                     <el-row style="margin:0 0 10px 0" :gutter="22" v-if="activeName=='second'">
@@ -33,7 +33,7 @@
                       </el-col>
                     </el-row>
                     <el-row style="padding:0 10px" v-else>
-                        <el-input :placeholder="$t('view.inputtext')" v-model="search" class="input-with-select" clearable>
+                        <el-input :placeholder="$t('view.inputtext')" v-model="search" class="input-with-select" clearable v-if="type!=3">
                             <el-select v-model="selectType" slot="prepend" >
                               <el-option label="账号" value="username"></el-option>
                               <el-option label="客户" value="nickname"></el-option>
@@ -808,7 +808,9 @@ export default{
           this.evt_getBusinessUserinfo()
           this.evt_getBusinessUserinfoTwo()
         }else if(this.type==3){
-          this.activeName = 'second'
+          // this.activeName = 'second'
+          this.queryBusinessUserInfo()
+          
         }
         this.getlist()
         this.getModelList()
@@ -836,7 +838,11 @@ export default{
           // this.ownerId = null 
           this.timeType = null
           this.current = -1
+          if(this.type==3){
+            this.queryBusinessUserInfo()
+          }
           this.getlist()
+          
         },
         changetimeType2(val){
           if(val==5){
@@ -992,9 +998,27 @@ export default{
             this.$message.error(err.msg)
           })
         },
+        queryBusinessUserInfo(){  // 获取当前登录用户的信息 C端用户
+          var _this = this
+          this.data = []
+          api.queryBusinessUserInfo({},_this.type).then((res) =>{
+                // console.log(res);
+                if(res.success ){
+                    // this.outUserId = res.data.userId
+                    if(!res.data.children){
+                      res.data['leaf'] = true
+                    }
+                    // res.data['nickname'] = res.data.nickname + '(库存:' + res.data.devices + '/总数:' + (res.data.devices + res.data.sellDevices) + ')'
+                    _this.data.push(res.data)
+                }
+            }).catch((err) => {
+                _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
+            })
+
+        },
         // 获取当前登录用户的信息 b端用户
         evt_getBusinessUserinfo(){
-            var _this = this;
+            var _this = this
             this.data = []
             // this.insiadeData = []
             // this.custData = []
@@ -1077,6 +1101,10 @@ export default{
         evt_loadTree(node, resolve){ //查询客户下级
           // console.log(node)
           var _this = this
+            if(this.type==3){
+              resolve([])
+              return
+            }
             if(node.level === 0){
                 return resolve(_this.data);
             }
@@ -1452,9 +1480,9 @@ export default{
           if(!this.custinfo.username){
             return this.$message.warning(this.$t('message.selCust'))
           }
-          if(this.custinfo.username==JSON.parse(sessionStorage['user']).username){
-            return this.$message.warning('设备不可销售给自己')
-          }
+          // if(this.custinfo.username==JSON.parse(sessionStorage['user']).username){
+          //   return this.$message.warning('设备不可销售给自己')
+          // }
           var time = null
           if(Number(this.expiredTimeType)>0){
             time = new Date().getTime() + Number(this.expiredTimeType)*24*60*60*1000
