@@ -147,7 +147,7 @@
                 </el-col>
                 <el-col :span="12" class="device_info_right">
                     <el-form>
-                        <el-form-item label="设备IMEI:">
+                        <el-form-item label="设备号:">
                             <span>{{device_detail_info.deviceNumber}}</span>
                         </el-form-item>
                         <el-form-item label="网络状态:">
@@ -181,7 +181,7 @@
         </el-dialog>
 
         <!-- 设备指令 -->
-        <commandCompent :commandVisible="device_command_visible" :selection="multipleSelection" @closeCommand="evt_closeCommand"></commandCompent>
+        <commandCompent :commandVisible="device_command_visible" :selection="multipleSelection" :handleDeviceId="need_handle_deviceId" @closeCommand="evt_closeCommand"></commandCompent>
 
         <!-- 充值 -->
         <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>

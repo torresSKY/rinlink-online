@@ -31,7 +31,7 @@ import sendOrder from '../sendOrder.vue'
 export default {
     name:'command',
     components:{sendOrder},
-    props:['commandVisible','selection'],
+    props:['commandVisible','selection','handleDeviceId'],
     data() {
         return {
             device_command_visible: this.commandVisible,//设备指令弹框展示
@@ -50,6 +50,7 @@ export default {
                 4: '失败',
                 5: '过期'
             },//指令状态
+            need_handle_deviceId: this.handleDeviceId,
         }
     },
     created(){
@@ -76,6 +77,12 @@ export default {
                     this.$refs.sendOrder.tempNum = 0;
                     this.$refs.sendOrder.getlist();
                 })
+            },
+            deep: true
+        },
+        handleDeviceId:{
+            handler(){
+                this.need_handle_deviceId = this.handleDeviceId
             },
             deep: true
         }

@@ -10,7 +10,7 @@
                 <!-- <div><i class="el-icon-arrow-left"></i></div> -->
             </div>
             <div class="row_item_middle_middle">
-                <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称或IMEI" v-model="searchDevice_word">
+                <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称设备号" v-model="searchDevice_word">
                     <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                 </el-input>
             </div>
