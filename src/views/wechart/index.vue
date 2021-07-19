@@ -126,7 +126,7 @@
             <el-col :span="24">
               <div class="track_info">
                 <div class="track_info_top">
-                  <el-input placeholder="请输入设备SN" v-model="search_word"></el-input>
+                  <el-input placeholder="请输入设备号" v-model="search_word"></el-input>
                   <div class="track_info_top_tab" v-if="search_result.length > 0">
                       <el-table @row-click="evt_row_click"  size="mini" :data="search_result" style="width:100%" :show-header="false">
                         <el-table-column prop="deviceNumber"></el-table-column>

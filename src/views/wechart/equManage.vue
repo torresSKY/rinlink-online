@@ -5,7 +5,7 @@
                 <el-row class="cust-title">
                     <span>{{$t('view.customerList')}}</span>
                 </el-row>
-                <el-row class="cust-subtitle" :style="{height:(height-40) + 'px'}">
+                <el-row class="cust-subtitle" :style="{height:(height-50) + 'px'}">
                     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
                         <el-tab-pane name="first" ><span slot="label">{{$t('view.allCust')}}</span></el-tab-pane>
                         <el-tab-pane name="second"><span slot="label">{{$t('view.expire')}}</span></el-tab-pane>
@@ -55,7 +55,7 @@
                 <el-row style="margin-top:10px" :gutter="22" >
                   <el-col :md="15" :lg="15" :xl="17">
                     <el-col :md="8" :lg="8" :xl="6">
-                    <el-input v-model="deviceIdList" placeholder="请输入SN或设备名称" clearable></el-input>
+                    <el-input v-model="deviceIdList" placeholder="请输入设备号或设备名称" clearable></el-input>
                   </el-col>
                   <el-col :md="8" :lg="8" :xl="6">
                     <el-select v-model="deviceModelId" :placeholder="$t('table.model')" clearable>
@@ -148,9 +148,9 @@
                 </el-row>
                 <el-row  style="margin-top:10px" >
                   <!-- :style="{height:tableHeight}" -->
-                  <el-scrollbar :style="{height:tableHeight}" ref="scrollbar" >
-                    <BaseTable  ref="tableBase" v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
-                  </el-scrollbar>
+                  <!-- <el-scrollbar :style="{height:tableHeight}" ref="scrollbar" > -->
+                    <BaseTable  :height='tempHeight' ref="tableBase" v-loading="loading" v-on:childByValue="childByValue" :dataList="dataList" :tableLabel="tableLabel"  style="padding:0 10px" ></BaseTable>
+                  <!-- </el-scrollbar> -->
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
@@ -182,13 +182,13 @@
                   <el-input
                     type="textarea"
                     :autosize="{ minRows: 1, maxRows: 4}"
-                    placeholder="请输入设备SN号（多个回车换行）"
+                    placeholder="请输入设备设备号（多个回车换行）"
                     v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
                   </el-input>
                 </el-row>
                 <el-row style="line-height:40px">
                   <el-col :offset='1' :span='18'>
-                    <span>SN计数：{{tempNum}}</span>
+                    <span>设备号计数：{{tempNum}}</span>
                   </el-col>
                   <el-col :span='4'>
                     <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
@@ -196,7 +196,7 @@
                 </el-row>
               </el-row>
               <el-row>
-                <el-scrollbar style="height:60vh;" ref="scrollbar">
+                <el-scrollbar style="height:40vh;" ref="scrollbar">
                   <BaseTable  :dataList="saleList" :tableLabel="tableSale"   ></BaseTable>
                 </el-scrollbar>
               </el-row>
@@ -214,7 +214,7 @@
                     </el-select>
                     <el-button slot="append" icon="el-icon-search" @click="searchCust"></el-button>
                 </el-input>
-                <el-scrollbar style="margin-top:10px" ref="scrollbar" :style="{height:50 + 'vh'}">
+                <el-scrollbar style="margin-top:10px" ref="scrollbar" :style="{height:40 + 'vh'}">
                   <el-tree :data="insiadeData" ref="insidetree" :props="defaultProps" :highlight-current='true' 
                   node-key="userId"  :default-expanded-keys="[inUserId]" lazy :load="evt_loadTreeTwo" :render-content="renderContent" @node-click="handleCust" ></el-tree>
                 </el-scrollbar>
@@ -519,7 +519,8 @@ export default{
           }
         },
         height:900,
-        tableHeight:document.body.offsetHeight-272 +"px",
+        tableHeight:document.body.offsetHeight-300 ,
+        tempHeight:document.body.offsetHeight-300,
         activeName: 'first',
         search:null,
         moreFlag:false,
@@ -777,13 +778,21 @@ export default{
       //    }
       // },
       tableHeight (val) {
-        // console.log(val)
+        console.log(val)
         // 为了避免频繁触发resize函数导致页面卡顿，使用定时器
         if (!this.timer) {
-          
-          var str = val.substring(0,val.length-2)
+          let result = this.detectZoom()
+          // 打印用户的缩放比例
+          console.log(result);
+          // var str = val.substring(0,val.length-2)
           // 一旦监听到的screenWidth值改变，就将其重新赋给data里的screenWidth
-          this.tableHeight = (str - 80) + 'px'
+          if(result>100){
+            this.tempHeight = val-80
+          }else if(result==100){
+            this.tempHeight = val-30
+          }else{
+            this.tempHeight = val*result/100-50
+          }
           this.timer = true
           let that = this
           // that.height = document.body.clientHeight-242
@@ -798,10 +807,11 @@ export default{
       // this.tableHeight = document.body.offsetHeight-262 +"px"
       this.type = JSON.parse(sessionStorage['user']).userType
         var that =this
+        that.tableHeight = document.body.offsetHeight-300 
         window.onresize = () => {
           return (() => {
               that.height = document.body.offsetHeight-142
-              that.tableHeight = document.body.offsetHeight-272 +"px"
+              that.tableHeight = document.body.offsetHeight-300 
           })()
         }
         if(this.type!=3){
@@ -818,6 +828,29 @@ export default{
         this.getRange()
     },
     methods:{
+        detectZoom (){
+          var ratio = 0,
+            screen = window.screen,
+            ua = navigator.userAgent.toLowerCase();
+         
+          if (window.devicePixelRatio !== undefined) {
+             ratio = window.devicePixelRatio;
+          }
+          else if (~ua.indexOf('msie')) {
+            if (screen.deviceXDPI && screen.logicalXDPI) {
+              ratio = screen.deviceXDPI / screen.logicalXDPI;
+            }
+          }
+          else if (window.outerWidth !== undefined && window.innerWidth !== undefined) {        
+            ratio = window.outerWidth / window.innerWidth;
+          }
+         
+           if (ratio){        
+            ratio = Math.round(ratio * 100);
+          }
+         
+           return ratio;
+        },
         addClass(index,item){
           // console.log(item)
           this.current=index
@@ -945,9 +978,9 @@ export default{
         moreSearch(){ // 更多搜索条件
           this.moreFlag = !this.moreFlag
           if(this.moreFlag){
-            this.tableHeight = document.body.offsetHeight-272 - 50 +"px"
+            this.tempHeight = this.tableHeight - 50 
           }else{
-            this.tableHeight = document.body.offsetHeight-272 +"px"
+            this.tempHeight = this.tableHeight
           }
         },
         searchCustomer(){ // 搜索客户或账号
@@ -1376,7 +1409,7 @@ export default{
           api.getDevicesList(data,this.type).then(res => {
             if(res.success){
               if(res.data.content.length<=0){
-                return this.$message.warning('输入的SN没有查到数据')
+                return this.$message.warning('输入的设备号没有查到数据')
               }
               let item = res.data.content
               for(let i = 0;i<item.length;i++){

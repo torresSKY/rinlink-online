@@ -16,7 +16,7 @@
                         </el-input>
                     </el-row>
                     <el-row >
-                      <el-scrollbar :style="{height:69 + 'vh'}" ref="scrollbar">
+                      <el-scrollbar :style="{height:height + 'px'}" ref="scrollbar">
                         <el-tree :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
                         @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
@@ -447,7 +447,7 @@ export default {
         if(res.success){
           this.businessData = this.setTreeData(res.data)
           this.page.index = 1
-          this.getlist(2,res.data[0].parentId)
+          // this.getlist(2,res.data[0].parentId)
           this.getBusinessUserinfo(res.data[0].userId)
         }else{
           this.businessData = []

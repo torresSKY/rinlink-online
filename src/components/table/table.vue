@@ -150,11 +150,21 @@ export default {
   }
 }
 </script>
-<style>
+<style type="stylesheet/scss" lang="scss" scoped>
   .particular-table .table-stripe{
     background:#f4f4f4 !important;
   }
   .particular-table .el-table__body tr:hover>td {
     background-color: #fbec88 !important;
   }
+//   .el-table{
+//   width: 100%;
+//   .el-table__header-wrapper table,.el-table__body-wrapper table{
+//     width: 100% !important;
+//   }
+//   .el-table__body, .el-table__footer, .el-table__header{
+//     table-layout: auto;
+//   }
+// }
+
 </style>

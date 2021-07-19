@@ -60,7 +60,7 @@
                         </el-select>
                       </el-col> -->
                       <!-- <el-col :span='14' > -->
-                        <el-autocomplete v-model="input3" placeholder="请搜索并选择SN或设备名称"  
+                        <el-autocomplete v-model="input3" placeholder="请搜索并选择设备号或设备名称"  
                         :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable @clear="setBlur()" style="width:100%"></el-autocomplete>
                       <!-- </el-col> -->
                     </el-col>
@@ -213,7 +213,7 @@ export default {
       timeout: null,
       selStatus:1,
       selOptions:[
-        { value: 1, label: '设备SN'}, 
+        { value: 1, label: '设备号'}, 
         { value: 2, label: '设备名称'}
       ],
       tableHeight:document.body.offsetHeight - 102,

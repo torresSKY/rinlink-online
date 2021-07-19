@@ -51,8 +51,9 @@ const getUsersList = (obj) => {
     })
 }
 // const url = 'http://rap2api.taobao.org/app/mock/277955/post'
-const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
-
+// const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
+const url = 'http://iot-asset-api-test.rinlink.com/enterprise'
+// const url = 'http://192.168.1.184:9999'
 const getDevicesList = (data,type) => (   //分页查询设备列表
     axios.post(url+'/paging_devices?__OPERATOR_TYPE=' + type, data)
 )

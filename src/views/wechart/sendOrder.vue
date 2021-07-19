@@ -45,13 +45,13 @@
             <el-input
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 4}"
-              placeholder="请输入设备SN号（多个回车换行）"
+              placeholder="请输入设备号（多个回车换行）"
               v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
             </el-input>
           </el-row>
           <el-row style="line-height:40px">
             <el-col :offset='1' :span='18'>
-              <span>SN计数：{{tempNum}}</span>
+              <span>设备号计数：{{tempNum}}</span>
             </el-col>
             <el-col :span='4'>
               <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
@@ -225,7 +225,7 @@
               api.getDevicesList(data,this.type).then(res => {
                 if(res.success){
                   if(res.data.content.length<=0){
-                    return this.$message.warning('输入的SN没有查到数据')
+                    return this.$message.warning('输入的设备号没有查到数据')
                   }
                   let item = res.data.content
                   for(let i = 0;i<item.length;i++){

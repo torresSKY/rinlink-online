@@ -42,7 +42,7 @@
                         </el-select>
                       </el-col> -->
                       <!-- <el-col :span='14'> -->
-                        <el-autocomplete v-model="deviceIdInput" placeholder="请搜索并选择SN或设备名称"   autocomplete="off"
+                        <el-autocomplete v-model="deviceIdInput" placeholder="请搜索并选择设备号或设备名称"   autocomplete="off"
                         :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable @clear="setBlur()" style="width:100%"></el-autocomplete>
                       <!-- </el-col> -->
                       <!-- <el-input v-model="deviceIdInput" placeholder="请输入SN或设备名称"></el-input> -->
@@ -129,7 +129,7 @@ export default {
       type:null,
       selStatus:1,
       selOptions:[
-        { value: 1, label: '设备SN'}, 
+        { value: 1, label: '设备号'}, 
         { value: 2, label: '设备名称'}
       ],
       tableHeight:document.body.offsetHeight - 82,
@@ -156,7 +156,7 @@ export default {
   methods: {
     getlist(type){ // 分页查询设备报警统计
       if(this.deviceNumber == null){
-        return this.$message({message: '请选择设备SN/设备名称', type:'warning',offset:'100',duration:'2000'})
+        return this.$message({message: '请选择设备号/设备名称', type:'warning',offset:'100',duration:'2000'})
       }
       let data = {
         pageSize: this.page.size,
@@ -400,7 +400,7 @@ export default {
     },
     download(){ // 导出
       if(this.deviceNumber == null){
-        return this.$message({message: '请选择设备SN/设备名称', type:'warning',offset:'100',duration:'2000'})
+        return this.$message({message: '请选择设备号/设备名称', type:'warning',offset:'100',duration:'2000'})
       }
       if(this.time ==null){
         return this.$message.warning('请选择查询时间')
