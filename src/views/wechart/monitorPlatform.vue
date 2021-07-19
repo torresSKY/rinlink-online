@@ -181,7 +181,7 @@
         </el-dialog>
 
         <!-- 设备指令 -->
-        <commandCompent :commandVisible="device_command_visible" :selection="multipleSelection" @closeCommand="evt_closeCommand"></commandCompent>
+        <commandCompent :commandVisible="device_command_visible" :selection="multipleSelection" :handleDeviceId="need_handle_deviceId" @closeCommand="evt_closeCommand"></commandCompent>
 
         <!-- 充值 -->
         <dialog-recharge ref="dialogRecharge" :list="rechargeList"/>
