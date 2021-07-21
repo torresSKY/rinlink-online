@@ -178,17 +178,20 @@ export default {
             this.devices_list = [];
             this.change_type = 'all';
             this.current_select_deviceId = '',//当前选择的设备id
-            this.evt_queryDevices();
+            this.evt_queryDevices('search');
             this.$emit("monitorNetworkStatus");
         },
         // 分页获取设备
-        evt_queryDevices:function(){
+        evt_queryDevices:function(type){
             var _this = this;
             _this.loading_flag = true;
             var request_data = {};
             request_data['page'] = _this.page;
             request_data['pageSize'] = _this.pageSize;
             request_data['deviceNumberKeyword'] = _this.searchDevice_word;
+            if(type == 'search'){
+                request_data['containsChildren'] = true;
+            }
             // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
             if(_this.user_id != JSON.parse(sessionStorage['user']).userId){
                 request_data['ownerId'] = _this.user_id;
