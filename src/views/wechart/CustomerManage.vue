@@ -439,7 +439,9 @@ export default {
         searchType : this.selectType,
         searchContent:this.searchType
       }
+      this.tempParentId = null
       if(this.searchType.trim() == '') {
+        
         this.getBusiness()
         return
       }

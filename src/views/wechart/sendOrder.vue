@@ -210,6 +210,10 @@
               if(temp.length == 0){
                 return this.$message.warning(this.$t('table.searchimei'))
               }else if(temp.length == 1){
+                var reg = /^\d{11,}$/
+                if(!reg.test(temp)){
+                  return this.$message.warning('输入的设备号不存在')
+                }
                 data = {
                   containsChildren: true,
                   deviceNumberKeyword : this.searchImei.replace("\n", "")

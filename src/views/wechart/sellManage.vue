@@ -224,6 +224,24 @@
           :visible.sync="dialogDel"
           width="30%"
           >
+          <el-row style="margin:10px 0;border:1px solid #CCCCCC">
+            <el-row style="margin:10px 10px 0 10px">
+              <el-input
+                type="textarea"
+                :autosize="{ minRows: 1, maxRows: 4}"
+                placeholder="请输入设备号（多个回车换行）"
+                v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+              </el-input>
+            </el-row>
+            <el-row style="line-height:40px">
+              <el-col :offset='1' :span='18'>
+                <span>设备号计数：{{tempNum}}</span>
+              </el-col>
+              <el-col :span='4'>
+                <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
+              </el-col>
+            </el-row>
+          </el-row>
           <el-row>
             <el-scrollbar style="height:30vh;" ref="scrollbar">
               <BaseTable  :dataList="delList" :tableLabel="tableDelLabel"   ></BaseTable>
@@ -418,10 +436,18 @@ export default{
           {label: this.$t('table.imei'), prop: 'deviceNumber'},
           {label: this.$t('table.Device'), prop: 'deviceName'},
           {label: this.$t('table.model'), prop: 'model'},
+          {label: this.$t('table.operation'),
+            type:'clickEvent',
+            name:'删除',
+            tableClick: (val) => {
+            this.showDialog('a', val)
+          }}
         ],
         delFlag:false,
         tableHeight:document.body.offsetHeight - 102,
         timer:null,
+        searchImei:null,
+        tempNum:0,
       }
     },
     watch: {
@@ -716,7 +742,9 @@ export default{
             return this.$message.warning('请选择删除的设备')
           }
           this.delFlag = true
-          this.delList = this.multipleSelection
+          this.tempNum = 0
+          this.searchImei = null
+          this.delList = JSON.parse(JSON.stringify(this.multipleSelection))
           this.dialogDel = true
         },
         showDialog(index, data){ // 操作
@@ -727,7 +755,90 @@ export default{
             this.dialogDel = true
             this.delList.push(data)
             break
+            case 'a': //删除设备
+            for(let i = 0;i<this.delList.length;i++){
+              // debugger
+              if(this.delList[i].id==data.id){
+                this.delList.splice(i,1)
+                i--
+              }
+            }
           } 
+        },
+        inputChange(){
+          this.searchImei=this.searchImei.replace(/[^\d|^\n\r]/g,'')
+        },
+        changeIMEI(val){
+          // console.log(val,typeof val)
+          if(val.trim()){
+            let temp = null
+            temp= val.split("\n")
+            temp = temp.filter(str => !!str)
+            setTimeout(() => {
+              this.tempNum = temp.length
+            },100)
+          }else{
+            // this.$set(this.temp,'num',0)
+            this.tempNum = 0
+          }
+        },
+        searchEqu(){ //删除-搜索设备
+          if(!this.searchImei){
+            return this.$message.warning(this.$t('table.searchimei'))
+          }
+          let temp = null
+          temp= this.searchImei.split("\n")
+          temp = temp.filter(str => !!str)
+          let data = null
+          if(temp.length == 0){
+            return this.$message.warning(this.$t('table.searchimei'))
+          }else if(temp.length == 1){
+            var reg = /^\d{11,}$/
+            if(!reg.test(temp)){
+              return this.$message.warning('输入的设备号不存在')
+            }
+            data = {
+              containsChildren: true,
+              deviceNumberKeyword : this.searchImei.replace("\n", "")
+            }
+            
+          }else{
+            data = {
+              containsChildren: true,
+              deviceNumberList : temp,
+              pageSize : temp.length
+            }
+          }
+          api.getDevicesList(data,this.type).then(res => {
+            if(res.success){
+              if(res.data.content.length<=0){
+                return this.$message.warning('输入的设备号没有查到数据')
+              }
+              let item = res.data.content
+              for(let i = 0;i<item.length;i++){
+                if(item[i].deviceModel){
+                  item[i]['model'] = item[i].deviceModel.name
+                }else{
+                  item[i]['model'] = ''
+                }
+              }
+              for(let a=0;a<this.delList.length;a++){
+                for(let b = 0;b<item.length;b++){
+                  if(this.delList[a].id == item[b].id){
+                    item.splice(b, 1)
+                    b--
+                  }
+                }
+              }
+              if(item.length>0){
+                this.delList = this.delList.concat(item)
+              }
+            }else{
+              this.$message.error(res.msg)
+            }  
+          }).catch(err => {
+            this.$message.error(err.msg)
+          })
         },
         confrimDel(){
           this.$confirm('删除设备会导致用户投诉，且设备历史数据永久无法恢复！请最后确认是否立即删除选中的设备？', '警告', {

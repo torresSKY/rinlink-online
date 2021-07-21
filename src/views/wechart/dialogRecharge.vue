@@ -24,7 +24,7 @@
                   <el-input
                     type="textarea"
                     :autosize="{ minRows: 1, maxRows: 4}"
-                    placeholder="请输入设备设备号（多个回车换行）"
+                    placeholder="请输入设备号（多个回车换行）"
                     v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
                   </el-input>
                 </el-row>
@@ -193,6 +193,10 @@
               if(temp.length == 0){
                 return this.$message.warning(this.$t('table.searchimei'))
               }else if(temp.length == 1){
+                var reg = /^\d{11,}$/
+                if(!reg.test(temp)){
+                  return this.$message.warning('输入的设备号不存在')
+                }
                 data = {
                   containsChildren: true,
                   deviceNumberKeyword : this.searchImei.replace("\n", "")
