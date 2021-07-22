@@ -467,7 +467,7 @@ export default {
                     }
                     _this.device_name = res.data.deviceName;
                     _this.remark_text = res.data.remark;
-                    _this.range_code = res.data.useRangeCode != null ? res.data.useRangeCode :'Other';
+                    _this.range_code = res.data.useRangeCode != null ? res.data.useRangeCode :'JiaoChe';
                 }
             }).catch((err) => {
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1000'});
@@ -602,7 +602,7 @@ export default {
         // 添加标记
         evt_addMarker:function(point,info){
             var _this = this;
-            var icon_url = info.networkStatus == '1' ? info.stationarySeconds != null ? info.useRangeCode != null ?  _this.icon_list_t[info.useRangeCode].iconUrlForMapStationary : _this.icon_list_t['Other'].iconUrlForMapStationary : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['Other'].iconUrlForMapInactive;
+            var icon_url = info.networkStatus == '1' ? info.stationarySeconds != null ? info.useRangeCode != null ?  _this.icon_list_t[info.useRangeCode].iconUrlForMapStationary : _this.icon_list_t['JiaoChe'].iconUrlForMapStationary : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['JiaoChe'].iconUrlForMapActive : info.useRangeCode != null ? _this.icon_list_t[info.useRangeCode].iconUrlForMapInactive :  _this.icon_list_t['JiaoChe'].iconUrlForMapInactive;
             var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,48),{
                 imageSize: new BMap.Size(30,48),
             });
@@ -912,7 +912,7 @@ export default {
         evt_playback_addMarker:function(point){
             var _this = this;
             var device_info = _this.device_detail_info;
-            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['Other'].iconUrlForMapActive;
+            var icon_url = device_info.networkStatus == '1' ? device_info.useRangeCode  != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['JiaoChe'].iconUrlForMapActive : device_info.useRangeCode != null ? _this.icon_list_t[device_info.useRangeCode].iconUrlForMapActive :  _this.icon_list_t['JiaoChe'].iconUrlForMapActive;
             var marker_icon = new BMap.Icon(icon_url,new BMap.Size(30,48),{
                 imageSize: new BMap.Size(30,48),
             });
