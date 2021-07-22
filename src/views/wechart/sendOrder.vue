@@ -37,19 +37,19 @@
         <div style="border-top:1px solid grey;margin:20px 0"></div>
         <el-row>
             <span>{{$t('view.selList')}}</span>
-            <span v-if="num">({{num}})</span>&nbsp;&nbsp;
+            <span v-if="num" style="color:red">({{num}})</span>&nbsp;&nbsp;
             <el-button type='text' @click="qingkong">清空</el-button>
         </el-row>
         <el-row  style="margin:10px 0;border:1px solid #CCCCCC">
-          <el-row style="margin:10px 10px 0 10px">
+          <el-row style="margin:10px">
             <el-input
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 4}"
               placeholder="请输入设备号（多个回车换行）"
-              v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+              v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI"  @focus="enterIMEI">
             </el-input>
           </el-row>
-          <el-row style="line-height:40px">
+          <el-row style="line-height:40px" v-show="isShow">
             <el-col :offset='1' :span='18'>
               <span>设备号计数：{{tempNum}}</span>
             </el-col>
@@ -113,6 +113,7 @@
                 ],
                 searchImei:null,
                 tempNum:0,
+                isShow:false
             }
         },
         mounted(){
@@ -184,6 +185,12 @@
             },
             inputChange(){
               this.searchImei=this.searchImei.replace(/[^\d|^\n\r]/g,'')
+            },
+            leftIMEI(){
+              this.isShow = false
+            },
+            enterIMEI(){
+              this.isShow = true
             },
             changeIMEI(val){
               // console.log(val,typeof val)

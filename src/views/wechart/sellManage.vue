@@ -427,7 +427,7 @@ export default{
         type:null,
         range:[],
         current:-1,
-        useRangeCode:'Other',
+        useRangeCode:'JiaoChe',
         multipleSelection:[],
         dialogDel:false,
         delList:[],
@@ -583,8 +583,8 @@ export default{
             let data = res.data
             this.range = Object.entries(data)
             this.$nextTick(() => {
-              this.current = this.range.length-1
-              this.useRangeCode = 'Other'
+              this.current = 4
+              this.useRangeCode = 'JiaoChe'
             })
             console.log(this.range)
           }).catch(err => {

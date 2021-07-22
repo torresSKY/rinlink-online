@@ -3,6 +3,8 @@
         <el-dialog
           title="平台服务费充值"
           :visible.sync="dialogVisible"
+          :close-on-click-modal='false'
+          :close-on-press-escape='false' 
           width="50%"
           >
         <el-row >
@@ -20,20 +22,21 @@
                 <span>平台充值设备：</span>
             </el-col>
             <el-col :span='20' style="border:1px solid #CCCCCC">
-                <el-row style="margin:10px 10px 0 10px">
+                <el-row style="margin:10px">
                   <el-input
                     type="textarea"
                     :autosize="{ minRows: 1, maxRows: 4}"
                     placeholder="请输入设备号（多个回车换行）"
-                    v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+                    v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI"  @focus="enterIMEI">
                   </el-input>
                 </el-row>
-                <el-row style="line-height:40px">
+                <el-row style="line-height:40px" v-show="isShow">
                   <el-col :offset='1' :span='18'>
                     <span>设备号计数：{{tempNum}}</span>
                   </el-col>
                   <el-col :span='4'>
                     <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
+                    <el-button  size="mini" @click="leftIMEI">{{$t('button.cancel')}}</el-button>
                   </el-col>
                 </el-row>
             </el-col>
@@ -84,6 +87,19 @@
             <el-button type="primary" @click="confirmPay" :loading="loading">已付款</el-button>
           </span>
         </el-dialog>
+        <el-dialog
+          title="提示"
+          :visible.sync="dialogIMEIinfo"
+          width="30%">
+          <el-row>
+            <el-scrollbar style="height:20vh;" ref="scrollbar">
+              <BaseTable  :dataList="IMEIinfolist" :tableLabel="IMEIinfoLabel"   ></BaseTable>
+            </el-scrollbar>
+          </el-row>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogIMEIinfo = false">关 闭</el-button>
+          </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -132,7 +148,14 @@
                 qrCodeUrl:null,
                 payOrderId:null,
                 loading:false,
-                loadingRec:false
+                loadingRec:false,
+                isShow:false,
+                dialogIMEIinfo:false,
+                IMEIinfolist:[],
+                IMEIinfoLabel:[
+                  {label: this.$t('table.imei'), prop: 'deviceNumber'},
+                  {label: '原因', prop: 'reason'},
+                ]
             }
         },
         watch: {
@@ -170,6 +193,12 @@
             inputChange(){
                 this.searchImei = this.searchImei.replace(/[^\d|^\n\r]/g,'')
             },
+            leftIMEI(){
+              this.isShow = false
+            },
+            enterIMEI(){
+              this.isShow = true
+            },
             changeIMEI(val){
                 if(val.trim()){
                   let temp = null
@@ -183,6 +212,8 @@
                 }
             },
             searchEqu(){ //充值-搜索设备
+              // debugger
+              var that = this
               if(!this.searchImei){
                 return this.$message.warning(this.$t('table.searchimei'))
               }
@@ -202,6 +233,19 @@
                   deviceNumberKeyword : this.searchImei.replace("\n", "")
                 }
               }else{
+                let tmp = []
+                temp.sort().sort(function(a,b) {
+                  if(a==b && tmp.indexOf(a) === -1) tmp.push(a)
+                })
+                if(tmp.length>0){
+                  this.IMEIinfolist = []
+                  for(let c = 0;c<tmp.length;c++){
+                    this.IMEIinfolist.push({deviceNumber:tmp[c],reason:'重复'})
+                  }
+                  this.$message.warning('请先去除重复的设备号')
+                  setTimeout(function(){ that.dialogIMEIinfo = true}, 1000)
+                  return 
+                }
                 data = {
                   containsChildren: true,
                   deviceNumberList : temp,
@@ -209,9 +253,23 @@
                 }
               }
               api.getDevicesList(data,this.type).then(res => {
+                this.leftIMEI()
                 if(res.success){
                   if(res.data.content.length<=0){
                     return this.$message.warning('输入的设备号没有查到数据')
+                  }
+                  if(res.data.totalElements!=temp.length){
+                    let arr = []
+                    let arr2 = []
+                    this.IMEIinfolist = []
+                    for(let a = 0;a<res.data.content.length;a++){
+                      arr.push(res.data.content[a].deviceNumber)
+                    }
+                    arr2 = this.getArrDifference(temp,arr)
+                    for(let b = 0;b<arr2.length;b++){
+                      this.IMEIinfolist.push({deviceNumber:arr2[b],reason:'不存在'})
+                    }
+                    this.dialogIMEIinfo = true
                   }
                   let item = res.data.content
                   for(let i = 0;i<item.length;i++){
@@ -249,8 +307,14 @@
                   this.$message.error(res.msg)
                 }  
               }).catch(err => {
+                this.leftIMEI()
                 this.$message.error(err.msg)
               })
+            },
+            getArrDifference(arr1, arr2) {
+                return arr1.concat(arr2).filter(function(v, i, arr) {
+                    return arr.indexOf(v) === arr.lastIndexOf(v)
+                })
             },
             showDialog(index, data){ // 操作
                 switch (index) {

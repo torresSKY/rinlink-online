@@ -191,7 +191,7 @@ export default {
             }
           }
         }
-        // console.log(this.dataList)
+        console.log(this.dataList)
         this.page.total = res.data.totalElements
       }).catch(err => {
         this.loading = false
@@ -271,7 +271,8 @@ export default {
                 }})
                 
             }
-            console.log(this.tableLabel)
+            // console.log(this.tableLabel)
+            // console.log(this.dataList)
           }else{
             this.$message.error(res.msg)
           }

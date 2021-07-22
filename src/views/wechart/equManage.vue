@@ -167,26 +167,28 @@
         <el-dialog
           :title="$t('button.sale')"
           :visible.sync="dialogSale"
+          :close-on-click-modal='false'
+          :close-on-press-escape='false'   
           width="50%">
           <el-row :gutter="22">
             <el-col :span='14'>
               <el-row>
                 <span>{{$t('view.selEqu')}}：</span>
-                <span>{{equNum}}</span>
+                <span style="color:red">{{equNum}}</span>
               </el-row>
               <el-row style="margin:10px 0;border:1px solid #CCCCCC">
                 <!-- <el-input :placeholder="$t('view.inputimei')" v-model="searchImei" class="input-with-select" clearable>
                     <el-button slot="append" icon="el-icon-circle-plus-outline" @click="searchEqu"></el-button>
                 </el-input> -->
-                <el-row style="margin:10px 10px 0 10px">
+                <el-row style="margin:10px">
                   <el-input
                     type="textarea"
                     :autosize="{ minRows: 1, maxRows: 4}"
                     placeholder="请输入设备号（多个回车换行）"
-                    v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI" >
+                    v-model="searchImei" @keyup.native="inputChange" @input="changeIMEI"  @focus="enterIMEI">
                   </el-input>
                 </el-row>
-                <el-row style="line-height:40px">
+                <el-row style="line-height:40px" v-show="isShow">
                   <el-col :offset='1' :span='18'>
                     <span>设备号计数：{{tempNum}}</span>
                   </el-col>
@@ -371,6 +373,8 @@
         <el-dialog
             :title="$t('button.send')"
             :visible.sync="dialogSend"
+            :close-on-click-modal='false'
+            :close-on-press-escape='false' 
             width="50%"
             >
             <send-order ref="sendOrder" :list="tempList" @confrimSend='confrimSend'/>
@@ -764,7 +768,8 @@ export default{
         timer:null,
         outUserId:'',
         inUserId:'',
-        rechargeList:[]
+        rechargeList:[],
+        isShow:false
         // tempNum:0
       }
     },
@@ -1243,10 +1248,10 @@ export default{
         showDialog(index, data){ // 操作
           switch (index) {
             case '1': // 设备详情
-              this.current1 = this.range.length-1
+              this.current1 = 4
               this.equinfoForm = Object.assign({},data)
               if(this.equinfoForm.useRangeCode==null){
-                this.equinfoForm.useRangeCode = 'Other'
+                this.equinfoForm.useRangeCode = 'JiaoChe'
               }
               for(let i=0;i<this.range.length;i++){
                 if(this.range[i][0]==this.equinfoForm.useRangeCode){
@@ -1367,6 +1372,12 @@ export default{
         },
         inputChange(){
           this.searchImei=this.searchImei.replace(/[^\d|^\n\r]/g,'')
+        },
+        leftIMEI(){
+          this.isShow = false
+        },
+        enterIMEI(){
+          this.isShow = true
         },
         changeIMEI(val){
           // console.log(val,typeof val)
@@ -1680,7 +1691,7 @@ export default{
             this.$refs.dialogRecharge.searchImei = null
             this.$refs.dialogRecharge.tempNum = 0
             this.$refs.dialogRecharge.dialogVisible = true
-            
+            this.$refs.dialogRecharge.isShow = false
           })
         },
    },
