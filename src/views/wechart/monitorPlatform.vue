@@ -661,7 +661,7 @@ export default {
                 ${info.mileageKm && info.mileageKm != null ? `<div class="info_window_content_item"><span>总里程：${info.mileageKm}km</span></div>`:''}
                 ${info.workStatus != null ? `<div class="info_window_content_item"><span>工作状态：${info.workStatus == 0 ? '正常':'休眠'}</span></div>`:''}
                 <div class="info_window_content_item">
-                    <span>更新时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
+                    <span>定位时间：${this.evt_formatDate(info.positionInfo.positionTime)}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>经度：${this.evt_formatLatLng(info.positionInfo.coordinate.lng)}</span>
