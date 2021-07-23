@@ -92,6 +92,10 @@
           :visible.sync="dialogIMEIinfo"
           width="30%">
           <el-row>
+            <span>成功：</span><span style="color:green">{{successAdd}}</span>
+            <span>, 失败：</span><span style="color:red">{{failAdd}}</span>
+          </el-row>
+          <el-row style="margin-top:10px">
             <el-scrollbar style="height:20vh;" ref="scrollbar">
               <BaseTable  :dataList="IMEIinfolist" :tableLabel="IMEIinfoLabel"   ></BaseTable>
             </el-scrollbar>
@@ -154,8 +158,11 @@
                 IMEIinfolist:[],
                 IMEIinfoLabel:[
                   {label: this.$t('table.imei'), prop: 'deviceNumber'},
+                  {label: '状态', prop: 'state'},
                   {label: '原因', prop: 'reason'},
-                ]
+                ],
+                successAdd:0,
+                failAdd:0,
             }
         },
         watch: {
@@ -234,14 +241,17 @@
                 }
               }else{
                 let tmp = []
+                this.successAdd = 0
+                this.failAdd = 0
                 temp.sort().sort(function(a,b) {
                   if(a==b && tmp.indexOf(a) === -1) tmp.push(a)
                 })
                 if(tmp.length>0){
                   this.IMEIinfolist = []
                   for(let c = 0;c<tmp.length;c++){
-                    this.IMEIinfolist.push({deviceNumber:tmp[c],reason:'重复'})
+                    this.IMEIinfolist.push({deviceNumber:tmp[c],state:'失败',reason:'重复'})
                   }
+                  this.failAdd = this.IMEIinfolist.length
                   this.$message.warning('请先去除重复的设备号')
                   setTimeout(function(){ that.dialogIMEIinfo = true}, 1000)
                   return 
@@ -262,13 +272,17 @@
                     let arr = []
                     let arr2 = []
                     this.IMEIinfolist = []
+                    this.successAdd = 0
+                    this.failAdd = 0
                     for(let a = 0;a<res.data.content.length;a++){
                       arr.push(res.data.content[a].deviceNumber)
                     }
                     arr2 = this.getArrDifference(temp,arr)
                     for(let b = 0;b<arr2.length;b++){
-                      this.IMEIinfolist.push({deviceNumber:arr2[b],reason:'不存在'})
+                      this.IMEIinfolist.push({deviceNumber:arr2[b],state:'失败',reason:'不存在'})
                     }
+                    this.successAdd = res.data.totalElements
+                    this.failAdd = this.IMEIinfolist.length
                     this.dialogIMEIinfo = true
                   }
                   let item = res.data.content

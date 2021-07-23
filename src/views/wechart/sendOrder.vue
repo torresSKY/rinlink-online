@@ -55,6 +55,7 @@
             </el-col>
             <el-col :span='4'>
               <el-button class="butadd" size="mini" @click="searchEqu">{{$t('button.add')}}</el-button>
+              <el-button  size="mini" @click="leftIMEI">{{$t('button.cancel')}}</el-button>
             </el-col>
           </el-row>
         </el-row>
@@ -71,6 +72,25 @@
         <!-- <div slot="footer" class="dialog-footer" style="text-align:center">
            <el-button type="primary" @click="confrim">{{$t('button.send')}}</el-button>
         </div> -->
+        <el-dialog
+          title="提示"
+          :visible.sync="dialogIMEIinfo"
+          top='20vh'
+          :append-to-body='true'
+          width="30%">
+          <el-row>
+            <span>成功：</span><span style="color:green">{{successAdd}}</span>
+            <span>, 失败：</span><span style="color:red">{{failAdd}}</span>
+          </el-row>
+          <el-row style="margin-top:10px">
+            <el-scrollbar style="height:20vh;" ref="scrollbar">
+              <BaseTable  :dataList="IMEIinfolist" :tableLabel="IMEIinfoLabel"   ></BaseTable>
+            </el-scrollbar>
+          </el-row>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogIMEIinfo = false">关 闭</el-button>
+          </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -113,7 +133,16 @@
                 ],
                 searchImei:null,
                 tempNum:0,
-                isShow:false
+                isShow:false,
+                dialogIMEIinfo:false,
+                IMEIinfolist:[],
+                IMEIinfoLabel:[
+                  {label: this.$t('table.imei'), prop: 'deviceNumber'},
+                  {label: '状态', prop: 'state'},
+                  {label: '原因', prop: 'reason'},
+                ],
+                successAdd:0,
+                failAdd:0,
             }
         },
         mounted(){
@@ -207,6 +236,7 @@
               }
             },
             searchEqu(){ //下发-搜索设备
+              var that = this
               if(!this.searchImei){
                 return this.$message.warning(this.$t('table.searchimei'))
               }
@@ -226,6 +256,22 @@
                   deviceNumberKeyword : this.searchImei.replace("\n", "")
                 }
               }else{
+                let tmp = []
+                this.successAdd = 0
+                this.failAdd = 0
+                temp.sort().sort(function(a,b) {
+                  if(a==b && tmp.indexOf(a) === -1) tmp.push(a)
+                })
+                if(tmp.length>0){
+                  this.IMEIinfolist = []
+                  for(let c = 0;c<tmp.length;c++){
+                    this.IMEIinfolist.push({deviceNumber:tmp[c],state:'失败',reason:'重复'})
+                  }
+                  this.failAdd = this.IMEIinfolist.length
+                  this.$message.warning('请先去除重复的设备号')
+                  setTimeout(function(){ that.dialogIMEIinfo = true}, 1000)
+                  return 
+                }
                 data = {
                   containsChildren: true,
                   deviceNumberList : temp,
@@ -234,9 +280,27 @@
               }
               // console.log(temp)
               api.getDevicesList(data,this.type).then(res => {
+                this.leftIMEI()
                 if(res.success){
                   if(res.data.content.length<=0){
                     return this.$message.warning('输入的设备号没有查到数据')
+                  }
+                  if(res.data.totalElements!=temp.length){
+                    let arr = []
+                    let arr2 = []
+                    this.IMEIinfolist = []
+                    this.successAdd = 0
+                    this.failAdd = 0
+                    for(let a = 0;a<res.data.content.length;a++){
+                      arr.push(res.data.content[a].deviceNumber)
+                    }
+                    arr2 = this.getArrDifference(temp,arr)
+                    for(let b = 0;b<arr2.length;b++){
+                      this.IMEIinfolist.push({deviceNumber:arr2[b],state:'失败',reason:'不存在'})
+                    }
+                    this.successAdd = res.data.totalElements
+                    this.failAdd = this.IMEIinfolist.length
+                    this.dialogIMEIinfo = true
                   }
                   let item = res.data.content
                   for(let i = 0;i<item.length;i++){
@@ -268,8 +332,14 @@
                   this.$message.error(res.msg)
                 }
               }).catch(err => {
+                this.leftIMEI()
                 this.$message.error(err.msg)
               })
+            },
+            getArrDifference(arr1, arr2) {
+                return arr1.concat(arr2).filter(function(v, i, arr) {
+                    return arr.indexOf(v) === arr.lastIndexOf(v)
+                })
             },
             qingkong(){
               this.list = []
@@ -311,5 +381,7 @@
     }
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
-
+/deep/ .el-scrollbar__wrap {
+overflow-x: hidden;
+}
 </style>

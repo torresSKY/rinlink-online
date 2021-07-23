@@ -35,6 +35,8 @@
         <el-dialog
             :title="isEdit? $t('button.editor'): $t('button.add')"
             :visible.sync="dialogModel"
+            :close-on-click-modal='false'
+            :close-on-press-escape='false'
             width="38%">
             <el-form :model="modelForm" :rules="rules" ref="modelForm" label-width="140px" class="demo-ruleForm">
               <el-form-item :label="$t('table.orderName')" prop="templateName" >
@@ -58,6 +60,12 @@
               </el-form-item>
               <el-form-item label="groovyScript" prop="groovyScript" >
                   <el-input v-model="modelForm.groovyScript" placeholder="groovyScript" type="textarea" :rows="3"></el-input>
+              </el-form-item>
+              <el-form-item label="是否支持专业版平台">
+                <el-switch v-model="modelForm.pro"></el-switch>
+              </el-form-item>
+              <el-form-item label="是否支持青春版">
+                <el-switch v-model="modelForm.young"></el-switch>
               </el-form-item>
             </el-form>  
             <span slot="footer" class="dialog-footer">
@@ -124,7 +132,9 @@ export default{
           templateContent:'',
           templateRemark:'',
           commandDataProcessType:'groovy',
-          groovyScript:''
+          groovyScript:'',
+          pro:true,
+          young:true
         },
         rules:{
           templateName: [
@@ -177,7 +187,9 @@ export default{
             templateContent:'',
             templateRemark:'',
             commandDataProcessType:'groovy',
-            groovyScript:''
+            groovyScript:'',
+            pro:true,
+            young:true
           }
           this.isEdit = false
           this.dialogModel = true
@@ -192,7 +204,11 @@ export default{
                   templateContent:this.modelForm.templateContent,
                   templateRemark:this.modelForm.templateRemark,
                   commandDataProcessType:this.modelForm.commandDataProcessType,
-                  groovyScript:this.modelForm.groovyScript
+                  groovyScript:this.modelForm.groovyScript,
+                  labels:{
+                    pro:this.modelForm.pro,
+                    young:this.modelForm.young
+                  }
                 }
                 api.createCmdTemplates(data,this.type).then(res => {
                   // debugger
@@ -215,7 +231,11 @@ export default{
                   templateContent:this.modelForm.templateContent,
                   templateRemark:this.modelForm.templateRemark,
                   commandDataProcessType:this.modelForm.commandDataProcessType,
-                  groovyScript:this.modelForm.groovyScript
+                  groovyScript:this.modelForm.groovyScript,
+                  labels:{
+                    pro:this.modelForm.pro,
+                    young:this.modelForm.young
+                  }
                 }
                 api.updateCmdTemplates(data,this.type).then(res => {
                   // debugger
@@ -278,7 +298,9 @@ export default{
               templateContent:res.data.templateContent,
               templateRemark:res.data.templateRemark,
               commandDataProcessType:'groovy',
-              groovyScript:res.data.groovyScript
+              groovyScript:res.data.groovyScript,
+              // pro:res.data.labels.pro,
+              // young:res.data.labels.young
             }
             this.modelForm['id'] = id
             this.isEdit = true
