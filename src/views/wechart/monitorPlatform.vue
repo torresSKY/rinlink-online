@@ -73,7 +73,7 @@
                                     </el-col>
                                 </el-row>
                             </el-col>
-                            <el-col :span="8">
+                            <el-col :span="10">
                                 <div class="speed_content">
                                     <span class="speed_content_text">速度：慢</span>
                                     <el-slider @change="evt_change_speed" class="slider_style_2" :min="100" :step="20" :max="500" v-model="speed" :show-tooltip="false"></el-slider>
@@ -82,7 +82,7 @@
                                     <span style="width:100px;margin-left:20px;" class="speed_content_text speed_content_text_t">速度：{{speed_value != null ? speed_value : 0}}km/h</span>
                                 </div>
                             </el-col>
-                            <el-col :span="7" :offset="4">
+                            <el-col :span="7" :offset="2">
                                 <el-button @click="evt_query_tracks" type="primary" size="mini">确定</el-button>
                                 <el-button @click="evt_show_tracksDetail" type="primary" size="mini">轨迹明细</el-button>
                                 <el-button @click="evt_export" type="primary" size="mini">导出轨迹</el-button>
@@ -775,6 +775,7 @@ export default {
             this.track_detail = true;
             this.current_device_name = item.deviceName;
             this.select_date_time = [new Date(new Date().toLocaleDateString()).getTime(),new Date().getTime()];
+            this.select_date = '今天';
             this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
             clearInterval(this.refresh_time_interval);
             this.speed_value = 0;
