@@ -17,7 +17,7 @@
                     </el-row>
                     <el-row >
                       <el-scrollbar :style="{height:height + 'px'}" ref="scrollbar">
-                        <el-tree :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
+                        <el-tree style="font-size:12px" :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
                         @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
                     </el-row>

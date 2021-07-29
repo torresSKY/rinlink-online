@@ -127,7 +127,7 @@ import api from '@/api/login/index';
 import api2 from "@/api/wechart/index"
 import BMap from "BMap";
 import axios from 'axios'
-import errorTestAVue from '../../../xinya.tms.refactor/src/views/errorLog/errorTestA.vue';
+
 export default {
   name: "index",
   data() {
