@@ -17,16 +17,16 @@
             <div class="row_item_middle_bottom" :style="{'height': block_height - 90 + 'px'}" v-loading="loading_flag">
                 <div class="item_content" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="20">
                     <template v-if="devices_list.length > 0">
-                        <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', item.lastReportDataTime == null ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
-                            <div class="devices_item_mask" v-if="item.lastReportDataTime == null"></div>
+                        <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', ((item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) || item.lastReportDataTime == null) ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
+                            <div class="devices_item_mask" v-if="(item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) || item.lastReportDataTime == null"></div>
                             <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
                                 <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                 <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                <el-avatar class="devices_item_top_avatar" size="small" :src="item.networkStatus == '1' ? item.stationarySeconds != null ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleStationary : icon_list_t['JiaoChe'].iconUrlForConsoleStationary  : item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['JiaoChe'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['JiaoChe'].iconUrlForConsoleInactive"></el-avatar>
+                                <el-avatar class="devices_item_top_avatar" size="small" :src="(item.networkStatus == '1' && current_time - item.lastReportDataTime < 30 * 60 * 1000) ? item.stationarySeconds != null ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleStationary : icon_list_t['JiaoChe'].iconUrlForConsoleStationary  : item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['JiaoChe'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['JiaoChe'].iconUrlForConsoleInactive"></el-avatar>
                                 <div class="devices_item_top_right">
                                     <div class="devices_item_top_right_top">
-                                        <div class="devices_item_top_right_top_left text_line" :class="item.networkStatus == '1' ? 'devices_item_top_right_top_left_t' : ''">{{item.deviceName}}</div>
-                                        <div class="devices_item_top_right_top_right" :class="(item.networkStatus != '1' || item.stationarySeconds != null) ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime,item.stationarySeconds)}}</div>
+                                        <div class="devices_item_top_right_top_left text_line" :class="(item.networkStatus == '2' || (item.networkStatus == '1' && current_time - item.lastReportDataTime > 30 * 60 * 1000)) ? '' : 'devices_item_top_right_top_left_t'">{{item.deviceName}}</div>
+                                        <div class="devices_item_top_right_top_right" :class="(item.networkStatus != '1' || item.stationarySeconds != null || (item.networkStatus == '1' && current_time - item.lastReportDataTime > 30 * 60 * 1000)) ? 'devices_item_top_right_top_right_t' : ''">{{item.lastReportDataTime|formatStatus(item.networkStatus,item.activationTime,item.serviceExpireTime,item.stationarySeconds)}}</div>
                                     </div>
                                     <div class="devices_item_top_right_bottom" v-if="item.battery != null">
                                         <!-- 电池辅助元素 -->
@@ -262,20 +262,31 @@ export default {
                         _this.need_handle_deviceId = _this.devices_list[i].id;
                         _this.need_handle_deviceNumber = _this.devices_list[i].deviceNumber;
                         _this.current_select_deviceId = _this.devices_list[i].id;
-                        var oldLng = _this.devices_list[i].positionInfo.coordinate.lng;
-                        var oldLat = _this.devices_list[i].positionInfo.coordinate.lat;
+                        var oldLng = '',oldLat = '';
+                        if(_this.devices_list[i].positionInfo != null){
+                            oldLng = _this.devices_list[i].positionInfo.coordinate.lng;
+                            oldLat = _this.devices_list[i].positionInfo.coordinate.lat;
+                        }
                         var request_data = {};
                         request_data['deviceId'] = deviceId;
                         api.getDeviceDetail(request_data,_this.userType_parameter).then((res) => {
                             // console.log(res);
                             if(res.success && res.data && Object.keys(res.data).length > 0){
+                                // 无定位信息
+                                if(res.data.positionInfo == null){
+                                    _this.$message({message:'暂无此设备定位信息',type:'warning',offset:'200',duration:'1000'});
+                                    return;
+                                }
                                 var point_t = gcj02tobd09(res.data.positionInfo.coordinate.lng,res.data.positionInfo.coordinate.lat);
                                 res.data.positionInfo.coordinate.lng = point_t[0];
                                 res.data.positionInfo.coordinate.lat = point_t[1];
                                 var point = new BMap.Point(point_t[0],point_t[1]);
                                 _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
                                 _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
-                                
+                                if(res.data.lastReportDataTime != null && res.data.networkStatus == '1' && new Date().getTime() - res.data.lastReportDataTime > 30 * 60 * 1000){
+                                    _this.$set(_this.devices_list[i],'networkStatus',2);
+                                    _this.$set(res.data,'networkStatus',2);
+                                }
                                 // 触发选择设备事件
                                 var monitorInfo = {};
                                 monitorInfo['oldLng'] = oldLng;
@@ -290,7 +301,7 @@ export default {
                             }
                         }).catch((err) => {
                             console.log(err)
-                            this.$message({message:err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
+                            _this.$message({message:err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
                         })
                     }
                     break;
@@ -337,6 +348,9 @@ export default {
         },
         formatStatus(lastReportDataTime,networkStatus,activationTime,serviceExpireTime,stationarySeconds){
             var currentTime = new Date().getTime();
+            if(activationTime && activationTime < currentTime && (lastReportDataTime != null || lastReportDataTime)  && networkStatus == '1' && serviceExpireTime != null && serviceExpireTime > currentTime && currentTime - lastReportDataTime > 30 * 60 * 1000){
+                networkStatus = '2';
+            }
             if(!activationTime || activationTime == null || activationTime > currentTime){
                 return '未激活';
             }else if(activationTime && lastReportDataTime == null && serviceExpireTime > currentTime){
@@ -664,6 +678,13 @@ export default {
     .item_opacity{
         opacity:0.7;
         -webkit-filter:grayscale(100%);
+    }
+    .text_line{
+        word-break:break-all;
+        display:-webkit-box;
+        -webkit-line-clamp:1;
+        -webkit-box-orient:vertical;
+        overflow:hidden;
     }
 
 </style>

@@ -564,7 +564,7 @@ export default {
                     var infoWindow_info = {};
                     for(var i = 0, len = _this.devices_list.length; i < len; i++){
                         for(var j = 0, j_len = res.data.length; j < j_len; j++){
-                            if(_this.devices_list[i].id == res.data[j].deviceId){
+                            if(_this.devices_list[i].id == res.data[j].deviceId && res.data[j].coordinate != null){
                                 _this.$set(_this.devices_list[i].positionInfo,'coordinate',res.data[j].coordinate);
                                 var point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                                 _this.evt_addMarker(point,_this.devices_list[i]);
