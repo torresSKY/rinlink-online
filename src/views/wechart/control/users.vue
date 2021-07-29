@@ -260,6 +260,8 @@ export default {
         /deep/  .el-tree-node.is-current > .el-tree-node__content {
             background-color: #D8E3FF !important;
             border: 1px solid #4391FE;
+            font-weight: bold;
+            color: black;
         }
         /deep/ .el-tree>.el-tree-node {
             display: inline-block;
