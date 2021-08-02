@@ -127,7 +127,6 @@ import api from '@/api/login/index';
 import api2 from "@/api/wechart/index"
 import BMap from "BMap";
 import axios from 'axios'
-
 export default {
   name: "index",
   data() {

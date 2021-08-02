@@ -581,7 +581,7 @@ export default {
                             _this.map.setCenter(point_t);
                         }
                     }
-                }else{
+                }else if(!res.success){
                     _this.$message({message: res.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
