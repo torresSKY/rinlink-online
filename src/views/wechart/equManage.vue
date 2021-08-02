@@ -40,10 +40,10 @@
                             </el-select>
                             <el-button slot="append" icon="el-icon-search" @click="searchCustomer"></el-button>
                         </el-input>
-                        <el-scrollbar :style="{height:70 + 'vh'}" ref="scrollbar">
-                          <el-tree :data="data" :props="defaultProps"   node-key="userId" :default-expanded-keys="[outUserId]"
+                        <el-scrollbar :style="{height:68 + 'vh'}" ref="scrollbar">
+                          <el-tree  :data="data" :props="defaultProps"   node-key="userId" :default-expanded-keys="[outUserId]"
                           :highlight-current='true' @node-click="handleNodeClick" 
-                          lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px" ></el-tree>
+                          lazy :load="evt_loadTree" :render-content="renderContent" style="margin-top:10px;font-size:12px" ></el-tree>
                         </el-scrollbar>
                     </el-row>
                 </el-row>

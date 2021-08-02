@@ -11,7 +11,7 @@
                 </el-input>
                 <el-scrollbar :native="false">
                     <div class="scrollbar_container" :style="{'height': block_height - 90 + 'px'}">
-                        <el-tree ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
+                        <el-tree style="font-size:12px" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                     </div>
                 </el-scrollbar>
             </div>
