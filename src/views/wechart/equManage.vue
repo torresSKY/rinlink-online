@@ -628,8 +628,8 @@ export default{
           {label: this.$t('table.status'), prop: 'status',
             type: 'render',
               formatter: (params) => {
-                params['status'] = params.networkStatus == 1 ? '在线'  : params.networkStatus == 2 ? '离线'
-                : params.networkStatus == '在线' ? '在线': params.networkStatus == '离线' ? '离线' : ''
+                params['status'] = (params.networkStatus == 1 && (new Date().getTime() - params.lastReportDataTime < 30 * 60 * 1000)) ? '在线'  : params.networkStatus == 2 ? '离线'
+                : (params.networkStatus == '在线'&& (new Date().getTime() - params.lastReportDataTime < 30 * 60 * 1000)) ? '在线': params.networkStatus == '离线' ? '离线' : '离线'
                 // console.log(params,123)
                 return params
               }
@@ -1830,5 +1830,11 @@ overflow-x: hidden;
 } 
 /deep/ .el-table::before{
   border-bottom: 1px solid #CCCCCC;
+}
+/deep/  .el-tree-node.is-current > .el-tree-node__content {
+    background-color: #D8E3FF !important;
+    border: 1px solid #4391FE;
+    font-weight: bolder;
+    color: black;
 }
 </style>
