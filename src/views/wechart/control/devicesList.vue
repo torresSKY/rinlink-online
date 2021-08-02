@@ -80,6 +80,7 @@ export default {
             OfflineDvice:0,//离线设备数量
             userType_parameter: '',//请求接口拼接的用户类型
             searchDevice_word:'',//搜索设备的关键字
+            searchDevice_flag: false,
             page: 0,
             pageSize: 20,
             totalPage: 1,
@@ -108,6 +109,7 @@ export default {
                 this.page = 0;
                 this.totalPage = 1;
                 this.devices_list = [];
+                this.searchDevice_word = '';
                 // this.current_select_deviceId = '';//当前选择的设备id
                 this.evt_queryDevices();
             },
@@ -173,6 +175,8 @@ export default {
             this.$emit("monitorNetworkStatus");
         },
         evt_searchDevice:function(){
+            if(this.searchDevice_flag) return;
+            this.searchDevice_flag = true;
             this.page = 0;
             this.totalPage = 1;
             this.devices_list = [];
@@ -222,11 +226,13 @@ export default {
                     // _this.$message({message: res.msg ,type:"info",offset:"200",duration:'1500'});
                 }
                 _this.loading_flag = false;
+                _this.searchDevice_flag = false;
                 // 触发设备列表更改事件
                 _this.$emit('monitorDevicesList',this.devices_list);
             }).catch((err) => {
                 console.log(err);
                 _this.loading_flag = false;
+                _this.searchDevice_flag = false;
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1500'});
             })
         },
