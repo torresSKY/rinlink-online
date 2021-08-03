@@ -126,8 +126,8 @@ export default {
         height: 220px;
     }
     .table-header{
-        // padding-right: 20px;
-        // box-sizing: border-box;
+        padding-right: 18px;
+        box-sizing: border-box;
     }
     #gridViewTableContent{
         width: 100%;
