@@ -417,7 +417,7 @@ export default {
             this.map.closeInfoWindow();
             this.tracksDetail_flag = false;
             this.current_select_deviceId = info.current_select_deviceId;
-            if(info.type == 'add'){
+            if(info.type == 'add' && info.addOverlayInfo.positionInfo != null){
                 for(var key in allOverlays){
                     if(allOverlays[key].point && allOverlays[key].point.lng == info.oldLng && allOverlays[key].point.lat == info.oldLat){
                         this.map.removeOverlay(allOverlays[key]); 
@@ -426,8 +426,11 @@ export default {
                 this.evt_addOverlay(info.addOverlayInfo);
                 this.evt_getLocation(info.point);
                 this.current_device_name = info.deviceName;
-            }else{
+            }else if(info.type == 'delete' && info.addOverlayInfo.positionInfo != null){
                 this.evt_deleteOverlay(info.oldLng,info.oldLat);
+            }else if(info.addOverlayInfo.positionInfo == null){
+                this.current_device_address = '----';
+                this.current_device_name = info.deviceName;
             }
             this.interval_num = parseInt(this.refresh_interval);
             this.evt_refresh_interval();

@@ -281,15 +281,18 @@ export default {
                             if(res.success && res.data && Object.keys(res.data).length > 0){
                                 // 无定位信息
                                 if(res.data.positionInfo == null){
-                                    _this.$message({message:'暂无此设备定位信息',type:'warning',offset:'200',duration:'1000'});
-                                    return;
+                                    _this.$message({message:'暂无此设备定位信息',type:'warning',offset:'200',duration:'2000'});
+                                    // return;
                                 }
-                                var point_t = gcj02tobd09(res.data.positionInfo.coordinate.lng,res.data.positionInfo.coordinate.lat);
-                                res.data.positionInfo.coordinate.lng = point_t[0];
-                                res.data.positionInfo.coordinate.lat = point_t[1];
-                                var point = new BMap.Point(point_t[0],point_t[1]);
-                                _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
-                                _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                var point;
+                                if(res.data.positionInfo != null){
+                                    var point_t = gcj02tobd09(res.data.positionInfo.coordinate.lng,res.data.positionInfo.coordinate.lat);
+                                    res.data.positionInfo.coordinate.lng = point_t[0];
+                                    res.data.positionInfo.coordinate.lat = point_t[1];
+                                    point = new BMap.Point(point_t[0],point_t[1]);
+                                    _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
+                                    _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                }
                                 if(res.data.lastReportDataTime != null && res.data.networkStatus == '1' && new Date().getTime() - res.data.lastReportDataTime > 30 * 60 * 1000){
                                     _this.$set(_this.devices_list[i],'networkStatus',2);
                                     _this.$set(res.data,'networkStatus',2);
