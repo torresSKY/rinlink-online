@@ -120,10 +120,14 @@ export default {
     }
 }
 </script>
-<style scoped>
+<style rel="stylesheet/scss" lang="scss" scoped>
     .container{
         width: 100%;
         height: 220px;
+    }
+    .table-header{
+        // padding-right: 20px;
+        // box-sizing: border-box;
     }
     #gridViewTableContent{
         width: 100%;
@@ -138,8 +142,14 @@ export default {
         color: #666666;
     }
     .table-scrollbar{
+        width: 100%;
         height: 192px;
+        padding-right: 18px;
+        box-sizing: border-box;
         cursor: pointer;
+        /deep/ .el-scrollbar__bar.is-vertical{
+            width: 0px;
+        }
     }
     .table{
         width: 100%;
@@ -166,5 +176,4 @@ export default {
     .tr>td:last-of-type{
         border-right: 0px;
     }
-
 </style>
