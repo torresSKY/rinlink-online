@@ -10,7 +10,7 @@
                 <!-- <div><i class="el-icon-arrow-left"></i></div> -->
             </div>
             <div class="row_item_middle_middle">
-                <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称设备号" v-model="searchDevice_word">
+                <el-input class="search_device_input" style="margin-bottom:10px" size="mini" placeholder="请输入设备名称设备号" v-model="searchDevice_word" @keyup.enter.native="evt_searchDevice">
                     <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                 </el-input>
             </div>
@@ -264,6 +264,7 @@ export default {
                             _this.$emit('monitorSelectDevices',monitorInfo);
                         }
                     }else{
+                        _this.$emit('monitorId',_this.devices_list[i].owner.userId);
                         _this.$set(_this.devices_list[i],'checked',true);
                         _this.need_handle_deviceId = _this.devices_list[i].id;
                         _this.need_handle_deviceNumber = _this.devices_list[i].deviceNumber;
@@ -280,15 +281,18 @@ export default {
                             if(res.success && res.data && Object.keys(res.data).length > 0){
                                 // 无定位信息
                                 if(res.data.positionInfo == null){
-                                    _this.$message({message:'暂无此设备定位信息',type:'warning',offset:'200',duration:'1000'});
-                                    return;
+                                    _this.$message({message:'暂无此设备定位信息',type:'warning',offset:'200',duration:'2000'});
+                                    // return;
                                 }
-                                var point_t = gcj02tobd09(res.data.positionInfo.coordinate.lng,res.data.positionInfo.coordinate.lat);
-                                res.data.positionInfo.coordinate.lng = point_t[0];
-                                res.data.positionInfo.coordinate.lat = point_t[1];
-                                var point = new BMap.Point(point_t[0],point_t[1]);
-                                _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
-                                _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                var point;
+                                if(res.data.positionInfo != null){
+                                    var point_t = gcj02tobd09(res.data.positionInfo.coordinate.lng,res.data.positionInfo.coordinate.lat);
+                                    res.data.positionInfo.coordinate.lng = point_t[0];
+                                    res.data.positionInfo.coordinate.lat = point_t[1];
+                                    point = new BMap.Point(point_t[0],point_t[1]);
+                                    _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
+                                    _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                }
                                 if(res.data.lastReportDataTime != null && res.data.networkStatus == '1' && new Date().getTime() - res.data.lastReportDataTime > 30 * 60 * 1000){
                                     _this.$set(_this.devices_list[i],'networkStatus',2);
                                     _this.$set(res.data,'networkStatus',2);
@@ -325,6 +329,8 @@ export default {
         // 回放
         evt_playback:function(item){
             this.$emit('monitorPlayBack',item);
+            this.current_select_deviceId = item.id;
+            this.$emit('monitorId',item.owner.userId);
         },
          // 更多下拉框的操作
         evt_more_command:function(item){
@@ -333,7 +339,8 @@ export default {
         // 充值缴费
         evt_pay:function(deviceNumber){
             this.$emit('monitorPay',deviceNumber)
-        }
+        },
+
 
     },
     filters:{

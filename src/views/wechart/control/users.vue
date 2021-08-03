@@ -6,7 +6,7 @@
                 <!-- <div><i class="el-icon-arrow-left"></i></div> -->
             </div>
             <div class="row_item_bottom_left">
-                <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name">
+                <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name" @keyup.enter.native="evt_searchBusiness">
                     <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                 </el-input>
                 <el-scrollbar :native="false">
@@ -22,6 +22,7 @@
 import api from '@/api/wechart/index'
 export default {
     name: 'usersList',
+    props: ['monitorId'],
     data(){
         return{
             block_height:'',
@@ -40,6 +41,15 @@ export default {
                 ]);
             },
             searchBusiness_name:'',
+        }
+    },
+    watch:{
+        monitorId:{
+            handler(){
+                this.user_id = this.monitorId;
+                this.$refs.userTree.setCurrentKey(this.user_id);
+            },
+            deep: true
         }
     },
     created(){
