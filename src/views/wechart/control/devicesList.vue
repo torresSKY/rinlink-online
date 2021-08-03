@@ -264,6 +264,7 @@ export default {
                             _this.$emit('monitorSelectDevices',monitorInfo);
                         }
                     }else{
+                        _this.$emit('monitorId',_this.devices_list[i].owner.userId);
                         _this.$set(_this.devices_list[i],'checked',true);
                         _this.need_handle_deviceId = _this.devices_list[i].id;
                         _this.need_handle_deviceNumber = _this.devices_list[i].deviceNumber;
@@ -325,6 +326,8 @@ export default {
         // 回放
         evt_playback:function(item){
             this.$emit('monitorPlayBack',item);
+            this.current_select_deviceId = item.id;
+            this.$emit('monitorId',item.owner.userId);
         },
          // 更多下拉框的操作
         evt_more_command:function(item){

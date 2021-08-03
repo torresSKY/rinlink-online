@@ -3,11 +3,11 @@
         <el-row>
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <!-- 客户列表 -->
-                <userCompent @monitorUserId="evt_monitorUserId"></userCompent>
+                <userCompent @monitorUserId="evt_monitorUserId" :monitorId="monitorId"></userCompent>
             </el-col>
             <el-col class="row_item" :span="4" :style="{height:height +'px'}">
                 <!-- 设备列表 -->
-                <devicesCompent :userId="monitorUserId" :iconList="icon_list_t" :selectDeviceId="current_select_deviceId" @monitorDevicesList="evt_monitorDevicesList" @monitorSelectDevices="evt_select_devices" @monitorNetworkStatus="evt_change_type" @monitorPlayBack="evt_playback" @monitorMore="evt_more_command" @monitorPay="evt_pay"></devicesCompent>
+                <devicesCompent :userId="monitorUserId" :iconList="icon_list_t" :selectDeviceId="current_select_deviceId" @monitorDevicesList="evt_monitorDevicesList" @monitorSelectDevices="evt_select_devices" @monitorNetworkStatus="evt_change_type" @monitorPlayBack="evt_playback" @monitorMore="evt_more_command" @monitorPay="evt_pay" @monitorId="evt_monitorId"></devicesCompent>
             </el-col>
             <el-col class="row_item" :span="16" :style="{height:height +'px'}">
                 <div class="row_item_right">
@@ -280,6 +280,7 @@ export default {
             rechargeList: [],
             monitorUserId:'',//用户列表选择的用户Id
             nav_flag: false,
+            monitorId: '',//选择设备的所属用户的id
         }
     },
     created(){
@@ -330,6 +331,11 @@ export default {
         clearInterval(this.refresh_time_interval);
     },
     methods: {
+        // 设备所属用户id
+        evt_monitorId:function(user_id){
+            // console.log(user_id);
+            this.monitorId = user_id;
+        },
         // 监听选择客户
         evt_monitorUserId:function(userId){
             // console.log(userId);

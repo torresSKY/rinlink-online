@@ -22,6 +22,7 @@
 import api from '@/api/wechart/index'
 export default {
     name: 'usersList',
+    props: ['monitorId'],
     data(){
         return{
             block_height:'',
@@ -40,6 +41,15 @@ export default {
                 ]);
             },
             searchBusiness_name:'',
+        }
+    },
+    watch:{
+        monitorId:{
+            handler(){
+                this.user_id = this.monitorId;
+                this.$refs.userTree.setCurrentKey(this.user_id);
+            },
+            deep: true
         }
     },
     created(){
