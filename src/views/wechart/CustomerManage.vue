@@ -7,7 +7,7 @@
                         <span>{{$t('view.customerList')}}</span>
                     </el-row>
                     <el-row style="margin:10px 0">
-                        <el-input :placeholder="$t('view.inputtext')" v-model="searchType" clearable class="input-with-select">
+                        <el-input :placeholder="$t('view.inputtext')" v-model="searchType" clearable class="input-with-select" @keyup.enter.native="searchCustomer">
                             <el-select v-model="selectType" slot="prepend" >
                               <el-option label="账号" value="username"></el-option>
                               <el-option label="客户" value="nickname"></el-option>
@@ -803,5 +803,11 @@ overflow-x: hidden;
 }
 /deep/ .el-table::before{
   border-bottom: 1px solid #CCCCCC;
+}
+/deep/  .el-tree-node.is-current > .el-tree-node__content {
+    background-color: #D8E3FF !important;
+    border: 1px solid #4391FE;
+    font-weight: bolder;
+    color: black;
 }
 </style>
