@@ -10,7 +10,7 @@
                 <!-- <div><i class="el-icon-arrow-left"></i></div> -->
             </div>
             <div class="row_item_middle_middle">
-                <el-input style="margin-bottom:10px" size="mini" placeholder="请输入设备名称设备号" v-model="searchDevice_word">
+                <el-input class="search_device_input" style="margin-bottom:10px" size="mini" placeholder="请输入设备名称设备号" v-model="searchDevice_word" @keyup.enter.native="evt_searchDevice">
                     <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                 </el-input>
             </div>
@@ -333,7 +333,8 @@ export default {
         // 充值缴费
         evt_pay:function(deviceNumber){
             this.$emit('monitorPay',deviceNumber)
-        }
+        },
+
 
     },
     filters:{
