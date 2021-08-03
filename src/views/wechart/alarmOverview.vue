@@ -34,8 +34,8 @@
                             :value="item.userId">
                           </el-option>
                         </el-select> -->
-                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
-                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据'/>
+                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" style="font-size:13px"
+                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据' @select="treeValue" @input="clearValue"/>
                     </el-col>
                     <!-- <el-col :span='3'>
                         <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
@@ -114,7 +114,7 @@ export default {
       },
       value:null,
       businessoptions:[],
-      checked:false,
+      checked:true,
       loading:false,
       dataList: [],
       tableLabel: [
@@ -135,7 +135,8 @@ export default {
         { value: 2, label: '设备名称'}
       ],
       tableHeight:document.body.offsetHeight - 82,
-      noOptionsText:null
+      noOptionsText:null,
+      nikename:null
     }
   },
   mounted() {
@@ -283,6 +284,15 @@ export default {
     setBlur(){
       document.activeElement.blur()
     },
+    treeValue(val){
+      // console.log(val)
+      this.nikename = val.nickname
+    },
+    clearValue(val){
+      if(!val){
+        this.nikename = null
+      }
+    },
     querySearchAsync(queryString, cb) {
       console.log(queryString, cb)
       this.deviceIdList = null
@@ -300,7 +310,8 @@ export default {
       // }
       data = {
         deviceNumberKeyword:this.deviceIdInput,
-        containsChildren:this.checked
+        containsChildren:this.checked,
+        ownerId:this.value
       }
       var that = this
       var deviceIdList = []
@@ -328,6 +339,9 @@ export default {
             that.timeout = setTimeout(() => {
               cb([])
             }, 200 )
+            if(that.value&&that.deviceIdInput){
+              that.$message.warning(that.nikename+'账号下无此设备')
+            }
           }
         }else{
           this.$message.error(res.msg)

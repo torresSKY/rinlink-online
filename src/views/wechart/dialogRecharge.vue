@@ -81,7 +81,8 @@
           :visible.sync="dialogCode"
           :show-close='false'
           width="26%">
-          <div class="qrcode" id='qrcode' ref="qrCodeUrl" style="width:200px;text-align:center;margin:0 auto"></div>
+          <div class="qrcode" id='qrcode' ref="qrCodeUrl" style="width:200px;text-align:center;margin:5px auto"></div>
+          <div style="color:red;text-align:center">*虚拟商品不支持退款</div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="cannel">返 回</el-button>
             <el-button type="primary" @click="confirmPay" :loading="loading">已付款</el-button>

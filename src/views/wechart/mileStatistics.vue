@@ -27,8 +27,8 @@
                         </el-date-picker>
                     </el-col>
                     <el-col :span='3' style="line-height:38px" v-if="type!=3">
-                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
-                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据'/>
+                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" style="font-size:13px"
+                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据' @select="treeValue" @input="clearValue"/>
                     </el-col>
                     <el-col :span='4'>
                       <!-- <el-col :span='10'>
@@ -136,7 +136,8 @@ export default {
       noOptionsText:null,
       deviceNumber:null,
       radio:'1',
-      totalMile:0
+      totalMile:0,
+      nikename:null
     }
   },
   mounted() {
@@ -245,7 +246,7 @@ export default {
         })
     },
     loadOptions({ action, parentNode, callback }) {
-      console.log(action, parentNode)
+      // console.log(action, parentNode)
       var _this = this
       if (action == 'LOAD_CHILDREN_OPTIONS') {
         var request_data = {}
@@ -284,6 +285,15 @@ export default {
     setBlur(){
       document.activeElement.blur()
     },
+    treeValue(val){
+      // console.log(val)
+      this.nikename = val.nickname
+    },
+    clearValue(val){
+      if(!val){
+        this.nikename = null
+      }
+    },
     querySearchAsync(queryString, cb) {
       // console.log(queryString, cb)
       this.deviceNumber = null
@@ -301,7 +311,8 @@ export default {
       // }
       data = {
         deviceNumberKeyword:this.deviceIdInput,
-        containsChildren:true
+        containsChildren:true,
+        ownerId:this.value
       }
       var that = this
       var deviceIdList = []
@@ -325,10 +336,14 @@ export default {
               cb(results)
             }, 200 )
           }else{
-            clearTimeout(that.timeout);
+            clearTimeout(that.timeout)
             that.timeout = setTimeout(() => {
               cb([])
             }, 200 )
+            if(that.value&&that.deviceIdInput){
+              that.$message.warning(that.nikename+'账号下无此设备')
+            }
+            
           }
         }else{
           this.$message.error(res.msg)

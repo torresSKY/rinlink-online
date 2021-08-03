@@ -35,8 +35,8 @@
                             :value="item.userId">
                           </el-option>
                         </el-select> -->
-                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" 
-                        :load-options="loadOptions" :noOptionsText='noOptionsText' noResultsText='暂无数据'/>
+                        <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" style="font-size:13px" 
+                        :load-options="loadOptions" :noOptionsText='noOptionsText' noResultsText='暂无数据' @select="treeValue" @input="clearValue"/>
                     </el-col>
                     <el-col :span='3' style="line-height:40px">
                         <el-select v-model="alarmTypeId" :placeholder="$t('view.inputele')" clearable>
@@ -217,7 +217,8 @@ export default {
         { value: 2, label: '设备名称'}
       ],
       tableHeight:document.body.offsetHeight - 102,
-      noOptionsText:null
+      noOptionsText:null,
+      nikename:null
     }
   },
   mounted() {
@@ -370,6 +371,15 @@ export default {
     setBlur(){
       document.activeElement.blur()
     },
+    treeValue(val){
+      // console.log(val)
+      this.nikename = val.nickname
+    },
+    clearValue(val){
+      if(!val){
+        this.nikename = null
+      }
+    },
     querySearchAsync(queryString, cb) {
       console.log(queryString, cb)
       this.deviceId = null
@@ -387,7 +397,8 @@ export default {
       // }
       data = {
         deviceNumberKeyword:this.input3,
-        containsChildren:true
+        containsChildren:true,
+        ownerId:this.value
       }
       var that = this
       this.deviceIdList = []
@@ -410,6 +421,9 @@ export default {
             that.timeout = setTimeout(() => {
               cb(results)
             }, 200 )
+            if(that.value&&that.deviceIdInput){
+              that.$message.warning(that.nikename+'账号下无此设备')
+            }
           }else{
             clearTimeout(that.timeout);
             that.timeout = setTimeout(() => {

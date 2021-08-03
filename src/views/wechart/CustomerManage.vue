@@ -73,6 +73,7 @@
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
                         <el-form-item v-if="type==2" label="上级用户" prop="parentName">
                            <el-input v-model="customerForm.parentName" disabled></el-input>
+                           <span style="color:red">注：点击右侧客户列表选择</span>
                         </el-form-item>
                         <el-form-item :label="$t('view.username')" prop="nickname">
                            <el-input v-model="customerForm.nickname"></el-input>
