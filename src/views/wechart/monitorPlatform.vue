@@ -756,6 +756,7 @@ export default {
             var _this = this;
             _this.need_handle_deviceId = deviceId;
             _this.need_handle_deviceNumber = deviceNumber;
+            _this.select_date = '今天';
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
             var request_data = {};
             request_data['deviceId'] = _this.need_handle_deviceId;
