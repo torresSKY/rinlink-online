@@ -662,7 +662,7 @@ export default {
                 </div>
                 ${info.accStatus != null ? `<div class="info_window_content_item"><span>ACC：${info.accStatus == 0 ? '关':'开'}</span></div>` : ''}
                 <div class="info_window_content_item">
-                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '外接电压：'+ info.batteryVoltage + 'V'}</span>
+                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '电压：'+ info.batteryVoltage + 'V'}</span>
                 </div>
                 ${info.oilWay != null ? `<div class="info_window_content_item"><span>油电状态：${info.oilWay == 0 ? '正常':'断开'}</span></div>`:''}
                 ${info.csq != null ? `<div class="info_window_content_item"><span>信号：${info.csq}</span></div>`:''}
