@@ -662,7 +662,7 @@ export default {
                 </div>
                 ${info.accStatus != null ? `<div class="info_window_content_item"><span>ACC：${info.accStatus == 0 ? '关':'开'}</span></div>` : ''}
                 <div class="info_window_content_item">
-                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '外接电压：'+ info.batteryVoltage + 'V'}</span>
+                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '电压：'+ info.batteryVoltage + 'V'}</span>
                 </div>
                 ${info.oilWay != null ? `<div class="info_window_content_item"><span>油电状态：${info.oilWay == 0 ? '正常':'断开'}</span></div>`:''}
                 ${info.csq != null ? `<div class="info_window_content_item"><span>信号：${info.csq}</span></div>`:''}
@@ -756,6 +756,7 @@ export default {
             var _this = this;
             _this.need_handle_deviceId = deviceId;
             _this.need_handle_deviceNumber = deviceNumber;
+            _this.select_date = '今天';
             // this.evt_queryDeviceTracks(this.select_date_time[0],this.select_date_time[1],this.need_handle_deviceId);
             var request_data = {};
             request_data['deviceId'] = _this.need_handle_deviceId;
