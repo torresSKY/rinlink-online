@@ -848,7 +848,7 @@ export default {
                     // 轨迹回放添加marker
                     _this.evt_playback_addMarker(new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat));
                     // 添加轨迹线
-                    var Polyline = new BMap.Polyline([new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat)], {strokeColor: '#0cf36b',strokeWeight:8,strokeOpacity:1});
+                    var Polyline = new BMap.Polyline([new BMap.Point(_this.device_tracks[0].lng,_this.device_tracks[0].lat)], {strokeColor: '#0cf36b',strokeWeight:5,strokeOpacity:1});
                     Polyline.name = 'playFlag';
                     _this.map.addOverlay(Polyline);
                     _this.playbackPolyline = Polyline;
