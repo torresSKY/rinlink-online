@@ -119,7 +119,15 @@ export default {
         confrimSend:function(data){ // 
             //console.log(data);
             if(!data){
-                this.evt_close_command_content();
+                // this.evt_close_command_content();
+                this.$nextTick(() => {
+                    this.$refs.sendOrder.formData = {};
+                    this.$refs.sendOrder.schema = null;
+                    this.$refs.sendOrder.deviceCmdTemplateId = null;
+                    this.$refs.sendOrder.searchImei = null;
+                    this.$refs.sendOrder.tempNum = 0;
+                    this.$refs.sendOrder.getlist();
+                })
             }
         },
         // 分页页数改变
