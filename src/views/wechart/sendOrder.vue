@@ -19,6 +19,7 @@
             
         </el-row>
         <el-row style="margin-top:10px" v-if="schema">
+          <el-row>
             <el-col :span='4' style="line-height:40px">
                 <span>{{$t('view.parmas')}}</span>
             </el-col>
@@ -30,6 +31,15 @@
                     @on-submit="handlerSubmit"
                     @on-cancel="handlerCancel"/>
             </el-col>
+          </el-row>
+          <el-row v-if="remark"> 
+            <el-col :span='4'>
+              指令说明：
+            </el-col>
+            <el-col :span='16'>
+              {{remark}}
+            </el-col>
+          </el-row>   
         </el-row>
         <el-row v-else style="margin-left:72%;margin-top:10px">
             <el-button type="primary" @click="confrim">{{$t('button.send')}}</el-button>
@@ -143,6 +153,7 @@
                 ],
                 successAdd:0,
                 failAdd:0,
+                remark:null
             }
         },
         mounted(){
@@ -186,8 +197,10 @@
               let data = {
                 deviceCmdTemplateId:id
               }
+              this.remark = null
               api.getDeviceCmdTemplates(data,this.type).then(res => {
                 // console.log(res)
+                this.remark = res.data.templateRemark
                 if(res.data.templateContent!='{}'){
                     let item = JSON.parse(res.data.templateContent)
                     this.schema = item
