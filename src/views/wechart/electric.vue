@@ -791,6 +791,7 @@ export default {
             this.evt_draw(item);
         },
         evt_draw:function(item){
+            // console.log(item);
             var _this = this;
             _this.map.clearOverlays();
             if(item.fenceType == 0){
@@ -814,18 +815,46 @@ export default {
                 _this.map.setViewport(points);
             }else if(item.fenceType == 2){
                 var areaName = item.districtFence.areaName;
-                var boundary = new BMap.Boundary();
-                boundary.get(areaName,function(res){
-                    if(res){
-                        var points = [];
-                        for(var j = 0, len = res.boundaries.length; j < len; j++){
-                            var ply = new BMap.Polygon(res.boundaries[j],_this.opts);
-                            _this.map.addOverlay(ply);
-                            points = points.concat(ply.getPath());
+                var areaCode = item.districtFence.areaCode.toString();
+                var district = new AMap.DistrictSearch({
+                    extensions: 'all',
+                    level: 'district',
+                    subdistrict: 0
+                })
+                district.search(areaCode,function(status,result){
+                    // console.log(result);
+                    if(status == 'complete'){
+                        var bounds = result.districtList[0].boundaries;
+                        if(bounds){
+                            var points = [];
+                            for (var i = 0, l = bounds.length; i < l; i++){
+                                var point_arr = [];
+                                for(var j = 0,len = bounds[i].length; j < len; j++){
+                                    var point_t = gcj02tobd09(bounds[i][j].lng,bounds[i][j].lat);
+                                    point_arr.push(new BMap.Point(point_t[0],point_t[1]));
+                                }
+                                var ply = new BMap.Polygon(point_arr,_this.opts);
+                                _this.map.addOverlay(ply);
+                                points = points.concat(ply.getPath());
+                            }
+                            _this.map.setViewport(points);
                         }
-                        _this.map.setViewport(points);
                     }
                 })
+                // 注释百度获取行政区域经纬度
+                // var boundary = new BMap.Boundary();
+                // boundary.get(areaName,function(res){
+                //     console.log(res);
+                //     if(res){
+                //         var points = [];
+                //         for(var j = 0, len = res.boundaries.length; j < len; j++){
+                //             var ply = new BMap.Polygon(res.boundaries[j],_this.opts);
+                //             _this.map.addOverlay(ply);
+                //             points = points.concat(ply.getPath());
+                //         }
+                //         _this.map.setViewport(points);
+                //     }
+                // })
             }
         },
         // 获取行政区域
