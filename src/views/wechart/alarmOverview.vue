@@ -35,7 +35,7 @@
                           </el-option>
                         </el-select> -->
                         <treeselect v-model="value"  :options="businessoptions" :placeholder="$t('view.customerList')" style="font-size:13px"
-                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据' @select="treeValue" @input="clearValue"/>
+                        :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据' @select="treeValue" @input="clearValue" @open="clearBlur()"/>
                     </el-col>
                     <!-- <el-col :span='3'>
                         <el-input v-model="deviceIdList" :placeholder="$t('view.inputimei')" clearable></el-input>
@@ -52,7 +52,7 @@
                         </el-select>
                       </el-col> -->
                       <!-- <el-col :span='14'> -->
-                        <el-autocomplete v-model="deviceIdInput" placeholder="请搜索并选择设备号或设备名称"   autocomplete="off"
+                        <el-autocomplete v-model="deviceIdInput" placeholder="请搜索并选择设备号或设备名称"   autocomplete="off" ref="input3"
                         :fetch-suggestions="querySearchAsync" @select="handleSelect" clearable @clear="setBlur()" style="width:100%"></el-autocomplete>
                       <!-- </el-col> -->
                     </el-col>
@@ -283,6 +283,9 @@ export default {
     },
     setBlur(){
       document.activeElement.blur()
+    },
+    clearBlur(){
+       this.$refs.input3.activated = false 
     },
     treeValue(val){
       // console.log(val)
