@@ -574,6 +574,10 @@ export default {
                     for(var i = 0, len = _this.devices_list.length; i < len; i++){
                         for(var j = 0, j_len = res.data.length; j < j_len; j++){
                             if(_this.devices_list[i].id == res.data[j].deviceId && res.data[j].coordinate != null){
+                                var point_t = gcj02tobd09(res.data[j].coordinate.lng,res.data[j].coordinate.lat);
+                                res.data[j].coordinate.lng = point_t[0];
+                                res.data[j].coordinate.lat = point_t[1];
+                                _this.$set(_this.devices_list[i].positionInfo,'positionTime',res.data[j].time);
                                 _this.$set(_this.devices_list[i].positionInfo,'coordinate',res.data[j].coordinate);
                                 var point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                                 _this.evt_addMarker(point,_this.devices_list[i]);

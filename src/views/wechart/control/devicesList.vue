@@ -10,7 +10,7 @@
                 <!-- <div><i class="el-icon-arrow-left"></i></div> -->
             </div>
             <div class="row_item_middle_middle">
-                <el-input class="search_device_input" style="margin-bottom:10px" size="mini" placeholder="请输入设备名称设备号" v-model="searchDevice_word" @keyup.enter.native="evt_searchDevice">
+                <el-input class="search_device_input" style="margin-bottom:10px" size="mini" placeholder="请输入设备名称或设备号" v-model="searchDevice_word" @keyup.enter.native="evt_searchDevice">
                     <el-button @click="evt_searchDevice" size="mini" slot="append" icon="el-icon-search"></el-button>
                 </el-input>
             </div>
@@ -80,7 +80,7 @@ export default {
             OfflineDvice:0,//离线设备数量
             userType_parameter: '',//请求接口拼接的用户类型
             searchDevice_word:'',//搜索设备的关键字
-            searchDevice_flag: false,
+           
             page: 0,
             pageSize: 20,
             totalPage: 1,
@@ -91,6 +91,7 @@ export default {
             current_time:0,//当前时间戳
             block_height: 0,
             loading_flag: false,
+            serach_flag: false,//是否是搜索
         }
     },
     created(){
@@ -111,6 +112,7 @@ export default {
                 this.devices_list = [];
                 this.searchDevice_word = '';
                 // this.current_select_deviceId = '';//当前选择的设备id
+                this.serach_flag = false;
                 this.evt_queryDevices();
             },
             deep:true
@@ -175,25 +177,28 @@ export default {
             this.$emit("monitorNetworkStatus");
         },
         evt_searchDevice:function(){
-            if(this.searchDevice_flag) return;
-            this.searchDevice_flag = true;
+            if(this.searchDevice_word.trim() == ''){
+                this.$message({message:'请输入设备名称或设备号',type:'warning',offset:'200',duration:'1500'});
+                return;
+            } 
             this.page = 0;
             this.totalPage = 1;
             this.devices_list = [];
             this.change_type = 'all';
             this.current_select_deviceId = '',//当前选择的设备id
-            this.evt_queryDevices('search');
+            this.serach_flag = true;
+            this.evt_queryDevices();
             this.$emit("monitorNetworkStatus");
         },
         // 分页获取设备
-        evt_queryDevices:function(type){
+        evt_queryDevices:function(){
             var _this = this;
             _this.loading_flag = true;
             var request_data = {};
             request_data['page'] = _this.page;
             request_data['pageSize'] = _this.pageSize;
             request_data['deviceNumberKeyword'] = _this.searchDevice_word;
-            if(type == 'search'){
+            if(_this.serach_flag){
                 request_data['containsChildren'] = true;
             }
             // 判断是不是当前登录用户 当前登录用户请求查询设备时 不传递userid参数
@@ -226,13 +231,11 @@ export default {
                     // _this.$message({message: res.msg ,type:"info",offset:"200",duration:'1500'});
                 }
                 _this.loading_flag = false;
-                _this.searchDevice_flag = false;
                 // 触发设备列表更改事件
-                _this.$emit('monitorDevicesList',this.devices_list);
+                _this.$emit('monitorDevicesList',_this.devices_list);
             }).catch((err) => {
                 console.log(err);
                 _this.loading_flag = false;
-                _this.searchDevice_flag = false;
                 _this.$message({message:err.msg,type:'error',offset:'200',duration:'1500'});
             })
         },
@@ -292,6 +295,7 @@ export default {
                                     point = new BMap.Point(point_t[0],point_t[1]);
                                     _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
                                     _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                    _this.$set(_this.devices_list[i].positionInfo,'positionTime',res.data.positionInfo.positionTime);
                                 }
                                 if(res.data.lastReportDataTime != null && res.data.networkStatus == '1' && new Date().getTime() - res.data.lastReportDataTime > 30 * 60 * 1000){
                                     _this.$set(_this.devices_list[i],'networkStatus',2);
@@ -308,6 +312,8 @@ export default {
                                 monitorInfo['current_select_deviceId'] = _this.current_select_deviceId;
                                 _this.$emit('monitorSelectDevices',monitorInfo);
 
+                                // 触发设备列表更改事件
+                                _this.$emit('monitorDevicesList',_this.devices_list);
                             }
                         }).catch((err) => {
                             console.log(err)
