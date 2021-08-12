@@ -3,9 +3,9 @@
         <div class="row_item_middle">
             <div class="row_item_middle_top">
                 <div>
-                    <div @click="evt_change_type('all')" :class="change_type == 'all' ? 'select_item' :''">全部{{'('+ (OnlineDvice + OfflineDvice) + ')'}}</div>
-                    <div @click="evt_change_type('on')" :class="change_type == 'on' ? 'select_item' :''">在线{{'('+ OnlineDvice + ')'}}</div>
-                    <div @click="evt_change_type('off')" :class="change_type == 'off' ? 'select_item' :''">离线{{'('+ OfflineDvice + ')'}}</div>
+                    <div @click="evt_change_type('all')" :class="change_type == 'all' ? 'select_item' :''">全部{{!serach_flag ? '('+ (OnlineDvice + OfflineDvice) + ')' : ''}}</div>
+                    <div v-if="!serach_flag" @click="evt_change_type('on')" :class="change_type == 'on' ? 'select_item' :''">在线{{'('+ OnlineDvice + ')'}}</div>
+                    <div v-if="!serach_flag" @click="evt_change_type('off')" :class="change_type == 'off' ? 'select_item' :''">离线{{'('+ OfflineDvice + ')'}}</div>
                 </div>
                 <!-- <div><i class="el-icon-arrow-left"></i></div> -->
             </div>
