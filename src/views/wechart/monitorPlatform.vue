@@ -665,9 +665,9 @@ export default {
                     <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
                 </div>
                 ${info.accStatus != null ? `<div class="info_window_content_item"><span>ACC：${info.accStatus == 0 ? '关':'开'}</span></div>` : ''}
-                <div class="info_window_content_item">
+                ${(info.battery != null || info.batteryVoltage != null) ? `<div class="info_window_content_item">
                     <span>${info.battery != null ? '电量：' + info.battery + '%' : '电压：'+ info.batteryVoltage + 'V'}</span>
-                </div>
+                </div>` : ''}
                 ${info.oilWay != null ? `<div class="info_window_content_item"><span>油电状态：${info.oilWay == 0 ? '正常':'断开'}</span></div>`:''}
                 ${info.csq != null ? `<div class="info_window_content_item"><span>信号：${info.csq}</span></div>`:''}
                 ${info.alertStatus != null ? `<div class="info_window_content_item"><span>防盗状态：${info.alertStatus == 0 ? '撤防' : '设防'}</span></div>`:''}
