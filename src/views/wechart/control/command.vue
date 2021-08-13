@@ -141,7 +141,7 @@ export default {
             var request_data = {};
             request_data['page'] = _this.command_page - 1;
             request_data['pageSize'] = _this.command_pageSize;
-            // request_data['deviceId'] = _this.need_handle_deviceId;
+            request_data['deviceId'] = _this.need_handle_deviceId;
             api.queryDeviceCmds(request_data,_this.userType_parameter).then((res) => {
                 // console.log(res);
                 if(res.success && res.data && res.data.content && res.data.content.length > 0){
