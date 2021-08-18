@@ -37,9 +37,9 @@
                 <span v-if="selected_devices.length > 0">（该围栏中可能包含下级用户的设备）</span>
             </div>
             <div v-if="selected_devices.length > 0" class="select_collect_content">
-                <div v-for="(item,index) in selected_devices" :key="index" class="select_collect_content_item" @click="evt_cancel_selected(item)">
+                <div v-for="(item,index) in selected_devices" :key="index" class="select_collect_content_item"  :class="(item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) ? 'grayscale' : ''">
                     <span>{{item.deviceName}} ({{item.deviceNumber}})</span>
-                    <img :src="require('../../../assets/img/x.png')">
+                    <img :src="require('../../../assets/img/x.png')" @click="evt_cancel_selected(item)">
                 </div>
             </div>
         </div>
@@ -327,6 +327,7 @@ export default {
         },
         // 取消要关联的设备
         evt_cancel_selected:function(item){
+            if(item.activationTime != null && item.activationTime < this.current_time && this.current_time > item.serviceExpireTime) return;//设备过期
             for(let i = 0, len = this.selected_devices.length; i < len; i++){
                 if(item.id == this.selected_devices[i].id){
                     this.selected_devices.splice(i,1);
@@ -572,7 +573,7 @@ export default {
     align-items: center;
 }
 .grayscale{
-    opacity:0.7;
+    opacity:0.6;
     -webkit-filter:grayscale(100%);
 }
 
