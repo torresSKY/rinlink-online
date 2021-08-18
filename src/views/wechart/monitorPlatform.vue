@@ -517,8 +517,14 @@ export default {
             request_data['remark'] = _this.remark_text;
             request_data['useRangeCode'] = _this.range_code;
             api.editDevices(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success){
+                    for(var i = 0, len = _this.devices_list.length; i < len; i++){
+                        if(_this.devices_list[i].id == _this.need_handle_deviceId){
+                            _this.$set(_this.devices_list[i],'useRangeCode',_this.range_code);
+                            break;
+                        }
+                    }
                     _this.device_info_visible = false;
                     _this.$message({message:'更新成功',type:'success',offset:"200",duration:'1000'});
                 }
