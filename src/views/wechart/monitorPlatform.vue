@@ -1,7 +1,7 @@
 <template>
     <div class="app" :style="{height:height +'px',overflow:'hidden' }">
         <el-row>
-            <el-col class="row_item" :span="4" :style="{height:height +'px'}">
+            <el-col v-show="userType_parameter != 3" class="row_item" :span="4" :style="{height:height +'px'}">
                 <!-- 客户列表 -->
                 <userCompent @monitorUserId="evt_monitorUserId" :monitorId="monitorId"></userCompent>
             </el-col>
@@ -9,7 +9,7 @@
                 <!-- 设备列表 -->
                 <devicesCompent :userId="monitorUserId" :iconList="icon_list_t" :selectDeviceId="current_select_deviceId" @monitorDevicesList="evt_monitorDevicesList" @monitorSelectDevices="evt_select_devices" @monitorNetworkStatus="evt_change_type" @monitorPlayBack="evt_playback" @monitorMore="evt_more_command" @monitorPay="evt_pay" @monitorId="evt_monitorId"></devicesCompent>
             </el-col>
-            <el-col class="row_item" :span="16" :style="{height:height +'px'}">
+            <el-col class="row_item" :span="userType_parameter != 3 ? 16 : 20" :style="{height:height +'px'}">
                 <div class="row_item_right">
                     <!-- 首次展示头部 -->
                     <div class="row_item_right_top" v-show="!track_detail">
