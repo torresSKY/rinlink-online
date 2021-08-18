@@ -522,6 +522,7 @@ export default {
                     for(var i = 0, len = _this.devices_list.length; i < len; i++){
                         if(_this.devices_list[i].id == _this.need_handle_deviceId){
                             _this.$set(_this.devices_list[i],'useRangeCode',_this.range_code);
+                            _this.$set(_this.devices_list[i],'deviceName',_this.device_name);
                             break;
                         }
                     }
