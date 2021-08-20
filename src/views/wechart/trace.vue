@@ -180,19 +180,19 @@ export default {
                     }
                 }
             }
+            // info_window_content_title 设备名称类名
             var infoWindow_html = `<div class="info_window_content">
-                <div class="info_window_content_title">
-                    <span>设备名称:${this.device_detail_info.deviceName}</span>
+                <div class="info_window_content_item">
+                    <span>设备名称：${this.device_detail_info.deviceName}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>网络状态：</span>
-                    <span>${info.networkStatus == '1' ? '在线' : '离线'}</span>
+                    <span>网络状态：${info.networkStatus == '1' ? '在线' : '离线'}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>定位方式：${position_type != undefined ? position_type : '----'}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：${this.device_detail_info.deviceNumber}</span>
+                    <span>设备号：&nbsp&nbsp&nbsp${this.device_detail_info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>更新时间：${this.evt_formatDate(info.time)}</span>

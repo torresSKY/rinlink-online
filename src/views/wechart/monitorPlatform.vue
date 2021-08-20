@@ -1,7 +1,7 @@
 <template>
     <div class="app" :style="{height:height +'px',overflow:'hidden' }">
         <el-row>
-            <el-col class="row_item" :span="4" :style="{height:height +'px'}">
+            <el-col v-show="userType_parameter != 3" class="row_item" :span="4" :style="{height:height +'px'}">
                 <!-- 客户列表 -->
                 <userCompent @monitorUserId="evt_monitorUserId" :monitorId="monitorId"></userCompent>
             </el-col>
@@ -9,7 +9,7 @@
                 <!-- 设备列表 -->
                 <devicesCompent :userId="monitorUserId" :iconList="icon_list_t" :selectDeviceId="current_select_deviceId" @monitorDevicesList="evt_monitorDevicesList" @monitorSelectDevices="evt_select_devices" @monitorNetworkStatus="evt_change_type" @monitorPlayBack="evt_playback" @monitorMore="evt_more_command" @monitorPay="evt_pay" @monitorId="evt_monitorId"></devicesCompent>
             </el-col>
-            <el-col class="row_item" :span="16" :style="{height:height +'px'}">
+            <el-col class="row_item" :span="userType_parameter != 3 ? 16 : 20" :style="{height:height +'px'}">
                 <div class="row_item_right">
                     <!-- 首次展示头部 -->
                     <div class="row_item_right_top" v-show="!track_detail">
@@ -517,8 +517,15 @@ export default {
             request_data['remark'] = _this.remark_text;
             request_data['useRangeCode'] = _this.range_code;
             api.editDevices(request_data,_this.userType_parameter).then((res) => {
-                console.log(res);
+                // console.log(res);
                 if(res.success){
+                    for(var i = 0, len = _this.devices_list.length; i < len; i++){
+                        if(_this.devices_list[i].id == _this.need_handle_deviceId){
+                            _this.$set(_this.devices_list[i],'useRangeCode',_this.range_code);
+                            _this.$set(_this.devices_list[i],'deviceName',_this.device_name);
+                            break;
+                        }
+                    }
                     _this.device_info_visible = false;
                     _this.$message({message:'更新成功',type:'success',offset:"200",duration:'1000'});
                 }
@@ -603,6 +610,7 @@ export default {
         },
          // 添加覆盖物
         evt_addOverlay:function(info){
+            this.map.setZoom(15);
             var point = new BMap.Point(info.positionInfo.coordinate.lng,info.positionInfo.coordinate.lat);
             this.evt_addMarker(point,info);
             if(this.show_deviceName){
@@ -656,7 +664,7 @@ export default {
                     <span>${info.deviceName}</span>
                 </div>
                 <div class="info_window_content_item">
-                    <span>设备号：${info.deviceNumber}</span>
+                    <span>设备号：&nbsp&nbsp&nbsp${info.deviceNumber}</span>
                 </div>
                 <div class="info_window_content_item">
                     <span>网络状态：${info.networkStatus == '1' ? info.stationarySeconds != null ? '静止' : '在线' : '离线'}</span>
@@ -664,12 +672,12 @@ export default {
                 <div class="info_window_content_item">
                     <span>定位方式：${this.positionType[info.positionInfo.positionType]}</span>
                 </div>
-                ${info.accStatus != null ? `<div class="info_window_content_item"><span>ACC：${info.accStatus == 0 ? '关':'开'}</span></div>` : ''}
+                ${info.accStatus != null ? `<div class="info_window_content_item"><span>ACC：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp${info.accStatus == 0 ? '关':'开'}</span></div>` : ''}
                 ${(info.battery != null || info.batteryVoltage != null) ? `<div class="info_window_content_item">
-                    <span>${info.battery != null ? '电量：' + info.battery + '%' : '电压：'+ info.batteryVoltage + 'V'}</span>
+                    <span>${info.battery != null ? '电量：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + info.battery + '%' : '电压：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'+ info.batteryVoltage + 'V'}</span>
                 </div>` : ''}
                 ${info.oilWay != null ? `<div class="info_window_content_item"><span>油电状态：${info.oilWay == 0 ? '正常':'断开'}</span></div>`:''}
-                ${info.csq != null ? `<div class="info_window_content_item"><span>信号：${info.csq}</span></div>`:''}
+                ${info.csq != null ? `<div class="info_window_content_item"><span>信号：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp${info.csq}</span></div>`:''}
                 ${info.alertStatus != null ? `<div class="info_window_content_item"><span>防盗状态：${info.alertStatus == 0 ? '撤防' : '设防'}</span></div>`:''}
                 ${info.mileageKm && info.mileageKm != null ? `<div class="info_window_content_item"><span>总里程：${info.mileageKm}km</span></div>`:''}
                 ${info.workStatus != null ? `<div class="info_window_content_item"><span>工作状态：${info.workStatus == 0 ? '正常':'休眠'}</span></div>`:''}
@@ -890,11 +898,11 @@ export default {
                     // 信息窗口
                     var infoWindow_html = `
                         <div class="tracks_label_html">
-                            <div class="tracks_label_html_item">定位方式: ${this.positionType[raw_point.positionType]}</div>
-                            <div class="tracks_label_html_item">速度: ${raw_point.speed != null ? raw_point.speed : '0'}km/h</div>
-                            <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(raw_point.time)}</div>
+                            <div class="tracks_label_html_item">定位方式：${this.positionType[raw_point.positionType]}</div>
+                            <div class="tracks_label_html_item">速度：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp${raw_point.speed != null ? raw_point.speed : '0'}km/h</div>
+                            <div class="tracks_label_html_item">定位时间：${this.evt_formatDate(raw_point.time)}</div>
                             <div class="tracks_label_html_item_flex">
-                                <div>定位位置: </div>
+                                <div>定位位置：</div>
                                 <div class="tracks_label_html_item_click">${raw_point.address != null ? raw_point.address :'--'}</div>
                             </div>
                         </div>
@@ -945,11 +953,11 @@ export default {
             var _this = this;
             var infoWindow_html = `
                 <div class="tracks_label_html">
-                    <div class="tracks_label_html_item">定位方式: ${this.positionType[info.positionType]}</div>
-                    <div class="tracks_label_html_item">速度: ${info.speed != null ? info.speed : '0'}km/h</div>
-                    <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(info.time)}</div>
+                    <div class="tracks_label_html_item">定位方式：${this.positionType[info.positionType]}</div>
+                    <div class="tracks_label_html_item">速度：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp${info.speed != null ? info.speed : '0'}km/h</div>
+                    <div class="tracks_label_html_item">定位时间：${this.evt_formatDate(info.time)}</div>
                     <div class="tracks_label_html_item_flex">
-                        <div>定位位置: </div>
+                        <div>定位位置：</div>
                         <div class="tracks_label_html_item_click">${info.address != null ? info.address : '--'}</div>
                     </div>
                 </div>
@@ -1065,11 +1073,11 @@ export default {
             this.playbackMarker.setPosition(point);
             var infoWindow_html = `
                 <div class="tracks_label_html">
-                    <div class="tracks_label_html_item">定位方式: ${this.positionType[row.positionType]}</div>
-                    <div class="tracks_label_html_item">速度: ${row.speed != null ? row.speed : '0'}km/h</div>
-                    <div class="tracks_label_html_item">定位时间: ${this.evt_formatDate(row.time)}</div>
+                    <div class="tracks_label_html_item">定位方式：${this.positionType[row.positionType]}</div>
+                    <div class="tracks_label_html_item">速度：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp${row.speed != null ? row.speed : '0'}km/h</div>
+                    <div class="tracks_label_html_item">定位时间：${this.evt_formatDate(row.time)}</div>
                     <div class="tracks_label_html_item_flex">
-                        <div>定位位置: </div>
+                        <div>定位位置：</div>
                         <div class="tracks_label_html_item_click">${row.address != null ? row.address :'--'}</div>
                     </div>
                 </div>

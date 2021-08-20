@@ -133,7 +133,7 @@ export default {
     mounted(){
         var _this = this;
         _this.$nextTick(function(){
-            _this.block_height = document.getElementsByClassName('usersContainer')[0].offsetHeight;
+            _this.block_height = document.getElementsByClassName('devicesContainer')[0].offsetHeight;
         })
     },
     methods: {
