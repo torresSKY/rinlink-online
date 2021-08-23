@@ -299,8 +299,8 @@ export default{
               templateRemark:res.data.templateRemark,
               commandDataProcessType:'groovy',
               groovyScript:res.data.groovyScript,
-              // pro:res.data.labels.pro,
-              // young:res.data.labels.young
+              pro:res.data.labels.pro,
+              young:res.data.labels.young
             }
             this.modelForm['id'] = id
             this.isEdit = true
