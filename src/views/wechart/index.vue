@@ -3,7 +3,7 @@
     <el-row :gutter="20" class="item_row_L">
       <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" class="top_left" style="margin-bottom:20px">
         <el-card>
-          <div>
+          <div style="display: flex;">
             <div @click="evt_change_userInfoType('my')" class="top_left_title" :class="user_info_type == 'my' ? 'top_left_title_t' : ''">{{$t("view.mine")}}</div>
             <div v-if="user_type == '2' && user_falg" @click="evt_change_userInfoType('service')" class="top_left_title" :class="user_info_type == 'service' ? 'top_left_title_t' : ''">{{$t("view.service")}}</div>
           </div>
