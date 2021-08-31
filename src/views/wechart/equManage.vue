@@ -723,8 +723,8 @@ export default{
           formatter: (params) => {
             // console.log(params)
             params['status'] = params.commandStatus == 0 ? '已受理'  : params.commandStatus == 1 ? '待发送'
-            : params.commandStatus == 2 ? '已发送': params.commandStatus == 3 ? '已送达' 
-            : params.commandStatus == 4 ? '失败': params.commandStatus == 5 ? '过期' :''
+            : params.commandStatus == 2 ? '等待设备响应': params.commandStatus == 3 ? '已送达' 
+            : params.commandStatus == 4 ? '失败': params.commandStatus == 5 ? '过期' : params.commandStatus == 6 ? '响应失败' :''
             return params
           }}
         ],
@@ -1329,7 +1329,8 @@ export default{
               this.$router.push({name:"route.statistics",params:{data:data}})
               break
             case '7' : // 通讯日志
-              let url = 'http://rinlink-log-viewer.beijing-cn-k8s-test.rinlink.com/?projectName=k8s-log-ca07b6d6a7f6b46aabdd1a128384d3fff&logName=ack-test&queryString=content:%20jt808-gateway%20and%20(response_device_success%20or%20response_device_failed%20or%20device_request_message) and ' + data.deviceNumber
+              let url = 'http://rinlink-log-viewer.beijing-cn-k8s-test.rinlink.com/?projectName=k8s-log-ca07b6d6a7f6b46aabdd1a128384d3fff&logName=ack-test&queryString=content:%20jt808-gateway%20and%20(response_device_success%20or%20response_device_failed%20or%20device_request_message) and ' + data.deviceNumber //测试
+              // let url = 'http://rinlink-log-viewer.beijing-cn-k8s-test.rinlink.com/?projectName=k8s-log-cc4cb10dd89f24f768d06fe0f9b8d2bc3&logName=spring-app&queryString=content:%20jt808-gateway%20and%20(response_device_success%20or%20response_device_failed%20or%20device_request_message) and ' + data.deviceNumber   // 正式
               window.open(url)
               break  
             case '8' : // SIM卡信息

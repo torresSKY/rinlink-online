@@ -227,12 +227,14 @@ export default {
       this.noOptionsText = '加载中'
       this.businessoptions = []
       var _this = this
-      
-        api.getBusinessUserinfo({},_this.type).then((res) =>{
+        let data = {
+        parentId:null
+      }
+        api.getBusiness(data,_this.type).then((res) =>{
           if(res.data.length == 0){
             return _this.noOptionsText = '暂无数据'
           }
-          _this.businessoptions.push(res.data) 
+          _this.businessoptions = res.data
           for(let i =0;i<_this.businessoptions.length;i++){
             _this.businessoptions[i]['id'] = _this.businessoptions[i].userId
             _this.businessoptions[i]['label'] = _this.businessoptions[i].nickname
@@ -244,6 +246,7 @@ export default {
             _this.businessoptions = []
            _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
         })
+        
     },
     loadOptions({ action, parentNode, callback }) {
       // console.log(action, parentNode)
@@ -315,7 +318,8 @@ export default {
       data = {
         deviceNumberKeyword:this.deviceIdInput,
         containsChildren:true,
-        ownerId:this.value
+        ownerId:this.value,
+        pageSize:1000
       }
       var that = this
       var deviceIdList = []
