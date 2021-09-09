@@ -314,7 +314,8 @@ export default {
       data = {
         deviceNumberKeyword:this.deviceIdInput,
         containsChildren:this.checked,
-        ownerId:this.value
+        ownerId:this.value,
+        pageSize:1000
       }
       var that = this
       var deviceIdList = []

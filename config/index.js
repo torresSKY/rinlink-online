@@ -17,8 +17,9 @@ module.exports = {
     proxyTable: {//配置请求代理
       '/api':{
         // target:'http://rinlink-iot-asset-api-test.rinlink.com',
-        // target:'http://iot-asset-api-test.rinlink.com/enterprise',
-        target:'http://192.168.1.184:9999/enterprise',
+        target:'http://iot-asset-api-test.rinlink.com/enterprise',
+        // target:'https://iot-asset-api.rinlink.com/enterprise',
+        // target:'http://192.168.1.184:9999/enterprise',
         changeOrigin: true,
         pathRewrith:{
            '^/api': ''

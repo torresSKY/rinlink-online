@@ -16,23 +16,70 @@
         <el-input name="username" type="text" ref="username" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
       </el-form-item>
 
-      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]" style="margin:0 30px 0 30px">
+      <el-form-item prop="password" :rules="[{required: true, min: 3,  message: $t('message.pawuser')}]" style="margin:10px 30px 0 30px">
        <span class="pl10 c iconfont icon-mima"></span>
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
           :placeholder="$t('view.paw')" />
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-      <div style="text-align:center">
-      <el-button type="primary" style="width:10vw;background: #3F91FF;
-border-radius: 3px;font-size: 18px;font-family: Microsoft YaHei;
-font-weight: 400;height:5vh;line-height:1vh"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
+      <div style="text-align:center;font-size: 18px;font-family: Microsoft YaHei;font-weight: 400;margin-top:20px">
+      <el-button type="primary" style="width:14vw;background: #3F91FF;
+border-radius: 22px;height:4vh;line-height:1vh"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
+      </div>
+      <div style="margin:13px 30px 0 30px">
+        <div style="height:20px;line-height:20px;float:left;cursor:pointer" @click="xcx">
+          <img src="../../assets/img/xcxicon.png" alt="" style="vertical-align:middle;">
+          <span style="color: #3F91FF;font-family: Microsoft YaHei;">小程序</span>
+        </div>
+        <div style="height:20px;line-height:20px;float:right;cursor:pointer" @click="app">
+          <img src="../../assets/img/APPicon.png" alt="" style="vertical-align:middle;">
+          <span style="color: #3F91FF;font-family: Microsoft YaHei;">下载APP</span>
+        </div>
       </div>
       <!--div class="tips">账号:admin 密码随便填</div>
       <div class="tips">账号:editor  密码随便填</div>
 
       <el-button class="thirdparty-button" type="primary" @click="showDialog=true">打开第三方登录</el-button-->
     </el-form>
+    <div class="xiazai" v-show="flagzuo">
+      <div class="sanjiao_down"></div>
+      <div class="xiazai-zuo">
+        <div style="display:inline-block;">
+          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+          <div class="xiazai-wenzi">
+            <div>扫码进入小程序</div>
+            <div>（专业版）</div>
+          </div>
+        </div>
+        <div style="display:inline-block;">
+          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+          <div class="xiazai-wenzi">
+            <div>扫码进入小程序</div>
+            <div>（青春版）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="xiazai-you" v-show="flagyou">
+      <div class="sanjiao_down"></div>
+      <div class="xiazai-zuo">
+        <div style="display:inline-block;">
+          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+          <div class="xiazai-wenzi">
+            <div>扫码下载APP</div>
+            <div>（专业版）</div>
+          </div>
+        </div>
+        <div style="display:inline-block;">
+          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+          <div class="xiazai-wenzi">
+            <div>扫码下载APP</div>
+            <div>（青春版）</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="copyright">
       <span>Copyright© 2017 rinlink.com 版权所有 ICP证：沪ICP备17021082号</span>
     </div>
@@ -105,6 +152,8 @@ export default {
                value:'English'
              }],
       lang: null,
+      flagzuo:false,
+      flagyou:false
     }
   },
   mounted() {
@@ -113,6 +162,14 @@ export default {
   },
   methods: {
     ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles','setToken','setUser','setUserName','setUsercode']),
+    xcx(){
+      this.flagzuo = !this.flagzuo
+      this.flagyou = false
+    },
+    app(){
+      this.flagyou = !this.flagyou
+      this.flagzuo = false
+    },
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = ''
@@ -211,18 +268,21 @@ export default {
     @include relative;
     height: 100vh;
     // background-color: $bg;
-    // input:-webkit-autofill {
-    //   -webkit-box-shadow: 0 0 0px 1000px #293444 inset !important;
-    //   -webkit-text-fill-color: #fff !important;
-    // }
+   input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #333 !important;
+      -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;
+      background-color:transparent;
+      background-image: none;
+      transition: background-color 500000s ease-in-out 0s;
+    }
     input {
       background: transparent;
       border: 0px;
       -webkit-appearance: none;
       border-radius: 0px;
-      padding: 12px 5px 12px 15px;
+      // padding: 12px 5px 12px 15px;
       // color: $light_gray;
-      height: 47px;
+      // height: 47px;
     }
     .el-input {
       display: inline-block;
@@ -262,25 +322,25 @@ export default {
       border-radius:0 0 5px 5px;
       background: #FFFFFF;
       position: absolute;
-      top: 59vh;
-      left: 50%;
+      top: 48.4vh;
+      left: 76%;
       transform: translate(-50%, -50%);
-      width: 26vw;
+      width: 22.1vw;
       height: 27vh;
       // padding: 1% 2.5%;
       // margin: 40px 0 0 55.6%;
     }
     .dlbg{
-      width: 27vw;
-      height: 22vh;
+      width: 23vw;
+      height: 20vh;
       position: absolute;
-      top: 36vh;
-      left: 50%;
+      top: 26vh;
+      left: 76%;
       transform: translate(-50%, -50%);
     }
     .logo{
-      width: 159px;
-      height: 119px;
+      width: 149px;
+      // height: 119px;
       position: absolute;
       top: 10vh;
       left: 50%;
@@ -314,6 +374,9 @@ position: absolute;
       background: #FFFFFF;
       border-radius: 5px;
       color: #333333;
+    }
+    .el-form-item__content{
+      height:5vh;
     }
     // /deep/ .login-container input{
     //   color: #333333;
@@ -349,14 +412,59 @@ position: absolute;
     .lang .el-input__inner{
       color: #fff!important;
     }
+    .xiazai{
+       position: absolute;
+      top: 70%;
+      left: 68%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .xiazai-you{
+       position: absolute;
+      top: 70%;
+      left: 84%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .xiazai-zuo{
+      width: 240px;
+      // height: 22%;
+      // line-height: 16vh;
+      background: #FFFFFF;
+      // opacity: 0.7;
+      border-radius: 12px;
+      
+      // padding:5% 0;
+    }
+    .xiazai-wenzi{
+      text-align: center;
+      font-size: 14px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      color: #333333;
+      height: 3vh;
+      margin-bottom: 20px;
+    }
+    .sanjiao_down{
+        margin: -1px auto;
+        width:0;
+        height:0;
+        overflow:hidden;
+        font-size: 0;     /*是因为, 虽然宽高度为0, 但在IE6下会具有默认的 */
+        line-height: 0;  /* 字体大小和行高, 导致盒子呈现被撑开的长矩形 */
+        border-width:20px;
+        border-style:dashed dashed solid  dashed;/*IE6下, 设置余下三条边的border-style为dashed,即可达到透明的效果*/
+        border-color:transparent transparent #fff  transparent;
+        // opacity: 0.7;
+    }
   }
 </style>
 <style type="stylesheet/scss" lang="scss" scoped>
-/deep/ .el-form-item {
-  margin-bottom: 1.2vh!important;
-}
+// /deep/ .el-form-item {
+//   margin-bottom: 1.2vh!important;
+// }
 /deep/ .el-input {
   // height: 40px!important;
-  width: 80%!important;
+  width: 70%!important;
 }
 </style>

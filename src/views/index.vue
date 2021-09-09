@@ -45,7 +45,7 @@
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="a"><b>{{$t('button.personal')}}</b></el-dropdown-item>
-                <el-dropdown-item command="c"><b>公司简介</b></el-dropdown-item>
+                <!-- <el-dropdown-item command="c"><b>公司简介</b></el-dropdown-item> -->
                 <el-dropdown-item command="d" ><b>订单管理</b></el-dropdown-item>
                 <el-dropdown-item command="b"><b>{{$t('button.logout')}}</b></el-dropdown-item>
               </el-dropdown-menu>
