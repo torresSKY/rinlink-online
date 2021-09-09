@@ -281,6 +281,7 @@ export default {
             monitorUserId:'',//用户列表选择的用户Id
             nav_flag: false,
             monitorId: '',//选择设备的所属用户的id
+            flag_num: 0,
         }
     },
     created(){
@@ -348,8 +349,11 @@ export default {
             this.track_detail = false;
             this.device_tracks_step = 0;
             this.tracksDetail_flag = false;
-            this.interval_num = parseInt(this.refresh_interval);
-            this.evt_refresh_interval();
+            if(this.flag_num != 0){
+                this.interval_num = parseInt(this.refresh_interval);
+                this.evt_refresh_interval();
+            }
+            this.flag_num = this.flag_num + 1;
         },
         // 监听设备列表改变事件
         evt_monitorDevicesList:function(devicesList){
