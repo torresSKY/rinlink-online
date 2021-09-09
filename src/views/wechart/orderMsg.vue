@@ -166,7 +166,8 @@ export default{
             this.loading = true
             let data = {
               deviceModelId:this.deviceModelId,
-              templateName:this.deviceModelName
+              templateName:this.deviceModelName,
+              labels:{pro:true}
             }
             api.getCmdTemplates(data).then(res => {
               this.loading = false

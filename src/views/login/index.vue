@@ -23,18 +23,18 @@
          
         <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
-      <div style="text-align:center;font-size: 18px;font-family: Microsoft YaHei;font-weight: 400;margin-top:20px">
+      <div style="text-align:center;font-size: 18px;font-family: Microsoft YaHei;font-weight: 400;margin-top:7%">
       <el-button type="primary" style="width:14vw;background: #3F91FF;
 border-radius: 22px;height:4vh;line-height:1vh"  @click.native.prevent="handleLogin">{{$t('button.login')}}</el-button>
       </div>
-      <div style="margin:13px 30px 0 30px">
+      <div style="margin:1.5% 30px 0 30px">
         <div style="height:20px;line-height:20px;float:left;cursor:pointer" @click="xcx">
           <img src="../../assets/img/xcxicon.png" alt="" style="vertical-align:middle;">
-          <span style="color: #3F91FF;font-family: Microsoft YaHei;">小程序</span>
+          <span style="color: #3F91FF;font-family: Microsoft YaHei;font-size:14px">小程序</span>
         </div>
         <div style="height:20px;line-height:20px;float:right;cursor:pointer" @click="app">
           <img src="../../assets/img/APPicon.png" alt="" style="vertical-align:middle;">
-          <span style="color: #3F91FF;font-family: Microsoft YaHei;">下载APP</span>
+          <span style="color: #3F91FF;font-family: Microsoft YaHei;font-size:14px">下载APP</span>
         </div>
       </div>
       <!--div class="tips">账号:admin 密码随便填</div>
@@ -45,15 +45,15 @@ border-radius: 22px;height:4vh;line-height:1vh"  @click.native.prevent="handleLo
     <div class="xiazai" v-show="flagzuo">
       <div class="sanjiao_down"></div>
       <div class="xiazai-zuo">
-        <div style="display:inline-block;">
-          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+        <div style="display:inline-block;width:40%">
+          <img src="../../assets/img/zyxcx.jpg" alt="" style="width:80%;margin-top:10px">
           <div class="xiazai-wenzi">
             <div>扫码进入小程序</div>
             <div>（专业版）</div>
           </div>
         </div>
-        <div style="display:inline-block;">
-          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+        <div style="display:inline-block;width:40%;margin-left:10px">
+          <img src="../../assets/img/qcxcx.png" alt="" style="width:80%;margin-top:10px">
           <div class="xiazai-wenzi">
             <div>扫码进入小程序</div>
             <div>（青春版）</div>
@@ -65,14 +65,14 @@ border-radius: 22px;height:4vh;line-height:1vh"  @click.native.prevent="handleLo
       <div class="sanjiao_down"></div>
       <div class="xiazai-zuo">
         <div style="display:inline-block;">
-          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+          <img src="../../assets/img/zhuanye.png" alt="" style="width:90%;margin-top:10px">
           <div class="xiazai-wenzi">
             <div>扫码下载APP</div>
             <div>（专业版）</div>
           </div>
         </div>
-        <div style="display:inline-block;">
-          <img src="../../assets/img/zhuanye.png" alt="" style="width:80%;margin-top:10px">
+        <div style="display:inline-block;margin-left:20px">
+          <img src="../../assets/img/az.png" alt="" style="width:90%;margin-top:10px">
           <div class="xiazai-wenzi">
             <div>扫码下载APP</div>
             <div>（青春版）</div>
@@ -414,7 +414,7 @@ position: absolute;
     }
     .xiazai{
        position: absolute;
-      top: 70%;
+      top: 71%;
       left: 68%;
       transform: translate(-50%, -50%);
       text-align: center;
@@ -438,7 +438,7 @@ position: absolute;
     }
     .xiazai-wenzi{
       text-align: center;
-      font-size: 14px;
+      font-size: 12px;
       font-family: Microsoft YaHei;
       font-weight: 400;
       color: #333333;
