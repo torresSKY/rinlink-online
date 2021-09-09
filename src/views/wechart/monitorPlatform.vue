@@ -235,7 +235,7 @@ export default {
             select_date_time:[],//选择的日期时间
             startTime:0,//开始时间戳
             endTime:0,//结束时间戳
-            position_type:['1','2','3'],//多选定位类型
+            position_type:['1','2'],//多选定位类型
             device_tracks:[],//设备轨迹信息
             device_tracks_shift:[],//回放过的轨迹信息
             play_flag:true,//播放与暂停 默认播放
