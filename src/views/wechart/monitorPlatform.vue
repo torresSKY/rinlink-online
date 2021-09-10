@@ -235,7 +235,7 @@ export default {
             select_date_time:[],//选择的日期时间
             startTime:0,//开始时间戳
             endTime:0,//结束时间戳
-            position_type:['1','2','3'],//多选定位类型
+            position_type:['1','2'],//多选定位类型
             device_tracks:[],//设备轨迹信息
             device_tracks_shift:[],//回放过的轨迹信息
             play_flag:true,//播放与暂停 默认播放
@@ -347,6 +347,7 @@ export default {
             clearInterval(this.device_tracks_interval);
             this.evt_clearOverlays();
             this.track_detail = false;
+            this.position_type = ['1','2'];
             this.device_tracks_step = 0;
             this.tracksDetail_flag = false;
             if(this.flag_num != 0){
@@ -394,6 +395,7 @@ export default {
             this.evt_clearOverlays();
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
+            this.position_type = ['1','2'];
             this.device_tracks_step = 0;
             this.map.closeInfoWindow();
             this.tracksDetail_flag = false;
@@ -407,6 +409,7 @@ export default {
             // console.log(allOverlays);
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
+            this.position_type = ['1','2'];
             this.device_tracks_step = 0;
             this.device_tracks = [];
             this.device_tracks_shift = [];
