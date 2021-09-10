@@ -347,6 +347,7 @@ export default {
             clearInterval(this.device_tracks_interval);
             this.evt_clearOverlays();
             this.track_detail = false;
+            this.position_type = ['1','2'];
             this.device_tracks_step = 0;
             this.tracksDetail_flag = false;
             if(this.flag_num != 0){
@@ -394,6 +395,7 @@ export default {
             this.evt_clearOverlays();
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
+            this.position_type = ['1','2'];
             this.device_tracks_step = 0;
             this.map.closeInfoWindow();
             this.tracksDetail_flag = false;
@@ -407,6 +409,7 @@ export default {
             // console.log(allOverlays);
             clearInterval(this.device_tracks_interval);
             this.track_detail = false;
+            this.position_type = ['1','2'];
             this.device_tracks_step = 0;
             this.device_tracks = [];
             this.device_tracks_shift = [];
