@@ -274,6 +274,7 @@ export default {
                 },
                 yAxis: {
                     type: 'value',
+                    minInterval: 1,//设置成1保证坐标轴分割刻度显示成整数
                     axisLine: {
                         show: false
                     },
