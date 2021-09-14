@@ -292,6 +292,8 @@
         <el-dialog
           :title="$t('table.equinfo')"
           :visible.sync="dialogEquinfo"
+          :close-on-click-modal='false'
+          :close-on-press-escape='false' 
           width="40%">
           <el-form :model="equinfoForm" ref="equinfoForm"  label-width="140px">
             <el-row>
@@ -721,10 +723,11 @@ export default{
           {label: this.$t('table.creattime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.jie'), prop: 'status',type: 'render',
           formatter: (params) => {
-            // console.log(params)
+            
             params['status'] = params.commandStatus == 0 ? '已受理'  : params.commandStatus == 1 ? '待发送'
             : params.commandStatus == 2 ? '等待设备响应': params.commandStatus == 3 ? '已送达' 
-            : params.commandStatus == 4 ? '失败': params.commandStatus == 5 ? '过期' : params.commandStatus == 6 ? '响应失败' :''
+            : params.commandStatus == 4 ? '失败': params.commandStatus == 5 ? '过期' : params.commandStatus == 6 ? '响应失败' : ''
+            // console.log(params)
             return params
           }}
         ],

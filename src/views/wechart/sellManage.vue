@@ -52,7 +52,16 @@
                     
                   </el-col>
                   <el-col :span='1'>
-                    <el-button class="butedior" @click="plDelete">批量删除</el-button>
+                    <!-- <el-button class="butedior" @click="plDelete">批量删除</el-button> -->
+                    <el-dropdown @command="handleCommand">
+                      <el-button type="success">
+                        更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+                      </el-button>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="a">批量删除</el-dropdown-item>
+                        <el-dropdown-item command="b">批量修改IP</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
                   </el-col>
                 </el-row>
                 <el-row class="list-search" :gutter="22">
@@ -256,6 +265,16 @@
             <el-button type="primary" @click="confrimDel">确认继续</el-button>
           </span>
         </el-dialog>
+        <!-- 下发指令 -->
+        <el-dialog
+            :title="$t('button.send')"
+            :visible.sync="dialogSend"
+            :close-on-click-modal='false'
+            :close-on-press-escape='false' 
+            width="50%"
+            >
+            <send-order ref="sendOrder" :list="tempList" :setServerAddress='setServerAddress' @confrimSend='confrimSend'/>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -448,6 +467,9 @@ export default{
         timer:null,
         searchImei:null,
         tempNum:0,
+        dialogSend:false,
+        tempList:[],
+        setServerAddress:true
       }
     },
     watch: {
@@ -886,7 +908,35 @@ export default{
               this.dialogDel = false
               console.log(err)
             })
-        }
+        },
+        handleCommand(command){
+          // console.log(command)
+          if(command=='a'){
+            this.plDelete()
+          }else{
+            if(this.multipleSelection.length<=0){
+              return this.$message.warning(this.$t('message.selOne'))
+            }
+            // for(let i = 0;i<this.multipleSelection.length;i++){
+            //   if(this.multipleSelection[0].model!==this.multipleSelection[i].model){
+            //     return this.$message.warning(this.$t('message.defeModel'))
+            //   }
+            // }
+            this.tempList = JSON.parse(JSON.stringify(this.multipleSelection))
+            this.dialogSend = true
+            this.$nextTick(() => {
+              this.$refs.sendOrder.formData = {}
+              this.$refs.sendOrder.schema = null
+              this.$refs.sendOrder.deviceCmdTemplateId = null
+              this.$refs.sendOrder.searchImei = null
+              this.$refs.sendOrder.tempNum = 0
+              this.$refs.sendOrder.getlist()
+            })
+          }
+        },
+        confrimSend(data){ // 关闭下发指令框
+          this.dialogSend = data
+        },
    },
   // 过滤器格式化时间戳
   filters: {

@@ -67,6 +67,8 @@
         <el-dialog
             :title="isEdit? $t('button.editCustomer'): $t('button.addCustomer')"
             :visible.sync="dialogCustomer"
+            :close-on-click-modal='false'
+            :close-on-press-escape='false' 
             width="40%">
             <el-row :gutter="22">
                 <el-col :span='(type==2&&!isEdit)?12:24'>

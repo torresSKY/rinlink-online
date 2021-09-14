@@ -256,7 +256,7 @@ export default{
               this.dialogModel = true
               break
             case '2': // 删除设备型号
-              const confirmText = ['删除该设备型号后，对应的"指令信息"等数据都讲失效，请再次确认是否要删除该型号？','  ','注：如果该型号下有设备，请先删除所有设备后再来删除该型号。'] 
+              const confirmText = ['删除该设备型号后，对应的"指令信息"等数据都将失效，请再次确认是否要删除该型号？','  ','注：如果该型号下有设备，请先删除所有设备后再来删除该型号。'] 
               const newDatas = []
               const h = this.$createElement
               for (const i in confirmText) {

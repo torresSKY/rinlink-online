@@ -112,6 +112,10 @@
         props:{
             list:{
                 type:Array
+            },
+            setServerAddress:{
+                type:Boolean,
+                default:false
             }
         },
         components:{ VueForm , BaseTable },
@@ -175,7 +179,13 @@
             getlist(){ // 获取指令模板列表
             // debugger
                 let data = {
-                  deviceModelId:this.list[0].deviceModel.id
+                  deviceModelId:this.list[0].deviceModel.id,
+                  labels:{
+                    setServerAddress:this.setServerAddress
+                  }
+                }
+                if(this.type==1){
+                  delete data.deviceModelId
                 }
                 api.getCmdTemplates(data).then(res => {
 
