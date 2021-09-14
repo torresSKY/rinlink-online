@@ -12,8 +12,8 @@
                             <div class="userInfo_right_text">账号：{{userInfo.username}}</div>
                             <div class="userInfo_right_text">客户类型：{{user_sort[user_type]}}</div>
                             <div class="userInfo_right_text">电话：{{userInfo.phoneNumber}}</div>
-                            <div class="userInfo_right_text userInfo_right_check">
-                                <el-checkbox v-model="checked"></el-checkbox>
+                            <div v-if="userType_parameter == 2" class="userInfo_right_text userInfo_right_check">
+                                <el-checkbox v-model="checked" @change="evt_containsChildren"></el-checkbox>
                                 <span>包含下级数据统计</span>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
                                 <img src="../../assets/img/device_total.png" alt="">
                                 <div class="inventoryInfo_item_right">
                                     <div>
-                                        <span>{{Sold_deviceCount + Inventory_deviceCount}}</span>
+                                        <span>{{total_device}}</span>
                                         <span>台</span>
                                     </div>
                                     <div>设备总数</div>
@@ -115,28 +115,31 @@
         </el-row>
         <el-row style="margin-top: 20px;">
             <el-col :span="24">
-                <div class="statistics">
+                <div class="statistics" v-loading="loading_brokenLine">
                     <div class="statistics_top">
                         <div class="statistics_top_left">
                             <div>设备激活统计</div>
                             <div>
-                                <el-radio-group v-model="tabPosition" size="mini">
-                                    <el-radio-button label="年">年</el-radio-button>
-                                    <el-radio-button label="月">月</el-radio-button>
+                                <el-radio-group v-model="tabPosition" size="mini" @change="evt_changeRadio">
+                                    <el-radio-button label="year">年</el-radio-button>
+                                    <el-radio-button label="month">月</el-radio-button>
                                 </el-radio-group>
                             </div>
                             <div>
                                 <el-date-picker
                                     size="mini"
                                     :clearable="false"
-                                    v-model="value2"
-                                    type="month"
-                                    placeholder="选择月">
+                                    v-model="start_time"
+                                    :type="date_type"
+                                    value-format="timestamp"
+                                    :editable="false"
+                                    @change="evt_changeTime"
+                                    :placeholder="placeholder_text">
                                 </el-date-picker>
                             </div>
                             
                         </div>
-                        <div class="statistics_top_right">2021年9月共有<span>1300</span>台设备激活</div>
+                        <div class="statistics_top_right">{{activate_value}}共有<span>{{total_activate}}</span>台设备激活</div>
                     </div>
                     <div class="statistics_bottom">
                         <div id="brokenLine"></div>
@@ -164,7 +167,7 @@ export default {
     },
     data() {
         return {
-            checked: true,
+            checked: true,//选择是否包含下级统计数据
             option: {
                 title: {
                     zlevel: 0,
@@ -225,6 +228,7 @@ export default {
             Expired_deviceCount:0,//已过期设备
             Inventory_deviceCount:0, //设备库存
             Sold_deviceCount:0,//已销售设备
+            total_device: 0,//设备总数
             loading_one:false,
             loading_two:false,
             loading_three:false,
@@ -244,13 +248,13 @@ export default {
             },
             userType_parameter: '',//请求接口拼接的用户类型
             rechargeList: [],
-            value2: '',
-            tabPosition: '月',
+            
+            tabPosition: 'month',
             brokenLineOption :{
                 color: ['#0E9CFF'],
                 xAxis: {
                     type: 'category',
-                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     axisTick: {
                         show: true,
                         alignWithLabel: true
@@ -270,6 +274,7 @@ export default {
                 },
                 yAxis: {
                     type: 'value',
+                    minInterval: 1,//设置成1保证坐标轴分割刻度显示成整数
                     axisLine: {
                         show: false
                     },
@@ -283,7 +288,7 @@ export default {
                     }
                 },
                 series: [{
-                    data: [820, 932, 901, 934, 1290, 1330, 1320],
+                    // data: [820, 932, 901, 934, 1290, 1330, 1320],
                     type: 'line',
                     symbol: "emptyCircle",
                     smooth: true,
@@ -319,6 +324,12 @@ export default {
                 }]
             },
             brokenLine: null,
+            date_type: 'month',
+            start_time: '',
+            placeholder_text: '选择月',
+            loading_brokenLine: false,
+            total_activate:0,
+            activate_value:''
         }
     },
     watch: {},
@@ -328,25 +339,42 @@ export default {
     created:function(){
         var _this = this;
         _this.userType_parameter = JSON.parse(sessionStorage['user']).userType;
-        if(_this.userType_parameter != 3){
-            _this.getEchartsData_one();
-        }
+        _this.getEchartsData_one();
         _this.getEchartsData_two();
         _this.getEchartsData_three();
         _this.getEchartsData_four();
         _this.user_type = JSON.parse(sessionStorage['user']).userType;
         _this.user_id = JSON.parse(sessionStorage['user']).userId;
         _this.evt_queryBusinessUserInfo();
+
+        var myDate = new Date();
+        _this.start_time = new Date(myDate.toLocaleDateString()).getTime() - 3600 * 24 * 1000 * (myDate.getDate() - 1);
+        var end_time = myDate.getTime()
+        _this.activate_value = myDate.getFullYear() + '年' + (myDate.getMonth() + 1) + '月';
+        _this.loading_brokenLine = true;
+        _this.evt_getDevicesByTime(end_time);
     },
     mounted() {
         this.height = document.body.offsetHeight - 150;
-
-        var brokenLine = document.getElementById("brokenLine");
-        this.brokenLine = echarts.init(brokenLine);
-        this.brokenLine.setOption(this.brokenLineOption);
     },
     methods: {
-         // 获取用户服务商信息
+        // 切换是否包含子级数据
+        evt_containsChildren:function(e){
+            var _this = this;
+            _this.checked = e;
+            _this.getEchartsData_one();
+            _this.getEchartsData_two();
+            _this.getEchartsData_three();
+            _this.getEchartsData_four();
+
+            var myDate = new Date();
+            _this.start_time = new Date(myDate.toLocaleDateString()).getTime() - 3600 * 24 * 1000 * (myDate.getDate() - 1);
+            var end_time = myDate.getTime()
+            _this.activate_value = myDate.getFullYear() + '年' + (myDate.getMonth() + 1) + '月';
+            _this.loading_brokenLine = true;
+            _this.evt_getDevicesByTime(end_time);
+        },
+        // 获取用户服务商信息
         evt_queryBusinessUserInfo:function(){
             var _this = this;
             var request_data = {};
@@ -358,7 +386,7 @@ export default {
                     _this.userInfo = userInfo;
                 }
             }).catch((err) => {
-                _this.$message({type: 'error',message: '获取用户信息请求错误',offset:'200',duration:'1500'});
+                _this.$message({type: 'error',message: err.msg || '获取用户信息请求错误',offset:'200',duration:'1500'});
             })
         },
         evt_pay:function(){ // 平台充值
@@ -373,17 +401,27 @@ export default {
         // 库存和已销售
         getEchartsData_one:function(){
             var _this = this;
-            api.getInventory_device({},_this.userType_parameter).then((res) => {
-                if(res.success){
-                    _this.Inventory_deviceCount = res.data.devices;
-                    api.getSold_device({},_this.userType_parameter).then((_res) => {
-                        if(_res.success){
-                            _this.Sold_deviceCount = _res.data.devices;
-                            _this.loading_one = false;
-                        }
-                    }).catch((_err) => {
-                        _this.$message.error(_err.errMsg)
-                    })
+            api.getTotal_devices({},_this.userType_parameter).then((res_) => {
+                // console.log(res_);
+                if(res_.success){
+                    _this.total_device = res_.data.devices;
+                    if(_this.userType_parameter == 2){
+                        api.getInventory_device({},_this.userType_parameter).then((res) => {
+                            if(res.success){
+                                _this.Inventory_deviceCount = res.data.devices;
+                                api.getSold_device({},_this.userType_parameter).then((_res) => {
+                                    if(_res.success){
+                                        _this.Sold_deviceCount = _res.data.devices;
+                                        _this.loading_one = false;
+                                    }
+                                }).catch((_err) => {
+                                    _this.$message.error(_err.errMsg)
+                                })
+                            }
+                        }).catch((err) => {
+                            _this.$message.error(err.errMsg)
+                        })
+                    }
                 }
             }).catch((err) => {
                 _this.$message.error(err.errMsg)
@@ -392,10 +430,14 @@ export default {
         // 设备期限
         getEchartsData_four:function(){
             var _this = this;
-            api.getUnexpired_device({},_this.userType_parameter).then((_res) => {
+            var request_data = {};
+            if(_this.userType_parameter == 2){
+                request_data['containsChildren'] = _this.checked;
+            }
+            api.getUnexpired_device(request_data,_this.userType_parameter).then((_res) => {
                 if(_res.success){
                     _this.Unexpired_deviceCount = _res.data.devices;
-                    api.getExpired_device({},_this.userType_parameter).then((res_) => {
+                    api.getExpired_device(request_data,_this.userType_parameter).then((res_) => {
                         if(res_.success){
                             _this.Expired_deviceCount = res_.data.devices;
                             _this.$nextTick(function(){
@@ -438,10 +480,14 @@ export default {
         // 激活统计
         getEchartsData_three:function(){
             var _this = this;
-            api.getActivated({},_this.userType_parameter).then((res) => {
+            var request_data = {};
+            if(_this.userType_parameter == 2){
+                request_data['containsChildren'] = _this.checked;
+            }
+            api.getActivated(request_data,_this.userType_parameter).then((res) => {
                 if(res.success){
                     _this.ActivatedCount = res.data.devices;
-                    api.getUnactivated_device({},_this.userType_parameter).then((_res) => {
+                    api.getUnactivated_device(request_data,_this.userType_parameter).then((_res) => {
                         if(_res.success){
                             _this.Unactivated_deviceCount = _res.data.devices;
                             _this.$nextTick(function(){
@@ -484,10 +530,14 @@ export default {
         // 设备状态
         getEchartsData_two:function(){
             var _this = this;
-            api.getOnlineDvice({},_this.userType_parameter).then((res) => {
+            var request_data = {};
+            if(_this.userType_parameter == 2){
+                request_data['containsChildren'] = _this.checked;
+            }
+            api.getOnlineDvice(request_data,_this.userType_parameter).then((res) => {
                 if(res.success){
                     _this.OnlineDviceCount = res.data.devices;
-                    api.getOfflineDevice({},_this.userType_parameter).then((_res) => {
+                    api.getOfflineDevice(request_data,_this.userType_parameter).then((_res) => {
                         if(_res.success){
                             _this.OfflineDeviceCount = _res.data.devices;
                             _this.$nextTick(function(){
@@ -581,6 +631,84 @@ export default {
                 this.$router.push({path:'/control/control',query:{deviceId:row.id}});
             }
         },
+        // 设备激活统计折线图
+        evt_changeRadio:function(e){
+            this.date_type = e;
+            this.start_time = '';
+            if(e == 'month'){
+                this.placeholder_text = '选择月'
+            }else{
+                this.placeholder_text = '选择年'
+            }
+        },
+        evt_changeTime:function(e){//选择时间
+            // console.log(e)
+            var _this = this;
+            var end_time = new Date().getTime();
+            // console.log(end_time)
+            if(end_time < _this.start_time){
+                _this.$message({message: '选择时间不能大于当前时间', type: 'warning',offset: '200',duration:'2000'})
+                return;
+            }
+            if(_this.tabPosition == 'month'){
+                var year = new Date(_this.start_time).getFullYear();
+                var month = new Date(_this.start_time).getMonth();
+                var current_month = new Date().getMonth();
+                console.log(month,current_month);
+                if(month != current_month){
+                    end_time = new Date(year, month + 1, 1).getTime()
+                }
+                _this.activate_value = year + '年' + (month + 1) + '月';
+            }else{
+                var year = new Date(_this.start_time).getFullYear();
+                var current_year = new Date().getFullYear();
+                if(year != current_year){
+                    end_time = new Date(year, 11, 31).getTime() + 24 * 3600 * 1000
+                }
+                _this.activate_value = year + '年';
+            }
+            _this.loading_brokenLine = true;
+            _this.evt_getDevicesByTime(end_time);
+        },
+        evt_getDevicesByTime:function(end_time){
+            var _this = this;
+            var request_data = {};
+            if(_this.userType_parameter == 2){
+                request_data['containsChildren'] = _this.checked;
+            }
+            request_data['timeUnit'] = _this.tabPosition == 'month' ? 0 : 1;
+            request_data['startTime'] = _this.start_time;
+            request_data['endTime'] = end_time;
+            api.getDevicesByTime(request_data,_this.userType_parameter).then((res) => {
+                // console.log(res);
+                if(res.success){
+                    var newData = res.data;
+                    var total_activate = 0
+                    var xAxis_data = [];
+                    var xAxis_suffix = _this.tabPosition == 'month' ? '号' : '月';
+                    var data_arr = [];
+                    for(var i = 0, len = newData.length; i < len; i++){
+                        total_activate = total_activate + newData[i].count;
+                        xAxis_data.push((i + 1) + xAxis_suffix);
+                        data_arr.push(newData[i].count);
+                    }
+                    _this.total_activate = total_activate;
+                    _this.$nextTick(function(){
+                        var brokenLine = document.getElementById("brokenLine");
+                        _this.brokenLine = echarts.init(brokenLine);
+                        let option_str = JSON.stringify(_this.brokenLineOption);
+                        let option = JSON.parse(option_str);
+                        option.xAxis['data'] = xAxis_data;
+                        option.series[0]['data'] = data_arr;
+                        _this.brokenLine.setOption(option);
+                    })
+                    _this.loading_brokenLine = false;
+                }
+            }).catch((err) => {
+                // console.log(err);
+                _this.$message({message: err.msg || '请求错误，请稍后重试' ,type:'error',offset:'200',duration:'2000'});
+            })
+        }
 
     },
 }
