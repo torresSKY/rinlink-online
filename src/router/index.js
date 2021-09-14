@@ -18,7 +18,7 @@ const list={
         roles:[1,2,3],
         redirect: '/index/index',
         icon: 'shouyex',
-        children: [{path: 'index',name:'route.Home',radius:true,roles:[1,2,3],component: () =>import('@/views/wechart/index'),meta: { keep:'users',keepAlive: true }}]
+        children: [{path: 'index',name:'route.Home',radius:true,roles:[1,2,3],component: () =>import('@/views/wechart/home'),meta: { keep:'users',keepAlive: true }}]
       }, 
       {
         path: '/equManage',

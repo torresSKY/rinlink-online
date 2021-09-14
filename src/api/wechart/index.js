@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { type } from '../../../config/dev_cs.env'
 
 axios.defaults.headers.common['Authorization'] = sessionStorage['token']
 
@@ -51,8 +52,8 @@ const getUsersList = (obj) => {
     })
 }
 // const url = 'http://rap2api.taobao.org/app/mock/277955/post'
-// const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
-const url = 'http://iot-asset-api-test.rinlink.com/enterprise'
+const url = 'http://rinlink-iot-asset-api-test.rinlink.com'
+// const url = 'http://iot-asset-api-test.rinlink.com/enterprise'
 // const url = 'https://iot-asset-api.rinlink.com/enterprise'
 // const url = 'http://192.168.1.184:9999/enterprise'
 const getDevicesList = (data,type) => (   //分页查询设备列表
@@ -301,6 +302,10 @@ const getInventory_device = (data,type) => ( //设备库存
 const getSold_device = (data,type) => ( //已销售设备
     axios.post(url + '/statistics_sold_devices?__OPERATOR_TYPE=' + type, data)
 )
+const getTotal_devices = (data,type) => ( //统计设备总数
+    axios.post(url + '/statistics_total_devices?__OPERATOR_TYPE=' + type, data)
+)
+
 
 const queryPen = (data,type) => ( //查询电子围栏
     axios.post(url + '/paging_fences?__OPERATOR_TYPE=' + type,data)
@@ -383,6 +388,9 @@ const downloadDeviceTracks = (data,type) => (//导出轨迹
 )
 const getDevicesCoordinate = (data,type) => (//获取多设备位置的位置定位
     axios.post(url + '/get_devices_last_coordinate?__OPERATOR_TYPE=' + type,data)
+)
+const getDevicesByTime = (data,type) => (
+    axios.post(url + '/statistics_activated_devices_by_time?__OPERATOR_TYPE=' + type,data)
 )
 export default {
     login,
@@ -475,6 +483,7 @@ export default {
     getExpired_device,
     getInventory_device,
     getSold_device,
+    getTotal_devices,
     queryPen,
     createUpdateCircleFence,
     createUpdatePolygonFence,
@@ -494,5 +503,6 @@ export default {
     getCurrentUserInfo,
     queryFenceDevices,
     downloadDeviceTracks,
-    getDevicesCoordinate
+    getDevicesCoordinate,
+    getDevicesByTime
 }
