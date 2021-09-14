@@ -599,7 +599,7 @@ export default{
           // { value: '3', label: '已过期'},
           { value: '4', label: '已激活未上线'}
         ],
-        containsChildren:true,
+        containsChildren:false,
         timeType:null,
         timeTypeOptions:[
           { value: '2', label: this.$t('table.activationTime')},{ value: '1', label: this.$t('table.salesTime')},
@@ -720,6 +720,7 @@ export default{
           {label: this.$t('table.index'), type: 'index'},
           {label: this.$t('table.zhitype'), prop: 'commandName'},
           {label: this.$t('table.zhidata'), prop: 'commandData'},
+          {label: '指令返回结果', prop: 'respondContent'},
           {label: this.$t('table.creattime'), prop: 'createTime', type: 'Timestamp'},
           {label: this.$t('table.jie'), prop: 'status',type: 'render',
           formatter: (params) => {

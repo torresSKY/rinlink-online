@@ -233,7 +233,7 @@
           :visible.sync="dialogDel"
           width="30%"
           >
-          <el-row style="margin:10px 0;border:1px solid #CCCCCC">
+          <el-row style="margin:10px 0;border:1px solid #CCCCCC" v-if="delFlag">
             <el-row style="margin:10px 10px 0 10px">
               <el-input
                 type="textarea"
@@ -885,8 +885,8 @@ export default{
                 })
               }else{
                 let list = []
-                for(let i = 0; i<this.multipleSelection.length; i++){
-                  list.push(this.multipleSelection[i].deviceNumber)
+                for(let i = 0; i<this.delList.length; i++){
+                  list.push(this.delList[i].deviceNumber)
                 }
                 let data = {
                   deviceNumbers:list
