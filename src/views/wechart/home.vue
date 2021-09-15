@@ -407,6 +407,9 @@ export default {
         evt_queryBusinessUserInfo:function(){
             var _this = this;
             var request_data = {};
+            if(_this.userType_parameter == '1'){
+                request_data['userId'] =  _this.user_id
+            }
             api.queryBusinessUserInfo(request_data,_this.userType_parameter).then((res) => {
                 if(res.success){
                     var userInfo = {};
@@ -415,6 +418,7 @@ export default {
                     _this.userInfo = userInfo;
                 }
             }).catch((err) => {
+                console.log(err)
                 _this.$message({type: 'error',message: err.msg || '获取用户信息请求错误',offset:'200',duration:'1500'});
             })
         },
