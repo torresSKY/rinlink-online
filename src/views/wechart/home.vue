@@ -621,6 +621,8 @@ export default {
         },
         evt_row_click:function(row){
             // console.log(row);
+            this.search_result = [];
+            this.search_word = '';
             if(this.btn_type == 'trace'){
                 let routeUrl = this.$router.resolve({
                     path: "/trace",
@@ -634,12 +636,20 @@ export default {
         // 设备激活统计折线图
         evt_changeRadio:function(e){
             this.date_type = e;
-            this.start_time = '';
+            var end_time = new Date().getTime();
+            var year = new Date().getFullYear();
             if(e == 'month'){
-                this.placeholder_text = '选择月'
+                this.placeholder_text = '选择月';
+                var current_month = new Date().getMonth();
+                this.start_time = new Date(year, current_month, 1).getTime()
+                this.activate_value = year + '年' + (current_month + 1) + '月';
             }else{
-                this.placeholder_text = '选择年'
+                this.placeholder_text = '选择年';
+                this.start_time = new Date(year, 0, 1).getTime()
+                this.activate_value = year + '年';
             }
+            this.loading_brokenLine = true;
+            this.evt_getDevicesByTime(end_time);
         },
         evt_changeTime:function(e){//选择时间
             // console.log(e)
@@ -654,7 +664,7 @@ export default {
                 var year = new Date(_this.start_time).getFullYear();
                 var month = new Date(_this.start_time).getMonth();
                 var current_month = new Date().getMonth();
-                console.log(month,current_month);
+                // console.log(month,current_month);
                 if(month != current_month){
                     end_time = new Date(year, month + 1, 1).getTime()
                 }
@@ -690,7 +700,10 @@ export default {
                     for(var i = 0, len = newData.length; i < len; i++){
                         total_activate = total_activate + newData[i].count;
                         xAxis_data.push((i + 1) + xAxis_suffix);
-                        data_arr.push(newData[i].count);
+                        var item = {};
+                        item['value'] = newData[i].count;
+                        item['name'] = '2021'
+                        data_arr.push(item);
                     }
                     _this.total_activate = total_activate;
                     _this.$nextTick(function(){
@@ -700,6 +713,7 @@ export default {
                         let option = JSON.parse(option_str);
                         option.xAxis['data'] = xAxis_data;
                         option.series[0]['data'] = data_arr;
+                        // console.log(data_arr)
                         _this.brokenLine.setOption(option);
                     })
                     _this.loading_brokenLine = false;
