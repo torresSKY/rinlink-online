@@ -378,7 +378,10 @@
             handlerSubmit() { // 确认下发
                 let arr = []
                 for(let i = 0;i <this.list.length;i++){
-                  if(((this.list[i].serviceExpireTime -new Date().getTime())<0 && this.list[i].serviceExpireTime != -1)){
+                  // debugger
+                  // console.log(this.list[i].serviceExpireTime -new Date().getTime())
+                  // console.log(this.list[i].serviceExpireTime)
+                  if(((this.list[i].serviceExpireTime -new Date().getTime())<0 && this.list[i].serviceExpireTime != -1 && this.list[i].activationTime!=null )){
                     return this.$message.warning('已过期设备无法下发指令')
                   }
                   arr.push(this.list[i].id)
