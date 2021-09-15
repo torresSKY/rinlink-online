@@ -318,7 +318,10 @@ export default {
                             color: "#333333",
                             lineHeight: 22,
                             shadowColor: "rgba(224, 231, 255, 1)",
-                            shadowBlur: 10
+                            shadowBlur: 10,
+                            align: "left",
+                            // position: ['-400%', '-400%'],
+                            offset: [-60, 0]
                         }
                     }
                 }]
@@ -697,12 +700,18 @@ export default {
                     var xAxis_data = [];
                     var xAxis_suffix = _this.tabPosition == 'month' ? '号' : '月';
                     var data_arr = [];
+                    var year = new Date(_this.start_time).getFullYear();
+                    var month = new Date(_this.start_time).getMonth(); 
                     for(var i = 0, len = newData.length; i < len; i++){
                         total_activate = total_activate + newData[i].count;
                         xAxis_data.push((i + 1) + xAxis_suffix);
                         var item = {};
                         item['value'] = newData[i].count;
-                        item['name'] = '2021'
+                        if(_this.tabPosition == 'month'){
+                            item['name'] = '时间：' + year + '-' + ((month + 1) < 10 ? '0' + (month + 1) : month + 1) + '-' + ((i + 1) < 10 ? '0' + (i + 1) : i + 1);
+                        }else{
+                            item['name'] = '时间：' + year + '-' + ((i + 1) < 10 ? '0' + (i + 1) : i + 1);
+                        }
                         data_arr.push(item);
                     }
                     _this.total_activate = total_activate;
@@ -714,6 +723,14 @@ export default {
                         option.xAxis['data'] = xAxis_data;
                         option.series[0]['data'] = data_arr;
                         // console.log(data_arr)
+                        function formatter(name){
+                            for (var i = 0; i < option.series[0].data.length; i++) {
+                                if(name.name == option.series[0].data[i].name){
+                                    return `${option.series[0].data[i].name}\n激活设备数：${option.series[0].data[i].value}台`;
+                                }
+                            }
+                        }
+                        option.series[0].emphasis.label['formatter'] = formatter;
                         _this.brokenLine.setOption(option);
                     })
                     _this.loading_brokenLine = false;
