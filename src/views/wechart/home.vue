@@ -2,7 +2,8 @@
     <div id="users">
         <el-row :gutter="20">
             <el-col :span="6">
-                <div class="info_container_1">
+                <el-scrollbar :native="false">
+                <div class="info_container_1" style="min-width: 300px;min-height: 160px">
                     <div class="userInfo">
                         <div class="userInfo_left">
                             <img src="../../assets/img/deafult_user_head_portrait.png" alt="" />
@@ -19,9 +20,11 @@
                         </div>
                     </div>
                 </div>
+                </el-scrollbar>
             </el-col>
             <el-col :span="12">
-                <div class="info_container_1">
+                <el-scrollbar :native="false">
+                <div class="info_container_1" style="min-width: 660px;min-height: 160px">
                     <div class="inventoryInfo" v-loading="loading_one">
                         <div class="inventoryInfo_top">
                             <div>库存统计</div>
@@ -61,9 +64,11 @@
                         </div>
                     </div>
                 </div>
+                </el-scrollbar>
             </el-col>
             <el-col :span="6">
-                <div class="info_container_1">
+                <el-scrollbar :native="false">
+                <div class="info_container_1" style="min-width: 300px;min-height: 160px">
                     <div class="trackInfo">
                         <div class="track_top">轨迹信息</div>
                         <div class="track_bottom">
@@ -82,6 +87,7 @@
                         </div>
                     </div>
                 </div>
+                </el-scrollbar>
             </el-col>
         </el-row>
         <el-row :gutter="20" style="margin-top: 20px">
@@ -91,7 +97,9 @@
                         <div>设备期限</div>
                         <img @click="evt_refresh" data-type="4" src="../../assets/img/refresh.png" alt="" />
                     </div>
-                    <div class="echarts_content" id="myChart4"></div>
+                    <el-scrollbar :native="false">
+                        <div class="echarts_content" id="myChart4"></div>
+                    </el-scrollbar>
                 </div>
             </el-col>
             <el-col :span="8">
@@ -100,7 +108,9 @@
                         <div>激活统计</div>
                         <img @click="evt_refresh" data-type="3" src="../../assets/img/refresh.png" alt="" />
                     </div>
-                    <div class="echarts_content" id="myChart3"></div>
+                    <el-scrollbar :native="false">
+                        <div class="echarts_content" id="myChart3"></div>
+                    </el-scrollbar>
                 </div>
             </el-col>
             <el-col :span="8">
@@ -109,7 +119,9 @@
                         <div>设备状态统计</div>
                         <img @click="evt_refresh" data-type="2" src="../../assets/img/refresh.png" alt="" />
                     </div>
-                    <div class="echarts_content" id="myChart2"></div>
+                    <el-scrollbar :native="false">
+                        <div class="echarts_content" id="myChart2"></div>
+                    </el-scrollbar>
                 </div>
             </el-col>
         </el-row>
@@ -126,15 +138,27 @@
                                 </el-radio-group>
                             </div>
                             <div>
+                                <!-- 解决使用type切换类型的样式错乱问题 -->
                                 <el-date-picker
+                                    v-show="tabPosition == 'month'"
                                     size="mini"
                                     :clearable="false"
                                     v-model="start_time"
-                                    :type="date_type"
+                                    type="month"
                                     value-format="timestamp"
                                     :editable="false"
-                                    @change="evt_changeTime"
-                                    :placeholder="placeholder_text">
+                                    @change="evt_changeTime">
+                                </el-date-picker>
+
+                                <el-date-picker
+                                    v-show="tabPosition == 'year'"
+                                    size="mini"
+                                    :clearable="false"
+                                    v-model="start_time"
+                                    type="year"
+                                    value-format="timestamp"
+                                    :editable="false"
+                                    @change="evt_changeTime">
                                 </el-date-picker>
                             </div>
                             
@@ -142,7 +166,9 @@
                         <div class="statistics_top_right">{{activate_value}}共有<span>{{total_activate}}</span>台设备激活</div>
                     </div>
                     <div class="statistics_bottom">
-                        <div id="brokenLine"></div>
+                        <el-scrollbar :native="false">
+                            <div id="brokenLine"></div>
+                        </el-scrollbar>
                     </div>
                 </div>
             </el-col>
@@ -318,7 +344,10 @@ export default {
                             color: "#333333",
                             lineHeight: 22,
                             shadowColor: "rgba(224, 231, 255, 1)",
-                            shadowBlur: 10
+                            shadowBlur: 10,
+                            align: "left",
+                            // position: ['-400%', '-400%'],
+                            offset: [-60, 0]
                         }
                     }
                 }]
@@ -621,6 +650,8 @@ export default {
         },
         evt_row_click:function(row){
             // console.log(row);
+            this.search_result = [];
+            this.search_word = '';
             if(this.btn_type == 'trace'){
                 let routeUrl = this.$router.resolve({
                     path: "/trace",
@@ -634,12 +665,18 @@ export default {
         // 设备激活统计折线图
         evt_changeRadio:function(e){
             this.date_type = e;
-            this.start_time = '';
+            var end_time = new Date().getTime();
+            var year = new Date().getFullYear();
             if(e == 'month'){
-                this.placeholder_text = '选择月'
+                var current_month = new Date().getMonth();
+                this.start_time = new Date(year, current_month, 1).getTime()
+                this.activate_value = year + '年' + (current_month + 1) + '月';
             }else{
-                this.placeholder_text = '选择年'
+                this.start_time = new Date(year, 0, 1).getTime()
+                this.activate_value = year + '年';
             }
+            this.loading_brokenLine = true;
+            this.evt_getDevicesByTime(end_time);
         },
         evt_changeTime:function(e){//选择时间
             // console.log(e)
@@ -654,7 +691,7 @@ export default {
                 var year = new Date(_this.start_time).getFullYear();
                 var month = new Date(_this.start_time).getMonth();
                 var current_month = new Date().getMonth();
-                console.log(month,current_month);
+                // console.log(month,current_month);
                 if(month != current_month){
                     end_time = new Date(year, month + 1, 1).getTime()
                 }
@@ -687,10 +724,19 @@ export default {
                     var xAxis_data = [];
                     var xAxis_suffix = _this.tabPosition == 'month' ? '号' : '月';
                     var data_arr = [];
+                    var year = new Date(_this.start_time).getFullYear();
+                    var month = new Date(_this.start_time).getMonth(); 
                     for(var i = 0, len = newData.length; i < len; i++){
                         total_activate = total_activate + newData[i].count;
                         xAxis_data.push((i + 1) + xAxis_suffix);
-                        data_arr.push(newData[i].count);
+                        var item = {};
+                        item['value'] = newData[i].count;
+                        if(_this.tabPosition == 'month'){
+                            item['name'] = '时间：' + year + '-' + ((month + 1) < 10 ? '0' + (month + 1) : month + 1) + '-' + ((i + 1) < 10 ? '0' + (i + 1) : i + 1);
+                        }else{
+                            item['name'] = '时间：' + year + '-' + ((i + 1) < 10 ? '0' + (i + 1) : i + 1);
+                        }
+                        data_arr.push(item);
                     }
                     _this.total_activate = total_activate;
                     _this.$nextTick(function(){
@@ -700,6 +746,15 @@ export default {
                         let option = JSON.parse(option_str);
                         option.xAxis['data'] = xAxis_data;
                         option.series[0]['data'] = data_arr;
+                        // console.log(data_arr)
+                        function formatter(name){
+                            for (var i = 0; i < option.series[0].data.length; i++) {
+                                if(name.name == option.series[0].data[i].name){
+                                    return `${option.series[0].data[i].name}\n激活设备数：${option.series[0].data[i].value}台`;
+                                }
+                            }
+                        }
+                        option.series[0].emphasis.label['formatter'] = formatter;
                         _this.brokenLine.setOption(option);
                     })
                     _this.loading_brokenLine = false;
@@ -794,7 +849,8 @@ export default {
         flex-direction: column;
         .inventoryInfo_top{
             width: 100%;
-            padding: 30px 30px 0px 30px;
+            // padding: 30px 30px 0px 30px;
+            padding: 1.56vw 1.56vw 0px 1.56vw;
             box-sizing: border-box;
             display: flex;
             justify-content: space-between;
@@ -870,7 +926,8 @@ export default {
         display: flex;
         flex-direction: column;
         .track_top{
-            padding: 30px 30px 0px 30px;
+            // padding: 30px 30px 0px 30px;
+            padding: 1.56vw 1.56vw 0px 1.56vw;
             font-size: 16px;
             font-family: Microsoft YaHei;
             font-weight: bold;
@@ -908,6 +965,7 @@ export default {
                 justify-content: space-evenly;
                 .track_info_btn_bt{
                     width: 6vw;
+                    min-width: 88px;
                     border-color: #3E9AFF;
                     color: #3E9AFF;
                 }
@@ -947,7 +1005,7 @@ export default {
     }
     .statistics{
         width: 100%;
-        height: 20.4vw;
+        height: 22.4vw;
         background: #FFFFFF;
         box-shadow: 0px 0px 10px 0px rgba(68, 106, 234, 0.08);
         border-radius: 4px;
@@ -959,6 +1017,7 @@ export default {
             justify-content: space-between;
             align-items: center;
             .statistics_top_left{
+                // flex-grow: 1;
                 display: flex;
                 align-items: center;
                 >div:nth-of-type(1){
@@ -970,11 +1029,13 @@ export default {
                 }
                 >div:nth-of-type(2){
                     width: 6.25vw;
+                    min-width: 90px;
                     margin-left: 20px;
                     margin-right: 10px;
                 }
                 >div:nth-of-type(3){
                     width: 6.25vw;
+                    min-width: 90px;
                     /dee/ .el-input--prefix .el-input__inner{
                         padding-left: 0px;
                     }
@@ -999,17 +1060,14 @@ export default {
         }
         .statistics_bottom{
             // height: 15vw;
-            height: 18vw;
-            width: 100%;
             // padding-left: 4.6vw;
             // padding-right: 4.6vw;
             box-sizing: border-box;
             // margin-top: 0.8vw;
             #brokenLine{
+                height: 18vw;
                 width: 100%;
-                height: 100%;
             }
         }
     }
-
 </style>
