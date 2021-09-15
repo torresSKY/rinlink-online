@@ -138,15 +138,27 @@
                                 </el-radio-group>
                             </div>
                             <div>
+                                <!-- 解决使用type切换类型的样式错乱问题 -->
                                 <el-date-picker
+                                    v-show="tabPosition == 'month'"
                                     size="mini"
                                     :clearable="false"
                                     v-model="start_time"
-                                    :type="date_type"
+                                    type="month"
                                     value-format="timestamp"
                                     :editable="false"
-                                    @change="evt_changeTime"
-                                    :placeholder="placeholder_text">
+                                    @change="evt_changeTime">
+                                </el-date-picker>
+
+                                <el-date-picker
+                                    v-show="tabPosition == 'year'"
+                                    size="mini"
+                                    :clearable="false"
+                                    v-model="start_time"
+                                    type="year"
+                                    value-format="timestamp"
+                                    :editable="false"
+                                    @change="evt_changeTime">
                                 </el-date-picker>
                             </div>
                             
@@ -656,12 +668,10 @@ export default {
             var end_time = new Date().getTime();
             var year = new Date().getFullYear();
             if(e == 'month'){
-                this.placeholder_text = '选择月';
                 var current_month = new Date().getMonth();
                 this.start_time = new Date(year, current_month, 1).getTime()
                 this.activate_value = year + '年' + (current_month + 1) + '月';
             }else{
-                this.placeholder_text = '选择年';
                 this.start_time = new Date(year, 0, 1).getTime()
                 this.activate_value = year + '年';
             }
@@ -1060,5 +1070,4 @@ export default {
             }
         }
     }
-
 </style>
