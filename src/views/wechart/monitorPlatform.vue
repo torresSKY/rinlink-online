@@ -433,7 +433,8 @@ export default {
                 this.evt_addOverlay(info.addOverlayInfo);
                 this.evt_getLocation(info.point);
                 this.current_device_name = info.deviceName;
-            }else if(info.type == 'delete' && info.addOverlayInfo.positionInfo != null){
+            }else if(info.type == 'delete'){
+                // console.log(info.addOverlayInfo);
                 this.evt_deleteOverlay(info.oldLng,info.oldLat);
             }else if(info.addOverlayInfo.positionInfo == null){
                 this.current_device_address = '----';
