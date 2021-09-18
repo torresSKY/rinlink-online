@@ -101,6 +101,10 @@
                         <el-form-item :label="$t('table.note')" prop="remark">
                            <el-input v-model="customerForm.remark"></el-input>
                         </el-form-item>
+                        <el-form-item label="渠道" prop="channel" v-if="type==1">
+                           <el-radio v-model="customerForm.channel" label="1">线上</el-radio>
+                           <el-radio v-model="customerForm.channel" label="2">线下</el-radio>
+                        </el-form-item>
                     </el-form>    
                 </el-col>
                 <el-col :span='12' v-if="type==2&&!isEdit">
@@ -216,7 +220,8 @@ export default {
           remark:'',
           userId:'',
           parentName:'',
-          parentId:''
+          parentId:'',
+          channel:'1'
       },
       tempParentId:null,
       tempParentName:null,
@@ -235,6 +240,9 @@ export default {
         ],
         confirmPaw: [
           { required: true, message: this.$t('message.pawuser'), min:6, trigger: 'blur' },
+        ],
+        channel: [
+          { required: true, message: '请选择渠道', trigger: 'change' }
         ],
       },
       dialogPwd:false,
@@ -610,7 +618,8 @@ export default {
             personToContact:'',
             phoneNumber:'',
             email:'',
-            remark:''
+            remark:'',
+            channel:'1'
         }
         if(this.tempParentId && this.tempParentName){
           this.customerForm.parentId = this.tempParentId
@@ -644,6 +653,9 @@ export default {
               email:this.customerForm.email,
               remark:this.customerForm.remark
             }
+            if(this.type==1){
+              data['channel'] = this.customerForm.channel
+            }
             api.addBusiness(data,this.type).then(res => {
               if(res.success){
                 this.$message.success(this.$t('message.addsuc'))
@@ -665,6 +677,9 @@ export default {
               phoneNumber:this.customerForm.phoneNumber,
               email:this.customerForm.email,
               remark:this.customerForm.remark
+            }
+            if(this.type==1){
+              data['channel'] = this.customerForm.channel
             }
             api.editBusiness(data,this.type).then(res => {
               if(res.success){
@@ -700,7 +715,9 @@ export default {
             email:data.email,
             remark:data.remark
           }
-          
+          if(this.type==1&&data.channel){
+            this.customerForm.channel = data.channel
+          }
           this.evt_getBusinessUserinfo()
           this.searchInfo(data.userId)
           console.log(this.customerForm)

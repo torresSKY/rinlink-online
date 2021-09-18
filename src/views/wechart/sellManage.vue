@@ -605,7 +605,7 @@ export default{
             let data = res.data
             this.range = Object.entries(data)
             this.$nextTick(() => {
-              this.current = 4
+              this.current = 5
               this.useRangeCode = 'JiaoChe'
             })
             console.log(this.range)

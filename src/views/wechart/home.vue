@@ -485,7 +485,7 @@ export default {
                                 data[0].value = _this.Expired_deviceCount;
                                 data[1].value = _this.Unexpired_deviceCount;
                                 option.series[0]['data'] = data;
-                                option.color = ["#F27C90", "#C4C6D1"];
+                                option.color = [ "#C4C6D1","#F27C90"];
                                 function formatter(name){
                                     for (var i = 0; i < option.series[0].data.length; i++) {
                                         if (option.series[0].data[i].name == name) {
@@ -891,10 +891,10 @@ export default {
                     flex-direction: column;
                     justify-content: flex-start;
                     .inventoryInfo_item_inventory{
-                        color: #2FC25B !important;
+                        color: #FF6565 !important;
                     }
                     .inventoryInfo_item_sell{
-                        color: #FF6565 !important;
+                        color: #2FC25B !important;
                     }
                     >div:nth-of-type(1){
                         display: flex;
