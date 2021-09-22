@@ -97,9 +97,9 @@
                         <div>设备期限</div>
                         <img @click="evt_refresh" data-type="4" src="../../assets/img/refresh.png" alt="" />
                     </div>
-                    <el-scrollbar :native="false">
+                    <!-- <el-scrollbar :native="false"> -->
                         <div class="echarts_content" id="myChart4"></div>
-                    </el-scrollbar>
+                    <!-- </el-scrollbar> -->
                 </div>
             </el-col>
             <el-col :span="8">
@@ -108,9 +108,9 @@
                         <div>激活统计</div>
                         <img @click="evt_refresh" data-type="3" src="../../assets/img/refresh.png" alt="" />
                     </div>
-                    <el-scrollbar :native="false">
+                    <!-- <el-scrollbar :native="false"> -->
                         <div class="echarts_content" id="myChart3"></div>
-                    </el-scrollbar>
+                    <!-- </el-scrollbar> -->
                 </div>
             </el-col>
             <el-col :span="8">
@@ -119,9 +119,9 @@
                         <div>设备状态统计</div>
                         <img @click="evt_refresh" data-type="2" src="../../assets/img/refresh.png" alt="" />
                     </div>
-                    <el-scrollbar :native="false">
+                    <!-- <el-scrollbar :native="false"> -->
                         <div class="echarts_content" id="myChart2"></div>
-                    </el-scrollbar>
+                    <!-- </el-scrollbar> -->
                 </div>
             </el-col>
         </el-row>
@@ -166,9 +166,9 @@
                         <div class="statistics_top_right">{{activate_value}}共有<span>{{total_activate}}</span>台设备激活</div>
                     </div>
                     <div class="statistics_bottom">
-                        <el-scrollbar :native="false">
+                        <!-- <el-scrollbar :native="false"> -->
                             <div id="brokenLine"></div>
-                        </el-scrollbar>
+                        <!-- </el-scrollbar> -->
                     </div>
                 </div>
             </el-col>
@@ -384,7 +384,15 @@ export default {
         _this.evt_getDevicesByTime(end_time);
     },
     mounted() {
-        this.height = document.body.offsetHeight - 150;
+        var _this = this;
+        _this.height = document.body.offsetHeight - 150;
+
+        window.onresize = function(){
+            _this.brokenLine.resize();
+            _this.echarts_2.resize();
+            _this.echarts_3.resize();
+            _this.echarts_4.resize();
+        }
     },
     methods: {
         // 切换是否包含子级数据
