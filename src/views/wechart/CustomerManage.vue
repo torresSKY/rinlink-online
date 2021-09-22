@@ -713,10 +713,11 @@ export default {
             personToContact:data.personToContact,
             phoneNumber:data.phoneNumber,
             email:data.email,
-            remark:data.remark
+            remark:data.remark,
+            channel:'1'
           }
           if(this.type==1&&data.channel){
-            this.customerForm.channel = data.channel
+            this.customerForm.channel = data.channel.toString()
           }
           this.evt_getBusinessUserinfo()
           this.searchInfo(data.userId)
