@@ -181,7 +181,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           // effectiveSecond:86400
-          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password}).then(res=>{
+          api.login({loginAccount:this.loginForm.username,password:this.loginForm.password,channel:0}).then(res=>{
             //if(res.id){
               // if(1){
               // this.setRoles(res.detail.role)
@@ -200,7 +200,9 @@ export default {
               })
             // }
           }).catch(err=>{
-            Message.error(this.$t('message.usererror'))
+            console.log(err)
+            // Message.error(this.$t('message.usererror'))
+            Message.error(err.msg)
           })
         } else {
           console.log('error submit!!')
