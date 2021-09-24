@@ -462,6 +462,8 @@ export default {
                         }).catch((err) => {
                             _this.$message.error(err.errMsg)
                         })
+                    }else{
+                        _this.loading_one = false;
                     }
                 }
             }).catch((err) => {
