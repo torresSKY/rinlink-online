@@ -22,7 +22,7 @@
                 </div>
                 </el-scrollbar>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="user_type==1?18:12">
                 <el-scrollbar :native="false">
                 <div class="info_container_1" style="min-width: 660px;min-height: 160px">
                     <div class="inventoryInfo" v-loading="loading_one">
@@ -66,7 +66,7 @@
                 </div>
                 </el-scrollbar>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="6" v-if="user_type!=1">
                 <el-scrollbar :native="false">
                 <div class="info_container_1" style="min-width: 300px;min-height: 160px">
                     <div class="trackInfo">

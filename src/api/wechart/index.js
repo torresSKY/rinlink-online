@@ -392,6 +392,21 @@ const getDevicesCoordinate = (data,type) => (//获取多设备位置的位置定
 const getDevicesByTime = (data,type) => (
     axios.post(url + '/statistics_activated_devices_by_time?__OPERATOR_TYPE=' + type,data)
 )
+const paging_query_consumer_users = (data,type) => ( // 分页查询C端用户
+    axios.post(url + '/paging_query_consumer_users?__OPERATOR_TYPE=' + type,data)
+)
+const delete_consumer_user = (data,type) => ( // 删除C端用户
+    axios.post(url + '/delete_consumer_user?__OPERATOR_TYPE=' + type,data)
+)
+const reset_consumer_user_password = (data,type) => ( // 修改密码C端用户
+    axios.post(url + '/reset_consumer_user_password?__OPERATOR_TYPE=' + type,data)
+)
+const update_consumer_user = (data,type) => ( // 修改C端用户
+    axios.post(url + '/update_consumer_user?__OPERATOR_TYPE=' + type,data)
+)
+const paging_query_device_cmds = (data,type) => ( // admin指令日志
+    axios.post(url + '/paging_query_device_cmds?__OPERATOR_TYPE='+ type,data)
+)
 export default {
     login,
     getManagerList,
@@ -504,5 +519,10 @@ export default {
     queryFenceDevices,
     downloadDeviceTracks,
     getDevicesCoordinate,
-    getDevicesByTime
+    getDevicesByTime,
+    paging_query_consumer_users,
+    delete_consumer_user,
+    reset_consumer_user_password,
+    update_consumer_user,
+    paging_query_device_cmds
 }

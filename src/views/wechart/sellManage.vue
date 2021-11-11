@@ -60,6 +60,7 @@
                       <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="a">批量删除</el-dropdown-item>
                         <el-dropdown-item command="b">批量修改IP</el-dropdown-item>
+                        <el-dropdown-item command="c">指令日志</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </el-col>
@@ -109,7 +110,9 @@
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
-                    layout="total,prev, pager, next"
+                    @size-change='changesize'
+                    :page-sizes="[20, 100, 500, 1000]"
+                    layout="total,sizes,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"
@@ -147,9 +150,10 @@
               <el-form-item :label="$t('table.imei')" prop="deviceNumber" v-if="!isMore">
                   <el-input v-model="shipmentForm.deviceNumber" clearable :placeholder="$t('table.imei')"></el-input>
               </el-form-item>
-              <el-form-item :label="$t('view.upfile')"  v-if="isMore">
+              <el-form-item label="批量上传设备号"  v-if="isMore">
                   <el-upload class="upload-demo" ref="upload" :limit="1" accept=".xls, .xlsx" action="string" :file-list="fileList" :show-file-list="true" :auto-upload="false"  :on-remove="handleRemove" :on-change="handleChange" >
                     <el-button slot="trigger" size="medium" type="primary">{{$t('button.clickip')}}</el-button>
+                    <div><el-checkbox v-model="checked" true-label='0' false-label='1'>自动转换成11位设备号</el-checkbox></div>
                     <div slot="tip" class="el-upload__tip">
                       <el-col :span='10'>
                         <div>注：仅支持xls、xlsx文件</div>
@@ -274,6 +278,86 @@
             width="50%"
             >
             <send-order ref="sendOrder" :list="tempList" :setServerAddress='setServerAddress' @confrimSend='confrimSend'/>
+        </el-dialog>
+        <!-- 指令日志 -->
+        <el-dialog
+          title="指令日志"
+          :visible.sync="dialogCMDlog"
+          :close-on-click-modal='false'
+          :close-on-press-escape='false'  
+          width="70%">
+          <el-row :gutter='22' style="margin-bottom:20px">
+            <el-col :span='5'>
+              <el-input v-model="CMDlogimei" placeholder="请输入设备号或IMEI" clearable></el-input>
+            </el-col>
+            <el-col :span='7' >
+                <el-date-picker
+                  clearable
+                  style="width:98%"
+                  v-model="CMDlogtime"
+                  type="datetimerange"
+                  value-format="timestamp"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :default-time="['00:00:00', '23:59:59']">
+                </el-date-picker>
+            </el-col>
+            <el-col :span='4'>
+              <el-input v-model="CMDlogiccid" :placeholder="$t('table.searchiccid')" clearable></el-input>
+            </el-col>
+            <el-col :span='6'>
+              <el-button class="butresh" @click="paging_query_device_cmds(1)">{{$t('button.search')}}</el-button>
+              <el-button class="butadd" @click="resetCMD(1)">刷新</el-button>
+            </el-col>
+          </el-row>
+          <el-row :gutter='22' style="margin-bottom:20px">
+            <el-col :span='4'>
+              <el-select v-model="CMDlogownerId" filterable clearable placeholder="一级代理商">
+                <el-option
+                  v-for="item in businessoptions"
+                  :key="item.id"
+                  :label="item.username"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :span='4'>
+              <el-input v-model="CMDlogcommandName" placeholder="请输入指令类型" clearable></el-input>
+            </el-col>  
+            <el-col :span='4'>
+              <el-select v-model="CMDlogdeviceModel" clearable :placeholder="$t('table.model')">
+                <el-option
+                  v-for="item in modelList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.name">
+                </el-option>
+              </el-select>
+            </el-col>
+             <el-col :span='4'>
+              <el-select v-model="commandStatus" clearable placeholder="执行结果">
+                <el-option
+                  v-for="item in CMDStatusList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-col>
+          </el-row>
+          <el-scrollbar style="height:40vh;" ref="scrollbar">
+            <BaseTable v-loading="loading"  :dataList="CMDlogList" :tableLabel="tableCMDlog"   ></BaseTable>
+          </el-scrollbar>
+          <el-pagination
+              @current-change='changeindex1'
+              layout="total,prev, pager, next"
+              :current-page.sync="page1.index"
+              :page-size="page1.size"
+              :total="page1.total"
+              background
+              style="text-align:center">
+          </el-pagination>
         </el-dialog>
     </div>
 </template>
@@ -469,7 +553,50 @@ export default{
         tempNum:0,
         dialogSend:false,
         tempList:[],
-        setServerAddress:true
+        setServerAddress:true,
+        checked:'0',
+        dialogCMDlog:false,
+        CMDlogList:[],
+        tableCMDlog:[
+          {label: this.$t('table.index'), type: 'index'},
+          {label: this.$t('table.imei'), prop: 'deviceNumber'},
+          {label: this.$t('table.jie'), prop: 'status',type: 'render',
+          formatter: (params) => {
+            params['status'] = params.commandStatus == 0 ? '已受理'  : params.commandStatus == 1 ? '待发送'
+            : params.commandStatus == 2 ? '已发送': params.commandStatus == 3 ? '已送达' 
+            : params.commandStatus == 4 ? '失败': params.commandStatus == 5 ? '过期' : params.commandStatus == 6 ? '响应失败'
+            : params.commandStatus == 7 ? '失败重发' : ''
+            // console.log(params)
+            return params
+          }},
+          {label: this.$t('table.zhitype'), prop: 'commandName'},
+          {label: this.$t('table.zhidata'), prop: 'commandData'},
+          {label: '指令返回结果', prop: 'respondContent'},
+          {label: '所属账号', prop: 'ownerName'},
+          {label: '下发时间', prop: 'createTime', type: 'Timestamp'},
+        ],
+        page1:{
+            index:1,   //当前页   
+            size:20,   //一页的数量
+            total:0    //总数量
+        },
+        CMDlogimei:null,
+        CMDlogtime:null,
+        CMDlogiccid:null,
+        CMDlogownerId:null,
+        CMDlogdeviceModel:null,
+        CMDlogcommandName:null,
+        commandStatus:null,
+        CMDStatusList:[
+          {id:0,name:'已受理'},
+          {id:1,name:'待发送'},
+          {id:2,name:'已发送'},
+          {id:3,name:'已送达'},
+          {id:4,name:'失败'},
+          {id:5,name:'过期'},
+          {id:6,name:'响应失败'},
+          {id:7,name:'失败重发'},
+        ]
       }
     },
     watch: {
@@ -601,11 +728,16 @@ export default{
             })
         },
         getRange(){ // 获取使用范围
-          api.getRangeinfo(this.type).then(res => {
+        let data = {
+            labels:{
+              
+            }
+          }
+          api.getRangeinfo(this.type,data).then(res => {
             let data = res.data
             this.range = Object.entries(data)
             this.$nextTick(() => {
-              this.current = 5
+              this.current = 8
               this.useRangeCode = 'JiaoChe'
             })
             console.log(this.range)
@@ -621,9 +753,7 @@ export default{
         },
         sell(data){  // 出货/批量出货
             this.getRange()
-            if(data=='one'){
-                this.isMore = false
-                this.shipmentForm = {
+            this.shipmentForm = {
                     deviceModelId:'',
                     businessUserId:'',
                     deviceNumber:'',
@@ -634,6 +764,9 @@ export default{
                     batchNumber:'',
                     productionDate:''
                 }
+            if(data=='one'){
+                this.isMore = false
+                
             }else{
                 this.isMore = true
                 this.fileList = []
@@ -739,6 +872,7 @@ export default{
           const _file = file.raw
           let formData = new FormData()
           formData.append('file', _file)
+          formData.append('isSub', this.checked)
           let config = {
             headers: { 'Content-Type': 'multipart/form-data' } // 这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
           }
@@ -785,6 +919,7 @@ export default{
                 i--
               }
             }
+            break
           } 
         },
         inputChange(){
@@ -913,7 +1048,7 @@ export default{
           // console.log(command)
           if(command=='a'){
             this.plDelete()
-          }else{
+          }else if(command=='b'){
             if(this.multipleSelection.length<=0){
               return this.$message.warning(this.$t('message.selOne'))
             }
@@ -932,11 +1067,74 @@ export default{
               this.$refs.sendOrder.tempNum = 0
               this.$refs.sendOrder.getlist()
             })
+          }else if(command=='c'){
+            this.resetCMD()
+            this.dialogCMDlog = true
+            this.paging_query_device_cmds(1)
           }
         },
         confrimSend(data){ // 关闭下发指令框
           this.dialogSend = data
         },
+        changeindex1(val){ 
+          this.page1.index=val
+          try{
+              this.paging_query_device_cmds()
+          }catch(res){
+              
+          }
+        },
+        paging_query_device_cmds(type){
+          let start = null
+          let end = null
+          if(this.CMDlogtime!=null&&this.CMDlogtime!=''){
+            start = this.CMDlogtime[0]
+            end = this.CMDlogtime[1]
+          }else{
+            start = null
+            end = null
+          }
+          if(type==1){
+            this.page1.index = 1
+          }
+          let data = {
+            page:this.page1.index-1,
+            pageSize: this.page1.size,
+            commandName:this.CMDlogcommandName,
+            startTime:start,
+            endTime:end,
+            deviceNumber:this.CMDlogimei,
+            iccid:this.CMDlogiccid,
+            ownerId:this.CMDlogownerId,
+            deviceModel:this.CMDlogdeviceModel,
+            commandStatus:null
+          }
+          if(this.commandStatus!==null&&this.commandStatus!==''){
+            data['commandStatus'] = [this.commandStatus]
+          }
+          this.loading = true
+          api.paging_query_device_cmds(data,this.type).then(res => {
+              this.loading = false
+              this.CMDlogList = res.data.content
+              this.page1.total = res.data.totalElements
+            }).catch(err => {
+              this.loading = false
+              this.CMDlogList = []
+              this.$message.error(err.msg)
+            })
+        },
+        resetCMD(type){
+          this.CMDlogimei = null
+          this.CMDlogtime = null
+          this.CMDlogiccid = null
+          this.CMDlogownerId = null
+          this.CMDlogdeviceModel = null
+          this.CMDlogcommandName = null
+          this.commandStatus = null
+          if(type==1){
+            this.paging_query_device_cmds(1)
+          }
+        }
    },
   // 过滤器格式化时间戳
   filters: {

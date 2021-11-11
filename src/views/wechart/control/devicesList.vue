@@ -17,12 +17,12 @@
             <div class="row_item_middle_bottom" :style="{'height': block_height - 90 + 'px'}" v-loading="loading_flag">
                 <div class="item_content" v-infinite-scroll="evt_scroll_load" infinite-scroll-immediate="false" infinite-scroll-distance="20">
                     <template v-if="devices_list.length > 0">
-                        <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', ((item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) || item.lastReportDataTime == null) ? 'item_opacity': '',]" v-for="item in devices_list" :key="item.id">
+                        <div class="devices_item" :class="[item.id == current_select_deviceId ? 'devices_item_t':'', ((item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) || item.lastReportDataTime == null) ? 'item_opacity': '',]" v-for="(item,index) in devices_list" :key="index">
                             <div class="devices_item_mask" v-if="(item.activationTime != null && item.activationTime < current_time && current_time > item.serviceExpireTime) || item.lastReportDataTime == null"></div>
                             <div class="devices_item_top" @click="evt_select_devices(item.id,'selected')">
                                 <img @click.stop="evt_select_devices(item.id,'checked')" v-show="!item.checked" :src="require('../../../assets/img/no_select_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
                                 <img @click.stop="evt_select_devices(item.id,'checked')" v-show="item.checked" :src="require('../../../assets/img/selected_icon.png')" style="width:20px;height:20px;flex-shrink: 0;">
-                                <el-avatar class="devices_item_top_avatar" size="small" :src="(item.networkStatus == '1' && current_time - item.lastReportDataTime < 30 * 60 * 1000) ? item.stationarySeconds != null ? item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleStationary : icon_list_t['JiaoChe'].iconUrlForConsoleStationary  : item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleActive : icon_list_t['JiaoChe'].iconUrlForConsoleActive :item.useRangeCode != null ? icon_list_t[item.useRangeCode].iconUrlForConsoleInactive : icon_list_t['JiaoChe'].iconUrlForConsoleInactive"></el-avatar>
+                                <el-avatar class="devices_item_top_avatar" size="small" :src="(item.networkStatus == '1' && current_time - item.lastReportDataTime < 30 * 60 * 1000) ? item.stationarySeconds != null ? item.useRangeCode != null ? (icon_list_t[item.useRangeCode]!=undefined&&icon_list_t[item.useRangeCode].iconUrlForConsoleStationary) : icon_list_t['JiaoChe'].iconUrlForConsoleStationary  : item.useRangeCode != null ? (icon_list_t[item.useRangeCode]!=undefined&&icon_list_t[item.useRangeCode].iconUrlForConsoleActive) : icon_list_t['JiaoChe'].iconUrlForConsoleActive :item.useRangeCode != null ? (icon_list_t[item.useRangeCode]!=undefined&&icon_list_t[item.useRangeCode]).iconUrlForConsoleInactive : icon_list_t['JiaoChe'].iconUrlForConsoleInactive"></el-avatar>
                                 <div class="devices_item_top_right">
                                     <div class="devices_item_top_right_top">
                                         <div class="devices_item_top_right_top_left text_line" :class="(item.networkStatus == '2' || (item.networkStatus == '1' && current_time - item.lastReportDataTime > 30 * 60 * 1000)) ? '' : 'devices_item_top_right_top_left_t'">{{item.deviceName}}</div>
@@ -227,8 +227,21 @@ export default {
                     }
                     _this.devices_list = _this.devices_list.concat(newData);
                     _this.totalPage = res.data.pageTotal;
+                    if(_this.change_type == 'on'){
+                        _this.OnlineDvice = res.data.totalElements;
+                    }else if(_this.change_type == 'off'){
+                        _this.OfflineDvice = res.data.totalElements;
+                    }
                 }else{
                     // _this.$message({message: res.msg ,type:"info",offset:"200",duration:'1500'});
+                    if(_this.change_type == 'on'){
+                        _this.OnlineDvice = 0;
+                    }else if(_this.change_type == 'off'){
+                        _this.OfflineDvice = 0;
+                    }else if(_this.change_type == 'all'){
+                        _this.OnlineDvice = 0;
+                        _this.OfflineDvice = 0;
+                    }
                 }
                 _this.loading_flag = false;
                 // 触发设备列表更改事件
@@ -293,9 +306,18 @@ export default {
                                     res.data.positionInfo.coordinate.lng = point_t[0];
                                     res.data.positionInfo.coordinate.lat = point_t[1];
                                     point = new BMap.Point(point_t[0],point_t[1]);
-                                    _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
-                                    _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
-                                    _this.$set(_this.devices_list[i].positionInfo,'positionTime',res.data.positionInfo.positionTime);
+                                    let temp = {
+                                        coordinate:{
+                                            lng:point_t[0],
+                                            lat:point_t[1]
+                                        },
+                                        positionTime:res.data.positionInfo.positionTime,
+                                        positionType:res.data.positionInfo.positionType
+                                    }
+                                    _this.$set(_this.devices_list[i],'positionInfo',temp);
+                                    // _this.$set(_this.devices_list[i].positionInfo.coordinate,'lng',point_t[0]);
+                                    // _this.$set(_this.devices_list[i].positionInfo.coordinate,'lat',point_t[1]);
+                                    // _this.$set(_this.devices_list[i].positionInfo,'positionTime',res.data.positionInfo.positionTime);
                                 }
                                 if(res.data.lastReportDataTime != null && res.data.networkStatus == '1' && new Date().getTime() - res.data.lastReportDataTime > 30 * 60 * 1000){
                                     _this.$set(_this.devices_list[i],'networkStatus',2);
@@ -317,7 +339,7 @@ export default {
                             }
                         }).catch((err) => {
                             console.log(err)
-                            _this.$message({message:err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
+                            // _this.$message({message:err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
                         })
                     }
                     break;

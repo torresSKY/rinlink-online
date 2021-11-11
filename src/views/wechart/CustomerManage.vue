@@ -17,7 +17,7 @@
                     </el-row>
                     <el-row >
                       <el-scrollbar :style="{height:height + 'px'}" ref="scrollbar">
-                        <el-tree style="font-size:12px" :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
+                        <el-tree style="font-size:12px;" :data="businessData" :props="defaultProps" ref="businessData"   node-key="userId" :default-expanded-keys="[outUserId]"
                         @node-click="handleNodeClick" lazy :load="evt_loadTree" :render-content="renderContent"></el-tree>
                       </el-scrollbar>  
                     </el-row>
@@ -71,43 +71,58 @@
             :close-on-press-escape='false' 
             width="40%">
             <el-row :gutter="22">
-                <el-col :span='(type==2&&!isEdit)?12:24'>
+                <el-col :span='24'>
                     <el-form :model="customerForm" :rules="rules" ref="customerForm" label-width="100px" class="demo-ruleForm">
-                        <el-form-item v-if="type==2" label="上级用户" prop="parentName">
-                           <el-input v-model="customerForm.parentName" disabled></el-input>
-                           <span style="color:red">注：点击右侧客户列表选择</span>
-                        </el-form-item>
-                        <el-form-item :label="$t('view.username')" prop="nickname">
-                           <el-input v-model="customerForm.nickname"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('view.admin')" prop="username" v-if="!isEdit">
-                           <el-input v-model="customerForm.username"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('view.paw')" prop="password" v-if="!isEdit">
-                           <el-input v-model="customerForm.password"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('view.confirmPaw')" prop="confirmPaw" v-if="!isEdit">
-                           <el-input v-model="customerForm.confirmPaw"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('table.contacts')" prop="personToContact">
-                           <el-input v-model="customerForm.personToContact"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('table.phone')" prop="phoneNumber">
-                           <el-input v-model="customerForm.phoneNumber"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('view.email')" prop="email">
-                           <el-input v-model="customerForm.email"></el-input>
-                        </el-form-item>
-                        <el-form-item :label="$t('table.note')" prop="remark">
-                           <el-input v-model="customerForm.remark"></el-input>
-                        </el-form-item>
-                        <el-form-item label="渠道" prop="channel" v-if="type==1">
-                           <el-radio v-model="customerForm.channel" label="1">线上</el-radio>
-                           <el-radio v-model="customerForm.channel" label="2">线下</el-radio>
-                        </el-form-item>
+                        <div style="margin-left:20px">登录账号和密码</div>
+                        <div style="border:1px solid #DCDFE6;padding:10px 10px 0 10px;margin:10px 0 10px 20px">
+                          <el-form-item :label="$t('view.admin')" prop="username" >
+                             <el-input v-model="customerForm.username" :disabled='isEdit'></el-input>
+                          </el-form-item>
+                          <el-form-item :label="$t('view.paw')" prop="password" v-if="!isEdit">
+                             <el-input v-model="customerForm.password"></el-input>
+                          </el-form-item>
+                          <!-- <el-form-item :label="$t('view.confirmPaw')" prop="confirmPaw" v-if="!isEdit">
+                             <el-input v-model="customerForm.confirmPaw"></el-input>
+                          </el-form-item> -->
+                        </div>
+                        <div style="margin-left:20px">组织架构名称或分组名称</div>
+                        <div style="border:1px solid #DCDFE6;padding:10px 10px 0 10px;margin:10px 0 10px 20px">
+                          <el-form-item v-if="type==2" label="上级用户" prop="parentName">
+                             <!-- <el-input v-model="customerForm.parentName" disabled></el-input> -->
+                             <treeselect :disabled='isEdit' v-model="customerForm.parentName"  ref="input3" :options="businessoptions" placeholder="上级用户" 
+                                :default-expand-level="10" :load-options="loadOptions"  :noOptionsText='noOptionsText' noResultsText='暂无数据'
+                                 @select="treeValue" @input="clearValue" @deselect='deValue' @open="clearBlur()"/>
+                             <div style="color:red;line-height:20px;margin-top:5px">注：选择本账号的所属上级用户</div>
+                          </el-form-item>
+                          <el-form-item :label="$t('view.username')" prop="nickname">
+                             <el-input v-model="customerForm.nickname"></el-input>
+                             <div style="color:red;line-height:20px;margin-top:5px">
+                               注：可输入代理商名称或客户名称，如：张三、上海XX网络科技
+                             </div>
+                          </el-form-item>
+                          <el-form-item label="渠道" prop="channel" v-if="type==1">
+                             <el-radio v-model="customerForm.channel" label="1">线上</el-radio>
+                             <el-radio v-model="customerForm.channel" label="2">线下</el-radio>
+                          </el-form-item>
+                        </div>  
+                        <div style="margin-left:20px">其他信息</div>
+                        <div style="border:1px solid #DCDFE6;padding:10px 10px 0 10px;margin:10px 0 10px 20px">
+                          <el-form-item :label="$t('table.contacts')" prop="personToContact">
+                             <el-input v-model="customerForm.personToContact"></el-input>
+                          </el-form-item>
+                          <el-form-item :label="$t('table.phone')" prop="phoneNumber">
+                             <el-input v-model="customerForm.phoneNumber"></el-input>
+                          </el-form-item>
+                          <el-form-item :label="$t('view.email')" prop="email">
+                             <el-input v-model="customerForm.email"></el-input>
+                          </el-form-item>
+                          <el-form-item :label="$t('table.note')" prop="remark">
+                             <el-input v-model="customerForm.remark"></el-input>
+                          </el-form-item>
+                        </div> 
                     </el-form>    
                 </el-col>
-                <el-col :span='12' v-if="type==2&&!isEdit">
+                <!-- <el-col :span='12' v-if="type==2&&!isEdit">
                   <el-row :gutter="22">
                     <el-input :placeholder="$t('view.inputtext')" v-model="selParentId" class="input-with-select" clearable>
                       <el-select v-model="selectType2" slot="prepend" >
@@ -123,7 +138,7 @@
                   node-key="userId" :default-expanded-keys="[inUserId]" lazy :load="evt_loadTree2" :render-content="renderContent" @node-click="handleCust"></el-tree>
                     </el-scrollbar>
                   </el-row>
-                </el-col>
+                </el-col> -->
             </el-row>
             <span slot="footer" class="dialog-footer">
               <el-button @click="dialogCustomer = false">{{$t('button.cancel')}}</el-button>
@@ -155,9 +170,11 @@ import api from "@/api/wechart/index"
 import mixin from "@/mixins/index"
 import { mapState } from "vuex"
 import BaseTable from '@/components/table'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
   name: "CustomerManage",
-  components:{ BaseTable },
+  components:{ BaseTable,Treeselect },
   mixins: [mixin],
   computed: {
     ...mapState({ user: "user", adminRoles: "roles" })
@@ -219,7 +236,7 @@ export default {
           email:'',
           remark:'',
           userId:'',
-          parentName:'',
+          parentName:null,
           parentId:'',
           channel:'1'
       },
@@ -267,6 +284,8 @@ export default {
                 addElement('span',arguments[1].node.label)
             ]);
         },
+      businessoptions:[],
+      noOptionsText:null,   
     }
   },
   watch: {
@@ -387,25 +406,47 @@ export default {
     },
     // 获取当前登录用户的信息 b端用户
     evt_getBusinessUserinfo(){
-        var _this = this;
-        this.busData = []
-        let data = null
-        if(_this.type==1){
-          data = {
-            userId : JSON.parse(sessionStorage['user']).userId
-          }
-        }else{
-          data = {}
-        }
-        api.getBusinessUserinfo(data,_this.type).then((res) =>{
-            // console.log(res);
-            if(res.success && res.data && Object.keys(res.data).length > 0){
-                _this.inUserId = res.data.userId
-                _this.busData.push(res.data)
-            }
-        }).catch((err) => {
-            _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
-        })
+        // var _this = this;
+        // this.busData = []
+        // let data = null
+        // if(_this.type==1){
+        //   data = {
+        //     userId : JSON.parse(sessionStorage['user']).userId
+        //   }
+        // }else{
+        //   data = {}
+        // }
+        // api.getBusinessUserinfo(data,_this.type).then((res) =>{
+        //     // console.log(res);
+        //     if(res.success && res.data && Object.keys(res.data).length > 0){
+        //         _this.inUserId = res.data.userId
+        //         _this.busData.push(res.data)
+        //     }
+        // }).catch((err) => {
+        //     _this.$message({message: err.msg, type:'error',offset:'200',duration:'1500'})
+        // })
+        this.businessoptions = []
+             this.noOptionsText = '加载中'
+             let data = {
+               userId:JSON.parse(sessionStorage['user']).userId
+             }
+             api.getBusinessUserinfo(data,this.type).then(res => {
+                 if(res.data.length == 0){
+                  return this.noOptionsText = '暂无数据'
+                 }
+                 this.businessoptions.push(res.data)
+                 for(let i =0;i<this.businessoptions.length;i++){
+                   this.businessoptions[i]['id'] = this.businessoptions[i].userId
+                   this.businessoptions[i]['label'] = this.businessoptions[i].nickname
+                   if(this.businessoptions[i].children>=1){
+                     this.businessoptions[i].children = null
+                   }
+                 }
+                
+               }).catch(err => {
+                 this.businessoptions = []
+                 this.$message.error(err.msg)
+               })
     },
     evt_loadTree2(node, resolve){ //查询客户下级
           // console.log(node)
@@ -501,8 +542,9 @@ export default {
  
       api.getBusinessUserinfo(data,this.type).then(res => {
           let data = res.data
-          this.customerForm.parentName = data.parentInfo.username
-          this.customerForm.parentId = data.parentInfo.userId
+          // this.customerForm.parentName = data.parentInfo.username
+          // this.customerForm.parentId = data.parentInfo.userId
+          this.customerForm.parentName = data.parentInfo.userId
         }).catch(err => {
 
           this.$message.error(err.msg)
@@ -609,7 +651,7 @@ export default {
         }
         this.customerForm = {
             parentId:'',
-            parentName:'',
+            parentName:null,
             userId:'',
             nickname:'',
             username:'',
@@ -621,23 +663,23 @@ export default {
             remark:'',
             channel:'1'
         }
-        if(this.tempParentId && this.tempParentName){
-          this.customerForm.parentId = this.tempParentId
-          this.customerForm.parentName = this.tempParentName
-        }
+        // if(this.tempParentId && this.tempParentName){
+        //   this.customerForm.parentId = this.tempParentId
+        //   this.customerForm.parentName = this.tempParentName
+        // }
         this.evt_getBusinessUserinfo()
         this.dialogCustomer = true 
         this.isEdit = false
 
     },
     confrimCustomer(){ // 确认添加/修改客户
-      if (this.customerForm.password !== this.customerForm.confirmPaw) {
-        this.$message({
-          message: '两次输入的密码不一致',
-          type: "warning"
-        })
-        return
-      }
+      // if (this.customerForm.password !== this.customerForm.confirmPaw) {
+      //   this.$message({
+      //     message: '两次输入的密码不一致',
+      //     type: "warning"
+      //   })
+      //   return
+      // }
       this.$refs['customerForm'].validate((valid) => {
         if (valid) {
           // debugger
@@ -803,7 +845,64 @@ export default {
           return false
         }
       }) 
-    }
+    },
+    loadOptions({ action, parentNode, callback }) {
+              console.log(action, parentNode)
+              var _this = this
+              if (action == 'LOAD_CHILDREN_OPTIONS') {
+                var request_data = {}
+                request_data['parentId'] = parentNode.userId
+                api.getBusiness(request_data,_this.type).then((res) => {
+                    if(res.success){
+                        if(res.data.length == 0){
+                            parentNode.children = []
+                            callback()
+                            return
+                        }
+                        var children_data = res.data
+                        for(let i = 0;i<children_data.length;i++){
+                          children_data[i]['id'] = children_data[i].userId
+                          children_data[i]['label'] = children_data[i].nickname
+                          if(children_data[i].children >= 1){
+                            children_data[i].children = null
+                          }
+                        }
+                        // debugger
+                        parentNode.children = children_data
+                        callback()
+                    }else{
+                        parentNode.children = []
+                        _this.$message({message: res.msg,type:'error',offset:'200',duration:'1000'});
+                        callback()
+                    }
+                }).catch((err) => {
+                    parentNode.children = []
+                    _this.$message({message: err.msg,type:'error',offset:'200',duration:'1000'});
+                    callback();
+                })
+              }
+
+            },
+            clearBlur(){
+               this.$refs.input3.activated = false 
+            },
+            treeValue(val){
+              console.log(val)
+              // debugger
+              this.customerForm.parentId = val.userId
+            },
+            deValue(val){
+              console.log(val)
+              this.customerForm.parentId = null
+              
+            },
+            clearValue(val){
+              // console.log(val)
+              if(!val){
+                return
+              }
+              // this.userIds = []
+            },
   }
 }
 </script>
@@ -830,5 +929,18 @@ overflow-x: hidden;
     border: 1px solid #4391FE;
     font-weight: bolder;
     color: black;
+}
+/deep/ .el-tree > :nth-child(n+1) {
+  display: inline-block;
+  min-width: 100%
+}
+/deep/ .vue-treeselect--disabled .vue-treeselect__control{
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  
+  cursor: not-allowed;
+}
+/deep/ .vue-treeselect--disabled .vue-treeselect__control .vue-treeselect__single-value{
+  color: #C0C4CC;
 }
 </style>

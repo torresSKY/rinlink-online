@@ -9,8 +9,8 @@
                 <el-input style="margin-bottom:10px;position: relative;" size="mini" placeholder="请输入客户名称或账号" v-model="searchBusiness_name" @keyup.enter.native="evt_searchBusiness">
                     <el-button @click="evt_searchBusiness" size="mini" slot="append" icon="el-icon-search"></el-button>
                 </el-input>
-                <el-scrollbar :native="false">
-                    <div class="scrollbar_container" :style="{'height': block_height - 90 + 'px'}">
+                <el-scrollbar :native="false" :style="{'height': block_height - 100 + 'px'}">
+                    <div class="scrollbar_container" >
                         <el-tree style="font-size:12px" ref="userTree" @node-click="evt_node_click" node-key="user_id" :default-expanded-keys="[user_id]"  :expand-on-click-node="false" :props="props" :data="user_list" :load="evt_loadTree" lazy :render-content="renderContent"></el-tree>
                     </div>
                 </el-scrollbar>
@@ -273,9 +273,12 @@ export default {
             font-weight: bold;
             color: black;
         }
-        /deep/ .el-tree>.el-tree-node {
-            display: inline-block;
-            min-width: 100%;
+        /deep/ .el-tree > :nth-child(n+1) {
+          display: inline-block;
+          min-width: 100%
+        }
+        /deep/ .el-scrollbar__wrap {
+        overflow-x: hidden;
         }
     }
 

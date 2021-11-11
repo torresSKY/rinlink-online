@@ -11,7 +11,7 @@
       </div>  -->
       <!-- <h4 class="sub-title">{{$t('view.userLogin')}}</h4> -->
       
-      <el-form-item prop="username" :rules="[{required: true, min: 3,  message: $t('message.loginuser')}]" style="margin:20px 30px 0 30px">
+      <el-form-item prop="username" :rules="[{required: true, min: 1,  message: $t('message.loginuser')}]" style="margin:20px 30px 0 30px">
        <span class="pl10 c iconfont icon-denglu"></span>
         <el-input name="username" type="text" ref="username" v-model="loginForm.username" autoComplete="on" :placeholder="$t('table.username')" />
       </el-form-item>

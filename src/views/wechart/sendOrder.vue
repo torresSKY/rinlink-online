@@ -207,13 +207,22 @@
               let data = {
                 deviceCmdTemplateId:id
               }
+              
               this.remark = null
               api.getDeviceCmdTemplates(data,this.type).then(res => {
                 // console.log(res)
                 this.remark = res.data.templateRemark
+                this.formData = {}
                 if(res.data.templateContent!='{}'){
                     let item = JSON.parse(res.data.templateContent)
                     this.schema = item
+                    console.log(this.schema)
+                    if (this.schema.required == 'report') {
+                      this.formData = {
+                        'report': false
+                      }
+                      // alert(this.formData)
+                    }
                 }else{
                     this.schema = null
                 }
@@ -368,8 +377,8 @@
               this.list = []
             },
             confrim(){ // 确认下发
-                console.log(this.formData)
-                this.handlerSubmit()
+              console.log(this.formData)
+              this.handlerSubmit()
                 // this.$emit('confrimSend', false)
             },
             handlerCancel(){

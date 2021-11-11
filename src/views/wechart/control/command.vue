@@ -48,7 +48,8 @@ export default {
                 2: '等待设备响应',
                 3: '已送达',
                 4: '失败',
-                5: '过期'
+                5: '过期',
+                6:'响应失败'
             },//指令状态
             need_handle_deviceId: this.handleDeviceId,
         }

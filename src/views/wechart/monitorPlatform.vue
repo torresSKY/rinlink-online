@@ -434,7 +434,7 @@ export default {
                 this.evt_getLocation(info.point);
                 this.current_device_name = info.deviceName;
             }else if(info.type == 'delete'){
-                // console.log(info.addOverlayInfo);
+                console.log(info);
                 this.evt_deleteOverlay(info.oldLng,info.oldLat);
             }else if(info.addOverlayInfo.positionInfo == null){
                 this.current_device_address = '----';
@@ -493,7 +493,10 @@ export default {
         // 获取适用范围的icon信息
         evt_getRangeIconList:function(){
             var _this = this;
-            api.getRangeIconList({},_this.userType_parameter).then((res) => {
+            let data = {
+                labels :{}
+            }
+            api.getRangeIconList(data,_this.userType_parameter).then((res) => {
                 if(res.success && Object.keys(res.data).length > 0){
                     var icon_list = [];
                     for(var key in res.data){
@@ -592,8 +595,17 @@ export default {
                                 var point_t = gcj02tobd09(res.data[j].coordinate.lng,res.data[j].coordinate.lat);
                                 res.data[j].coordinate.lng = point_t[0];
                                 res.data[j].coordinate.lat = point_t[1];
-                                _this.$set(_this.devices_list[i].positionInfo,'positionTime',res.data[j].time);
-                                _this.$set(_this.devices_list[i].positionInfo,'coordinate',res.data[j].coordinate);
+                                let temp = {
+                                    coordinate:{
+                                        lng:res.data[j].coordinate.lng,
+                                        lat:res.data[j].coordinate.lat
+                                    },
+                                    positionTime:res.data[j].time,
+                                    positionType:_this.devices_list[i].positionInfo.positionType
+                                }
+                                _this.$set(_this.devices_list[i],'positionInfo',temp);
+                                // _this.$set(_this.devices_list[i].positionInfo,'positionTime',res.data[j].time);
+                                // _this.$set(_this.devices_list[i].positionInfo,'coordinate',res.data[j].coordinate);
                                 var point = new BMap.Point(_this.devices_list[i].positionInfo.coordinate.lng,_this.devices_list[i].positionInfo.coordinate.lat);
                                 _this.evt_addMarker(point,_this.devices_list[i]);
                                 if(_this.show_deviceName){
@@ -613,7 +625,8 @@ export default {
                     _this.$message({message: res.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
                 }
             }).catch((err) => {
-                _this.$message({message: err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
+                console.log(err)
+                // _this.$message({message: err.msg || '未知错误',type:'error',offset:'200',duration:'1000'});
             })
         },
          // 添加覆盖物
@@ -709,6 +722,7 @@ export default {
         // 删除指定的覆盖物
         evt_deleteOverlay:function(lng,lat){
             var allOverlays = this.map.getOverlays();
+            console.log(allOverlays)
             for(var key in allOverlays){
                 if(allOverlays[key].point && allOverlays[key].point.lng == lng && allOverlays[key].point.lat == lat){
                     this.map.removeOverlay(allOverlays[key])
@@ -1152,7 +1166,7 @@ export default {
                 var H = myDate.getHours() > 9 ? myDate.getHours() : '0' + myDate.getHours();
                 var m = myDate.getMinutes() > 9 ? myDate.getMinutes() : '0' + myDate.getMinutes();
                 var s = myDate.getSeconds() > 9 ? myDate.getSeconds() : '0' + myDate.getSeconds();         
-                link.download = '轨迹明细_' + _this.need_handle_deviceNumber + '_' + Y + M + D + H + m + s + '.xlsx';
+                link.download = _this.current_device_name + '_' + Y + M + D + H + m + s + '.xlsx';
                 document.body.appendChild(link);
                 link.click();
                 window.URL.revokeObjectURL(url); 

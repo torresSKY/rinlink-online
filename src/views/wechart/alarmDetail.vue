@@ -557,7 +557,7 @@ export default {
     },
     singleHandle(){ // 单个处理
       if(this.multipleSelection.length !==1){
-        return this.$message.warning('请选择一条未处理数据')
+        return this.$message.warning('请选择告警记录')
       }
       if(this.multipleSelection[0].handleStatus!=='未处理'){
         return this.$message.warning(this.$t('message.selUnprocessed'))

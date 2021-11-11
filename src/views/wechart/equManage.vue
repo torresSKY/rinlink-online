@@ -154,7 +154,9 @@
                 </el-row>
                 <el-pagination
                     @current-change='changeindex'
-                    layout="total,prev, pager, next"
+                    :page-sizes="[20, 100, 500, 1000]"
+                    @size-change='changesize'
+                    layout="total,sizes,prev, pager, next"
                     :current-page.sync="page.index"
                     :page-size="page.size"
                     :total="page.total"
@@ -475,6 +477,11 @@
               <el-col :span='12'>
                 <el-form-item :label="$t('table.SIMcardtype')+'：'"  >
                   <span>{{SIMForm.useStatus}}</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span='24'>
+                <el-form-item label="电话卡号："  >
+                  <span>{{SIMForm.phoneNo}}</span>
                 </el-form-item>
               </el-col>
               <el-col :span='12'>
@@ -1257,10 +1264,10 @@ export default{
           // }
           if(JSON.parse(sessionStorage['user']).userId==this.ownerId){
             this.ownerId = null
-            this.getlist()
+            this.getlist(1)
             return
           }
-          this.getlist()
+          this.getlist(1)
           // api.queryDevices(item,this.type).then(res => {
           //   if(res.success){
           //     this.dataList = res.data
@@ -1841,5 +1848,9 @@ overflow-x: hidden;
     border: 1px solid #4391FE;
     font-weight: bolder;
     color: black;
+}
+/deep/ .el-tree > :nth-child(n+1) {
+  display: inline-block;
+  min-width: 100%
 }
 </style>
